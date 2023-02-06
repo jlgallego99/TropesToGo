@@ -1,10 +1,7 @@
-# Trabajo de Fin de Grado: *Título*
+# Trabajo de Fin de Máster: Scraping de tvtropes.org 
 
-**Este sería el README de tu proyecto. Consulta las [instrucciones de
-instalación](INSTALL.md)
-
-### Autor(a): Nombre
-### Tutor(a)(es): Nombre(s)
+### Autor(a): Jose Luis Gallego Peña
+### Tutor(a)(es): Juan Julián Merelo Guervós
 ___
 
 La documentación de este proyecto está realizada con `LaTeX`, por lo
