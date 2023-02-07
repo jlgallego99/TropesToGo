@@ -309,3 +309,5 @@ typings/
 # emacs
 *~
 
+# Textodite reports
+*.html

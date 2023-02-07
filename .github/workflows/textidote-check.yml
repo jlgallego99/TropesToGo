@@ -1,0 +1,23 @@
+name: Check LaTeX grammar and spelling using Textidote
+on: push
+jobs:
+  textidote_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v2
+      - name: Lint LaTeX document
+        uses: ChiefGokhlayeh/textidote-action@v5.1.0
+        id: lint
+        with:
+            root_file: proyecto.tex
+            working_directory: doc
+            args: --check es --read-all
+      - name: Upload TeXtidote report
+        uses: actions/upload-artifact@v2
+        with:
+            name: textidote_report
+            path: doc/report.html
+      - name: Throw error if linter warnings exist
+        if: ${{ steps.lint.outputs.num_warnings != 0 }}
+        run: 'echo "::error file=main.tex::num_warnings: ${{ steps.lint.outputs.num_warnings }}"; exit 1;'
