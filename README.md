@@ -1,7 +1,7 @@
 # Trabajo de Fin de Máster: Scraping de tvtropes.org 
 
-### Autor(a): Jose Luis Gallego Peña
-### Tutor(a)(es): Juan Julián Merelo Guervós
+### Autor: Jose Luis Gallego Peña
+### Tutor: Juan Julián Merelo Guervós
 ___
 
 La documentación de este proyecto está realizada con `LaTeX`, por lo
@@ -27,7 +27,3 @@ O directamente
     make
     
 (que habrá que editar si el nombre del archivo del proyecto cambia)
-
-# INSTRUCCIONES
-
-Lee [INSTALL.md](INSTALL.md) para las instrucciones de uso.
