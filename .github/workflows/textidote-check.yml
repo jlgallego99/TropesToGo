@@ -9,10 +9,14 @@ jobs:
       - name: Lint LaTeX document
         uses: ChiefGokhlayeh/textidote-action@v5.1.0
         id: lint
+        env:
+          ignore: sh:seclen,sh:stacked,sh:nobreak,sh:nonp
+          removemacros: tableofcontents,listoffigures,listoftables,begin,centeroffset,oddsidemargin,evensidemargin,centering,bfseries,end,cleardoublepage,setlength,texttt,definecolor,titleformat,setcounter
+          allowedwords: ../.github/workflows/allowed-words.txt
         with:
             root_file: proyecto.tex
             working_directory: doc
-            args: --check es --read-all
+            args: --check es --ignore $ignore --remove otherlanguage --remove-macros $removemacros --dict $allowedwords
       - name: Upload TeXtidote report
         uses: actions/upload-artifact@v2
         with:
