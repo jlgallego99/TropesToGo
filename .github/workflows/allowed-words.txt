@@ -2,3 +2,8 @@ issue
 issues
 commit
 commits
+tvtropes
+TvTropes
+scraper
+scraping
+TropesToGo
