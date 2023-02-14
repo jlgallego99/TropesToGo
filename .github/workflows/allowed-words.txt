@@ -7,3 +7,5 @@ TvTropes
 scraper
 scraping
 TropesToGo
+Merelo
+Guervós
