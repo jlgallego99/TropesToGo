@@ -5,6 +5,7 @@ commits
 tvtropes
 TvTropes
 scraper
+scrapers
 scraping
 TropesToGo
 Merelo
