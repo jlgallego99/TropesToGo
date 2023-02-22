@@ -6,7 +6,7 @@ jobs:
     steps:
       - name: Set up Git repository
         uses: actions/checkout@v2
-      - name: Lint LaTeX document
+      - name: Lint spanish LaTeX document
         uses: ChiefGokhlayeh/textidote-action@v5.1.0
         id: lint
         env:
@@ -17,11 +17,20 @@ jobs:
             root_file: proyecto.tex
             working_directory: doc
             args: --check es --ignore $ignore --remove otherlanguage --remove-macros $removemacros --dict $allowedwords
+      - name: Lint english abstract
+        uses: ChiefGokhlayeh/textidote-action@v5.1.0
+        id: lintabstract
+        env:
+          ignore: sh:seclen,sh:stacked,sh:nobreak,sh:nonp
+        with:
+          root_file: english_abstract.tex
+          working_directory: doc/prefacios
+          args: --check en
       - name: Upload TeXtidote report
         uses: actions/upload-artifact@v2
         with:
             name: textidote_report
             path: doc/report.html
       - name: Throw error if linter warnings exist
-        if: ${{ steps.lint.outputs.num_warnings != 0 }}
+        if: ${{ steps.lint.outputs.num_warnings != 0 && steps.lintabstract.outputs.num_warnings != 0 }}
         run: 'echo "::error file=main.tex::num_warnings: ${{ steps.lint.outputs.num_warnings }}"; exit 1;'
