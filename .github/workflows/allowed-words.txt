@@ -12,3 +12,7 @@ Merelo
 Guervós
 milestone
 Telegram
+pull
+push
+request
+PR
