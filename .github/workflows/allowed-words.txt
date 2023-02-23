@@ -11,8 +11,13 @@ TropesToGo
 Merelo
 Guervós
 milestone
+milestones
 Telegram
 pull
 push
 request
 PR
+pipeline
+task
+runner
+framework

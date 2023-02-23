@@ -34,6 +34,23 @@ Como podemos ver, mediante GitHub se tiene en un mismo sitio todo lo necesario p
 \subsection{Hitos}
 Los hitos o milestones representan cada uno de los estados en los que va a ir evolucionando la aplicación, conformando un Producto Mínimamente Viable. Cada PMV se construye encima de los anteriores, por lo que no se avanza en el desarrollo hasta que un hito quede completo en su totalidad. Este se considera como completado una vez se hayan resuelto todas sus tareas asociadas, o issues de GitHub.
 
+Los hitos definidos para el desarrollo son los siguientes:
+
+\subsubsection{M0. Configuración inicial - Objetivos, metodología e infraestructura}
+En este milestone se pretende abordar toda la planificación inicial del proyecto, incluyendo los primeros capítulos de la documentación con la descripción, motivación, objetivos, metodología a seguir, historias de usuario y estado del arte.
+
+El objetivo es tener una configuración inicial del repositorio, configurando el comprobador ortográfico para la documentación, eligiendo el lenguaje de programación que se va a usar, el task runner, los sistemas de CI y preparando todos los issues, historias de usuario y milestones en el propio repositorio.
+
+Esta iteración se desarrolla entre el \textbf{06/02/23} y el \textbf{07/03/23}, teniendo una duración completa de un mes.
+\subsubsection{M1. Extracción básica de tropos de películas}
+El objetivo principal de este hito es tener una versión básica y funcional del scraper que extrajese información básica sobre las películas únicamente. Se busca desarrollar las clases y módulos necesarios que contengan la funcionalidad necesaria para extraer todas las películas existentes en TvTropes y sus tropos asociados, integrar el código en un framework de test y probar todas las funcionalidades desarrolladas.
+
+\subsubsection{M2. Extracción de tropos de todos los tipos de medios audiovisuales}
+Una vez habiendo extraido la información sobre tropos de películas, este hito construye sobre el anterior ampliando el scraper para que ahora saque información de todos los tipos de medios audiovisuales existentes en TvTropes, testeando todas las funcionalidades desarrolladas.
+
+\subsubsection{M3. Integración con IMDB y extracción de metadatos}
+Una vez teniendo un scraper de TvTropes completamente funcional, se amplía el producto para que todos los medios audiovisuales extraídos se puedan relacionar con su ficha correspondiente en IMDB y otras diversas fuentes de datos sobre obras audiovisuales, añadiendo a la información los metadatos de cada medio, testeando todas las funcionalidades desarrolladas.
+
 \subsection{Desarrollo dirigido por pruebas}
 
 \subsection{Integración continua}
