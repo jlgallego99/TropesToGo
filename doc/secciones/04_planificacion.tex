@@ -1,9 +1,21 @@
 \chapter{Planificación}
+En este capítulo se especifica la metodología de desarrollo que se ha utilizado para guiar el completo desarrollo del trabajo, indicando la planificación temporal, historias de usuario e hitos que han servido para saber en todo momento el estado del desarrollo, con el objetivo de garantizar la calidad del proyecto y que se cumplan sus objetivos correctamente.
 
 \section{Metodología utilizada}
+Todo el proyecto, desde su concepción, se ha planteado siguiendo una metodología de desarrollo ágil que siga los principios del manifiesto ágil \cite{agilemanifesto}. El principal objetivo al seguir una metodología ágil es el de asegurar un desarrollo flexible, ágil, centrado en las necesidades de los usuarios a los que se desarrolla el software y en el que exista una tolerancia al cambio.
 
+\begin{itemize}
+    \item El desarrollo es iterativo e incremental, en el cual se definen una serie de hitos (o entregables) que conforman un Producto Mínimamente Viable (PMV). Este PMV conforma una parte de la funcionalidad total que se quiere tener al final para cumplir los objetivos especificados, y los tests se asegurarán de que sea completamente funcional, garantizando su calidad.
+    \item El desarrollo está organizado por una serie de historias de usuario que definen de forma precisa y adecuada el funcionamiento del software y cómo organizar el desarrollo del mismo, siempre desde el punto de si satisfacen al usuario, que es para quien se desarrolla.
+    \item Durante todo el desarrollo se acepta que surjan problemas o nuevos requisitos, que se documentarán adecuadamente y se incorporarán a la planificación en mitad del desarrollo para adaptarse a esos cambios lo antes posible y siempre cumplir las necesidades de los usuarios.
+    \item Se busca siempre la calidad del software, usando para ello las mejores prácticas del lenguaje tanto en código como en su documentación, teniendo que estar todo debidamente testeado. Se va a desarrollar una herramienta que en última instancia usarán usuarios reales y estos deben obtener el mejor producto posible.
+\end{itemize}
 
-\section{Temporización}
+Este tipo de desarrollo se adapta bien a un proyecto como este, en el que pueden ir surgiendo necesidades conforme se vaya desarrollando el scraper puesto que es un problema del cual no se sabe desde el principio todas las necesidades que va a plantear debido a la complejidad de la web de TvTropes y a la de las propias herramientas de scraping. Por tanto, esta metodología permite que los problemas que puedan surgir en medio del desarrollo se aborden a tiempo, documentándolos correctamente y sabiendo en todo momento qué se ha hecho, cual es el estado del desarrollo del proyecto, qué hacer y cómo hacerlo.
+
+Con el propósito de cumplir correctamente todos los principios de una buena metodología ágil se hacen uso de varias herramientas que facilitan el desarrollo y que se describen a continuación.
+
+\subsection{Uso de GitHub en la metodología}
 
 \section{Usuarios o partes interesadas}
 Antes de definir las historias de usuario, se han analizado los usuarios o partes interesadas en el proyecto, para enfocar el proyecto en resolver sus problemas. Son los siguientes:
@@ -28,3 +40,13 @@ Como investigador necesito obtener información de metadatos sobre cualquier med
 Como investigador quiero que la información de tropos que obtenga esté lo más actualizada posible, sepa cuándo se ha extraído y pueda actualizarla cuando quiera para traer la nueva información que pueda existir.
 
 \section{Seguimiento del desarrollo}
+
+\subsection{Hitos}
+Los hitos o milestones representan cada uno de los estados en los que va a ir evolucionando la aplicación, conformando un Producto Mínimamente Viable. Cada PMV se construye encima de los anteriores, por lo que no se avanza en el desarrollo hasta que un hito quede completo en su totalidad. Este se considera como completado una vez se hayan resuelto todas sus tareas asociadas, o issues de GitHub.
+
+\subsection{Desarrollo dirigido por pruebas}
+
+\section{Temporización}
+Una vez vistos los hitos que se esperan alcanzar en el desarrollo, los cuales conformarían cada uno un sprint con una fecha de inicio y de fin, podemos representar la temporización de todo el desarrollo en un diagrama de Gantt.
+
+A lo largo de todo el desarrollo se ha ido manteniendo contacto con el tutor tanto en tutorías presenciales como mediante mensajes por Telegram y GitHub para transmitir y resolver todas las dudas que han ido surgiendo, tanto del código como del propio documento.

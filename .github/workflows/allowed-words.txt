@@ -10,3 +10,5 @@ scraping
 TropesToGo
 Merelo
 Guervós
+milestone
+Telegram
