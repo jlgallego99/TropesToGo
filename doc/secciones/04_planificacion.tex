@@ -1,5 +1,5 @@
 \chapter{Planificación}
-En este capítulo se especifica la metodología de desarrollo que se ha utilizado para guiar el completo desarrollo del trabajo, indicando la planificación temporal, historias de usuario e hitos que han servido para saber en todo momento el estado del desarrollo, con el objetivo de garantizar la calidad del proyecto y que se cumplan sus objetivos correctamente.
+En este capítulo se especifica la metodología de desarrollo que se ha utilizado para guiar el completo desarrollo del trabajo, indicando la planificación temporal, historias de usuario e hitos que han servido para saber en todo momento el estado del desarrollo, con el objetivo de garantizar la calidad del proyecto y que se cumplan sus objetivos correctamente para satisfacer al usuario.
 
 \section{Metodología de desarrollo}
 Todo el proyecto, desde su concepción, se ha planteado siguiendo una metodología de desarrollo ágil que siga los principios del manifiesto ágil \cite{agilemanifesto}. El principal objetivo al seguir una metodología ágil es el de asegurar un desarrollo flexible, ágil, centrado en las necesidades de los usuarios a los que se desarrolla el software y en el que exista una tolerancia al cambio.
@@ -32,9 +32,11 @@ Sin embargo, lo más importante es que se guía todo el proceso de desarrollo me
 Como podemos ver, mediante GitHub se tiene en un mismo sitio todo lo necesario para el desarrollo: código, documentación y seguimiento del desarrollo para saber siempre el trabajo que se tiene que hacer y poder avanzar de una forma más cómoda en alcanzar los objetivos y satisfacer al usuario.
 
 \subsection{Hitos}
-Los hitos o milestones representan cada uno de los estados en los que va a ir evolucionando la aplicación, conformando un Producto Mínimamente Viable. Cada PMV se construye encima de los anteriores, por lo que no se avanza en el desarrollo hasta que un hito quede completo en su totalidad. Este se considera como completado una vez se hayan resuelto todas sus tareas asociadas, o issues de GitHub.
+Los hitos o milestones representan cada uno de los estados en los que va a ir evolucionando la aplicación, conformando un Producto Mínimamente Viable. Cada PMV se construye encima de los anteriores, por lo que no se avanza en el desarrollo hasta que un hito quede completo en su totalidad. Este se considera como completado una vez se hayan resuelto todas sus tareas asociadas, o issues de GitHub. 
 
-Los hitos definidos para el desarrollo son los siguientes:
+Cada hito equivaldría a un sprint, puesto que son ciclos de ejecución cortos (de máximo 4 semanas) con una serie de historias de usuario y tareas definidas que se deben completar en un periodo de tiempo y cuyo objetivo es conseguir un incremento de valor en el producto que se está construyendo, es decir, un PMV.
+
+Los hitos planificados para el desarrollo son los siguientes:
 
 \subsubsection{M0. Configuración inicial - Objetivos, metodología e infraestructura}
 En este milestone se pretende abordar toda la planificación inicial del proyecto, incluyendo los primeros capítulos de la documentación con la descripción, motivación, objetivos, metodología a seguir, historias de usuario y estado del arte.
@@ -52,8 +54,20 @@ Una vez habiendo extraído la información sobre tropos de películas, este hito
 Una vez teniendo un scraper de TvTropes completamente funcional, se amplía el producto para que todos los medios audiovisuales extraídos se puedan relacionar con su ficha correspondiente en IMDB y otras diversas fuentes de datos sobre obras audiovisuales, añadiendo a la información los metadatos de cada medio, testeando todas las funcionalidades desarrolladas.
 
 \subsection{Desarrollo dirigido por pruebas}
+El desarrollo dirigido por pruebas (TDD, de sus siglas en inglés \textit{Test Driven Development}) es una de las principales y más importantes prácticas en el marco de las metodologías ágiles para garantizar la calidad del software. Se trabaja bajo la idea de que cualquier código que no esté testeado no es correcto, es propenso a fallos y, por tanto, todo el código debe estar testeado para asegurar su buen funcionamiento y su calidad.
+
+El objetivo del TDD es conseguir código limpio que funcione. Esto permite desarrollar de forma predecible sabiendo siempre en qué momento se ha terminado de desarrollar una tarea, ya que, esta está testeada y da espacio a analizar bien el código, puesto que no basta solo con desarrollar una función, sino que hay que estudiar bien su funcionamiento para detectar todos los casos límite y probarlos. Además, tal y como se busca en las metodologías ágiles, el objetivo de TDD es mejorar las vidas de los usuarios que usan el software \cite{beck2002driven}.
+
+Un código bien testeado se adapta a la filosofía de cambio de las metodologías ágiles, ya que, el reducir el riesgo implica que el coste de abordar problemas o nuevas mejoras al desarrollo es menor y puede suceder más frecuentemente.\\
+
+La filosofía que se sigue a la hora de desarrollar tests es que estos son automáticos y se desarrollan continuamente y siempre a la vez que el código. La principal ventaja de esto es que ayuda a desarrollar bien el propio código al tener en mente que los componentes que se desarrollan deben ser cohesivos y tener un bajo acoplamiento para que escribir los propios tests sea una tarea fácil.
+
+Al desarrollar tests se sigue el \textit{mantra de TDD}, un orden definido por Kent Beck \cite{beck2002driven} que consiste en: primero, hacer un test básico que no funcione o no compile; segundo, arreglar el test para que funcione de la forma más básica; y tercero, refactorizar y mejorar tanto el test como el código sin cambiar la funcionalidad consiguiendo un código más simple y limpio. Todo este proceso sigue la misma filosofía iterativa e incremental que la metodología ágil que se usa en todo el desarrollo.\\
+
+Por último, el desarrollo de los tests es también documentación, estando dentro del propio lenguaje de programación. Los tests deberán ser legibles y entendibles, centrándose en el comportamiento de las funcionalidades que evalúan y, por tanto, permitirán expresar una correlación más directa con las historias de usuario y la lógica de negocio.
 
 \subsection{Integración continua}
+La integración continua es 
 
 \section{Usuarios o partes interesadas}
 Antes de definir las historias de usuario, se han analizado los usuarios o partes interesadas en el proyecto, para enfocar el proyecto en resolver sus problemas. Son los siguientes:
@@ -75,7 +89,7 @@ Como investigador necesito poder elegir qué parte de la información sobre trop
 Como investigador necesito obtener información de metadatos sobre cualquier medio audiovisual, para lo cual necesito que los medios audiovisuales de los cuales se han sacado sus tropos se puedan relacionar con su ficha en IMDB.
 
 \subsection{[HU04] Investigador - Información actualizada}
-Como investigador quiero que la información de tropos que obtenga esté lo más actualizada posible, sepa cuándo se ha extraído y pueda actualizarla cuando quiera para traer la nueva información que pueda existir.
+Como investigador quiero que la información de tropos que obtenga esté lo más actualizada posible, sepa cuándo se ha extraído y pueda obtenerla actualizada cuando quiera para traer la nueva información que pueda existir.
 
 \section{Temporización}
 Una vez vistos los hitos que se esperan alcanzar en el desarrollo, los cuales conformarían cada uno un sprint con una fecha de inicio y de fin, podemos representar la temporización de todo el desarrollo en un diagrama de Gantt.
