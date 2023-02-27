@@ -1,3 +1,5 @@
+go
+Go
 issue
 issues
 commit
@@ -19,13 +21,20 @@ request
 PR
 pipeline
 task
+Task
 runner
+Runner
+Framework
 framework
 Git
 Gantt
 TDD
 Test
 test
+testing
 Driven
 Development
 refactorizar
+Tropescraper
+tropescraper
+DBTropes
