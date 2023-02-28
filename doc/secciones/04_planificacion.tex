@@ -67,7 +67,13 @@ Al desarrollar tests se sigue el \textit{mantra de TDD}, un orden definido por K
 Por último, el desarrollo de los tests es también documentación, estando dentro del propio lenguaje de programación. Los tests deberán ser legibles y entendibles, centrándose en el comportamiento de las funcionalidades que evalúan y, por tanto, permitirán expresar una correlación más directa con las historias de usuario y la lógica de negocio.
 
 \subsection{Integración continua}
-La integración continua es 
+La integración continua (CI, del inglés \textit{Continuous Integration}) es otra práctica muy importante que se aplica en las metodologías ágiles y que está estrechamente relacionada con la idea de cambio y de tener todo el código en un repositorio central como el que se ha especificado. Las herramientas de integración continua realizan comprobaciones automáticas sobre el código fuente como paso previo al despliegue y crean algo ejecutable según las especificaciones que se les dé, ya sea para crear un ejecutable del software, un test, un documento, un reporte, etc. En general se hace referencia a cualquier proceso que automatice la construcción de una aplicación.\\
+
+En este proyecto se usan los sistemas de integración continua para automatizar la ejecución de los tests y para comprobar ortográfica y gramaticalmente la documentación al subir cambios a la rama principal, asegurando así la calidad del software, ya que, todo el código que se tenga en producción estará testeado. Esto además dota de agilidad al desarrollo, siguiendo con las mismas ideas de metodologías ágiles, puesto que se tiene feedback en todo momento sobre el estado de producción del código.
+
+La razón de que se ejecuten estos sistemas para la rama principal es porque en este proyecto se están desarrollando distintos productos mínimamente viables que solamente estarán en la rama principal cuando se completen, y cuando no lo estén se estarán desarrollando en alguna de las distintas ramas de desarrollo correspondientes a cada hito, en la que no es necesario estar constantemente ejecutando la integración continua. De esta manera aseguramos que todo el código que esté en producción sea correcto porque ha pasado los tests automáticamente.\\
+
+Todos los sistemas de integración continua que se configuren se harán con GitHub Actions para seguir con la idea de centralizar todo el desarrollo en el repositorio de GitHub.
 
 \section{Usuarios o partes interesadas}
 Antes de definir las historias de usuario, se han analizado los usuarios o partes interesadas en el proyecto, para enfocar el proyecto en resolver sus problemas. Son los siguientes:
