@@ -41,3 +41,4 @@ DBTropes
 Actions
 Continuous
 Integration
+GPLv3
