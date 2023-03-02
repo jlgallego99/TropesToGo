@@ -38,3 +38,7 @@ refactorizar
 Tropescraper
 tropescraper
 DBTropes
+Actions
+Continuous
+Integration
+GPLv3

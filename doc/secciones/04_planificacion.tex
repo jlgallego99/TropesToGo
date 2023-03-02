@@ -13,7 +13,7 @@ Todo el proyecto, desde su concepción, se ha planteado siguiendo una metodolog�
 
 Este tipo de desarrollo se adapta bien a un proyecto como este, en el que pueden ir surgiendo necesidades conforme se vaya desarrollando el scraper, puesto que es un problema del cual no se sabe desde el principio todas las necesidades que va a plantear debido a la complejidad de la web de TvTropes y a la de las propias herramientas de scraping. Por tanto, esta metodología permite que los problemas que puedan surgir en medio del desarrollo se aborden a tiempo, documentándolos correctamente y sabiendo en todo momento qué se ha hecho, cuál es el estado del desarrollo del proyecto, qué hacer y cómo hacerlo.
 
-Con el propósito de cumplir correctamente todos los principios ágiles que se han definido se emplean varias herramientas para el seguimiento del desarrollo y que se describen a continuación.
+Con el propósito de cumplir correctamente todos los principios ágiles que se han definido se emplean varias herramientas y buenas prácticas para el seguimiento del desarrollo y que se describen a continuación.
 
 \section{Seguimiento del desarrollo}
 \subsection{GitHub}
@@ -29,7 +29,7 @@ Sin embargo, lo más importante es que se guía todo el proceso de desarrollo me
     El código se desarrolla en ramas separadas a la principal, que hacen referencia a cada hito que se quiere alcanzar. Cada vez que se complete una tarea de desarrollo se hará un pull request a la rama principal, y si pasa los flujos de CI configurados (los cuales se explicarán en próximas secciones) entonces se dará la tarea por completada y se tendrá una nueva versión funcional en la rama principal. 
 \end{itemize}
 
-Como podemos ver, mediante GitHub se tiene en un mismo sitio todo lo necesario para el desarrollo: código, documentación y seguimiento del desarrollo para saber siempre el trabajo que se tiene que hacer y poder avanzar de una forma más cómoda en alcanzar los objetivos y satisfacer al usuario.
+Como podemos ver, mediante GitHub se tiene en un mismo sitio todo lo necesario para el desarrollo: código, documentación y seguimiento del desarrollo para saber siempre el trabajo que se tiene que hacer y poder avanzar de una forma más cómoda en alcanzar los objetivos y satisfacer al usuario. 
 
 \subsection{Hitos}
 Los hitos o milestones representan cada uno de los estados en los que va a ir evolucionando la aplicación, conformando un Producto Mínimamente Viable. Cada PMV se construye encima de los anteriores, por lo que no se avanza en el desarrollo hasta que un hito quede completo en su totalidad. Este se considera como completado una vez se hayan resuelto todas sus tareas asociadas, o issues de GitHub. 
@@ -67,17 +67,23 @@ Al desarrollar tests se sigue el \textit{mantra de TDD}, un orden definido por K
 Por último, el desarrollo de los tests es también documentación, estando dentro del propio lenguaje de programación. Los tests deberán ser legibles y entendibles, centrándose en el comportamiento de las funcionalidades que evalúan y, por tanto, permitirán expresar una correlación más directa con las historias de usuario y la lógica de negocio.
 
 \subsection{Integración continua}
-La integración continua es 
+La integración continua (CI, del inglés \textit{Continuous Integration}) es otra práctica muy importante que se aplica en las metodologías ágiles y que está estrechamente relacionada con la idea de cambio y de tener todo el código en un repositorio central como el que se ha especificado. Las herramientas de integración continua realizan comprobaciones automáticas sobre el código fuente como paso previo al despliegue y crean algo ejecutable según las especificaciones que se les dé, ya sea para crear un ejecutable del software, un test, un documento, un reporte, etc. En general se hace referencia a cualquier proceso que automatice la construcción de una aplicación.\\
+
+En este proyecto se usan los sistemas de integración continua para automatizar la ejecución de los tests y para comprobar ortográfica y gramaticalmente la documentación al subir cambios a la rama principal, asegurando así la calidad del software, ya que, todo el código que se tenga en producción estará testeado. Esto además dota de agilidad al desarrollo, siguiendo con las mismas ideas de metodologías ágiles, puesto que se tiene feedback en todo momento sobre el estado de producción del código.
+
+La razón de que se ejecuten estos sistemas para la rama principal es porque en este proyecto se están desarrollando distintos productos mínimamente viables que solamente estarán en la rama principal cuando se completen, y cuando no lo estén se estarán desarrollando en alguna de las distintas ramas de desarrollo correspondientes a cada hito, en la que no es necesario estar constantemente ejecutando la integración continua. De esta manera aseguramos que todo el código que esté en producción sea correcto porque ha pasado los tests automáticamente.\\
+
+Todos los sistemas de integración continua que se configuren se harán con GitHub Actions para seguir con la idea de centralizar todo el desarrollo en el repositorio de GitHub.
 
 \section{Usuarios o partes interesadas}
-Antes de definir las historias de usuario, se han analizado los usuarios o partes interesadas en el proyecto, para enfocar el proyecto en resolver sus problemas. Son los siguientes:
+Antes de definir las historias de usuario se han analizado los usuarios o partes interesadas en el proyecto para enfocarlo en resolver sus problemas. Son los siguientes:
 \begin{itemize}
     \item \textbf{Tribunal}: el tribunal es el encargado de valorar este trabajo de fin de máster y, por tanto, busca que tenga una memoria bien redactada con todo el proceso de estudio, análisis y desarrollo del proyecto.
     \item \textbf{Investigador}: el investigador, o analista de datos, necesita tener la información estructurada de los tropos para construir modelos que le permitan hacer inferencias sobre las relaciones que tienen los tropos entre sí y llegar a conclusiones que sirvan para su investigación.
 \end{itemize}
 
 \section{Historias de usuario}
-Sabiendo el problema que se quiere resolver, y las partes interesadas, se pueden definir las historias de usuario que guiarán todo el desarrollo de principio a fin, guiando las decisiones que se irán tomando para llegar a cumplir los objetivos.
+Sabiendo el problema que se quiere resolver y las partes interesadas se pueden definir las historias de usuario que guiarán todo el desarrollo de principio a fin, ayudando en la toma de decisiones para llegar a cumplir los objetivos.
 
 \subsection{[HU01] Investigador - Obtener información estructurada sobre todos los tropos}
 Como investigador necesito poder obtener información estructurada sobre todos los tropos existentes de cualquier tipo de medio audiovisual, en un formato estandarizado y con una estructura definida para que sean de fácil acceso tanto a humanos como programas para su análisis.
