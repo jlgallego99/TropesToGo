@@ -39,19 +39,29 @@ Cada hito equivaldría a un sprint, puesto que son ciclos de ejecución cortos (
 Los hitos planificados para el desarrollo son los siguientes:
 
 \subsubsection{M0. Configuración inicial - Objetivos, metodología e infraestructura}
-En este milestone se pretende abordar toda la planificación inicial del proyecto, incluyendo los primeros capítulos de la documentación con la descripción, motivación, objetivos, metodología a seguir, historias de usuario y estado del arte.
-
-El objetivo es tener una configuración inicial del repositorio, configurando el comprobador ortográfico para la documentación, eligiendo el lenguaje de programación que se va a usar, el task runner, los sistemas de CI y preparando todos los issues, historias de usuario y milestones en el propio repositorio.
+En este primer hito se pretende abordar toda la planificación inicial y preparación del proyecto. Como producto al final de este hito se definirán los hitos iniciales del proyecto y se tendrán escritos los capítulos 1, 2, 3 y 4 de la documentación en los cuales se abordará la descripción del problema a resolver, el estado del arte y todo la metodología a seguir durante el proyecto. También se tendrá configurado el repositorio con un comprobador ortográfico para la documentación, un gestor de tareas, los sistemas de CI y los issues, historias de usuario y milestones en el propio repositorio.\\
 
 Esta iteración se desarrolla entre el \textbf{06/02/23} y el \textbf{07/03/23}, teniendo una duración completa de un mes.
-\subsubsection{M1. Extracción básica de tropos de películas}
-El objetivo principal de este hito es tener una versión básica y funcional del scraper que extrajese información básica sobre las películas únicamente. Se busca desarrollar las clases y módulos necesarios que contengan la funcionalidad necesaria para extraer todas las películas existentes en TvTropes y sus tropos asociados, integrar el código en un framework de test y probar todas las funcionalidades desarrolladas.
+\subsubsection{M1. Modelización del problema}
+Se obtendrá un producto mínimamente viable con el el capítulo 5 de la documentación, describiendo un modelo del problema para resolver la extracción de los tropos asociados a películas.\\
 
-\subsubsection{M2. Extracción de tropos de todos los tipos de medios audiovisuales}
-Una vez habiendo extraído la información sobre tropos de películas, este hito construye sobre el anterior ampliando el scraper para que ahora saque información de todos los tipos de medios audiovisuales existentes en TvTropes, testeando todas las funcionalidades desarrolladas.
+Esta iteración se desarrolla entre el \textbf{08/03/23} y el \textbf{22/03/23}, teniendo una duración completa de dos semanas.
+\subsubsection{M2. Extracción de tropos de películas}
+Con este hito se comienza el desarrollo del software. Se producirá un producto mínimamente viable con una primera versión del scraper que extraiga toda la información sobre tropos de un solo medio audiovisual (películas) y la represente en un formato de datos estándar.
 
-\subsubsection{M3. Integración con IMDB y extracción de metadatos}
-Una vez teniendo un scraper de TvTropes completamente funcional, se amplía el producto para que todos los medios audiovisuales extraídos se puedan relacionar con su ficha correspondiente en IMDB y otras diversas fuentes de datos sobre obras audiovisuales, añadiendo a la información los metadatos de cada medio, testeando todas las funcionalidades desarrolladas.
+Esta iteración se desarrolla entre el \textbf{23/02/23} y el \textbf{20/04/23}, teniendo una duración completa de un mes.
+
+\subsubsection{M3. Aplicación de línea de comandos}
+Este hito está enfocado en que el usuario final pueda usar el scraper. El objetivo es obtener una aplicación de línea de comandos (CMD) que un usuario pueda instalar y le facilite la interacción con el scraper, pudiendo obtener la información de tropos completa o parcial según varias opciones y elegir entre diferentes formatos de representación en los que obtener los datos.
+
+\subsubsection{M4. Actualización periódica de los datos}
+Se obtendrá una aplicación de línea de comandos para interaccionar con el scraper la cual actualice la información de tropos automáticamente de forma periodica para que estos datos estén siempre actualizados. 
+
+\subsubsection{M5. Integración con IMDB y extracción de metadatos}
+Como producto de este hito el scraper será capaz de reconocer la información no estructurada de la página de TvTropes de un medio audiovisual, como el año de lanzamiento, añadiendo a los datos obtenidos nuevos campos de metadatos para así poder identificar cada película extraída con su ficha en IMDB.
+
+\subsubsection{M6. Extracción de tropos de videojuegos, libros y series}
+Como producto de este hito se tendrá una aplicación en línea de comandos que, además de obtener la información de tropos de películas, permita también obtener información de tropos de otros medios audiovisuales existentes en TvTropes como series, videojuegos o libros.
 
 \subsection{Desarrollo dirigido por pruebas}
 El desarrollo dirigido por pruebas (TDD, de sus siglas en inglés \textit{Test Driven Development}) es una de las principales y más importantes prácticas en el marco de las metodologías ágiles para garantizar la calidad del software. Se trabaja bajo la idea de que cualquier código que no esté testeado no es correcto, es propenso a fallos y, por tanto, todo el código debe estar testeado para asegurar su buen funcionamiento y su calidad.
