@@ -38,8 +38,17 @@ refactorizar
 Tropescraper
 tropescraper
 DBTropes
+PicTropes
 Actions
 Continuous
 Integration
 GPLv3
 release
+markdown
+make
+Make
+Makefile
+Mask
+CLI
+YAML
+Realize

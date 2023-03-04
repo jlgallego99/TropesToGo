@@ -87,6 +87,8 @@ La razón de que se ejecuten estos sistemas para la rama principal es porque en 
 
 Todos los sistemas de integración continua que se configuren se harán con GitHub Actions para seguir con la idea de centralizar todo el desarrollo en el repositorio de GitHub.
 
+\subsection{Infraestructura como código}
+
 \section{Usuarios o partes interesadas}
 Antes de definir las historias de usuario se han analizado los usuarios o partes interesadas en el proyecto para enfocarlo en resolver sus problemas. Son los siguientes:
 \begin{itemize}
@@ -113,3 +115,26 @@ Como investigador quiero que la información de tropos que obtenga esté lo más
 Una vez vistos los hitos que se esperan alcanzar en el desarrollo, los cuales conformarían cada uno un sprint con una fecha de inicio y de fin, podemos representar la temporización de todo el desarrollo en un diagrama de Gantt.
 
 A lo largo de todo el desarrollo se ha ido manteniendo contacto con el tutor tanto en tutorías presenciales como mediante mensajes por Telegram y GitHub para transmitir y resolver todas las dudas que han ido surgiendo, tanto del código como del propio documento.
+
+\section{Elección de herramientas para el desarrollo}
+Al llevar un proyecto de ingeniería del software a la práctica, en el cual se tiene como primer objetivo la calidad, se requieren herramientas para poder llevar a cabo todas las buenas prácticas descritas a lo largo de este capítulo. 
+
+Es por esto que por último se comentarán todas las herramientas que se van a utilizar tanto para desarrollar el propio software como para tener un buen ecosistema de desarrollo en el repositorio de GitHub y cumplir con las buenas prácticas que se han descrito en las secciones anteriores. Se justifica la elección de cada una comparando entre varias alternativas y teniendo siempre la calidad como criterio más importante para elegir la más adecuada.
+
+\subsection{Lenguaje de programación}
+
+\subsection{Gestor de tareas}
+Dentro de los procesos de calidad del software entran los gestores de tareas, que facilitan la automatización del resto de tareas del proyecto: instalación de dependencias, ejecución de tests, compilación del código y documentación, etc. Esta automatización garantiza que estas tareas se ejecuten con agilidad y se puedan replicar en cualquier otro sistema fácilmente, ya que estarán descritas en un fichero de configuración siguiendo la filosofía de la infraestructura como código.
+
+Existen multitud de gestores de tareas para proyectos, muchos de ellos aptos para cualquier lenguaje de programación y con su propio modo de describir y ejecutar tareas. Uno de los más destacables, y el cual se ha escogido para este desarrollo, es \textit{Mask}\footnote{\url{https://github.com/jacobdeichert/mask}}, el cual sigue teniendo soporte a día de hoy y está en constante desarrollo. Su principal ventaja es que aprenderlo implica poder usar este mismo gestor en cualquier otro proyecto independientemente del lenguaje que use, además de que el propio fichero de descripción de tareas, al estar escrito en markdown, es a la vez legible para humanos y ejecutable por el programa gestor de tareas lo cual es una manera muy inteligente de combinar documentación y ejecución de tareas.
+
+Al hablar de gestores de tareas el primero en el que se suele pensar es en \textit{make}, el cual es una herramienta muy utilizada en cualquier ámbito de la informática. Sin embargo, se ha optado por uno más sencillo y más moderno como Mask, que además tiene la ventaja de que es autodescriptivo, a diferencia de make cuyo fichero de configuración suele ser bastante complicado de entender a primera vista y no se puede saber fácilmente cuáles son las tareas que tiene definidas. Aún teniendo en cuenta esto, se emplea make en una parte del proyecto dejándolo para la compilación de la documentación en LaTeX, puesto que, es más fácil gestionar la compilación de algo que tiene tantos ficheros usando las variables especiales de make. El gestor de tareas Mask ejecutará con una orden el Makefile encargado de compilar el documento.
+
+Se han estudiado otros más modernos como \textit{Task}\footnote{\url{https://github.com/go-task/task}} un gestor de tareas muy simple que se define a sí mismo como una alternativa más fácil a make, el cual es interesante porque está escrito en Go, el mismo lenguaje con el que se escribirá el software de este proyecto. Tiene una sintaxis simple con ficheros en formato YAML, el cual tiene la ventaja de que es un formato muy utilizado en infraestructura como código. Se ha descartado porque no aporta tanta legibilidad como Mask, sin embargo, es una opción muy buena para proyectos en Go.
+
+Por último también se ha visto Realize\footnote{\url{https://github.com/oxequa/realize}}, un gestor de tareas para Go que también usa ficheros de configuración en formato YAML. Con él se pueden gestionar múltiples proyectos a la vez y, puesto que está hecho para Go, tiene en cuenta todos los comandos CLI del lenguaje para generar tareas asociadas. Se ha descartado por las mismas razones que Task, además de que sus ficheros de configuración son demasiado largos, no tiene demasiada documentación, y el proyecto parece abandonado viendo que el último commit en el repositorio es de hace tres años y la última release es de hace cinco. Es por esto que no sería lo más ideal usarlo, ya que, podría tener bugs o problemas para los que no haya soporte.
+
+\subsection{Framework de testing}
+\subsection{Sistema de integración continua}
+\subsection{Bibliotecas de scraping en Go}
+El uso de una buena biblioteca de scraping permite reducir varios de los problemas que pueden surgir en esta disciplina.
