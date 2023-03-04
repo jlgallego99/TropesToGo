@@ -32,9 +32,11 @@ Sin embargo, lo más importante es que se guía todo el proceso de desarrollo me
 Como podemos ver, mediante GitHub se tiene en un mismo sitio todo lo necesario para el desarrollo: código, documentación y seguimiento del desarrollo para saber siempre el trabajo que se tiene que hacer y poder avanzar de una forma más cómoda en alcanzar los objetivos y satisfacer al usuario. 
 
 \subsection{Hitos}
-Los hitos o milestones representan cada uno de los estados en los que va a ir evolucionando la aplicación, conformando un Producto Mínimamente Viable. Cada PMV se construye encima de los anteriores, por lo que no se avanza en el desarrollo hasta que un hito quede completo en su totalidad. Este se considera como completado una vez se hayan resuelto todas sus tareas asociadas, o issues de GitHub. 
+Los hitos o milestones representan cada uno de los estados en los que va a ir evolucionando la aplicación, conformando un Producto Mínimamente Viable. Cada PMV se construye encima de los anteriores, por lo que no se avanza en el desarrollo hasta que un hito quede completo en su totalidad. 
 
 Cada hito equivaldría a un sprint, puesto que son ciclos de ejecución cortos (de máximo 4 semanas) con una serie de historias de usuario y tareas definidas que se deben completar en un periodo de tiempo y cuyo objetivo es conseguir un incremento de valor en el producto que se está construyendo, es decir, un PMV.
+
+Cada milestone se considera como completado una vez se hayan resuelto todas sus tareas asociadas, o issues de GitHub, y al terminarlo y subir sus cambios a la rama principal (tras un pull request que haya sido aprobado por los flujos de CI y el tutor) se lanzará un nuevo release, es decir, el propio incremento del producto que tendrá un número de versión asociado siguiendo la nomenclatura del versionado semántico\footnote{\url{https://semver.org/}}.
 
 Los hitos planificados para el desarrollo son los siguientes:
 
@@ -51,17 +53,17 @@ Con este hito se comienza el desarrollo del software. Se producirá un producto 
 
 Esta iteración se desarrolla entre el \textbf{23/02/23} y el \textbf{20/04/23}, teniendo una duración completa de un mes.
 
-\subsubsection{M3. Aplicación de línea de comandos}
+\subsubsection{M3. Extracción de tropos de videojuegos, libros y series}
+Como producto de este hito se tendrá un scraper que, además de obtener la información de tropos de películas, permita también obtener información de tropos de otros medios audiovisuales existentes en TvTropes como series, videojuegos o libros.
+
+\subsubsection{M4. Aplicación de línea de comandos}
 Este hito está enfocado en que el usuario final pueda usar el scraper. El objetivo es obtener una aplicación de línea de comandos (CMD) que un usuario pueda instalar y le facilite la interacción con el scraper, pudiendo obtener la información de tropos completa o parcial según varias opciones y elegir entre diferentes formatos de representación en los que obtener los datos.
 
-\subsubsection{M4. Actualización periódica de los datos}
+\subsubsection{M5. Actualización periódica de los datos}
 Se obtendrá una aplicación de línea de comandos para interaccionar con el scraper la cual actualice la información de tropos automáticamente de forma periódica para que estos datos estén siempre actualizados. 
 
-\subsubsection{M5. Integración con IMDB y extracción de metadatos}
-Como producto de este hito el scraper será capaz de reconocer la información no estructurada de la página de TvTropes de un medio audiovisual, como el año de lanzamiento, añadiendo a los datos obtenidos nuevos campos de metadatos para así poder identificar cada película extraída con su ficha en IMDB.
-
-\subsubsection{M6. Extracción de tropos de videojuegos, libros y series}
-Como producto de este hito se tendrá una aplicación en línea de comandos que, además de obtener la información de tropos de películas, permita también obtener información de tropos de otros medios audiovisuales existentes en TvTropes como series, videojuegos o libros.
+\subsubsection{M6. Integración con fuentes de datos externas y extracción de metadatos}
+Como producto de este hito el scraper será capaz de identificar qué medio audiovisual de cualquier otra fuente de datos externa corresponde al que se ha detectado en TvTropes, para así poder sacar más información como el año de lanzamiento, añadiendo a los datos obtenidos nuevos campos de metadatos.
 
 \subsection{Desarrollo dirigido por pruebas}
 El desarrollo dirigido por pruebas (TDD, de sus siglas en inglés \textit{Test Driven Development}) es una de las principales y más importantes prácticas en el marco de las metodologías ágiles para garantizar la calidad del software. Se trabaja bajo la idea de que cualquier código que no esté testeado no es correcto, es propenso a fallos y, por tanto, todo el código debe estar testeado para asegurar su buen funcionamiento y su calidad.

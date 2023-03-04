@@ -42,3 +42,4 @@ Actions
 Continuous
 Integration
 GPLv3
+release
