@@ -1,140 +1,379 @@
 \chapter{Planificación}
-En este capítulo se especifica la metodología de desarrollo que se ha utilizado para guiar el completo desarrollo del trabajo, indicando la planificación temporal, historias de usuario e hitos que han servido para saber en todo momento el estado del desarrollo, con el objetivo de garantizar la calidad del proyecto y que se cumplan sus objetivos correctamente para satisfacer al usuario.
+En este capítulo se especifica la metodología de desarrollo que se ha utilizado
+para guiar el completo desarrollo del trabajo, indicando la planificación
+temporal, historias de usuario e hitos que han servido para saber en todo
+momento el estado del desarrollo, con el objetivo de garantizar la calidad del
+proyecto y que se cumplan sus objetivos correctamente para satisfacer al
+usuario.
 
 \section{Metodología de desarrollo}
-Todo el proyecto, desde su concepción, se ha planteado siguiendo una metodología de desarrollo ágil que siga los principios del manifiesto ágil \cite{agilemanifesto}. El principal objetivo al seguir una metodología ágil es el de asegurar un desarrollo flexible, ágil, centrado en las necesidades de los usuarios a los que se desarrolla el software y en el que exista una tolerancia al cambio.
+Todo el proyecto, desde su concepción, se ha planteado siguiendo una metodología
+de desarrollo ágil que siga los principios del manifiesto ágil
+\cite{agilemanifesto}. El principal objetivo al seguir una metodología ágil es
+el de asegurar un desarrollo flexible, ágil, centrado en las necesidades de los
+usuarios a los que se desarrolla el software y en el que exista una tolerancia
+al cambio.
 
 \begin{itemize}
-    \item El desarrollo es iterativo e incremental, en el cual se definen una serie de hitos (o entregables) que conforman un Producto Mínimamente Viable (PMV). Este PMV conforma una parte de la funcionalidad total que se quiere tener al final para cumplir los objetivos especificados, y los tests se asegurarán de que sea completamente funcional, garantizando su calidad.
-    \item El desarrollo está organizado por una serie de historias de usuario que definen de forma precisa y adecuada el funcionamiento del software y cómo organizar el desarrollo del mismo, siempre desde el punto de si satisfacen al usuario, que es para quien se desarrolla.
-    \item Durante todo el desarrollo se acepta que surjan problemas o nuevos requisitos, que se documentarán adecuadamente y se incorporarán a la planificación en mitad del desarrollo para adaptarse a esos cambios lo antes posible y siempre cumplir las necesidades de los usuarios.
-    \item Se busca siempre la calidad del software, usando para ello las mejores prácticas del lenguaje tanto en código como en su documentación, teniendo que estar todo debidamente testeado. Se va a desarrollar una herramienta que en última instancia será utilizada usuarios reales y estos deben obtener el mejor producto posible.
+    \item El desarrollo es iterativo e incremental, en el cual se definen una
+    serie de hitos (o entregables) que conforman un Producto Mínimamente Viable
+    (PMV). Este PMV conforma una parte de la funcionalidad total que se quiere
+    tener al final para cumplir los objetivos especificados, y los tests se
+    asegurarán de que sea completamente funcional, garantizando su calidad.
+    \item El desarrollo está organizado por una serie de historias de usuario
+    que definen de forma precisa y adecuada el funcionamiento del software y
+    cómo organizar el desarrollo del mismo, siempre desde el punto de si
+    satisfacen al usuario, que es para quien se desarrolla.
+    \item Durante todo el desarrollo se acepta que surjan problemas o nuevos
+    requisitos, que se documentarán adecuadamente y se incorporarán a la
+    planificación en mitad del desarrollo para adaptarse a esos cambios lo antes
+    posible y siempre cumplir las necesidades de los usuarios.
+    \item Se busca siempre la calidad del software, usando para ello las mejores
+    prácticas del lenguaje tanto en código como en su documentación, teniendo
+    que estar todo debidamente testeado. Se va a desarrollar una herramienta que
+    en última instancia será utilizada usuarios reales y estos deben obtener el
+    mejor producto posible.
 \end{itemize}
 
-Este tipo de desarrollo se adapta bien a un proyecto como este, en el que pueden ir surgiendo necesidades conforme se vaya desarrollando el scraper, puesto que es un problema del cual no se sabe desde el principio todas las necesidades que va a plantear debido a la complejidad de la web de TvTropes y a la de las propias herramientas de scraping. Por tanto, esta metodología permite que los problemas que puedan surgir en medio del desarrollo se aborden a tiempo, documentándolos correctamente y sabiendo en todo momento qué se ha hecho, cuál es el estado del desarrollo del proyecto, qué hacer y cómo hacerlo.
+Este tipo de desarrollo se adapta bien a un proyecto como este, en el que pueden
+ir surgiendo necesidades conforme se vaya desarrollando el scraper, puesto que
+es un problema del cual no se sabe desde el principio todas las necesidades que
+va a plantear debido a la complejidad de la web de TvTropes y a la de las
+propias herramientas de scraping. Por tanto, esta metodología permite que los
+problemas que puedan surgir en medio del desarrollo se aborden a tiempo,
+documentándolos correctamente y sabiendo en todo momento qué se ha hecho, cuál
+es el estado del desarrollo del proyecto, qué hacer y cómo hacerlo.
 
-Con el propósito de cumplir correctamente todos los principios ágiles que se han definido se emplean varias herramientas y buenas prácticas para el seguimiento del desarrollo y que se describen a continuación.
+Con el propósito de cumplir correctamente todos los principios ágiles que se han
+definido se emplean varias herramientas y buenas prácticas para el seguimiento
+del desarrollo y que se describen a continuación.
 
 \section{Seguimiento del desarrollo}
 \subsection{GitHub}
-Al ser un proyecto de software libre el uso de Git y GitHub como software de control de versiones es imprescindible. Esto permite tener un seguimiento cercano de todos los avances que se hacen tanto en el código como en la documentación, que están ambos alojados en el repositorio público\footnote{\url{https://github.com/jlgallego99/TropesToGo}}. Además de esto también facilita el poder recuperar versiones anteriores del software en caso de algún fallo o cambio sustancial, por lo que es ideal en una metodología ágil en la cual existen constantemente cambios.
+Al ser un proyecto de software libre el uso de Git y GitHub como software de
+control de versiones es imprescindible. Esto permite tener un seguimiento
+cercano de todos los avances que se hacen tanto en el código como en la
+documentación, que están ambos alojados en el repositorio
+público\footnote{\url{https://github.com/jlgallego99/TropesToGo}}. Además de
+esto también facilita el poder recuperar versiones anteriores del software en
+caso de algún fallo o cambio sustancial, por lo que es ideal en una metodología
+ágil en la cual existen constantemente cambios.
 
-Sin embargo, lo más importante es que se guía todo el proceso de desarrollo mediante el repositorio de GitHub, teniendo en un mismo lugar todo lo necesario para hacer un correcto seguimiento del estado del trabajo que se tiene en cualquier momento mediante las herramientas que proporciona GitHub. El funcionamiento es el siguiente:
+Sin embargo, lo más importante es que se guía todo el proceso de desarrollo
+mediante el repositorio de GitHub, teniendo en un mismo lugar todo lo necesario
+para hacer un correcto seguimiento del estado del trabajo que se tiene en
+cualquier momento mediante las herramientas que proporciona GitHub. El
+funcionamiento es el siguiente:
 \begin{itemize}
-    \item Para llevar el seguimiento de las historias de usuario y tareas asociadas a ellas de la metodología de desarrollo ágil se han creado una serie de issues en el repositorio de GitHub que especifican el trabajo que hay que realizar. Estos issues servirán para saber en todo momento en qué trabajar y siempre están orientados a resolver una historia de usuario, es decir, satisfacer sus necesidades.\\
-    Cada vez que, en mitad del desarrollo, se necesite desarrollar algo o solucionar un problema se documenta en un issue que especifica qué se quiere conseguir y entonces se trabaja en cumplirlo.
-    \item Los distintos hitos estarán documentados en la sección de milestones, indicando a modo de resumen el objetivo que se pretende alcanzar al tener ese producto funcional. Este es el principal artefacto para conocer el estado del proyecto, ya que cada hito indica una fecha límite para completarlo y una serie de issues necesarios para completarlo por completo. Conforme se van completando las tareas se puede ver cuánto trabajo queda por hacer.
-    \item Cada commit es un avance en el código o la documentación, y en el mensaje se hará una pequeña indicación que sirva para saber qué se ha hecho para avanzar en el issue al que hace referencia. De esta manera podemos saber en todo momento las decisiones que se han tomado para resolver una determinada tarea, teniendo un historial con todos los cambios.
-    \item Todo el código y documentación que esté en la rama principal del repositorio se entiende que está probado y, por tanto, es completamente funcional. \\
-    El código se desarrolla en ramas separadas a la principal, que hacen referencia a cada hito que se quiere alcanzar. Cada vez que se complete una tarea de desarrollo se hará un pull request a la rama principal, y si pasa los flujos de CI configurados (los cuales se explicarán en próximas secciones) entonces se dará la tarea por completada y se tendrá una nueva versión funcional en la rama principal. 
+    \item Para llevar el seguimiento de las historias de usuario y tareas
+    asociadas a ellas de la metodología de desarrollo ágil se han creado una
+    serie de issues en el repositorio de GitHub que especifican el trabajo que
+    hay que realizar. Estos issues servirán para saber en todo momento en qué
+    trabajar y siempre están orientados a resolver una historia de usuario, es
+    decir, satisfacer sus necesidades.\\
+    Cada vez que, en mitad del desarrollo, se necesite desarrollar algo o
+    solucionar un problema se documenta en un issue que especifica qué se quiere
+    conseguir y entonces se trabaja en cumplirlo.
+    \item Los distintos hitos estarán documentados en la sección de milestones,
+    indicando a modo de resumen el objetivo que se pretende alcanzar al tener
+    ese producto funcional. Este es el principal artefacto para conocer el
+    estado del proyecto, ya que cada hito indica una fecha límite para
+    completarlo y una serie de issues necesarios para completarlo por completo.
+    Conforme se van completando las tareas se puede ver cuánto trabajo queda por
+    hacer.
+    \item Cada commit es un avance en el código o la documentación, y en el
+    mensaje se hará una pequeña indicación que sirva para saber qué se ha hecho
+    para avanzar en el issue al que hace referencia. De esta manera podemos
+    saber en todo momento las decisiones que se han tomado para resolver una
+    determinada tarea, teniendo un historial con todos los cambios.
+    \item Todo el código y documentación que esté en la rama principal del
+    repositorio se entiende que está probado y, por tanto, es completamente
+    funcional. \\
+    El código se desarrolla en ramas separadas a la principal, que hacen
+    referencia a cada hito que se quiere alcanzar. Cada vez que se complete una
+    tarea de desarrollo se hará un pull request a la rama principal, y si pasa
+    los flujos de CI configurados (los cuales se explicarán en próximas
+    secciones) entonces se dará la tarea por completada y se tendrá una nueva
+    versión funcional en la rama principal. 
 \end{itemize}
 
-Como podemos ver, mediante GitHub se tiene en un mismo sitio todo lo necesario para el desarrollo: código, documentación y seguimiento del desarrollo para saber siempre el trabajo que se tiene que hacer y poder avanzar de una forma más cómoda en alcanzar los objetivos y satisfacer al usuario. 
+Como podemos ver, mediante GitHub se tiene en un mismo sitio todo lo necesario
+para el desarrollo: código, documentación y seguimiento del desarrollo para
+saber siempre el trabajo que se tiene que hacer y poder avanzar de una forma más
+cómoda en alcanzar los objetivos y satisfacer al usuario. 
 
 \subsection{Hitos}
-Los hitos o milestones representan cada uno de los estados en los que va a ir evolucionando la aplicación, conformando un Producto Mínimamente Viable. Cada PMV se construye encima de los anteriores, por lo que no se avanza en el desarrollo hasta que un hito quede completo en su totalidad. 
+Los hitos o milestones representan cada uno de los estados en los que va a ir
+evolucionando la aplicación, conformando un Producto Mínimamente Viable. Cada
+PMV se construye encima de los anteriores, por lo que no se avanza en el
+desarrollo hasta que un hito quede completo en su totalidad. 
 
-Cada hito equivaldría a un sprint, puesto que son ciclos de ejecución cortos (de máximo 4 semanas) con una serie de historias de usuario y tareas definidas que se deben completar en un periodo de tiempo y cuyo objetivo es conseguir un incremento de valor en el producto que se está construyendo, es decir, un PMV.
+Cada hito equivaldría a un sprint, puesto que son ciclos de ejecución cortos (de
+máximo 4 semanas) con una serie de historias de usuario y tareas definidas que
+se deben completar en un periodo de tiempo y cuyo objetivo es conseguir un
+incremento de valor en el producto que se está construyendo, es decir, un PMV.
 
-Un milestone se considerará como completado una vez se hayan resuelto todas sus tareas asociadas, o issues de GitHub, y al terminarlo y subir sus cambios a la rama principal (tras un pull request que haya sido aprobado por los flujos de CI y el tutor) se lanzará un nuevo release, es decir, el propio incremento del producto que tendrá un número de versión asociado siguiendo la nomenclatura del versionado semántico\footnote{\url{https://semver.org/}}.
+Un milestone se considerará como completado una vez se hayan resuelto todas sus
+tareas asociadas, o issues de GitHub, y al terminarlo y subir sus cambios a la
+rama principal (tras un pull request que haya sido aprobado por los flujos de CI
+y el tutor) se lanzará un nuevo release, es decir, el propio incremento del
+producto que tendrá un número de versión asociado siguiendo la nomenclatura del
+versionado semántico\footnote{\url{https://semver.org/}}.
 
 Los hitos planificados para el desarrollo son los siguientes:
 
 \subsubsection{M0. Configuración inicial - Objetivos, metodología e infraestructura}
-En este primer hito se pretende abordar toda la planificación inicial y preparación del proyecto. Como producto al final de este hito se definirán los hitos iniciales del proyecto y se tendrán escritos los capítulos 1, 2, 3 y 4 de la documentación en los cuales se abordará la descripción del problema a resolver, el estado del arte y toda la metodología a seguir durante el proyecto. También se tendrá configurado el repositorio con un comprobador ortográfico para la documentación, un gestor de tareas, los sistemas de CI y los issues, historias de usuario y milestones en el propio repositorio.\\
+En este primer hito se pretende abordar toda la planificación inicial y
+preparación del proyecto. Como producto al final de este hito se definirán los
+hitos iniciales del proyecto y se tendrán escritos los capítulos 1, 2, 3 y 4 de
+la documentación en los cuales se abordará la descripción del problema a
+resolver, el estado del arte y toda la metodología a seguir durante el proyecto.
+También se tendrá configurado el repositorio con un comprobador ortográfico para
+la documentación, un gestor de tareas, los sistemas de CI y los issues,
+historias de usuario y milestones en el propio repositorio.\\
 
-Esta iteración se desarrolla entre el \textbf{06/02/23} y el \textbf{07/03/23}, teniendo una duración completa de un mes.
+Esta iteración se desarrolla entre el \textbf{06/02/23} y el \textbf{07/03/23},
+teniendo una duración completa de un mes.
 \subsubsection{M1. Modelización del problema}
-Se obtendrá un producto mínimamente viable con el capítulo 5 de la documentación, describiendo un modelo del problema para resolver la extracción de los tropos asociados a películas.\\
+Se obtendrá un producto mínimamente viable con el capítulo 5 de la
+documentación, describiendo un modelo del problema para resolver la extracción
+de los tropos asociados a películas.\\
 
-Esta iteración se desarrolla entre el \textbf{08/03/23} y el \textbf{22/03/23}, teniendo una duración completa de dos semanas.
+Esta iteración se desarrolla entre el \textbf{08/03/23} y el \textbf{22/03/23},
+teniendo una duración completa de dos semanas.
 \subsubsection{M2. Extracción de tropos de películas}
-Con este hito se comienza el desarrollo del software. Se producirá un producto mínimamente viable con una primera versión del scraper que extraiga toda la información sobre tropos de un solo medio audiovisual (películas) y la represente en un formato de datos estándar.
+Con este hito se comienza el desarrollo del software. Se producirá un producto
+mínimamente viable con una primera versión del scraper que extraiga toda la
+información sobre tropos de un solo medio audiovisual (películas) y la
+represente en un formato de datos estándar.
 
-Esta iteración se desarrolla entre el \textbf{23/02/23} y el \textbf{20/04/23}, teniendo una duración completa de un mes.
+Esta iteración se desarrolla entre el \textbf{23/02/23} y el \textbf{20/04/23},
+teniendo una duración completa de un mes.
 
 \subsubsection{M3. Extracción de tropos de videojuegos, libros y series}
-Como producto de este hito se tendrá un scraper que, además de obtener la información de tropos de películas, permita también obtener información de tropos de otros medios audiovisuales existentes en TvTropes como series, videojuegos o libros.
+Como producto de este hito se tendrá un scraper que, además de obtener la
+información de tropos de películas, permita también obtener información de
+tropos de otros medios audiovisuales existentes en TvTropes como series,
+videojuegos o libros.
 
 \subsubsection{M4. Aplicación de línea de comandos}
-Este hito está enfocado en que el usuario final pueda usar el scraper. El objetivo es obtener una aplicación de línea de comandos (CMD) que un usuario pueda instalar y le facilite la interacción con el scraper, pudiendo obtener la información de tropos completa o parcial según varias opciones y elegir entre diferentes formatos de representación en los que obtener los datos.
+Este hito está enfocado en que el usuario final pueda usar el scraper. El
+objetivo es obtener una aplicación de línea de comandos (CMD) que un usuario
+pueda instalar y le facilite la interacción con el scraper, pudiendo obtener la
+información de tropos completa o parcial según varias opciones y elegir entre
+diferentes formatos de representación en los que obtener los datos.
 
 \subsubsection{M5. Actualización periódica de los datos}
-Se obtendrá una aplicación de línea de comandos para interaccionar con el scraper la cual actualice la información de tropos automáticamente de forma periódica para que estos datos estén siempre actualizados. 
+Se obtendrá una aplicación de línea de comandos para interaccionar con el
+scraper la cual actualice la información de tropos automáticamente de forma
+periódica para que estos datos estén siempre actualizados. 
 
 \subsubsection{M6. Integración con fuentes de datos externas y extracción de metadatos}
-Como producto de este hito el scraper será capaz de identificar qué medio audiovisual de cualquier otra fuente de datos externa corresponde al que se ha detectado en TvTropes, para así poder sacar más información como el año de lanzamiento, añadiendo a los datos obtenidos nuevos campos de metadatos.
+Como producto de este hito el scraper será capaz de identificar qué medio
+audiovisual de cualquier otra fuente de datos externa corresponde al que se ha
+detectado en TvTropes, para así poder sacar más información como el año de
+lanzamiento, añadiendo a los datos obtenidos nuevos campos de metadatos.
 
 \subsection{Desarrollo dirigido por pruebas}
-El desarrollo dirigido por pruebas (TDD, de sus siglas en inglés \textit{Test Driven Development}) es una de las principales y más importantes prácticas en el marco de las metodologías ágiles para garantizar la calidad del software. Se trabaja bajo la idea de que cualquier código que no esté testeado no es correcto, es propenso a fallos y, por tanto, todo el código debe estar testeado para asegurar su buen funcionamiento y su calidad.
+El desarrollo dirigido por pruebas (TDD, de sus siglas en inglés \textit{Test
+Driven Development}) es una de las principales y más importantes prácticas en el
+marco de las metodologías ágiles para garantizar la calidad del software. Se
+trabaja bajo la idea de que cualquier código que no esté testeado no es
+correcto, es propenso a fallos y, por tanto, todo el código debe estar testeado
+para asegurar su buen funcionamiento y su calidad.
 
-El objetivo del TDD es conseguir código limpio que funcione, y para ello es necesario desarrollar primero los tests antes que el código de forma que al estar trabajando en el código se tenga en cuenta qué tiene que cumplir. Esto permite desarrollar de un modo predecible sabiendo siempre en qué momento se ha terminado de desarrollar una tarea, ya que, se ha realizado pensando en los tests que tiene que pasar y estará testeada. 
+El objetivo del TDD es conseguir código limpio que funcione, y para ello es
+necesario desarrollar primero los tests antes que el código de forma que al
+estar trabajando en el código se tenga en cuenta qué tiene que cumplir. Esto
+permite desarrollar de un modo predecible sabiendo siempre en qué momento se ha
+terminado de desarrollar una tarea, ya que, se ha realizado pensando en los
+tests que tiene que pasar y estará testeada. 
 
-El trabajar en un marco TDD da espacio a analizar bien el código, puesto que no basta solo con desarrollar una función, sino que hay que estudiar bien su funcionamiento para detectar todos los casos límite y probarlos. Además, tal y como se busca en las metodologías ágiles, el objetivo del desarrollo dirigido por pruebas es mejorar las vidas de los usuarios que usan el software \cite{beck2002driven}. En general, un código bien testeado se adapta a la filosofía de cambio de las metodologías ágiles, ya que, el reducir el riesgo implica que el coste de abordar problemas o nuevas mejoras al desarrollo es menor y puede suceder más frecuentemente.\\
+El trabajar en un marco TDD da espacio a analizar bien el código, puesto que no
+basta solo con desarrollar una función, sino que hay que estudiar bien su
+funcionamiento para detectar todos los casos límite y probarlos. Además, tal y
+como se busca en las metodologías ágiles, el objetivo del desarrollo dirigido
+por pruebas es mejorar las vidas de los usuarios que usan el software
+\cite{beck2002driven}. En general, un código bien testeado se adapta a la
+filosofía de cambio de las metodologías ágiles, ya que, el reducir el riesgo
+implica que el coste de abordar problemas o nuevas mejoras al desarrollo es
+menor y puede suceder más frecuentemente.\\
 
-La filosofía que se sigue a la hora de desarrollar tests es que estos son automáticos y se desarrollan continuamente y siempre a la vez que el código. La principal ventaja de esto es que ayuda a desarrollar bien el propio código al tener en mente que los componentes que se desarrollan deben ser cohesivos y tener un bajo acoplamiento para que escribir los propios tests sea una tarea fácil.
+La filosofía que se sigue a la hora de desarrollar tests es que estos son
+automáticos y se desarrollan continuamente y siempre a la vez que el código. La
+principal ventaja de esto es que ayuda a desarrollar bien el propio código al
+tener en mente que los componentes que se desarrollan deben ser cohesivos y
+tener un bajo acoplamiento para que escribir los propios tests sea una tarea
+fácil.
 
-Al desarrollar tests se sigue el \textit{mantra de TDD}, un orden definido por Kent Beck \cite{beck2002driven} que consiste en: primero, hacer un test básico que no funcione o no compile; segundo, arreglar el test para que funcione de la forma más básica; y tercero, refactorizar y mejorar tanto el test como el código sin cambiar la funcionalidad consiguiendo un código más simple y limpio. Todo este proceso sigue la misma filosofía iterativa e incremental que la metodología ágil que se usa en todo el desarrollo.\\
+Al desarrollar tests se sigue el \textit{mantra de TDD}, un orden definido por
+Kent Beck \cite{beck2002driven} que consiste en: primero, hacer un test básico
+que no funcione o no compile; segundo, arreglar el test para que funcione de la
+forma más básica; y tercero, refactorizar y mejorar tanto el test como el código
+sin cambiar la funcionalidad consiguiendo un código más simple y limpio. Todo
+este proceso sigue la misma filosofía iterativa e incremental que la metodología
+ágil que se usa en todo el desarrollo.\\
 
-Por último, el desarrollo de los tests es también documentación, estando dentro del propio lenguaje de programación. Los tests deberán ser legibles y entendibles, centrándose en el comportamiento de las funcionalidades que evalúan y, por tanto, permitirán expresar una correlación más directa con las historias de usuario y la lógica de negocio.
+Por último, el desarrollo de los tests es también documentación, estando dentro
+del propio lenguaje de programación. Los tests deberán ser legibles y
+entendibles, centrándose en el comportamiento de las funcionalidades que evalúan
+y, por tanto, permitirán expresar una correlación más directa con las historias
+de usuario y la lógica de negocio.
 
 \subsection{Integración continua}
-La integración continua (CI, del inglés \textit{Continuous Integration}) es otra práctica muy importante que se aplica en las metodologías ágiles y que está estrechamente relacionada con la idea de cambio y de tener todo el código en un repositorio central como el que se ha especificado. Las herramientas de integración continua realizan comprobaciones automáticas sobre el código fuente como paso previo al despliegue y crean algo ejecutable según las especificaciones que se les dé, ya sea para crear un ejecutable del software, un test, un documento, un reporte, etc. En general se hace referencia a cualquier proceso que automatice la construcción de una aplicación.\\
+La integración continua (CI, del inglés \textit{Continuous Integration}) es otra
+práctica muy importante que se aplica en las metodologías ágiles y que está
+estrechamente relacionada con la idea de cambio y de tener todo el código en un
+repositorio central como el que se ha especificado. Las herramientas de
+integración continua realizan comprobaciones automáticas sobre el código fuente
+como paso previo al despliegue y crean algo ejecutable según las
+especificaciones que se les dé, ya sea para crear un ejecutable del software, un
+test, un documento, un reporte, etc. En general se hace referencia a cualquier
+proceso que automatice la construcción de una aplicación.\\
 
-En este proyecto se usan los sistemas de integración continua para automatizar la ejecución de los tests y para comprobar ortográfica y gramaticalmente la documentación al subir cambios a la rama principal, asegurando así la calidad del software, ya que, todo el código que se tenga en producción estará testeado. Esto además dota de agilidad al desarrollo, siguiendo con las mismas ideas de metodologías ágiles, puesto que se tiene feedback en todo momento sobre el estado de producción del código.
+En este proyecto se usan los sistemas de integración continua para automatizar
+la ejecución de los tests y para comprobar ortográfica y gramaticalmente la
+documentación al subir cambios a la rama principal, asegurando así la calidad
+del software, ya que, todo el código que se tenga en producción estará testeado.
+Esto además dota de agilidad al desarrollo, siguiendo con las mismas ideas de
+metodologías ágiles, puesto que se tiene feedback en todo momento sobre el
+estado de producción del código.
 
-La razón de que se ejecuten estos sistemas para la rama principal es porque en este proyecto se están desarrollando distintos productos mínimamente viables que solamente estarán en la rama principal cuando se completen, y cuando no lo estén se estarán desarrollando en alguna de las distintas ramas de desarrollo correspondientes a cada hito, en la que no es necesario estar constantemente ejecutando la integración continua. De esta manera aseguramos que todo el código que esté en producción sea correcto porque ha pasado los tests automáticamente.\\
+La razón de que se ejecuten estos sistemas para la rama principal es porque en
+este proyecto se están desarrollando distintos productos mínimamente viables que
+solamente estarán en la rama principal cuando se completen, y cuando no lo estén
+se estarán desarrollando en alguna de las distintas ramas de desarrollo
+correspondientes a cada hito, en la que no es necesario estar constantemente
+ejecutando la integración continua. De esta manera aseguramos que todo el código
+que esté en producción sea correcto porque ha pasado los tests
+automáticamente.\\
 
-Todos los sistemas de integración continua que se configuren se harán con GitHub Actions para seguir con la idea de centralizar todo el desarrollo en el repositorio de GitHub.
+Todos los sistemas de integración continua que se configuren se harán con GitHub
+Actions para seguir con la idea de centralizar todo el desarrollo en el
+repositorio de GitHub.
 
 \subsection{Infraestructura como código}
 
 \section{Usuarios o partes interesadas}
-Antes de definir las historias de usuario se han analizado los usuarios o partes interesadas en el proyecto para enfocarlo en resolver sus problemas. Son los siguientes:
+Antes de definir las historias de usuario se han analizado los usuarios o partes
+interesadas en el proyecto para enfocarlo en resolver sus problemas. Son los
+siguientes:
 \begin{itemize}
-    \item \textbf{Tribunal}: el tribunal es el encargado de valorar este trabajo de fin de máster y, por tanto, busca que tenga una memoria bien redactada con todo el proceso de estudio, análisis y desarrollo del proyecto.
-    \item \textbf{Investigador}: el investigador, o analista de datos, necesita tener la información estructurada de los tropos para construir modelos que le permitan hacer inferencias sobre las relaciones que tienen los tropos entre sí y llegar a conclusiones que sirvan para su investigación.
+    \item \textbf{Tribunal}: el tribunal es el encargado de valorar este trabajo
+    de fin de máster y, por tanto, busca que tenga una memoria bien redactada
+    con todo el proceso de estudio, análisis y desarrollo del proyecto.
+    \item \textbf{Investigador}: el investigador, o analista de datos, necesita
+    tener la información estructurada de los tropos para construir modelos que
+    le permitan hacer inferencias sobre las relaciones que tienen los tropos
+    entre sí y llegar a conclusiones que sirvan para su investigación.
 \end{itemize}
 
 \section{Historias de usuario}
-Sabiendo el problema que se quiere resolver y las partes interesadas se pueden definir las historias de usuario que guiarán todo el desarrollo de principio a fin, ayudando en la toma de decisiones para llegar a cumplir los objetivos.
+Sabiendo el problema que se quiere resolver y las partes interesadas se pueden
+definir las historias de usuario que guiarán todo el desarrollo de principio a
+fin, ayudando en la toma de decisiones para llegar a cumplir los objetivos.
 
 \subsection{[HU01] Investigador - Obtener información estructurada sobre todos los tropos}
-Como investigador necesito poder obtener información estructurada sobre todos los tropos existentes de cualquier tipo de medio audiovisual, en un formato estandarizado y con una estructura definida para que sean de fácil acceso tanto a humanos como programas para su análisis.
+Como investigador necesito poder obtener información estructurada sobre todos
+los tropos existentes de cualquier tipo de medio audiovisual, en un formato
+estandarizado y con una estructura definida para que sean de fácil acceso tanto
+a humanos como programas para su análisis.
 
 \subsection{[HU02] Investigador - Obtener un subconjunto de la información}
-Como investigador necesito poder elegir qué parte de la información sobre tropos quiero obtener, ya sea de un medio audiovisual concreto, todo un género, etc.
+Como investigador necesito poder elegir qué parte de la información sobre tropos
+quiero obtener, ya sea de un medio audiovisual concreto, todo un género, etc.
 
 \subsection{[HU03] Investigador - Relacionar medios audiovisuales con su ficha en IMDB}
-Como investigador necesito obtener información de metadatos sobre cualquier medio audiovisual, para lo cual necesito que los medios audiovisuales de los cuales se han sacado sus tropos se puedan relacionar con su ficha en IMDB.
+Como investigador necesito obtener información de metadatos sobre cualquier
+medio audiovisual, para lo cual necesito que los medios audiovisuales de los
+cuales se han sacado sus tropos se puedan relacionar con su ficha en IMDB.
 
 \subsection{[HU04] Investigador - Información actualizada}
-Como investigador quiero que la información de tropos que obtenga esté lo más actualizada posible, sepa cuándo se ha extraído y pueda obtenerla actualizada cuando quiera para traer la nueva información que pueda existir.
+Como investigador quiero que la información de tropos que obtenga esté lo más
+actualizada posible, sepa cuándo se ha extraído y pueda obtenerla actualizada
+cuando quiera para traer la nueva información que pueda existir.
 
 \section{Temporización}
-Una vez vistos los hitos que se esperan alcanzar en el desarrollo, los cuales conformarían cada uno un sprint con una fecha de inicio y de fin, podemos representar la temporización de todo el desarrollo en un diagrama de Gantt.
+Una vez vistos los hitos que se esperan alcanzar en el desarrollo, los cuales
+conformarían cada uno un sprint con una fecha de inicio y de fin, podemos
+representar la temporización de todo el desarrollo en un diagrama de Gantt.
 
-A lo largo de todo el desarrollo se ha ido manteniendo contacto con el tutor tanto en tutorías presenciales como mediante mensajes por Telegram y GitHub para transmitir y resolver todas las dudas que han ido surgiendo, tanto del código como del propio documento.
+A lo largo de todo el desarrollo se ha ido manteniendo contacto con el tutor
+tanto en tutorías presenciales como mediante mensajes por Telegram y GitHub para
+transmitir y resolver todas las dudas que han ido surgiendo, tanto del código
+como del propio documento.
 
 \section{Elección de herramientas para el desarrollo}
-Al llevar un proyecto de ingeniería del software a la práctica, en el cual se tiene como primer objetivo la calidad, se requieren herramientas para poder llevar a cabo todas las buenas prácticas descritas a lo largo de este capítulo. 
+Al llevar un proyecto de ingeniería del software a la práctica, en el cual se
+tiene como primer objetivo la calidad, se requieren herramientas para poder
+llevar a cabo todas las buenas prácticas descritas a lo largo de este capítulo. 
 
-Es por esto que por último se comentarán todas las herramientas que se van a utilizar tanto para desarrollar el propio software como para tener un buen ecosistema de desarrollo en el repositorio de GitHub y cumplir con las buenas prácticas que se han descrito en las secciones anteriores. Se justifica la elección de cada una comparando entre varias alternativas y teniendo siempre la calidad como criterio más importante para elegir la más adecuada.
+Es por esto que por último se comentarán todas las herramientas que se van a
+utilizar tanto para desarrollar el propio software como para tener un buen
+ecosistema de desarrollo en el repositorio de GitHub y cumplir con las buenas
+prácticas que se han descrito en las secciones anteriores. Se justifica la
+elección de cada una comparando entre varias alternativas y teniendo siempre la
+calidad como criterio más importante para elegir la más adecuada.
 
 \subsection{Lenguaje de programación}
 
 \subsection{Gestor de tareas}
-Dentro de los procesos de calidad del software entran los gestores de tareas, que facilitan la automatización del resto de tareas del proyecto: instalación de dependencias, ejecución de tests, compilación del código y documentación, etc. Esta automatización garantiza que estas tareas se ejecuten con agilidad y se puedan replicar en cualquier otro sistema fácilmente, ya que estarán descritas en un fichero de configuración siguiendo la filosofía de la infraestructura como código.
+Dentro de los procesos de calidad del software entran los gestores de tareas,
+que facilitan la automatización del resto de tareas del proyecto: instalación de
+dependencias, ejecución de tests, compilación del código y documentación, etc.
+Esta automatización garantiza que estas tareas se ejecuten con agilidad y se
+puedan replicar en cualquier otro sistema fácilmente, ya que estarán descritas
+en un fichero de configuración siguiendo la filosofía de la infraestructura como
+código.
 
-Existen multitud de gestores de tareas para proyectos, muchos de ellos aptos para cualquier lenguaje de programación y con su propio modo de describir y ejecutar tareas. Uno de los más destacables, y el cual se ha escogido para este desarrollo, es \textit{Mask}\footnote{\url{https://github.com/jacobdeichert/mask}}, el cual sigue teniendo soporte a día de hoy y está en constante desarrollo. Su principal ventaja es que aprenderlo implica poder usar este mismo gestor en cualquier otro proyecto independientemente del lenguaje que use, además de que el propio fichero de descripción de tareas, al estar escrito en markdown, es a la vez legible para humanos y ejecutable por el programa gestor de tareas lo cual es una manera muy inteligente de combinar documentación y ejecución de tareas.
+Existen multitud de gestores de tareas para proyectos, muchos de ellos aptos
+para cualquier lenguaje de programación y con su propio modo de describir y
+ejecutar tareas. Uno de los más destacables, y el cual se ha escogido para este
+desarrollo, es
+\textit{Mask}\footnote{\url{https://github.com/jacobdeichert/mask}}, el cual
+sigue teniendo soporte a día de hoy y está en constante desarrollo. Su principal
+ventaja es que aprenderlo implica poder usar este mismo gestor en cualquier otro
+proyecto independientemente del lenguaje que use, además de que el propio
+fichero de descripción de tareas, al estar escrito en markdown, es a la vez
+legible para humanos y ejecutable por el programa gestor de tareas lo cual es
+una manera muy inteligente de combinar documentación y ejecución de tareas.
 
-Al hablar de gestores de tareas el primero en el que se suele pensar es en \textit{make}, el cual es una herramienta muy utilizada en cualquier ámbito de la informática. Sin embargo, se ha optado por uno más sencillo y más moderno como Mask, que además tiene la ventaja de que es autodescriptivo, a diferencia de make cuyo fichero de configuración suele ser bastante complicado de entender a primera vista y no se puede saber fácilmente cuáles son las tareas que tiene definidas. Aún teniendo en cuenta esto, se emplea make en una parte del proyecto dejándolo para la compilación de la documentación en LaTeX, puesto que, es más fácil gestionar la compilación de algo que tiene tantos ficheros usando las variables especiales de make. El gestor de tareas Mask ejecutará con una orden el Makefile encargado de compilar el documento.
+Al hablar de gestores de tareas el primero en el que se suele pensar es en
+\textit{make}, el cual es una herramienta muy utilizada en cualquier ámbito de
+la informática. Sin embargo, se ha optado por uno más sencillo y más moderno
+como Mask, que además tiene la ventaja de que es autodescriptivo, a diferencia
+de make cuyo fichero de configuración suele ser bastante complicado de entender
+a primera vista y no se puede saber fácilmente cuáles son las tareas que tiene
+definidas. Aún teniendo en cuenta esto, se emplea make en una parte del proyecto
+dejándolo para la compilación de la documentación en LaTeX, puesto que, es más
+fácil gestionar la compilación de algo que tiene tantos ficheros usando las
+variables especiales de make. El gestor de tareas Mask ejecutará con una orden
+el Makefile encargado de compilar el documento.
 
-Se han estudiado otros más modernos como \textit{Task}\footnote{\url{https://github.com/go-task/task}} un gestor de tareas muy simple que se define a sí mismo como una alternativa más fácil a make, el cual es interesante porque está escrito en Go, el mismo lenguaje con el que se escribirá el software de este proyecto. Tiene una sintaxis simple con ficheros en formato YAML, el cual tiene la ventaja de que es un formato muy utilizado en infraestructura como código. Se ha descartado porque no aporta tanta legibilidad como Mask, sin embargo, es una opción muy buena para proyectos en Go.
+Se han estudiado otros más modernos como
+\textit{Task}\footnote{\url{https://github.com/go-task/task}} un gestor de
+tareas muy simple que se define a sí mismo como una alternativa más fácil a
+make, el cual es interesante porque está escrito en Go, el mismo lenguaje con el
+que se escribirá el software de este proyecto. Tiene una sintaxis simple con
+ficheros en formato YAML, el cual tiene la ventaja de que es un formato muy
+utilizado en infraestructura como código. Se ha descartado porque no aporta
+tanta legibilidad como Mask, sin embargo, es una opción muy buena para proyectos
+en Go.
 
-Por último también se ha visto Realize\footnote{\url{https://github.com/oxequa/realize}}, un gestor de tareas para Go que también usa ficheros de configuración en formato YAML. Con él se pueden gestionar múltiples proyectos a la vez y, puesto que está hecho para Go, tiene en cuenta todos los comandos CLI del lenguaje para generar tareas asociadas. Se ha descartado por las mismas razones que Task, además de que sus ficheros de configuración son demasiado largos, no tiene demasiada documentación, y el proyecto parece abandonado viendo que el último commit en el repositorio es de hace tres años y la última release es de hace cinco. Es por esto que no sería lo más ideal usarlo, ya que, podría tener bugs o problemas para los que no haya soporte.
+Por último también se ha visto
+Realize\footnote{\url{https://github.com/oxequa/realize}}, un gestor de tareas
+para Go que también usa ficheros de configuración en formato YAML. Con él se
+pueden gestionar múltiples proyectos a la vez y, puesto que está hecho para Go,
+tiene en cuenta todos los comandos CLI del lenguaje para generar tareas
+asociadas. Se ha descartado por las mismas razones que Task, además de que sus
+ficheros de configuración son demasiado largos, no tiene demasiada
+documentación, y el proyecto parece abandonado viendo que el último commit en el
+repositorio es de hace tres años y la última release es de hace cinco. Es por
+esto que no sería lo más ideal usarlo, ya que, podría tener bugs o problemas
+para los que no haya soporte.
 
 \subsection{Framework de testing}
 \subsection{Sistema de integración continua}
 \subsection{Bibliotecas de scraping en Go}
-El uso de una buena biblioteca de scraping permite reducir varios de los problemas que pueden surgir en esta disciplina.
+El uso de una buena biblioteca de scraping permite reducir varios de los
+problemas que pueden surgir en esta disciplina.
