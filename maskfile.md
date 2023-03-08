@@ -1,4 +1,7 @@
 # Tasks for TropesToGo
+> After installing mask utility, run command:  
+> **mask \<task\>**  
+> where \<task\> is any of the following
 
 ## build
 > Command for building the project

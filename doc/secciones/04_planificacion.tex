@@ -326,51 +326,88 @@ puedan replicar en cualquier otro sistema fácilmente, ya que estarán descritas
 en un fichero de configuración siguiendo la filosofía de la infraestructura como
 código.
 
-Existen multitud de gestores de tareas para proyectos, muchos de ellos aptos
-para cualquier lenguaje de programación y con su propio modo de describir y
-ejecutar tareas. Uno de los más destacables, y el cual se ha escogido para este
-desarrollo, es
-\textit{Mask}\footnote{\url{https://github.com/jacobdeichert/mask}}, el cual
-sigue teniendo soporte a día de hoy y está en constante desarrollo. Su principal
-ventaja es que aprenderlo implica poder usar este mismo gestor en cualquier otro
-proyecto independientemente del lenguaje que use, además de que el propio
-fichero de descripción de tareas, al estar escrito en markdown, es a la vez
-legible para humanos y ejecutable por el programa gestor de tareas lo cual es
-una manera muy inteligente de combinar documentación y ejecución de tareas.
+Es necesario un proceso de selección para el más adecuado ya que existen
+multitud de gestores de tareas para proyectos, muchos de ellos aptos para
+cualquier lenguaje de programación y con su propio modo de describir y ejecutar
+tareas. En general un gestor de tareas no es una herramienta muy compleja, todos
+son capaces de definir las tareas necesarias de una manera u otra. Por esta
+razón se buscará una herramienta que sea simple, moderna, esté bien documentada
+y tenga soporte actualmente con el objetivo de aprender una herramienta que
+sirva para otros proyectos futuros y permita hacer lo estrictamente necesario
+para el proyecto: compilar la documentación y el código y ejecutar el software
+con sus tests. 
 
-Al hablar de gestores de tareas el primero en el que se suele pensar es en
-\textit{make}, el cual es una herramienta muy utilizada en cualquier ámbito de
-la informática. Sin embargo, se ha optado por uno más sencillo y más moderno
-como Mask, que además tiene la ventaja de que es autodescriptivo, a diferencia
-de make cuyo fichero de configuración suele ser bastante complicado de entender
+Además, puesto que es un proyecto libre cualquier persona puede acceder a él y
+tener la documentación compilada en un pdf o ejecutar el software es
+imprescindible para alguien que vea el trabajo por primera vez, por lo que así
+que se tiene como otro punto a valorar que el propio gestor de tareas sea
+autoexplicativo, es decir, tenga una manera rápida y sencilla de saber qué
+tareas tiene el proyecto y ejecutarlas.
+
+Al hablar de gestores de tareas el más destacable y utilizado es
+\textit{make}\footnote{\url{https://www.gnu.org/software/make/}} ya que es una
+herramienta instalada por defecto en cualquier sistema Linux. \textit{Make} es
+muy utilizada en cualquier ámbito de la informática ya que sirve para cualquier
+lenguaje de programación y en general para automatizar cualquier tarea de
+terminal. Sin embargo, se busca un gestor de tareas más moderno, autodescriptivo
+y simple, que permita conocer nuevas alternativas, y el \textit{Makefile}, el
+fichero de configuración que utiliza, suele ser bastante complicado de entender
 a primera vista y no se puede saber fácilmente cuáles son las tareas que tiene
-definidas. Aún teniendo en cuenta esto, se emplea make en una parte del proyecto
-dejándolo para la compilación de la documentación en LaTeX, puesto que, es más
-fácil gestionar la compilación de algo que tiene tantos ficheros usando las
-variables especiales de make. El gestor de tareas Mask ejecutará con una orden
-el Makefile encargado de compilar el documento.
+definidas. Aún teniendo en cuenta esto se emplea \textit{make} en una parte del
+proyecto, delegando en él la compilación de la documentación en LaTeX, puesto
+que, es más fácil gestionar la compilación de algo que tiene tantos ficheros
+usando las variables especiales de make. El gestor de tareas elegido ejecutará
+con una orden el Makefile encargado de compilar el documento.
 
-Se han estudiado otros más modernos como
-\textit{Task}\footnote{\url{https://github.com/go-task/task}} un gestor de
+Otros de los más utilizados son Gulp\footnote{\url{https://gulpjs.com/}} y
+Grunt\footnote{\url{https://gruntjs.com/}}, sin embargo son gestores de tareas
+más centrados en el ecosistema de javascript, que requieren un mayor
+conocimiento del lenguaje para describir su configuración, y se busca una
+herramienta multilenguaje. Además, cuentan con multitud de \textit{plugins} que
+hacen el gestor más complejo de lo necesario.
+
+Existen opciones modernas como
+\textit{Task}\footnote{\url{https://github.com/go-task/task}}, un gestor de
 tareas muy simple que se define a sí mismo como una alternativa más fácil a
 make, el cual es interesante porque está escrito en Go, el mismo lenguaje con el
 que se escribirá el software de este proyecto. Tiene una sintaxis simple con
 ficheros en formato YAML, el cual tiene la ventaja de que es un formato muy
-utilizado en infraestructura como código. Se ha descartado porque no aporta
-tanta legibilidad como Mask, sin embargo, es una opción muy buena para proyectos
-en Go.
+utilizado en infraestructura como código. Es un proyecto que se sigue
+manteniendo a día de hoy, pero se ha decidido descartarlo porque no aporta tanta
+legibilidad como el que finalmente se ha elegido, su fichero de configuración es
+más complejo de confeccionar y tiene más funcionalidades de las realmente
+necesarias para el proyecto por lo que no es tan simple. Sin embargo, es una
+opción muy buena que se podría considerar para cualquier proyecto.
 
-Por último también se ha visto
-Realize\footnote{\url{https://github.com/oxequa/realize}}, un gestor de tareas
-para Go que también usa ficheros de configuración en formato YAML. Con él se
-pueden gestionar múltiples proyectos a la vez y, puesto que está hecho para Go,
-tiene en cuenta todos los comandos CLI del lenguaje para generar tareas
-asociadas. Se ha descartado por las mismas razones que Task, además de que sus
-ficheros de configuración son demasiado largos, no tiene demasiada
-documentación, y el proyecto parece abandonado viendo que el último commit en el
-repositorio es de hace tres años y la última release es de hace cinco. Es por
-esto que no sería lo más ideal usarlo, ya que, podría tener bugs o problemas
-para los que no haya soporte.
+En el ámbito de los gestores de tareas de Go se ha visto
+Realize\footnote{\url{https://github.com/oxequa/realize}}, que también usa
+ficheros de configuración en formato YAML. Con él se pueden gestionar múltiples
+proyectos a la vez y, puesto que está hecho para Go, tiene en cuenta todos los
+comandos CLI del lenguaje para generar tareas asociadas. Se ha descartado por
+las mismas razones que Task, además de que se busca un gestor multilenguaje y
+para un solo proyecto, sus ficheros de configuración son demasiado largos, no
+tiene demasiada documentación, y el proyecto parece abandonado viendo que el
+último commit en el repositorio es de hace tres años y la última
+\textit{release} es de hace cinco. Es por esto que no sería lo más ideal usarlo,
+ya que, podría tener bugs o problemas para los que no haya soporte.
+
+Finalmente uno de los más llamativos y el cual se ha escogido para este
+desarrollo es
+\textbf{\textit{Mask}}\footnote{\url{https://github.com/jacobdeichert/mask}}, un
+gestor de tareas simple, con buena documentación y ejemplos, que sigue teniendo
+soporte a día de hoy y está en constante desarrollo. Su principal ventaja es que
+aprenderlo implica poder usar este mismo gestor en cualquier otro proyecto
+independientemente del lenguaje que use, además de que el propio fichero de
+descripción de tareas, al estar escrito en \textit{markdown}, es a la vez
+legible para humanos y ejecutable por el programa gestor de tareas lo cual es
+una manera muy inteligente de combinar documentación y ejecución de tareas.
+Dentro del propio fichero de configuración se puede ver tanto una descripción
+como las propias ordenes que ejecuta para lanzar la tarea, teniendo una forma
+fácil de saber qué hace exactamente. Cualquier persona que esté interesada en
+ver qué tareas tiene el proyecto no tiene más que abrir el fichero
+\textit{maskfile.md}, además de que el fichero al abrirlo en GitHub se verá
+formateado ya que tiene un lector de \textit{markdown}, centralizando todo aún
+más en el repositorio.
 
 \subsection{Framework de testing}
 \subsection{Sistema de integración continua}
