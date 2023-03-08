@@ -1,18 +1,51 @@
 \chapter{Planificación}
-En este capítulo se especifica la metodología de desarrollo que se ha utilizado
-para guiar el completo desarrollo del trabajo, indicando la planificación
-temporal, historias de usuario e hitos que han servido para saber en todo
-momento el estado del desarrollo, con el objetivo de garantizar la calidad del
-proyecto y que se cumplan sus objetivos correctamente para satisfacer al
-usuario.
+En este capítulo se especifican todas las cuestiones relativas a cómo se ha
+abordado el desarrollo del proyecto con respecto a la planificación,
+metodologías e infraestructura de control de calidad. 
+
+Primero, se hará una introducción sobre la ingeniería del \textit{software} y la
+metodología de desarrollo que se ha utilizado para guiar el completo desarrollo
+del trabajo. A continuación, se definirán las buenas prácticas para garantizar
+el control de calidad y que servirán para hacer un correcto seguimiento del
+desarrollo, además del papel central que tiene GitHub en este. Por último, se
+hará un estudio comparativo sobre las diferentes herramientas que existen para
+asegurar estas buenas prácticas y cuáles se usarán finalmente en el proyecto.
 
 \section{Metodología de desarrollo}
+El proceso de desarrollo de un \textit{software} moderno implica tener en cuenta
+ciertas verdades como el hecho de que tanto el \textit{software} como las
+personas que lo consumen han crecido en número en los últimos años, y con ello
+la demanda en adaptarlo y mejorarlo, lo que implica que cada vez se tienen
+requerimientos tecnológicos más complejos. Esto implica que se debe hacer un
+esfuerzo para entender el problema antes de desarrollar una aplicación
+\textit{software}, siendo el diseño una actividad crucial, y además debe tener
+una alta calidad y facilidad para recibir mantenimiento
+\cite{pressman_software_2015}. Es aquí donde entra la ingeniería del
+\textit{software}, la cual nos permite guiar este proyecto para superar los
+problemas mencionados y alcanzar la excelencia técnica.
+
+La ingeniería del \textit{software} es el establecimiento y uso de principios
+fundamentales de la ingeniería con objeto de desarrollar \textit{software}
+confiable y eficiente. Lo más importante a tener en cuenta es que la ingeniería
+del software es un proceso que forma la base para el control de la
+administración de proyectos de \textit{software}, y establece el contexto en el
+que se aplican métodos técnicos, se generan productos (modelos, documentación,
+código, etc.), se establecen puntos de referencia, se asegura la calidad y se
+aborda al cambio de manera apropiada \cite{pressman_software_2015}.
+
+Dentro del marco de la ingeniería del \textit{software} están las metodologías
+ágiles... \cite{abrahamsson2017agile}.
+
 Todo el proyecto, desde su concepción, se ha planteado siguiendo una metodología
 de desarrollo ágil que siga los principios del manifiesto ágil
-\cite{agilemanifesto}. El principal objetivo al seguir una metodología ágil es
-el de asegurar un desarrollo flexible, ágil, centrado en las necesidades de los
-usuarios a los que se desarrolla el software y en el que exista una tolerancia
-al cambio.
+\cite{agilemanifesto}. El principal objetivo del desarrollo ágil es el de buscar
+la calidad del producto y asegurar un desarrollo flexible centrado en las
+necesidades de los usuarios, a los que se desarrolla el \textit{software}, y en
+el que exista una tolerancia al cambio.
+
+La flexibilidad que da el desarrollo ágil a la hora de detectar cambios permite
+tener un enfoque más centrado en la implementación del \textit{software} y estar
+menos centrado en la documentación.
 
 \begin{itemize}
     \item El desarrollo es iterativo e incremental, en el cual se definen una
@@ -21,18 +54,18 @@ al cambio.
     tener al final para cumplir los objetivos especificados, y los tests se
     asegurarán de que sea completamente funcional, garantizando su calidad.
     \item El desarrollo está organizado por una serie de historias de usuario
-    que definen de forma precisa y adecuada el funcionamiento del software y
-    cómo organizar el desarrollo del mismo, siempre desde el punto de si
-    satisfacen al usuario, que es para quien se desarrolla.
+    que definen de forma precisa y adecuada el funcionamiento del
+    \textit{software} y cómo organizar el desarrollo del mismo, siempre desde el
+    punto de si satisfacen al usuario, que es para quien se desarrolla.
     \item Durante todo el desarrollo se acepta que surjan problemas o nuevos
     requisitos, que se documentarán adecuadamente y se incorporarán a la
     planificación en mitad del desarrollo para adaptarse a esos cambios lo antes
     posible y siempre cumplir las necesidades de los usuarios.
-    \item Se busca siempre la calidad del software, usando para ello las mejores
-    prácticas del lenguaje tanto en código como en su documentación, teniendo
-    que estar todo debidamente testeado. Se va a desarrollar una herramienta que
-    en última instancia será utilizada usuarios reales y estos deben obtener el
-    mejor producto posible.
+    \item Se busca siempre la calidad del \textit{software}, usando para ello
+    las mejores prácticas del lenguaje tanto en código como en su documentación,
+    teniendo que estar todo debidamente testeado. Se va a desarrollar una
+    herramienta que en última instancia será utilizada usuarios reales y estos
+    deben obtener el mejor producto posible.
 \end{itemize}
 
 Este tipo de desarrollo se adapta bien a un proyecto como este, en el que pueden
@@ -50,14 +83,14 @@ del desarrollo y que se describen a continuación.
 
 \section{Seguimiento del desarrollo}
 \subsection{GitHub}
-Al ser un proyecto de software libre el uso de Git y GitHub como software de
-control de versiones es imprescindible. Esto permite tener un seguimiento
-cercano de todos los avances que se hacen tanto en el código como en la
-documentación, que están ambos alojados en el repositorio
+Al ser un proyecto de \textit{software} libre el uso de Git y GitHub como
+\textit{software} de control de versiones es imprescindible. Esto permite tener
+un seguimiento cercano de todos los avances que se hacen tanto en el código como
+en la documentación, que están ambos alojados en el repositorio
 público\footnote{\url{https://github.com/jlgallego99/TropesToGo}}. Además de
-esto también facilita el poder recuperar versiones anteriores del software en
-caso de algún fallo o cambio sustancial, por lo que es ideal en una metodología
-ágil en la cual existen constantemente cambios.
+esto también facilita el poder recuperar versiones anteriores del
+\textit{software} en caso de algún fallo o cambio sustancial, por lo que es
+ideal en una metodología ágil en la cual existen constantemente cambios.
 
 Sin embargo, lo más importante es que se guía todo el proceso de desarrollo
 mediante el repositorio de GitHub, teniendo en un mismo lugar todo lo necesario
@@ -67,32 +100,32 @@ funcionamiento es el siguiente:
 \begin{itemize}
     \item Para llevar el seguimiento de las historias de usuario y tareas
     asociadas a ellas de la metodología de desarrollo ágil se han creado una
-    serie de issues en el repositorio de GitHub que especifican el trabajo que
-    hay que realizar. Estos issues servirán para saber en todo momento en qué
-    trabajar y siempre están orientados a resolver una historia de usuario, es
-    decir, satisfacer sus necesidades.\\
+    serie de \textit{issues} en el repositorio de GitHub que especifican el
+    trabajo que hay que realizar. Estos \textit{issues} servirán para saber en
+    todo momento en qué trabajar y siempre están orientadas a resolver una
+    historia de usuario, es decir, satisfacer sus necesidades.\\
     Cada vez que, en mitad del desarrollo, se necesite desarrollar algo o
-    solucionar un problema se documenta en un issue que especifica qué se quiere
-    conseguir y entonces se trabaja en cumplirlo.
-    \item Los distintos hitos estarán documentados en la sección de milestones,
-    indicando a modo de resumen el objetivo que se pretende alcanzar al tener
-    ese producto funcional. Este es el principal artefacto para conocer el
-    estado del proyecto, ya que cada hito indica una fecha límite para
-    completarlo y una serie de issues necesarios para completarlo por completo.
-    Conforme se van completando las tareas se puede ver cuánto trabajo queda por
-    hacer.
-    \item Cada commit es un avance en el código o la documentación, y en el
-    mensaje se hará una pequeña indicación que sirva para saber qué se ha hecho
-    para avanzar en el issue al que hace referencia. De esta manera podemos
-    saber en todo momento las decisiones que se han tomado para resolver una
-    determinada tarea, teniendo un historial con todos los cambios.
+    solucionar un problema se documenta en un \textit{issue} que especifica qué
+    se quiere conseguir y entonces se trabaja en cumplirlo.
+    \item Los distintos hitos estarán documentados en la sección de
+    \textit{milestones}, indicando a modo de resumen el objetivo que se pretende
+    alcanzar al tener ese producto funcional. Este es el principal artefacto
+    para conocer el estado del proyecto, ya que cada hito indica una fecha
+    límite para completarlo y una serie de \textit{issues} necesarias para
+    completarlo por completo. Conforme estas se van completando se puede ver
+    cuánto trabajo queda por hacer.
+    \item Cada \textit{commit} es un avance en el código o la documentación, y
+    en el mensaje se hará una pequeña indicación que sirva para saber qué se ha
+    hecho para avanzar en el \textit{issue} al que hace referencia. De esta
+    manera podemos saber en todo momento las decisiones que se han tomado para
+    resolver una determinada tarea, teniendo un historial con todos los cambios.
     \item Todo el código y documentación que esté en la rama principal del
     repositorio se entiende que está probado y, por tanto, es completamente
     funcional. \\
     El código se desarrolla en ramas separadas a la principal, que hacen
     referencia a cada hito que se quiere alcanzar. Cada vez que se complete una
-    tarea de desarrollo se hará un pull request a la rama principal, y si pasa
-    los flujos de CI configurados (los cuales se explicarán en próximas
+    tarea de desarrollo se hará un \textit{pull request} a la rama principal, y
+    si pasa los flujos de CI configurados (los cuales se explicarán en próximas
     secciones) entonces se dará la tarea por completada y se tendrá una nueva
     versión funcional en la rama principal. 
 \end{itemize}
@@ -103,84 +136,102 @@ saber siempre el trabajo que se tiene que hacer y poder avanzar de una forma má
 cómoda en alcanzar los objetivos y satisfacer al usuario. 
 
 \subsection{Hitos}
-Los hitos o milestones representan cada uno de los estados en los que va a ir
-evolucionando la aplicación, conformando un Producto Mínimamente Viable. Cada
-PMV se construye encima de los anteriores, por lo que no se avanza en el
+Los hitos o \textit{milestones} representan cada uno de los estados en los que
+va a ir evolucionando la aplicación, conformando un Producto Mínimamente Viable.
+Cada PMV se construye encima de los anteriores, por lo que no se avanza en el
 desarrollo hasta que un hito quede completo en su totalidad. 
 
 Cada hito equivaldría a un sprint, puesto que son ciclos de ejecución cortos (de
 máximo 4 semanas) con una serie de historias de usuario y tareas definidas que
 se deben completar en un periodo de tiempo y cuyo objetivo es conseguir un
 incremento de valor en el producto que se está construyendo, es decir, un PMV.
+Puesto que se está siguiendo un desarrollo ágil estos hitos se van adaptando al
+propio proceso de desarrollo y van cambiando a lo largo del trabajo conforme
+surgen nuevas necesidades al entender mejor el dominio del problema o al
+necesitar productos mínimos intermedios antes de poder trabajar en el siguiente.
 
-Un milestone se considerará como completado una vez se hayan resuelto todas sus
-tareas asociadas, o issues de GitHub, y al terminarlo y subir sus cambios a la
-rama principal (tras un pull request que haya sido aprobado por los flujos de CI
-y el tutor) se lanzará un nuevo release, es decir, el propio incremento del
-producto que tendrá un número de versión asociado siguiendo la nomenclatura del
-versionado semántico\footnote{\url{https://semver.org/}}.
+Un \textit{milestone} se considerará como completado una vez se hayan resuelto
+todos sus \textit{issues} asociados. Al terminarlo y subir sus cambios a la rama
+principal (tras un \textit{pull request} que haya sido aprobado por los flujos
+de CI y el tutor) se lanzará un nuevo \textit{release}, es decir, el propio
+incremento del producto que tendrá un número de versión asociado siguiendo la
+nomenclatura del versionado semántico\footnote{\url{https://semver.org/}}.
 
 Los hitos planificados para el desarrollo son los siguientes:
 
-\subsubsection{M0. Configuración inicial - Objetivos, metodología e infraestructura}
+\subsubsection{M0. Configuración inicial - Objetivos, metodología e infraestructura de control de calidad}
 En este primer hito se pretende abordar toda la planificación inicial y
-preparación del proyecto. Como producto al final de este hito se definirán los
-hitos iniciales del proyecto y se tendrán escritos los capítulos 1, 2, 3 y 4 de
-la documentación en los cuales se abordará la descripción del problema a
-resolver, el estado del arte y toda la metodología a seguir durante el proyecto.
-También se tendrá configurado el repositorio con un comprobador ortográfico para
-la documentación, un gestor de tareas, los sistemas de CI y los issues,
-historias de usuario y milestones en el propio repositorio.\\
+preparación del proyecto para poder asegurar la calidad del mismo. Como producto
+al final de este hito se definirán los hitos iniciales del proyecto y se tendrán
+escritos los capítulos 1, 2, 3 y 4 de la documentación en los cuales se abordará
+la descripción del problema a resolver, el estado del arte y toda la metodología
+a seguir durante el proyecto. También se tendrá configurado el repositorio con
+un comprobador ortográfico para la documentación, un gestor de tareas, los
+sistemas de CI y los \textit{issues}, historias de usuario y \textit{milestones}
+en el propio repositorio.
 
-Esta iteración se desarrolla entre el \textbf{06/02/23} y el \textbf{07/03/23},
-teniendo una duración completa de un mes.
+%Esta iteración se desarrolla entre el \textbf{06/02/23} y el \textbf{07/03/23},
+%teniendo una duración completa de un mes.
 \subsubsection{M1. Modelización del problema}
 Se obtendrá un producto mínimamente viable con el capítulo 5 de la
 documentación, describiendo un modelo del problema para resolver la extracción
-de los tropos asociados a películas.\\
+de los tropos asociados a películas.
 
-Esta iteración se desarrolla entre el \textbf{08/03/23} y el \textbf{22/03/23},
-teniendo una duración completa de dos semanas.
-\subsubsection{M2. Extracción de tropos de películas}
-Con este hito se comienza el desarrollo del software. Se producirá un producto
-mínimamente viable con una primera versión del scraper que extraiga toda la
-información sobre tropos de un solo medio audiovisual (películas) y la
-represente en un formato de datos estándar.
+%Esta iteración se desarrolla entre el \textbf{08/03/23} y el \textbf{22/03/23},
+%teniendo una duración completa de dos semanas.
 
-Esta iteración se desarrolla entre el \textbf{23/02/23} y el \textbf{20/04/23},
-teniendo una duración completa de un mes.
+\subsubsection{M2. Scraper que encuentra página de tropos de películas, entiende y testea su estructura}
+Con este hito se comienza el desarrollo del \textit{software}. Se producirá un
+producto mínimamente viable con una primera versión del scraper que sea capaz de
+encontrar el URL de una página sobre tropos de películas en TvTropes, entienda
+su estructura y realice una serie de comprobaciones sobre ella para confirmar
+que se pueda extraer información.
 
-\subsubsection{M3. Extracción de tropos de videojuegos, libros y series}
-Como producto de este hito se tendrá un scraper que, además de obtener la
-información de tropos de películas, permita también obtener información de
-tropos de otros medios audiovisuales existentes en TvTropes como series,
-videojuegos o libros.
+\subsubsection{M3. Scraper que extrae la información de una página de tropos de películas}
+Se producirá un producto mínimamente viable con una primera versión del scraper
+que extraiga la información de una página de tropos de películas que ha sido
+previamente testeada y de la cual se entiende su estructura. El scraper
+almacenará esta información en un fichero de datos estándar.
 
-\subsubsection{M4. Aplicación de línea de comandos}
+%Esta iteración se desarrolla entre el \textbf{23/02/23} y el \textbf{20/04/23},
+%teniendo una duración completa de un mes.
+
+\subsubsection{M4. Araña que recorre el sitio}
+Se tendrá desarrollada una araña que recorra todas las páginas de películas de
+TvTropes y extraiga la información de sus tropos.
+
+\subsubsection{M5. Actualizador de información}
+El objetivo de este hito es poder actualizar la información ya extraída. Se
+tendrá como producto mínimamente viable una araña que, al recorrer todas las
+páginas, añada la información de las páginas nuevas que existen y actualice la
+información de las antiguas.
+
+\subsubsection{M6. Extracción de tropos de videojuegos, libros y series}
+Como producto de este hito el scraper podrá encontrar páginas de tropos de
+videojuegos, libros y series. Podrá entender y testar su estructura, así como
+extraer la información de la página, almacenándola en un fichero de datos
+estándar.
+
+\subsubsection{M7. Aplicación de línea de comandos}
 Este hito está enfocado en que el usuario final pueda usar el scraper. El
 objetivo es obtener una aplicación de línea de comandos (CMD) que un usuario
 pueda instalar y le facilite la interacción con el scraper, pudiendo obtener la
 información de tropos completa o parcial según varias opciones y elegir entre
 diferentes formatos de representación en los que obtener los datos.
 
-\subsubsection{M5. Actualización periódica de los datos}
-Se obtendrá una aplicación de línea de comandos para interaccionar con el
-scraper la cual actualice la información de tropos automáticamente de forma
-periódica para que estos datos estén siempre actualizados. 
-
-\subsubsection{M6. Integración con fuentes de datos externas y extracción de metadatos}
+\subsubsection{M8. Integración con fuentes de datos externas y extracción de metadatos}
 Como producto de este hito el scraper será capaz de identificar qué medio
 audiovisual de cualquier otra fuente de datos externa corresponde al que se ha
-detectado en TvTropes, para así poder sacar más información como el año de
+detectado en TvTropes, pudiendo sacar más información como el año de
 lanzamiento, añadiendo a los datos obtenidos nuevos campos de metadatos.
 
 \subsection{Desarrollo dirigido por pruebas}
 El desarrollo dirigido por pruebas (TDD, de sus siglas en inglés \textit{Test
 Driven Development}) es una de las principales y más importantes prácticas en el
-marco de las metodologías ágiles para garantizar la calidad del software. Se
-trabaja bajo la idea de que cualquier código que no esté testeado no es
-correcto, es propenso a fallos y, por tanto, todo el código debe estar testeado
-para asegurar su buen funcionamiento y su calidad.
+marco de las metodologías ágiles para garantizar la calidad del
+\textit{software}. Se trabaja bajo la idea de que cualquier código que no esté
+testeado no es correcto, es propenso a fallos y, por tanto, todo el código debe
+estar testeado para asegurar su buen funcionamiento y su calidad.
 
 El objetivo del TDD es conseguir código limpio que funcione, y para ello es
 necesario desarrollar primero los tests antes que el código de forma que al
@@ -193,7 +244,7 @@ El trabajar en un marco TDD da espacio a analizar bien el código, puesto que no
 basta solo con desarrollar una función, sino que hay que estudiar bien su
 funcionamiento para detectar todos los casos límite y probarlos. Además, tal y
 como se busca en las metodologías ágiles, el objetivo del desarrollo dirigido
-por pruebas es mejorar las vidas de los usuarios que usan el software
+por pruebas es mejorar las vidas de los usuarios que usan el \textit{software}
 \cite{beck2002driven}. En general, un código bien testeado se adapta a la
 filosofía de cambio de las metodologías ágiles, ya que, el reducir el riesgo
 implica que el coste de abordar problemas o nuevas mejoras al desarrollo es
@@ -227,17 +278,18 @@ estrechamente relacionada con la idea de cambio y de tener todo el código en un
 repositorio central como el que se ha especificado. Las herramientas de
 integración continua realizan comprobaciones automáticas sobre el código fuente
 como paso previo al despliegue y crean algo ejecutable según las
-especificaciones que se les dé, ya sea para crear un ejecutable del software, un
-test, un documento, un reporte, etc. En general se hace referencia a cualquier
-proceso que automatice la construcción de una aplicación.\\
+especificaciones que se les dé, ya sea para crear un ejecutable del
+\textit{software}, un test, un documento, un reporte, etc. En general se hace
+referencia a cualquier proceso que automatice la construcción de una
+aplicación.\\
 
 En este proyecto se usan los sistemas de integración continua para automatizar
 la ejecución de los tests y para comprobar ortográfica y gramaticalmente la
 documentación al subir cambios a la rama principal, asegurando así la calidad
-del software, ya que, todo el código que se tenga en producción estará testeado.
-Esto además dota de agilidad al desarrollo, siguiendo con las mismas ideas de
-metodologías ágiles, puesto que se tiene feedback en todo momento sobre el
-estado de producción del código.
+del \textit{software}, ya que, todo el código que se tenga en producción estará
+testeado. Esto además dota de agilidad al desarrollo, siguiendo con las mismas
+ideas de metodologías ágiles, puesto que se tiene feedback en todo momento sobre
+el estado de producción del código.
 
 La razón de que se ejecuten estos sistemas para la rama principal es porque en
 este proyecto se están desarrollando distintos productos mínimamente viables que
@@ -326,42 +378,42 @@ puedan replicar en cualquier otro sistema fácilmente, ya que estarán descritas
 en un fichero de configuración siguiendo la filosofía de la infraestructura como
 código.
 
-Es necesario un proceso de selección para el más adecuado ya que existen
-multitud de gestores de tareas para proyectos, muchos de ellos aptos para
-cualquier lenguaje de programación y con su propio modo de describir y ejecutar
-tareas. En general un gestor de tareas no es una herramienta muy compleja, todos
-son capaces de definir las tareas necesarias de una manera u otra. Por esta
-razón se buscará una herramienta que sea simple, moderna, esté bien documentada
-y tenga soporte actualmente con el objetivo de aprender una herramienta que
-sirva para otros proyectos futuros y permita hacer lo estrictamente necesario
-para el proyecto: compilar la documentación y el código y ejecutar el software
-con sus tests. 
+Debido a que existen multitud de gestores de tareas para proyectos, muchos de
+ellos aptos para cualquier lenguaje de programación y con su propio modo de
+describir y ejecutar tareas, es necesario un proceso de selección para el más
+adecuado. En general un gestor de tareas no es una herramienta muy compleja,
+todos son capaces de definir las tareas necesarias de una manera u otra. Por
+esta razón se buscará una herramienta que sea simple, moderna, esté bien
+documentada y tenga soporte actualmente con el objetivo de aprender una
+herramienta que sirva para otros proyectos futuros y permita hacer lo
+estrictamente necesario para el proyecto: compilar la documentación y el código
+y ejecutar el software con sus tests. 
 
 Además, puesto que es un proyecto libre cualquier persona puede acceder a él y
-tener la documentación compilada en un pdf o ejecutar el software es
+tener la documentación compilada en un PDF o ejecutar el software es
 imprescindible para alguien que vea el trabajo por primera vez, por lo que así
 que se tiene como otro punto a valorar que el propio gestor de tareas sea
 autoexplicativo, es decir, tenga una manera rápida y sencilla de saber qué
 tareas tiene el proyecto y ejecutarlas.
 
 Al hablar de gestores de tareas el más destacable y utilizado es
-\textit{make}\footnote{\url{https://www.gnu.org/software/make/}} ya que es una
-herramienta instalada por defecto en cualquier sistema Linux. \textit{Make} es
-muy utilizada en cualquier ámbito de la informática ya que sirve para cualquier
-lenguaje de programación y en general para automatizar cualquier tarea de
-terminal. Sin embargo, se busca un gestor de tareas más moderno, autodescriptivo
-y simple, que permita conocer nuevas alternativas, y el \textit{Makefile}, el
-fichero de configuración que utiliza, suele ser bastante complicado de entender
-a primera vista y no se puede saber fácilmente cuáles son las tareas que tiene
-definidas. Aún teniendo en cuenta esto se emplea \textit{make} en una parte del
-proyecto, delegando en él la compilación de la documentación en LaTeX, puesto
-que, es más fácil gestionar la compilación de algo que tiene tantos ficheros
-usando las variables especiales de make. El gestor de tareas elegido ejecutará
-con una orden el Makefile encargado de compilar el documento.
+\textit{make}\footnote{\url{https://www.gnu.org/software/make/}}, ya que, es una
+herramienta instalada por defecto en cualquier sistema Linux. \textit{Make} está
+presente en cualquier ámbito de la programación, sirve para cualquier
+lenguaje y en general para automatizar cualquier tarea de terminal. Sin embargo,
+se busca un gestor de tareas más moderno, autodescriptivo y simple, que permita
+conocer nuevas alternativas, y su \textit{Makefile} suele ser bastante
+complicado de entender a primera vista y no se puede saber fácilmente cuáles son
+las tareas que tiene definidas. Aún teniendo en cuenta esto se emplea
+\textit{make} en una parte del proyecto, delegando en él la compilación de la
+documentación en LaTeX, puesto que, es más fácil gestionar la compilación de
+algo que tiene tantos ficheros usando las variables especiales de make. El
+gestor de tareas elegido ejecutará con una orden el Makefile encargado de
+compilar el documento.
 
-Otros de los más utilizados son Gulp\footnote{\url{https://gulpjs.com/}} y
-Grunt\footnote{\url{https://gruntjs.com/}}, sin embargo son gestores de tareas
-más centrados en el ecosistema de javascript, que requieren un mayor
+Otros de los más famosos son Gulp\footnote{\url{https://gulpjs.com/}} y
+Grunt\footnote{\url{https://gruntjs.com/}}, sin embargo, son gestores de tareas
+más centrados en el ecosistema de JavaScript, que requieren un mayor
 conocimiento del lenguaje para describir su configuración, y se busca una
 herramienta multilenguaje. Además, cuentan con multitud de \textit{plugins} que
 hacen el gestor más complejo de lo necesario.
@@ -372,7 +424,7 @@ tareas muy simple que se define a sí mismo como una alternativa más fácil a
 make, el cual es interesante porque está escrito en Go, el mismo lenguaje con el
 que se escribirá el software de este proyecto. Tiene una sintaxis simple con
 ficheros en formato YAML, el cual tiene la ventaja de que es un formato muy
-utilizado en infraestructura como código. Es un proyecto que se sigue
+común en infraestructura como código. Es un proyecto que se sigue
 manteniendo a día de hoy, pero se ha decidido descartarlo porque no aporta tanta
 legibilidad como el que finalmente se ha elegido, su fichero de configuración es
 más complejo de confeccionar y tiene más funcionalidades de las realmente
@@ -391,22 +443,22 @@ tiene demasiada documentación, y el proyecto parece abandonado viendo que el
 \textit{release} es de hace cinco. Es por esto que no sería lo más ideal usarlo,
 ya que, podría tener bugs o problemas para los que no haya soporte.
 
-Finalmente uno de los más llamativos y el cual se ha escogido para este
+Finalmente, uno de los más llamativos y el cual se ha escogido para este
 desarrollo es
 \textbf{\textit{Mask}}\footnote{\url{https://github.com/jacobdeichert/mask}}, un
 gestor de tareas simple, con buena documentación y ejemplos, que sigue teniendo
 soporte a día de hoy y está en constante desarrollo. Su principal ventaja es que
-aprenderlo implica poder usar este mismo gestor en cualquier otro proyecto
-independientemente del lenguaje que use, además de que el propio fichero de
+aprenderlo implica poder aplicar este mismo gestor en cualquier otro proyecto
+independientemente del lenguaje, además de que el propio fichero de
 descripción de tareas, al estar escrito en \textit{markdown}, es a la vez
 legible para humanos y ejecutable por el programa gestor de tareas lo cual es
 una manera muy inteligente de combinar documentación y ejecución de tareas.
 Dentro del propio fichero de configuración se puede ver tanto una descripción
-como las propias ordenes que ejecuta para lanzar la tarea, teniendo una forma
+como las propias órdenes que ejecuta para lanzar la tarea, teniendo una forma
 fácil de saber qué hace exactamente. Cualquier persona que esté interesada en
 ver qué tareas tiene el proyecto no tiene más que abrir el fichero
 \textit{maskfile.md}, además de que el fichero al abrirlo en GitHub se verá
-formateado ya que tiene un lector de \textit{markdown}, centralizando todo aún
+formateado, puesto que, tiene un lector de \textit{markdown}, centralizando todo aún
 más en el repositorio.
 
 \subsection{Framework de testing}
