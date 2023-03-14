@@ -43,3 +43,5 @@ Continuous
 Integration
 GPLv3
 release
+Extreme
+Programming
