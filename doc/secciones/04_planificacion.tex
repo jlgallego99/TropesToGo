@@ -109,8 +109,8 @@ Al ser un proyecto de \textit{software} libre el uso de Git y GitHub como \texti
 
 Sin embargo, lo más importante es que se guía todo el proceso de desarrollo mediante el repositorio de GitHub, teniendo en un mismo lugar todo lo necesario para hacer un correcto seguimiento del estado del trabajo que se tiene en cualquier momento mediante las herramientas que proporciona GitHub. El funcionamiento es el siguiente:
 \begin{itemize}
-    \item Para llevar el seguimiento de las historias de usuario y tareas asociadas a ellas de la metodología de desarrollo ágil se han creado una serie de \textit{issues} en el repositorio de GitHub que especifican el trabajo que hay que realizar. Estos \textit{issues} servirán para saber en todo momento en qué trabajar y siempre están orientadas a resolver una historia de usuario, es decir, satisfacer sus necesidades.\\
-    Cada vez que, en mitad del desarrollo, se necesite desarrollar algo o solucionar un problema se documenta en un \textit{issue} que especifica qué se quiere conseguir y entonces se trabaja en cumplirlo.
+    \item Para llevar el seguimiento de las historias de usuario y tareas asociadas a ellas se han creado una serie de \textit{issues} en el repositorio de GitHub que especifican el trabajo que hay que realizar. Estos \textit{issues} servirán para saber en todo momento en qué trabajar y siempre están orientadas a resolver una historia de usuario, es decir, satisfacer sus necesidades.\\
+    Cada vez que, en mitad del desarrollo, se necesite implementar algo o solucionar un problema se documenta en un \textit{issue} que especifica qué se quiere conseguir y entonces se trabaja en cumplirlo.
     \item Los distintos hitos estarán documentados en la sección de \textit{milestones}, indicando a modo de resumen el objetivo que se pretende alcanzar al tener ese producto funcional. Este es el principal artefacto para conocer el estado del proyecto, ya que cada hito indica una fecha límite para completarlo y una serie de \textit{issues} necesarias para completarlo por completo. Conforme estas se van completando se puede ver cuánto trabajo queda por hacer.
     \item Cada \textit{commit} es un avance en el código o la documentación, y en el mensaje se hará una pequeña indicación que sirva para saber qué se ha hecho para avanzar en el \textit{issue} al que hace referencia. De esta manera podemos saber en todo momento las decisiones que se han tomado para resolver una determinada tarea, teniendo un historial con todos los cambios.
     \item Todo el código y documentación que esté en la rama principal del repositorio se entiende que está probado y, por tanto, es completamente funcional. \\
@@ -120,9 +120,31 @@ Sin embargo, lo más importante es que se guía todo el proceso de desarrollo me
 Como podemos ver, mediante GitHub se tiene en un mismo sitio todo lo necesario para el desarrollo: código, documentación y seguimiento del desarrollo para saber siempre el trabajo que se tiene que hacer y poder avanzar de una forma más cómoda en alcanzar los objetivos y satisfacer al usuario. 
 
 \subsection{Hitos}
-Los hitos o \textit{milestones} representan cada uno de los estados en los que va a ir evolucionando la aplicación, conformando un Producto Mínimamente Viable. Cada PMV se construye encima de los anteriores, por lo que no se avanza en el desarrollo hasta que un hito quede completo en su totalidad. 
+Como se ha visto anteriormente, uno de los principios básicos del desarrollo
+ágil es el de ir creando rápidamente pequeños incrementos funcionales del
+producto para ir teniendo un \textit{feedback} continuo del cliente, abordar
+cambios y problemas lo antes posible y así minimizar el riesgo. Cada uno de
+estos incrementos lo representamos como un hito, o \textit{milestone}, que
+representa cada uno de los estados en los que va a ir evolucionando el
+\textit{software}, conformando un Producto Mínimamente Viable. Cada PMV se
+construye encima de los anteriores, por lo que no se avanza en el desarrollo
+hasta que un hito quede completo en su totalidad. 
 
-Cada hito equivaldría a un sprint, puesto que son ciclos de ejecución cortos (de máximo 4 semanas) con una serie de historias de usuario y tareas definidas que se deben completar en un periodo de tiempo y cuyo objetivo es conseguir un incremento de valor en el producto que se está construyendo, es decir, un PMV. Puesto que se está siguiendo un desarrollo ágil estos hitos se van adaptando al propio proceso de desarrollo y van cambiando a lo largo del trabajo conforme surgen nuevas necesidades al entender mejor el dominio del problema o al necesitar productos mínimos intermedios antes de poder trabajar en el siguiente.
+Cada hito equivaldría a un sprint, que es un ciclo de desarrollo corto (y
+debería durar entre 1 y 6 semanas \cite{abrahamsson2017agile}) en el que se
+desarrolla todo lo necesario para resolver los \textit{issues} convenientes, que
+se deducen de las historias de usuario definidas. Estos \textit{issues} siempre
+expresan un problema, cuya resolución satisface una historia de usuario, y por
+consiguiente, al cliente. Al final del sprint se consigue un incremento de valor
+en el producto que se está construyendo, es decir, un PMV. 
+
+Estos hitos se van adaptando al propio proceso de desarrollo y van cambiando a
+lo largo del trabajo conforme surgen nuevas necesidades al entender mejor el
+dominio del problema o al necesitar productos mínimos intermedios antes de poder
+trabajar en el siguiente. Es posible que para conseguir llegar a cierto
+incremento haya que realizar antes otro que no se haya tenido en cuenta desde el
+principio; la flexibilidad del desarrollo ágil nos permite hacer estos cambios
+de planificación sin tener que replantear todo desde cero.
 
 Un \textit{milestone} se considerará como completado una vez se hayan resuelto todos sus \textit{issues} asociados. Al terminarlo y subir sus cambios a la rama principal (tras un \textit{pull request} que haya sido aprobado por los flujos de CI y el tutor) se lanzará un nuevo \textit{release}, es decir, el propio incremento del producto que tendrá un número de versión asociado siguiendo la nomenclatura del versionado semántico\footnote{\url{https://semver.org/}}.
 
@@ -165,20 +187,20 @@ El desarrollo dirigido por pruebas (TDD, de sus siglas en inglés \textit{Test D
 
 El objetivo del TDD es conseguir código limpio que funcione, y para ello es necesario desarrollar primero los tests antes que el código de forma que al estar trabajando en el código se tenga en cuenta qué tiene que cumplir. Esto permite desarrollar de un modo predecible sabiendo siempre en qué momento se ha terminado de desarrollar una tarea, ya que, se ha realizado pensando en los tests que tiene que pasar y estará testeada. 
 
-El trabajar en un marco TDD da espacio a analizar bien el código, puesto que no basta solo con desarrollar una función, sino que hay que estudiar bien su funcionamiento para detectar todos los casos límite y probarlos. Además, tal y como se busca en las metodologías ágiles, el objetivo del desarrollo dirigido por pruebas es mejorar las vidas de los usuarios que usan el \textit{software} \cite{beck2002driven}. En general, un código bien testeado se adapta a la filosofía de cambio de las metodologías ágiles, ya que, el reducir el riesgo implica que el coste de abordar problemas o nuevas mejoras al desarrollo es menor y puede suceder más frecuentemente.\\
+El trabajar en un marco TDD da espacio a analizar bien el código, puesto que no basta solo con desarrollar una función, sino que hay que estudiar bien su funcionamiento para detectar todos los casos límite y probarlos. Además, tal y como se busca en las metodologías ágiles, el objetivo del desarrollo dirigido por pruebas es mejorar las vidas de los usuarios que usan el \textit{software} \cite{beck2002driven}. En general, un código bien testeado se adapta a la filosofía de cambio de las metodologías ágiles, ya que, el reducir el riesgo implica que el coste de abordar problemas o nuevas mejoras al desarrollo es menor y puede suceder más frecuentemente.
 
 La filosofía que se sigue a la hora de desarrollar tests es que estos son automáticos y se desarrollan continuamente y siempre a la vez que el código. La principal ventaja de esto es que ayuda a desarrollar bien el propio código al tener en mente que los componentes que se desarrollan deben ser cohesivos y tener un bajo acoplamiento para que escribir los propios tests sea una tarea fácil.
 
-Al desarrollar tests se sigue el \textit{mantra de TDD}, un orden definido por Kent Beck \cite{beck2002driven} que consiste en: primero, hacer un test básico que no funcione o no compile; segundo, arreglar el test para que funcione de la forma más básica; y tercero, refactorizar y mejorar tanto el test como el código sin cambiar la funcionalidad consiguiendo un código más simple y limpio. Todo este proceso sigue la misma filosofía iterativa e incremental que la metodología ágil que se usa en todo el desarrollo.\\
+Al desarrollar tests se sigue el \textit{mantra de TDD}, un orden definido por Kent Beck \cite{beck2002driven} que consiste en: primero, hacer un test básico que no funcione o no compile; segundo, arreglar el test para que funcione de la forma más básica; y tercero, refactorizar y mejorar tanto el test como el código sin cambiar la funcionalidad consiguiendo un código más simple y limpio. Todo este proceso sigue la misma filosofía iterativa e incremental que la metodología ágil que se usa en todo el desarrollo.
 
 Por último, el desarrollo de los tests es también documentación, estando dentro del propio lenguaje de programación. Los tests deberán ser legibles y entendibles, centrándose en el comportamiento de las funcionalidades que evalúan y, por tanto, permitirán expresar una correlación más directa con las historias de usuario y la lógica de negocio.
 
 \subsection{Integración continua}
-La integración continua (CI, del inglés \textit{Continuous Integration}) es otra práctica muy importante que se aplica en las metodologías ágiles y que está estrechamente relacionada con la idea de cambio y de tener todo el código en un repositorio central como el que se ha especificado. Las herramientas de integración continua realizan comprobaciones automáticas sobre el código fuente como paso previo al despliegue y crean algo ejecutable según las especificaciones que se les dé, ya sea para crear un ejecutable del \textit{software}, un test, un documento, un reporte, etc. En general se hace referencia a cualquier proceso que automatice la construcción de una aplicación.\\
+La integración continua (CI, del inglés \textit{Continuous Integration}) es otra práctica muy importante que se aplica en las metodologías ágiles y que está estrechamente relacionada con la idea de cambio y de tener todo el código en un repositorio central como el que se ha especificado. Las herramientas de integración continua realizan comprobaciones automáticas sobre el código fuente como paso previo al despliegue y crean algo ejecutable según las especificaciones que se les dé, ya sea para crear un ejecutable del \textit{software}, un test, un documento, un reporte, etc. En general se hace referencia a cualquier proceso que automatice la construcción de una aplicación.
 
 En este proyecto se usan los sistemas de integración continua para automatizar la ejecución de los tests y para comprobar ortográfica y gramaticalmente la documentación al subir cambios a la rama principal, asegurando así la calidad del \textit{software}, ya que, todo el código que se tenga en producción estará testeado. Esto además dota de agilidad al desarrollo, siguiendo con las mismas ideas de metodologías ágiles, puesto que se tiene feedback en todo momento sobre el estado de producción del código.
 
-La razón de que se ejecuten estos sistemas para la rama principal es porque en este proyecto se están desarrollando distintos productos mínimamente viables que solamente estarán en la rama principal cuando se completen, y cuando no lo estén se estarán desarrollando en alguna de las distintas ramas de desarrollo correspondientes a cada hito, en la que no es necesario estar constantemente ejecutando la integración continua. De esta manera aseguramos que todo el código que esté en producción sea correcto porque ha pasado los tests automáticamente.\\
+La razón de que se ejecuten estos sistemas para la rama principal es porque en este proyecto se están desarrollando distintos productos mínimamente viables que solamente estarán en la rama principal cuando se completen, y cuando no lo estén se estarán desarrollando en alguna de las distintas ramas de desarrollo correspondientes a cada hito, en la que no es necesario estar constantemente ejecutando la integración continua. De esta manera aseguramos que todo el código que esté en producción sea correcto porque ha pasado los tests automáticamente.
 
 Todos los sistemas de integración continua que se configuren se harán con GitHub Actions para seguir con la idea de centralizar todo el desarrollo en el repositorio de GitHub.
 
