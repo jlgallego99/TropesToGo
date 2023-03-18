@@ -1,17 +1,139 @@
 \chapter{Introducción}
+En la creación y presentación de historias existen patrones reconocibles o
+convenciones llamados \textit{tropos}, o recursos reiterativos, que tienen un
+gran interés como recursos de gran importancia para que los autores puedan
+transmitir al público sus ideas. Cada medio tiene su propio lenguaje y forma de
+expresarse, sin embargo, en todos ellos subyace la narrativa, que contiene estos
+recursos reiterativos \cite{garcia2021simpsons}, por lo que se puede decir que
+una obra de cualquier medio se define mejor como un conjunto de \textit{tropos}
+\cite{garcia2020tropes}. El análisis de esta información mediante métodos de
+ciencia de datos tiene gran interés en la construcción de modelos que ayuden a
+los creadores de historias a entender mejor las relaciones que existen entre
+estos \textit{tropos} y así crear historias mejores, que se adapten mejor a las
+tendencias actuales y sean más interesantes y económicamente rentables. De esto
+se deduce que es imprescindible tener un buen conjunto de estos datos para poder
+construir modelos los más correctos, completos y actualizados posible.
 
-Un tropo es una figura retórica o convención que se usa en la creación de historias y es reconocible por la audiencia. Un tropo puede ser una situación, un tipo de personaje, una estructura narrativa o cualquier patrón que se utilice a la hora de contar una historia, de forma que no la interrumpa (en cuyo caso, sería un cliché) sino que ayuda a entenderla y construirla mejor. Los tropos tienen interés como una parte muy importante del puzle que es producir una obra de cualquier tipo, ya sea una serie, película, videojuego, libro... 
+Toda situación, arquetipo, convención o patrón que sea reconocible por la
+audiencia y que se repita a lo largo de una historia se conoce en inglés como
+\textit{trope}. Es importante destacar que este término no existe en español
+\cite{tesisruben}, por lo que cuando se haga referencia a este concepto a lo
+largo del documento se hará en cursiva, al ser una palabra informal, pero se
+utilizarán también cualquiera de los otros términos que se han mencionado.
 
-Estos se pueden analizar para obtener una serie de pautas que puedan servir para crear nuevas obras más efectivas, ya sea analizando cómo evoluciona el uso de tropos a lo largo del tiempo y cuáles son los más adecuados para representar un tipo de género o historia concreta. En resumen, los tropos son clave en la popularidad que puede llegar a tener una obra. 
+El concepto de \textit{tropo} está estrechamente relacionado con el concepto de
+motivo, cuya definición es: ``En arte, rasgo característico que se repite en una
+obra o en un conjunto de ellas`` (Real Academia Española, 2023, definición 3).
+Este rasgo que se repite puede ser una situación, un tipo de personaje, una
+estructura narrativa o cualquier patrón que se utilice a la hora de contar una
+historia, de forma que no la interrumpa (en cuyo caso, sería un cliché) sino que
+ayude a entenderla y construirla mejor. Los \textit{tropos} tienen interés como
+una parte muy importante del puzle que es producir una obra de cualquier medio,
+ya sea una serie, película, videojuego o libro. 
 
-TvTropes\footnote{\url{https://tvtropes.org/}} es una wiki que describe y almacena ejemplos de tropos en cualquier tipo de medio audiovisual. Contiene una gran lista de tropos, con una descripción y ejemplos reales de dónde y cómo se aplican. TvTropes indica para cada entrada de una obra audiovisual todos los tropos que se le han identificado y por qué, con ejemplos, siendo esta la principal fuente de información que proporciona la web. Esta información está constantemente creciendo.
+Estos patrones se pueden analizar para obtener una serie de pautas que puedan
+servir para crear nuevas obras más efectivas, por ejemplo analizando cómo
+evoluciona el uso de \textit{tropos} a lo largo del tiempo y cuáles son los más
+adecuados para representar un tipo de género o historia concreta. En resumen,
+los \textit{tropos} son clave en la popularidad que puede llegar a tener una
+obra y eso hace que surja en internet una comunidad dedicada a analizarlos,
+entenderlos y almacenarlos llamada TvTropes. 
 
-Sin embargo, tal y como se define en la propia web, el objetivo de TvTropes es ser una wiki sobre tropos que se usan para contar historias y mostrarlos de un modo accesible y divertido de leer, destinado al usuario final. Esta información no está estructurada y, por tanto, no existe una manera de acceder a ella (mediante una API, por ejemplo) para su uso en ciencia de datos o inteligencia artificial. Además de esto, TvTropes es una web centrada en los tropos y nada más que los tropos, por lo que no manejan información secundaria sobre los contenidos audiovisuales que tienen, los cuales pueden ser también interesantes de analizar.
+TvTropes\footnote{\url{https://tvtropes.org/}} es una wiki abierta con contenido
+no estático que describe y almacena ejemplos de \textit{tropos} en cualquier
+tipo de medio audiovisual, cada uno de ellos con una descripción y ejemplos
+reales de dónde y cómo se aplican. TvTropes indica para cada entrada de una obra
+audiovisual todos los \textit{tropos} que la comunidad del sitio web ha
+identificado, explicando el por qué y añadiendo ejemplos, siendo esta la
+principal fuente de información que proporciona la web. Esta información está en
+constante crecimiento.
 
-En estos análisis entran trabajos de investigación como el de \cite{garcia2020tropes} o el de \cite{garcia2021simpsons}, los cuales actúan como principal motivación de este proyecto, puesto que ambos utilizan tanto una base de datos existente que está desactualizada como una biblioteca de scraping de TvTropes que no consigue extraer toda la información que tiene la web actualmente, la cual ha cambiado bastante con el tiempo.
+Sin embargo, tal y como se define en la propia web, el objetivo de TvTropes es
+ser una wiki sobre \textit{tropos} que se usan para contar historias y
+mostrarlos de un modo accesible y divertido de leer, destinado al usuario final.
+Esta información no está estructurada y, por tanto, no existe una manera de
+acceder a ella (mediante una API, por ejemplo) para su uso en ciencia de datos o
+inteligencia artificial. Además de esto, TvTropes es una web centrada en los
+\textit{tropos} y nada más que los \textit{tropos}, por lo que no manejan
+información secundaria sobre los contenidos audiovisuales que tienen, los cuales
+pueden ser también interesantes de analizar.
 
-Por tanto, ante la necesidad de tener toda la información completa de TvTropes, se quiere construir un scraper capaz de obtener de forma estructurada esta información sobre tropos, ampliando aún más su funcionalidad para obtener tropos de cualquier medio audiovisual e información de metadatos adicional, para que cualquier programador, científico de datos o investigador pueda emplearla para crear modelos, programas o investigaciones.\\
+En estos análisis interesados en el estudio de \textit{tropos} en narrativas
+entran trabajos de investigación como \cite{garcia2020tropes}, que describe
+estadísticamente cómo se relacionan estos conceptos entre sí y cómo evolucionan
+en el tiempo. Estos recursos reiterativos también se pueden combinar entre sí,
+como en \cite{garcia2021simpsons}, que identifica qué combinaciones de
+\textit{tropos} de películas son más usuales y cuáles pueden obtener buenas
+reseñas y popularidad; y en \cite{any2vec}, que propone un modelo que analiza
+conjuntos de tropos para su análisis mediante técnicas del procesamiento de
+lenguaje natural. Este tipo de investigaciones parten de conjuntos de datos
+distintos según las necesidades que tengan y, por tanto, actúan como principal
+motivación de este proyecto, ya que, necesitan que estos conjuntos de datos
+estén correctamente actualizados y preparados. De aquí surge la necesidad de una
+buena herramienta que permita explorar cualquier página de TvTropes para extraer
+exactamente los contenidos que se necesitan.
 
-Este trabajo se divide en tres partes diferenciadas. La primera empezará describiendo el problema que se desea resolver y los objetivos que se quieren alcanzar, para luego analizar las alternativas que existen actualmente en materia de scrapers y herramientas que extraen la información de la web de TvTropes, así como la situación actual de la propia página y los retos que presenta a la hora de extraer su información. La segunda parte se centrará en explicar y desarrollar la metodología de desarrollo ágil que se ha utilizado y cómo se ha guiado todo el desarrollo del software hasta el final. Por último, la tercera parte desarrollará todo el trabajo realizado y cómo se ha llegado a la solución final, valorando finalmente si se han alcanzado los objetivos propuestos.\\
+Explorar toda la información que provee TvTropes es todo un reto al ser una web
+en constante cambio, con contenidos como las fechas que no están estructurados y
+se encuentran dentro de un texto pensado solo para ser entendible por un lector
+humano, además de que muchas de las páginas tienen distinta estructura entre sí
+que dificulta el que un programa automático entienda la página que está
+explorando. Esto supone el principal problema a la hora de construir una buena
+herramienta que sea capaz de extraer esta información y representarla como un
+conjunto de datos analizable. La resolución de estos problemas motiva este
+trabajo, que busca solucionarlos mediante el desarrollo de un \textit{scraper},
+un programa informático que sea capaz de descargar, entender y organizar los
+datos de una web de forma autónoma \cite{apress2018scraping}.
 
-Este proyecto es software libre, está liberado con la licencia GPLv3\footnote{\url{http://www.gnu.org/licenses/gpl.html}} y se puede encontrar en un repositorio público de GitHub\footnote{\url{https://github.com/jlgallego99/TropesToGo}}.
+Varios de los trabajos de investigación mencionados usan una herramienta llamada
+Tropescraper, un \textit{scraper} de TvTropes que no consigue extraer toda la
+información que tiene la web actualmente, la cual ha cambiado bastante con el
+tiempo, y que este proyecto usa como base de inspiración para mejorarla y
+aumentar sus funcionalidades. En este trabajo se estudian los problemas que
+tiene este \textit{scraper}, que se pueden resumir en que no explora
+correctamente todas las páginas, requiere de un tiempo demasiado grande para
+ejecutarse y extraer todos los contenidos, no está al día con los cambios en la
+estructura de la wiki y que la información no se añade mediante incrementos por
+lo que hay que relanzar de nuevo el scraper cuando se quieran actualizar los
+datos. A esto se suman nuevas necesidades que surgen del proceso de estudio y
+desarrollo a lo largo de este trabajo y que se pretenden resolver: el usuario
+debe poder obtener solamente la información que necesita, sin necesidad de
+explorar toda la web, y además poder obtener los datos en distintos formatos
+estandarizados en ciencia de datos. En general, estudiar a los usuarios que se
+beneficiarían de una herramienta de este tipo y comprender sus necesidades.
+
+Por tanto, el propósito de este TFM es el de construir un \textit{scraper} que
+sea capaz de entender y explorar la estructura de las páginas y contenidos
+actuales de TvTropes para extraer su información. Con esta herramienta se quiere
+que un usuario pueda obtener datos actualizados, correctos y preparados para su
+análisis con métodos de ciencia de datos. Se busca además ampliar su
+funcionalidad para que el \textit{scraper} obtenga información de metadatos
+adicional y el usuario pueda extraer \textit{tropos} de cualquier medio
+audiovisual, elegir qué partes de la información quiere según varios criterios y
+elegir el formato de datos más adecuado para representarla.
+
+Este trabajo se divide en tres partes diferenciadas:
+\begin{itemize}
+    \item En los \textbf{capítulos del 1 al 3} se entiende el trabajo y su
+    contexto, describiendo el problema que se desea resolver y los objetivos que
+    se quieren alcanzar, para luego en el estado del arte entender mejor el
+    dominio del problema analizando las alternativas que existen actualmente en
+    materia de scrapers y herramientas que extraen la información de la web de
+    TvTropes, así como la situación actual de la propia página y los retos que
+    presenta a la hora de extraer su información.
+    \item La segunda parte, conformada por los \textbf{capítulos 4 y 5}, se
+    centrará en los aspectos necesarios para poner el proyecto a punto,
+    planificando su desarrollo, explicando la metodología a seguir, las
+    herramientas que se utilizarán y modelando el problema para poder proceder a
+    la implementación del \textit{software}.
+    \item Por último, en los \textbf{capítulos 6 y 7} se desarrollará todo el
+    trabajo realizado y cómo se ha llegado a la solución final, valorando
+    finalmente si se han alcanzado los objetivos propuestos y qué se deja como
+    trabajo para el futuro.
+\end{itemize}
+
+Este proyecto es software libre, está liberado con la licencia
+GPLv3\footnote{\url{http://www.gnu.org/licenses/gpl.html}} y se puede encontrar
+en un repositorio público de
+GitHub\footnote{\url{https://github.com/jlgallego99/TropesToGo}}.
+
