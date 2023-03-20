@@ -46,3 +46,9 @@ release
 Extreme
 Programming
 trope
+spoilers
+spoiler
+Sachita
+Nishal
+twikilink
+class

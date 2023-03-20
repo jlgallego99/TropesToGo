@@ -1,16 +1,141 @@
 \chapter{Estado del arte}
 
-En este capítulo se hará una introducción de varios de los conceptos básicos que se repetirán a lo largo de todo el trabajo, definiendo el estado actual de ellos en la literatura y los desarrollos actuales que existen de proyectos de carácter similar. Con esto se tendrá un mejor entendimiento del dominio del problema que se analizará en profundidad en el capítulo 5 y se justificarán las herramientas que se utilizarán en la implementación del software descrita en el capítulo 6.
+En este capítulo se hará una introducción de varios de los conceptos básicos que
+se repetirán a lo largo de todo el trabajo, definiendo el estado actual de ellos
+en la literatura y los desarrollos actuales que existen de proyectos de carácter
+similar. Con esto se tendrá un mejor entendimiento del dominio del problema que
+se analizará en profundidad en el capítulo 5 y se justificarán las herramientas
+que se utilizarán en la implementación del software descrita en el capítulo 6.
 
-\section{Dominio del problema}
-\subsection{Scraping}
-\subsection{TvTropes}
+El capítulo está dividido en dos secciones principales. En la primera sección se
+describirán aspectos relativos al dominio del problema como qué es un
+\textit{scraper} y sus necesidades y características actuales, y en la segunda
+sección se analizarán otros trabajos relacionados que tienen también como
+objetivo extraer la información de TvTropes. 
+
+\section{Dominio del problema: scraping}
 \section{Trabajos relacionados}
 \subsection{Tropescraper}
 \subsection{DBTropes}
-\section{Elección de herramientas para el desarrollo}
-\subsection{Lenguaje de programación}
-\subsection{Task Runner}
-\subsection{Framework de testing}
-\subsection{Integración Continua}
-\subsection{Scraping en Go}
+\subsection{Consejos sobre el scraping de TvTropes}
+No existen demasiados proyectos \textit{software} en internet que se centren en
+extraer la información de TvTropes además de los vistos anteriormente, lo cual
+motiva este proyecto, ya que, puede aportar una solución que aún no existe a un
+problema real. Artículos como \cite{gala2020analyzing}, que realiza un análisis
+del sesgo de género que existe en los tropos narrativos, o
+\cite{boyd2013spoiler}, que genera un modelo de aprendizaje automático para
+detectar spoilers usando información de TvTropes, generan sus propios conjuntos
+de datos ya sea con un \textit{scraper} o de otro modo sin dar mucha más
+información de ello, puesto que se centran en el análisis. 
+
+Sin embargo, el artículo de Sachita Nishal \cite{nishalscraping} presenta uno de
+los pocos ejemplos reales que relatan el desarrollo de un \textit{scraper} de
+TvTropes y las dificultades que presenta. En él se describe el proceso de
+construcción del \textit{scraper} con el lenguaje Python a modo de ayuda para
+cualquier interesado en extraer la información de esta web, y da una serie de
+consejos que suponen un buen punto de partida para comenzar con el desarrollo
+del \textit{software} de este trabajo. Además, el artículo sirve para tener en
+cuenta muchas características de un desarrollo del mismo tipo, como los retos
+que ofrece la estructura de TvTropes y cómo analizarla y explorarla de la mejor
+forma posible, habiendo aprendido de los errores y dificultades de otra persona
+al querer hacer lo mismo que pretende este trabajo.
+
+Como se ha comentado al inicio de este trabajo, los contenidos de una página de
+TvTropes no siempre están organizados igual. Generalmente, aunque todas las
+páginas tienen un aspecto similar, presentan pequeños cambios significativos que
+influyen enormemente en cómo estructuran la información y, por tanto, en cómo el
+\textit{scraper} debe explorarlas \cite{nishalscraping}. El proceso seguido en
+el artículo para extraer la información de la web y superar estos problemas es
+el siguiente:
+\begin{enumerate}
+    \item \textbf{Definir qué se quiere extraer y por qué}
+    
+    En esta primera fase hay que pensar por qué queremos extraer información de
+    una web y qué queremos concretamente, para así saber cómo organizar los
+    datos mientras se van extrayendo. Esto hará que en el futuro la limpieza y
+    procesado de estos datos sea más sencilla. Se destaca la importancia de
+    diferenciar la extracción de la limpieza, siguiendo una estrategia de
+    primero extraer toda la información que se pueda y decidir en fases más
+    tardías con qué quedarse realmente.
+    \item \textbf{Analizar la estructura general e identificar las excepciones}
+    
+    Una vez sabiendo qué se quiere extraer, el siguiente paso que siguió es el
+    de mirar las distintas partes de la web y cómo están organizadas usando la
+    herramienta de inspeccionar elemento de cualquier navegador web, que permite
+    entender cómo están organizadas las etiquetas HTML en la web. Familiarizarse
+    antes con cómo está organizada la web tanto por fuera como por dentro en las
+    primeras fases del desarrollo permite estructurar mejor el código y saber
+    desde el principio por dónde atacar.
+
+    Identificar todas las excepciones mínimas en la plantilla de las páginas no
+    es recomendable, ya que, como avisa el artículo, se puede volver una tarea
+    inabarcable y sin fin. En su lugar se debe intentar no encontrar todas y
+    cada una de las excepciones, sino construir el código de forma flexible para
+    que sea capaz de tratar con aquellas excepciones que no se han identificado
+    previamente.
+
+    \item \textbf{Extraer la información}
+    
+    El propio proceso de \textit{scraping}, que requiere de una biblioteca que
+    permita hacer peticiones HTTP para obtener el código HTML y que también
+    pueda entender y transformar las etiquetas de la web en un árbol que sea
+    fácilmente explorable por el programa para encontrar exactamente la
+    información que se quiere. Además, conforme se vayan extrayendo los datos,
+    se debe ir diciendo un formato adecuado en el que almacenar todos los datos
+    que se quieren tener. Este formato permite que el programa tenga una idea de
+    lo que tiene que buscar, ya que, aunque la estructura de cada página sea
+    distinta, la información que se busca es siempre la misma.
+
+    La estrategia que sigue el artículo es de primero extraer los datos y
+    almacenarlos según sus etiquetas, almacenar el texto de cada una de las
+    etiquetas independientemente de si servirán luego o no. Una vez se tiene
+    esto, quedarse con lo verdaderamente importante limpiando los datos.
+
+    \item \textbf{Elegir un formato para representar la información}
+    
+    El artículo finalmente hace hincapié en la importancia de representar los
+    datos extraídos en un formato correcto para lo que se quiera, teniendo en
+    cuenta factores como el poder usarlos en distintos lenguajes o la rapidez de
+    lectura y escritura entre otros.
+\end{enumerate}
+
+Varias de las características que se identifican en \cite{nishalscraping} se
+resumen en los siguientes puntos:
+\begin{itemize}
+    \item Cada página de una obra en TvTropes tiene una sección que contiene
+    metadatos en forma de texto, y esto a veces se presenta en varios párrafos
+    de resumen o dentro de una carpeta que el usuario tiene que hacer clic para
+    abrir. 
+    \item Los marcadores que indican que empieza una sección no se utilizan
+    uniformemente en todas las páginas. Marcadores que indican, por ejemplo, la
+    lista de actores de una película o la lista de tropos no siempre están
+    presentes en todas las páginas.
+    \item Los \textit{tropos} a veces están representados como una lista, otras
+    veces están dentro de una carpeta e incluso existen páginas que listan los
+    \textit{tropos} de varias películas distintas que están dentro de una
+    franquicia.
+    \item Es importante identificar los distintos marcadores de sección;
+    concretamente el que precede a la lista de tropos suele ser del tipo
+    \begin{otherlanguage}{english} ``This film contains examples of''
+    \end{otherlanguage} cuando los tropos son para una sola película, mientras
+    que cuando es para múltiples películas el texto es
+    \begin{otherlanguage}{english} ``This series contains examples
+    of''\end{otherlanguage}. En este último caso la palabra clave ``series''
+    permite solucionar fácilmente el problema de páginas que hacen referencia a
+    \textit{tropos} de múltiples obras.
+    \item Toda la información útil de una página de TvTropes está contenida en
+    el cuerpo principal y tiene unos mismos atributos \textit{id} y
+    \textit{class}, por lo que este sería el punto de partida del
+    \textit{scraper}, y a partir de aquí exploraría el resto de etiquetas según
+    la página en la que se esté.
+    \item Pueden aparecer menciones a \textit{tropos} dentro de la sección de
+    resumen, fuera de la propia lista principal de la página, que pueden ser
+    importantes también. En general, todos ellos suelen presentar el mismo
+    atributo de clase ``twikilink'', por lo que el título del \textit{tropo} es
+    fácilmente identificable.
+\end{itemize}
+
+Estas características se usarán como base en el capítulo 5 de este trabajo para
+definir completamente las particularidades de la plantilla que presentan las
+distintas páginas de TvTropes, analizar correctamente su estructura y saber cómo
+proceder con la extracción de su información.
