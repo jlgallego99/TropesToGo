@@ -9,14 +9,57 @@ que se utilizarán en la implementación del software descrita en el capítulo 6
 
 El capítulo está dividido en dos secciones principales. En la primera sección se
 describirán aspectos relativos al dominio del problema como qué es un
-\textit{scraper} y sus necesidades y características actuales, y en la segunda
-sección se analizarán otros trabajos relacionados que tienen también como
-objetivo extraer la información de TvTropes. 
+\textit{scraper}, sus necesidades y características actuales, además de los
+diferentes formatos de representación de datos más comunes que existen en
+ciencia de datos. En la segunda sección se analizarán otros trabajos
+relacionados que tienen también como objetivo extraer la información de
+\textit{tropos} de TvTropes. 
 
-\section{Dominio del problema: scraping}
+\section{Dominio del problema}
+\subsection{Scraping}
+El \textit{web scraping}, o extracción de datos web, se define como la
+construcción de agentes que sean capaz de descargar, entender y organizar los
+datos de una web de manera autónoma \cite{apress2018scraping}. 
+
+A veces se usan los términos \textit{scraping} y \textit{crawling} de forma
+intercambiable para hacer referencia a la misma idea de un programa autónomo que
+explora una web y extrae su información, sin embargo, existe una distinción
+concreta entre ambos. Cuando se habla de \textit{scraping} el enfoque es en la
+extracción de datos en una página concreta de la que se conoce su URL. Por otro
+lado, el \textit{crawling} (reptar o trepar) hace referencia a la exploración e
+indexación de una web buscando cualquier tipo de información y explorando todos
+los links que contiene, es decir, para descubrir toda una web completa, y suele
+ser utilizado por los motores de búsqueda como Google \cite{scrapingvscrawling}.
+Por tanto, son términos estrechamente relacionados, pero con distintos
+objetivos; al desarrollar un \textit{scraper} se obtiene un conjunto de datos,
+pero se necesita de un \textit{crawler}, o araña, para poder conocer y explorar
+todas las URL que se quieren extraer y no se conocen de antemano.
+
+Esta disciplina tiene especial interés para la ciencia de datos; concretamente
+influye en la primera etapa de extracción de información, la cual debe estar lo
+más limpia y lista posible para facilitar su posterior análisis. En internet
+existe una gran cantidad de información no estructurada que, si bien un usuario
+desde su navegador puede ver de una forma visual y agradable, no tiene fácil
+acceso como conjunto de datos para su almacenamiento, limpieza y análisis de
+cualquier tipo. Muchas webs proporcionan una API, a veces pública y a veces
+privada, mediante la cual se puede acceder a sus datos o funcionalidades, sin
+embargo, esto no siempre es el caso y es ahí donde el \textit{scraping} entra
+para resolver estos problemas \cite{apress2018scraping}.
+
+\cite{scraperworld, zhao2017web, olston2010web}
+
+\subsection{Formatos de representación de datos}
+Tabla comparativa
 \section{Trabajos relacionados}
 \subsection{Tropescraper}
+La biblioteca
+Tropescraper\footnote{\url{https://github.com/rhgarcia/tropescraper/}}
+\cite{garcia2020startroper}
+
 \subsection{DBTropes}
+La web DBTropes\footnote{\url{http://skipforward.opendfki.de/wiki/DBTropes}}
+\cite{kiesel2010dbtropes}
+
 \subsection{Consejos sobre el scraping de TvTropes}
 No existen demasiados proyectos \textit{software} en internet que se centren en
 extraer la información de TvTropes además de los vistos anteriormente, lo cual
