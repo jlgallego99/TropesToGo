@@ -38,6 +38,7 @@ refactorizar
 Tropescraper
 tropescraper
 DBTropes
+PicTropes
 Actions
 Continuous
 Integration
@@ -55,3 +56,16 @@ class
 crawler
 crawlers
 crawling
+markdown
+make
+Make
+Makefile
+Mask
+CLI
+YAML
+Realize
+multilenguaje
+plugin
+plugins
+Grunt
+Gulp
