@@ -19,7 +19,18 @@ relacionados que tienen también como objetivo extraer la información de
 \subsection{Scraping}
 El \textit{web scraping}, o extracción de datos web, se define como la
 construcción de agentes que sean capaz de descargar, entender y organizar los
-datos de una web de manera autónoma \cite{apress2018scraping}. 
+datos de una web de manera autónoma \cite{apress2018scraping}. Actualmente los \textit{scrapers} son sistemas completos capaces de convertir páginas web enteras en conjuntos de datos limpios y bien organizados, entendiendo no solo datos estructurados traduciendo lenguajes de marcado como HTML sino también datos no estructurados analizando lenguaje natural \cite{zhao2017web}. Estos sistemas realizan multitud de tareas para conseguir un conjunto de datos que luego almacenan en un fichero o en una base de datos para su posterior recuperación o análisis.
+
+La disciplina del \textit{scraping} tiene especial interés para la ciencia de
+datos; concretamente influye en la primera etapa de extracción de información,
+la cual debe estar lo más limpia y lista posible para facilitar su posterior
+análisis. En internet existe una gran cantidad de información no estructurada
+que, si bien un usuario desde su navegador puede ver de una forma visual y
+agradable, no tiene fácil acceso como conjunto de datos para su almacenamiento,
+limpieza y análisis de cualquier tipo. Muchas webs proporcionan una API, a veces
+pública y a veces privada, mediante la cual se puede acceder a sus datos o
+funcionalidades, sin embargo, esto no siempre es el caso y es ahí donde el
+\textit{scraping} entra para resolver estos problemas \cite{apress2018scraping}.
 
 A veces se usan los términos \textit{scraping} y \textit{crawling} de forma
 intercambiable para hacer referencia a la misma idea de un programa autónomo que
@@ -35,18 +46,27 @@ objetivos; al desarrollar un \textit{scraper} se obtiene un conjunto de datos,
 pero se necesita de un \textit{crawler}, o araña, para poder conocer y explorar
 todas las URL que se quieren extraer y no se conocen de antemano.
 
-Esta disciplina tiene especial interés para la ciencia de datos; concretamente
-influye en la primera etapa de extracción de información, la cual debe estar lo
-más limpia y lista posible para facilitar su posterior análisis. En internet
-existe una gran cantidad de información no estructurada que, si bien un usuario
-desde su navegador puede ver de una forma visual y agradable, no tiene fácil
-acceso como conjunto de datos para su almacenamiento, limpieza y análisis de
-cualquier tipo. Muchas webs proporcionan una API, a veces pública y a veces
-privada, mediante la cual se puede acceder a sus datos o funcionalidades, sin
-embargo, esto no siempre es el caso y es ahí donde el \textit{scraping} entra
-para resolver estos problemas \cite{apress2018scraping}.
+Un \textit{web crawler}, también conocido como robot o araña, es un programa
+automático que explora y descarga páginas web en masa. Estas arañas se usan en
+muchos ámbitos, como por ejemplo en los motores de búsqueda para crear un corpus
+de páginas web, indexarlas y que los usuarios puedan hacer consultas a ese
+índice para obtener la página que se adapte a sus consultas. También es
+ampliamente usado en el archivado de páginas web para la posteridad o en la
+minería de datos, donde se analizan las páginas para extraer propiedades o
+características de ellas \cite{olston2010web}. Este último caso de uso es el más
+relacionado con el \textit{scraping}, en el que no sólo se exploran y descargan
+páginas web si no que se entra en ellas y se analizan más en profundidad.
 
-\cite{scraperworld, zhao2017web, olston2010web}
+El funcionamiento básico de una araña consiste en, partiendo de una o varias URL
+base, descargar todas y cada una de las páginas a las que se hacen referencia en
+ellas, extrayendo todos los hipervínculos que contienen e iterativamente
+descargando las páginas a las que se refieren esos hipervínculos
+\cite{olston2010web}. Es decir, una araña explora toda una web desde su base
+profundizando cada vez más y más en páginas y subpáginas.  
+
+El proceso de extracción de datos en internet se puede dividir en dos fases esenciales: primero adquirir los recursos web, por parte de las arañas, y segundo extraer la información de estos recursos, por parte del \textit{scraper}. En relación con esto, se pueden identificar dos módulos esenciales de un programa de \textit{scraping}: el módulo que realiza peticiones HTTP para obtener el código HTML y el módulo que entiende el formato HTML y sus etiquetas para poder extraer la información concreta \cite{zhao2017web}.
+
+TODO \cite{scraperworld}
 
 \subsection{Formatos de representación de datos}
 Tabla comparativa
