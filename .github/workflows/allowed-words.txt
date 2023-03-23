@@ -69,3 +69,4 @@ plugin
 plugins
 Grunt
 Gulp
+maskfile
