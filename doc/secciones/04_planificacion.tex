@@ -377,20 +377,22 @@ Sabiendo el problema que se quiere resolver y las partes interesadas se pueden
 definir las historias de usuario que guiarán todo el desarrollo de principio a
 fin, ayudando en la toma de decisiones para llegar a cumplir los objetivos.
 
-\subsection{[HU01] Investigador - Obtener información estructurada sobre todos los tropos}
-Como investigador necesito poder obtener información estructurada sobre todos
-los tropos existentes de cualquier tipo de medio audiovisual, en un formato
-estandarizado y con una estructura definida para que sean de fácil acceso tanto
-a humanos como programas para su análisis.
+\subsection{[HU01] Investigador - Obtener información sobre tropos}
+Como investigador necesito poder obtener información sobre todos los tropos
+existentes de cualquier tipo de medio audiovisual, en un formato estandarizado y
+con una estructura definida para que sean de fácil acceso tanto a humanos como
+programas para su análisis.
 
 \subsection{[HU02] Investigador - Obtener un subconjunto de la información}
 Como investigador necesito poder elegir qué parte de la información sobre tropos
 quiero obtener, ya sea de un medio audiovisual concreto, todo un género, etc.
 
-\subsection{[HU03] Investigador - Relacionar medios audiovisuales con su ficha en IMDB}
+\subsection{[HU03] Investigador - Relacionar medios audiovisuales con fuentes externas}
 Como investigador necesito obtener información de metadatos sobre cualquier
 medio audiovisual, para lo cual necesito que los medios audiovisuales de los
-cuales se han sacado sus tropos se puedan relacionar con su ficha en IMDB.
+cuales se han sacado sus tropos sean facilmente identificables y se puedan
+relacionar con su ficha en IMDB u otras fuentes de datos externas del mismo
+tipo.
 
 \subsection{[HU04] Investigador - Información actualizada}
 Como investigador quiero que la información de tropos que obtenga esté lo más
@@ -455,17 +457,16 @@ tareas tiene el proyecto y ejecutarlas.
 Al hablar de gestores de tareas el más destacable y utilizado es
 \textit{make}\footnote{\url{https://www.gnu.org/software/make/}}, ya que, es una
 herramienta instalada por defecto en cualquier sistema Linux. \textit{Make} está
-presente en cualquier ámbito de la programación, sirve para cualquier
-lenguaje y en general para automatizar cualquier tarea de terminal. Sin embargo,
-se busca un gestor de tareas más moderno, autodescriptivo y simple, que permita
-conocer nuevas alternativas, y su \textit{Makefile} suele ser bastante
-complicado de entender a primera vista y no se puede saber fácilmente cuáles son
-las tareas que tiene definidas. Aún teniendo en cuenta esto se emplea
-\textit{make} en una parte del proyecto, delegando en él la compilación de la
-documentación en LaTeX, puesto que, es más fácil gestionar la compilación de
-algo que tiene tantos ficheros usando las variables especiales de make. El
-gestor de tareas elegido ejecutará con una orden el Makefile encargado de
-compilar el documento.
+presente en cualquier ámbito de la programación, sirve para cualquier lenguaje y
+en general para automatizar cualquier tarea de terminal. Sin embargo, se busca
+un gestor de tareas más moderno, autodescriptivo y simple, que permita conocer
+nuevas alternativas, y su \textit{Makefile} suele ser bastante complicado de
+entender a primera vista y no se puede saber fácilmente cuáles son las tareas
+que tiene definidas. Aún teniendo en cuenta esto se emplea \textit{make} en una
+parte del proyecto, delegando en él la compilación de la documentación en LaTeX,
+puesto que, es más fácil gestionar la compilación de algo que tiene tantos
+ficheros usando las variables especiales de make. El gestor de tareas elegido
+ejecutará con una orden el Makefile encargado de compilar el documento.
 
 Otros de los más famosos son Gulp\footnote{\url{https://gulpjs.com/}} y
 Grunt\footnote{\url{https://gruntjs.com/}}, sin embargo, son gestores de tareas
@@ -480,12 +481,12 @@ tareas muy simple que se define a sí mismo como una alternativa más fácil a
 make, el cual es interesante porque está escrito en Go, el mismo lenguaje con el
 que se escribirá el software de este proyecto. Tiene una sintaxis simple con
 ficheros en formato YAML, el cual tiene la ventaja de que es un formato muy
-común en infraestructura como código. Es un proyecto que se sigue
-manteniendo a día de hoy, pero se ha decidido descartarlo porque no aporta tanta
-legibilidad como el que finalmente se ha elegido, su fichero de configuración es
-más complejo de confeccionar y tiene más funcionalidades de las realmente
-necesarias para el proyecto por lo que no es tan simple. Sin embargo, es una
-opción muy buena que se podría considerar para cualquier proyecto.
+común en infraestructura como código. Es un proyecto que se sigue manteniendo a
+día de hoy, pero se ha decidido descartarlo porque no aporta tanta legibilidad
+como el que finalmente se ha elegido, su fichero de configuración es más
+complejo de confeccionar y tiene más funcionalidades de las realmente necesarias
+para el proyecto por lo que no es tan simple. Sin embargo, es una opción muy
+buena que se podría considerar para cualquier proyecto.
 
 En el ámbito de los gestores de tareas de Go se ha visto
 Realize\footnote{\url{https://github.com/oxequa/realize}}, que también usa
@@ -505,17 +506,16 @@ desarrollo es
 gestor de tareas simple, con buena documentación y ejemplos, que sigue teniendo
 soporte a día de hoy y está en constante desarrollo. Su principal ventaja es que
 aprenderlo implica poder aplicar este mismo gestor en cualquier otro proyecto
-independientemente del lenguaje, además de que el propio fichero de
-descripción de tareas, al estar escrito en \textit{markdown}, es a la vez
-legible para humanos y ejecutable por el programa gestor de tareas lo cual es
-una manera muy inteligente de combinar documentación y ejecución de tareas.
-Dentro del propio fichero de configuración se puede ver tanto una descripción
-como las propias órdenes que ejecuta para lanzar la tarea, teniendo una forma
-fácil de saber qué hace exactamente. Cualquier persona que esté interesada en
-ver qué tareas tiene el proyecto no tiene más que abrir el fichero
-\textit{maskfile.md}, además de que el fichero al abrirlo en GitHub se verá
-formateado, puesto que, tiene un lector de \textit{markdown}, centralizando todo aún
-más en el repositorio.
+independientemente del lenguaje, además de que el propio fichero de descripción
+de tareas, al estar escrito en \textit{markdown}, es a la vez legible para
+humanos y ejecutable por el programa gestor de tareas lo cual es una manera muy
+inteligente de combinar documentación y ejecución de tareas. Dentro del propio
+fichero de configuración se puede ver tanto una descripción como las propias
+órdenes que ejecuta para lanzar la tarea, teniendo una forma fácil de saber qué
+hace exactamente. Cualquier persona que esté interesada en ver qué tareas tiene
+el proyecto no tiene más que abrir el fichero \textit{maskfile.md}, además de
+que el fichero al abrirlo en GitHub se verá formateado, puesto que, tiene un
+lector de \textit{markdown}, centralizando todo aún más en el repositorio.
 
 \subsection{Framework de testing}
 \subsection{Sistema de integración continua}
