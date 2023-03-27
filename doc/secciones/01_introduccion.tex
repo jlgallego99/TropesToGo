@@ -64,14 +64,22 @@ ejemplos, siendo esta la principal fuente de información que proporciona la web
 Esta información está en constante crecimiento.
 
 Sin embargo, tal y como se define en la propia web, el objetivo de TvTropes es
-ser un wiki sobre \textit{tropos} que se utilizan para contar historias y
-mostrarlos de un modo accesible y divertido de leer, destinado al usuario final.
-Esta información no está estructurada y, por tanto, no existe una manera de
-acceder a ella (mediante una API, por ejemplo) para su uso en ciencia de datos o
-inteligencia artificial. Además de esto, TvTropes es una web centrada en los
-\textit{tropos} y nada más que los \textit{tropos}, por lo que no manejan
-información secundaria sobre los contenidos audiovisuales que tienen, los cuales
-pueden ser también interesantes de analizar.
+ser un wiki sobre \textit{tropos} que se utilizan para contar historias y demás
+curiosidades y contenido para fans, por lo que su objetivo es mostrarlos de un
+modo accesible y divertido de leer, destinado al usuario final. Esta información
+no está estructurada y, por tanto, no existe una manera de acceder a ella
+(mediante una API, por ejemplo) para su uso en ciencia de datos o inteligencia
+artificial. Además de esto, TvTropes es una web centrada principalmente en los
+\textit{tropos}, por lo que no siempre manejan toda la información secundaria
+sobre los contenidos audiovisuales que tienen, que generalmente se encuentran en
+otras fuentes de datos externas como IMDB\footnote{\url{https://www.imdb.com/}},
+para películas, o IGDB\footnote{\url{https://www.igdb.com/}}, para videojuegos.
+Esta información puede ser por ejemplo la fecha de salida, la lista de actores,
+el director, el compositor, la duración, la empresa distribuidora, y un largo
+número de características que tienen interés en los análisis o para poder
+distinguir entre sí obras que se llamen igual. En TvTropes este tipo de
+información, si está, se presenta en forma de un texto resumen y no en secciones
+estructuradas y fácilmente identificables.
 
 En estos análisis interesados en el estudio de \textit{tropos} en narrativas
 entran trabajos de investigación como \cite{garcia2020tropes}, que describe
@@ -102,17 +110,18 @@ como \begin{otherlanguage}{english}``\textit{Large edit}''\end{otherlanguage},
 diariamente. Todo esto muestra la rápida evolución de los contenidos de la web y
 la importancia de estar al día con ellos. 
 
-Por otro lado, existe información secundaria, como las fechas, que no está
-estructurada y se encuentra dentro de un texto pensado solo para ser entendible
-por un lector humano. Además, muchas de las páginas tienen distinta estructura
-entre sí y esto dificulta el que un programa automático entienda la página que
-está explorando. Estos son los principales problemas que se deben tener en
-cuenta a la hora de construir una buena herramienta que sea capaz de extraer
-esta información y representarla como un conjunto de datos analizable. La
-resolución de estos problemas motiva este trabajo, que busca solucionarlos
-mediante el desarrollo de un \textit{scraper}, un programa informático que sea
-capaz de descargar, entender y organizar los datos de una web de forma autónoma
-\cite{apress2018scraping}.
+Por otro lado, las páginas de TvTropes manejan información secundaria que a
+veces no está presente y, en los casos en los que sí lo está, esta información
+no está estructurada sino que se encuentra dentro de un texto pensado solo para
+ser entendible por un lector humano. Además, muchas de las páginas tienen
+distinta estructura entre sí y esto dificulta el que un programa automático
+entienda la página que está explorando. Estos son los principales problemas que
+se deben tener en cuenta a la hora de construir una buena herramienta que sea
+capaz de extraer esta información y representarla como un conjunto de datos
+analizable. La resolución de estos problemas motiva este trabajo, que busca
+solucionarlos mediante el desarrollo de un \textit{scraper}, un programa
+informático que sea capaz de descargar, entender y organizar los datos de una
+web de forma autónoma \cite{apress2018scraping}.
 
 Varios de los trabajos de investigación mencionados usan una herramienta llamada
 Tropescraper, un \textit{scraper} de TvTropes que no consigue extraer toda la
@@ -132,16 +141,18 @@ estandarizados en ciencia de datos. En general, estudiar a los usuarios que se
 beneficiarían de una herramienta de este tipo y comprender sus necesidades.
 
 Por tanto, el propósito de este TFM es el de aportar una solución informática a
-la extracción de datos de TvTropes teniendo en cuenta todas sus particularidades
-y las necesidades de aquellos usuarios que usan la información de
-\textit{tropos} para construir modelos y análisis; la necesidad de tener un
-conjunto de datos bien preparado y limpio, la gran cantidad de información que
-ofrece la web, el difícil acceso a esta debido a las distintas estructuras que
-presenta TvTropes para presentarla por su condición de wiki y lo rápido que
-evolucionan estos contenidos. Para lograr esto se construirá un \textit{scraper}
-que sea capaz de entender y explorar la estructura de las páginas y contenidos
-actuales de TvTropes para extraer su información. Con esta herramienta se quiere
-que un usuario pueda obtener datos actualizados, correctos y preparados para su
+la extracción de datos de TvTropes que sea sostenible, es decir, que se adapte a
+los cambios de estructura de esta página y pueda entender si sus contenidos son
+extraíbles. Esta solución deberá tener en cuenta todas sus particularidades y
+las necesidades de aquellos usuarios que usan la información de \textit{tropos}
+para construir modelos y análisis; la necesidad de tener un conjunto de datos
+bien preparado y limpio, la gran cantidad de información que ofrece la web, el
+difícil acceso a esta debido a las distintas estructuras que presenta TvTropes
+para presentarla por su condición de wiki y lo rápido que evolucionan estos
+contenidos. Para lograr esto se construirá un \textit{scraper} que sea capaz de
+entender y explorar la estructura de las páginas y contenidos actuales de
+TvTropes para extraer su información. Con esta herramienta se quiere que un
+usuario pueda obtener datos actualizados, correctos y preparados para su
 análisis con métodos de ciencia de datos. Se busca además ampliar su
 funcionalidad para que el \textit{scraper} obtenga información de metadatos
 adicional y el usuario pueda extraer \textit{tropos} de cualquier medio

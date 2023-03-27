@@ -26,31 +26,50 @@ información extraída sea identificable con la de otras bases de datos, como
 puede ser IMDB\footnote{\url{https://www.imdb.com/}} para el ejemplo de una
 película.
 
-La estructura de las páginas de TvTropes y sus contenidos están en constante
-cambio, varias páginas están estructuradas de distintas maneras, algunas usando
-un esquema más antiguo, otras uno más nuevo; algunas teniendo los
-\textit{tropos} organizados por carpetas alfabéticas, otras teniéndolos en una
-lista; información de tropos anidada dentro de otros, y muchos otros métodos de
-organización que requieren de un extenso análisis para poder adaptarse a todas
-las formas que presenta la web para dar su información. Para solucionar estos
-problemas el \textit{scraper} debe conocer de antemano todas las estructuras que
-puede tomar una página de TvTropes y comprobar que la página que está explorando
-se adapta a alguna de las existentes y, por tanto, su información es extraíble.
-Además, extraer tanta cantidad de información presenta un reto adicional en
-términos de eficiencia en el tiempo de ejecución debido a todo el tiempo que
-puede tardar una herramienta en recoger tantos contenidos.
+La estructura entre diferentes páginas de TvTropes, así como sus contenidos,
+están en constante cambio. Estos cambios se pueden observar en cualquier página
+de la web, ya que, no tiene una estructura fija, sino que sus contenidos, aún
+teniendo el mismo propósito, suelen estar organizados de distintas maneras o
+directamente no estar presentes. Varias páginas están estructuradas de distintas
+maneras, algunas usando un esquema más antiguo y otras uno más nuevo. Por
+ejemplo, la página de la serie Los
+Soprano\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Series/TheSopranos}}
+presenta sus \textit{tropos} organizados en carpetas por rango alfabético,
+mientras que  en la película El Viaje de
+Chihiro\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Anime/SpiritedAway}}
+están agrupados en una lista más simple sin carpetas. O por ejemplo, una página
+de una obra, que presenta una lista de \textit{tropos}, no tiene la misma
+información que una página de \textit{tropos}, que presenta una lista de obras
+que utilizan este recurso, muchas veces organizado por géneros o de otras
+maneras.
 
-El problema principal que busca resolver este trabajo es el de desarrollar una
-herramienta eficiente y eficaz mediante la cual cualquier persona interesada en
-el estudio de los \textit{tropos} pueda obtener todos los datos de TvTropes
-estructurados y preparados para su análisis, pudiendo elegir qué información
-concreta quiere sin necesidad de extraerla toda y en qué formato de datos la
-quiere representada. Esta herramienta debe tener en cuenta la naturaleza
-cambiante tanto de los datos como de la fuente de información de donde los
-extrae, y debe poder presentarlos en un formato legible tanto por humanos como
-por programas, para poder hacer cualquier tipo de estudio sobre ellos. Estos
-datos deberán ser completos, correctos y estar siempre actualizados para evitar
-que cualquier tipo de análisis esté desfasado.
+En general, todas las páginas presentan una serie de distintas estructuras para
+organizar la misma información sin demasiado aviso, y es algo que se tiene que
+tener en cuenta en todo momento. Existen una serie de tipos principales que
+suelen tomar las páginas y que se identificarán en el capítulo 5 del trabajo, al
+hacer el análisis de TvTropes, pero conocer todas y cada una de las estructuras
+que puede tomar una página es imposible y esto es también un problema que debe
+superar el \textit{scraper}. Para solucionar estos problemas el \textit{scraper}
+debe comprobar si es capaz de entender y extraer la información de la página que
+está explorando. 
+
+Por último, extraer tanta cantidad de información presenta un reto adicional en
+términos de eficiencia en el tiempo de ejecución debido a todo el tiempo que
+puede tardar una herramienta en recoger tantos contenidos. No siempre se querrán
+extraer todos los contenidos, sin embargo, el \textit{scraper} debe adaptarse
+siempre al volumen de datos que va a manejar en cada momento.
+
+Por tanto, el problema principal que busca resolver este trabajo es el de
+desarrollar una herramienta eficiente y eficaz mediante la cual cualquier
+persona interesada en el estudio de los \textit{tropos} pueda obtener todos los
+datos de TvTropes estructurados y preparados para su análisis, pudiendo elegir
+qué información concreta quiere sin necesidad de extraerla toda y en qué formato
+de datos la quiere representada. Esta herramienta debe tener en cuenta la
+naturaleza cambiante tanto de los datos como de la fuente de información de
+donde los extrae, y debe poder presentarlos en un formato legible tanto por
+humanos como por programas, para poder hacer cualquier tipo de estudio sobre
+ellos. Estos datos deberán ser completos, correctos y estar siempre actualizados
+para evitar que cualquier tipo de análisis esté desfasado.
 
 A continuación se describen los objetivos que busca alcanzar este proyecto tras
 haber resuelto los problemas descritos. Estos objetivos se usarán en la última

@@ -70,3 +70,8 @@ plugins
 Grunt
 Gulp
 maskfile
+YMMV
+IGDB
+igdb
+Chihiro
+Hannibal
