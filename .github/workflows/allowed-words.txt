@@ -77,3 +77,6 @@ Chihiro
 Hannibal
 machine
 learning
+hash
+checksum
+CAPTCHA

@@ -64,12 +64,25 @@ ellas \cite{olston2010web}. Este último caso de uso es el más relacionado con 
 \textit{scraping}, en el que no solo se exploran y descargan páginas web, sino
 que se entra en ellas y se analizan más en profundidad.
 
-El funcionamiento básico de una araña consiste en, partiendo de una o varias URL
-base, descargar todas y cada una de las páginas a las que se hacen referencia en
-ellas, extrayendo todos los hipervínculos que contienen e iterativamente
-descargando las páginas a las que se refieren esos hipervínculos
-\cite{olston2010web}. Es decir, una araña explora toda una web desde su base
-profundizando cada vez más y más en páginas y sub páginas.  
+El algoritmo básico de una araña consiste en, partiendo de una o varias URL base
+llamadas semillas, descargar todas y cada una de las páginas a las que se hacen
+referencia en ellas, extrayendo todos los hipervínculos que contienen y
+recursivamente descargando las páginas a las que se refieren esos hipervínculos
+\cite{olston2010web}. A lo largo de la ejecución de la araña se tiene un
+conjunto de URL candidatas para explorar llamada frontera, al cual se le van
+añadiendo los hipervínculos encontrados, comprobando previamente si esa URL se
+ha encontrado antes para evitar añadir repetidos y entrar en un bucle infinito.
+El almacenamiento de las páginas exploradas requiere de una estructura de datos
+que soporte eficientemente la búsqueda, como una tabla hash, y se debe prestar
+especial atención al tamaño que puede tomar este almacenamiento, ya que, puede
+ser imposible mantener tantas páginas en memoria y puede ser conveniente
+almacenarlos en disco y así además prevenir posibles fallos. Por otro lado, el
+almacenamiento de la frontera se puede implementar en disco mediante una cola
+por prioridad que favorezca aquellas URL más importantes ya sea por tener mayor
+interés o porque sus contenidos se actualicen más a menudo. Por último, para
+verificar si una página ha cambiado se puede almacenar en la frontera su
+\textit{checksum}, determinando de esta manera en nuevas exploraciones si el
+contenido ha cambiado o no y ajustar su prioridad \cite{najork2009web}.
 
 El proceso de extracción de datos en internet se puede dividir en dos fases
 esenciales: primero adquirir los recursos web, por parte de las arañas, y
@@ -77,15 +90,43 @@ segundo extraer la información de estos recursos, por parte del
 \textit{scraper}. En relación con esto, se pueden identificar dos módulos
 esenciales de un programa de \textit{scraping}: el módulo que realiza peticiones
 HTTP para obtener el código HTML y el módulo que entiende el formato HTML y sus
-etiquetas para poder extraer la información concreta \cite{zhao2017web}.
+etiquetas para poder extraer la información concreta \cite{zhao2017web}. En la
+propia extracción de la información se usan los selectores de CSS para apuntar a
+partes concretas de todo el código HTML, como ciertas etiquetas, clases,
+primeras ocurrencias dentro de una etiqueta, etc. \cite{scraperworld}
 
-TODO \cite{scraperworld}
+Sin embargo, en el proceso de \textit{scraping} no siempre basta con indexar
+toda la web y entender la estructura de la página para la extracción, sino que
+el \textit{crawler} se puede encontrar con problemas que impidan hacer
+peticiones a la web. Las webs pueden levantar mecanismos que impidan o
+interfieran en el funcionamiento de una herramienta de \textit{scraping},
+identificando si es un usuario humano o un bot. Por ejemplo, analizando si la IP
+que está accediendo a la web proviene de una lista negra de direcciones IP no
+confiables, analizando patrones de comportamiento extraños en el uso de la web
+como un gran número de peticiones en poco tiempo \cite{zhao2017web} o los
+CAPTCHA, un test que determina si el usuario es humano, que son difíciles de
+superar por un programa e implícitamente quieren decir que la web no acepta bots
+\cite{apress2018scraping}. 
+
+En relación con los problemas mencionados anteriormente, un \textit{crawler}
+tiene que tener en cuenta el principal problema de ingeniería al que se
+enfrenta, que es la escalabilidad. La araña explorará y almacenará miles de
+páginas en un solo segundo y con cierta periodicidad para refrescar el corpus de
+páginas, es decir, hará un gran número de peticiones HTTP a una web en un corto
+periodo de tiempo. Un gran número de peticiones puede sobrecargar el servidor y
+hacer que no esté disponible, más aún si estas peticiones se realizan de forma
+paralela para mejorar la eficiencia del programa. Por esta razón los
+\textit{crawlers} deben implementar ``políticas de cortesía'' que limitan la
+cantidad de tráfico dirigido a la web, generalmente sabiendo de antemano la
+capacidad de carga que tiene el servidor. Una política de cortesía posible sería
+reducir el número de peticiones concurrentes o esperar un tiempo antes de volver
+a efectuar peticiones al servidor \cite{najork2009web}.
 
 \subsection{Formatos de representación de datos}
 Tabla comparativa
 \section{Trabajos relacionados}
 \subsection{Tropescraper}
-La biblioteca
+Este trabajo toma como base la biblioteca
 Tropescraper\footnote{\url{https://github.com/rhgarcia/tropescraper/}}
 \cite{garcia2020startroper}
 
