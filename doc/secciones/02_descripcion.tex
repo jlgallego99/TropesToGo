@@ -26,13 +26,13 @@ información extraída sea identificable con la de otras bases de datos, como
 puede ser IMDB\footnote{\url{https://www.imdb.com/}} para el ejemplo de una
 película.
 
-La estructura entre diferentes páginas de TvTropes, así como sus contenidos,
-están en constante cambio. Estos cambios se pueden observar en cualquier página
-de la web, ya que, no tiene una estructura fija, sino que sus contenidos, aún
-teniendo el mismo propósito, suelen estar organizados de distintas maneras o
-directamente no estar presentes. Varias páginas están estructuradas de distintas
-maneras, algunas usando un esquema más antiguo y otras uno más nuevo. Por
-ejemplo, la página de la serie Los
+La relación entre páginas de TvTropes, la información que contienen y la
+disposición de sus contenidos están en constante cambio. Estos cambios se pueden
+observar en cualquier página de la web, ya que, no tiene una estructura fija,
+sino que sus contenidos, aún teniendo el mismo propósito, suelen estar
+organizados de distintas maneras o directamente no estar presentes. Varias
+páginas están organizadas de distintas maneras, algunas usando un esquema más
+antiguo y otras uno más nuevo. Por ejemplo, la página de la serie Los
 Soprano\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Series/TheSopranos}}
 presenta sus \textit{tropos} organizados en carpetas por rango alfabético,
 mientras que  en la película El Viaje de
@@ -44,14 +44,16 @@ que utilizan este recurso, muchas veces organizado por géneros o de otras
 maneras.
 
 En general, todas las páginas presentan una serie de distintas estructuras para
-organizar la misma información sin demasiado aviso, y es algo que se tiene que
-tener en cuenta en todo momento. Existen una serie de tipos principales que
-suelen tomar las páginas y que se identificarán en el capítulo 5 del trabajo, al
-hacer el análisis de TvTropes, pero conocer todas y cada una de las estructuras
-que puede tomar una página es imposible y esto es también un problema que debe
-superar el \textit{scraper}. Para solucionar estos problemas el \textit{scraper}
-debe comprobar si es capaz de entender y extraer la información de la página que
-está explorando. 
+organizar la misma información, sin embargo, no se sabe de antemano cual por lo
+que es imprescindible tener en cuenta en cada momento cómo es la página que se
+está explorando antes de extraer los datos. Existen una serie de formatos
+comunes que suelen tomar la mayoría de las páginas y que se identificarán en el
+capítulo 5 del trabajo, al hacer el análisis de TvTropes, pero conocer todos y
+cada uno de los esqueletos que puede tomar una página como base es imposible ya
+que existen excepciones y esto es también un problema que debe superar el
+\textit{scraper}. Para solucionar estos problemas el \textit{scraper} debe
+comprobar si es capaz de entender y extraer la información de la página que está
+explorando.
 
 Por último, extraer tanta cantidad de información presenta un reto adicional en
 términos de eficiencia en el tiempo de ejecución debido a todo el tiempo que
@@ -85,15 +87,15 @@ desglosan los objetivos específicos que tiene este trabajo.
     capaz de entender, extraer, limpiar y preparar la información de cualquier
     página de \textit{tropos} de TvTropes independientemente de su estructura.
     \item \textbf{OBJ02} La solución será capaz de extraer información de
-    metadatos no estructurada, aparte de los \textit{tropos}, que permita poder
-    diferenciar entre obras audiovisuales y relacionarlas con fuentes de datos
-    externas.
+    metadatos de contenido no estructurado, aparte de los \textit{tropos}, que
+    permita poder diferenciar entre obras audiovisuales y relacionarlas con
+    fuentes de datos externas.
     \item \textbf{OBJ03} Diseñar y desarrollar una aplicación que pueda
     integrarse fácilmente en flujos de trabajo de ciencia de datos y machine
     learning mediante la cual el usuario pueda elegir qué contenidos quiere
     extraer.
     \item \textbf{OBJ04} La solución entenderá la frecuencia con la que cambian
-    los contenidos y la estructura de las páginas de TvTropes y actualizará la
+    los contenidos y la organización de las páginas de TvTropes y actualizará la
     información extraída para poder tener siempre los datos más nuevos que
     existen en la web.
     \item \textbf{OBJ05} La solución desarrollada debe ser rápida y eficiente,
