@@ -5,60 +5,101 @@ anterior y que se quiere resolver, formulando los objetivos que se quieren
 alcanzar al final del proyecto.
 
 \section{Problema a resolver}
-
-La importancia de los tropos y su estudio en multitud de ámbitos como la
-aritmética de contenidos no verbales, el análisis de tropos más usados en
-películas o el estudio de qué tropos son los más populares a lo largo del tiempo
-y generan productos con un mayor beneficio abre la necesidad de tenerlos todos
-bien recogidos para poder realizar un buen estudio de ellos con las herramientas
+La importancia de los \textit{tropos} y su estudio en multitud de ámbitos con
+métodos de ciencia de datos, como el análisis de \textit{tropos} más usados en
+películas y cuáles son los más populares a lo largo del tiempo
+\cite{garcia2020tropes}, o el análisis mediante algoritmos de combinaciones de
+\textit{tropos} que permiten conocer qué nichos narrativos no han sido
+explorados aún y pueden reportar un buen beneficio y críticas positivas
+\cite{garcia2021simpsons}, abren la necesidad de tenerlos todos bien recogidos y
+preparados para poder realizar un buen estudio de ellos con las herramientas
 actuales que existen en ciencia de datos o inteligencia artificial. 
 
-Es necesario poder extraer estos datos de tropos completos o bajo algún tipo de
-criterio, si es que se desea analizar un subconjunto de ellos. Y a esto se le
-suma también el interés que pueden tener los metadatos de una obra, siendo un
-problema el tener extraída por ejemplo una película con sus tropos asociados,
-pero que no se tenga más información de esta como puede ser el año de
+Es necesario poder extraer estos contenidos reiterativos completos o bajo algún
+tipo de criterio, si es que se desea analizar un subconjunto de ellos. Y a esto
+se le suma también el interés que pueden tener los metadatos de una obra, siendo
+un problema el tener extraída por ejemplo una película con sus \textit{tropos}
+asociados, pero que no se tenga más información de esta como puede ser el año de
 publicación, el género, los actores, etc. Podrían existir análisis que
 requiriesen de todos estos metadatos, por lo que necesitarían que esta
 información extraída sea identificable con la de otras bases de datos, como
 puede ser IMDB\footnote{\url{https://www.imdb.com/}} para el ejemplo de una
 película.
 
-La web de TvTropes, así como sus contenidos, está en constante cambio y la
-estructura de sus páginas es distinta entre contenidos, algunas usando un
-esquema más antiguo y otras uno más nuevo, por lo que un scraper que extraiga
-toda la información debe saber adaptarse y explorar todas las estructuras que
-presenta la web. Además, extraer tanta cantidad de información presenta un reto
-debido a todo el tiempo que puede tardar una herramienta en recoger tantos
-contenidos.\\
+La relación entre páginas de TvTropes, la información que contienen y la
+disposición de sus contenidos están en constante cambio. Estos cambios se pueden
+observar en cualquier página de la web, ya que, no tiene una estructura fija,
+sino que sus contenidos, aún teniendo el mismo propósito, suelen estar
+organizados de distintas maneras o directamente no estar presentes. Varias
+páginas están organizadas de distintas maneras, algunas usando un esquema más
+antiguo y otras uno más nuevo. Por ejemplo, la página de la serie Los
+Soprano\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Series/TheSopranos}}
+presenta sus \textit{tropos} organizados en carpetas por rango alfabético,
+mientras que  en la película El Viaje de
+Chihiro\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Anime/SpiritedAway}}
+están agrupados en una lista más simple sin carpetas. O por ejemplo, una página
+de una obra, que presenta una lista de \textit{tropos}, no tiene la misma
+información que una página de \textit{tropos}, que presenta una lista de obras
+que utilizan este recurso, muchas veces organizado por géneros o de otras
+maneras.
+
+En general, todas las páginas presentan una serie de distintas estructuras para
+organizar la misma información, sin embargo, no se sabe de antemano cuál por lo
+que es imprescindible tener en cuenta en cada momento cómo es la página que se
+está explorando antes de extraer los datos. Existen una serie de formatos
+comunes que suelen tomar la mayoría de las páginas y que se identificarán en el
+capítulo 5 del trabajo, al hacer el análisis de TvTropes, pero conocer todos y
+cada uno de los esqueletos que puede tomar una página como base es imposible, ya
+que, existen excepciones y esto es también un problema que debe superar el
+\textit{scraper}. Para solucionar estos problemas el \textit{scraper} debe
+comprobar si es capaz de entender y extraer la información de la página que está
+explorando.
+
+Por último, extraer tanta cantidad de información presenta un reto adicional en
+términos de eficiencia en el tiempo de ejecución debido a todo el tiempo que
+puede tardar una herramienta en recoger tantos contenidos. No siempre se querrán
+extraer todos los contenidos, sin embargo, el \textit{scraper} debe adaptarse
+siempre al volumen de datos que va a manejar en cada momento.
 
 Por tanto, el problema principal que busca resolver este trabajo es el de
 desarrollar una herramienta eficiente y eficaz mediante la cual cualquier
-persona interesada en el estudio de los tropos pueda obtener todos los datos
-recogidos en TvTropes de forma estructurada. Esta herramienta debe tener en
-cuenta la naturaleza cambiante tanto de los datos como de la fuente de
-información de donde los extrae, y debe poder presentarlos en un formato legible
-tanto por humanos como por programas, para poder hacer cualquier tipo de estudio
-sobre ellos. Estos datos deberán ser completos, correctos y estar siempre
-actualizados para evitar que cualquier tipo de análisis esté desfasado.\\
+persona interesada en el estudio de los \textit{tropos} pueda obtener todos los
+datos de TvTropes estructurados y preparados para su análisis, pudiendo elegir
+qué información concreta quiere sin necesidad de extraerla toda y en qué formato
+de datos la quiere representada. Esta herramienta debe tener en cuenta la
+naturaleza cambiante tanto de los datos como de la fuente de información de
+donde los extrae, y debe poder presentarlos en un formato legible tanto por
+humanos como por programas, para poder hacer cualquier tipo de estudio sobre
+ellos. Estos datos deberán ser completos, correctos y estar siempre actualizados
+para evitar que cualquier tipo de análisis esté desfasado.
 
 A continuación se describen los objetivos que busca alcanzar este proyecto tras
-haber resuelto los problemas descritos.
+haber resuelto los problemas descritos. Estos objetivos se usarán en la última
+sección de este trabajo como medida para comprobar si el proyecto ha finalizado
+correctamente.
 
 \section{Objetivos}
-
 Una vez descrito el problema que se quiere resolver y los retos que presenta, se
 desglosan los objetivos específicos que tiene este trabajo.
 
 \begin{itemize}
-    \item \textbf{OBJ01} Estudiar las herramientas existentes que extraen o
-    proporcionan la información contenida en TvTropes, analizando y documentando
-    sus características y problemas que presentan.
-    \item \textbf{OBJ02} Analizar y representar un modelo esquemático de la
-    estructura de la web de TvTropes.
-    \item \textbf{OBJ03} Diseñar y programar una herramienta que pueda extraer
-    toda la información de tropos de cualquier medio audiovisual encontrado en
-    TvTropes y publicarla de forma libre en GitHub y en los repositorios del
-    lenguaje para que cualquier persona pueda utilizarla.
+    \item \textbf{OBJ01} Diseñar y desarrollar una solución informática que sea
+    capaz de entender, extraer, limpiar y preparar la información de cualquier
+    página de \textit{tropos} de TvTropes independientemente de su estructura.
+    \item \textbf{OBJ02} La solución será capaz de extraer información de
+    metadatos de contenido no estructurado, aparte de los \textit{tropos}, que
+    permita poder diferenciar entre obras audiovisuales y relacionarlas con
+    fuentes de datos externas.
+    \item \textbf{OBJ03} Diseñar y desarrollar una aplicación que pueda
+    integrarse fácilmente en flujos de trabajo de ciencia de datos y machine
+    learning mediante la cual el usuario pueda elegir qué contenidos quiere
+    extraer.
+    \item \textbf{OBJ04} La solución entenderá la frecuencia con la que cambian
+    los contenidos y la organización de las páginas de TvTropes y actualizará la
+    información extraída para poder tener siempre los datos más nuevos que
+    existen en la web.
+    \item \textbf{OBJ05} La solución desarrollada debe ser rápida y eficiente,
+    adaptándose a la gran cantidad de datos que tiene que extraer en cada
+    momento.
 \end{itemize}
 

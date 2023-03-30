@@ -7,11 +7,252 @@ similar. Con esto se tendrá un mejor entendimiento del dominio del problema que
 se analizará en profundidad en el capítulo 5 y se justificarán las herramientas
 que se utilizarán en la implementación del software descrita en el capítulo 6.
 
+El capítulo está dividido en dos secciones principales. En la primera sección se
+describirán aspectos relativos al dominio del problema como qué es un
+\textit{scraper}, sus necesidades y características actuales, además de los
+diferentes formatos de representación de datos más comunes que existen en
+ciencia de datos. En la segunda sección se analizarán otros trabajos
+relacionados que tienen también como objetivo extraer la información de
+\textit{tropos} de TvTropes. 
+
 \section{Dominio del problema}
 \subsection{Scraping}
-\subsection{TvTropes}
-\subsection{Formatos de representación de datos usados en la ciencia de datos}
+El \textit{web scraping}, o extracción de datos web, se define como la
+construcción de agentes que sean capaz de descargar, entender y organizar los
+datos de una web de manera autónoma \cite{apress2018scraping}. Actualmente, los
+\textit{scrapers} son sistemas completos capaces de convertir páginas web
+enteras en conjuntos de datos limpios y bien organizados, entendiendo no solo
+datos estructurados traduciendo lenguajes de marcado como HTML, sino también
+datos no estructurados analizando lenguaje natural \cite{zhao2017web}. Estos
+sistemas realizan multitud de tareas para conseguir un conjunto de datos que
+luego almacenan en un fichero o en una base de datos para su posterior
+recuperación o análisis.
+
+La disciplina del \textit{scraping} tiene especial interés para la ciencia de
+datos; concretamente influye en la primera etapa de extracción de información,
+la cual debe estar lo más limpia y lista posible para facilitar su posterior
+análisis. En internet existe una gran cantidad de información no estructurada
+que, si bien un usuario desde su navegador puede ver de una forma visual y
+agradable, no tiene fácil acceso como conjunto de datos para su almacenamiento,
+limpieza y análisis de cualquier tipo. Muchas webs proporcionan una API, a veces
+pública y a veces privada, mediante la cual se puede acceder a sus datos o
+funcionalidades, sin embargo, esto no siempre es el caso y es ahí donde el
+\textit{scraping} entra para resolver estos problemas \cite{apress2018scraping}.
+
+A veces se usan los términos \textit{scraping} y \textit{crawling} de manera
+intercambiable para hacer referencia a la misma idea de un programa autónomo que
+explora una web y extrae su información, sin embargo, existe una distinción
+concreta entre ambos. Cuando se habla de \textit{scraping} el enfoque es en la
+extracción de datos en una página concreta de la que se conoce su URL. Por otro
+lado, el \textit{crawling} (reptar o trepar) hace referencia a la exploración e
+indexación de una web buscando cualquier tipo de información y explorando todos
+los links que contiene, es decir, para descubrir toda una web completa, y suele
+ser utilizado por los motores de búsqueda como Google \cite{scrapingvscrawling}.
+Por tanto, son términos estrechamente relacionados, pero con distintos
+objetivos; al desarrollar un \textit{scraper} se obtiene un conjunto de datos,
+pero se necesita de un \textit{crawler}, o araña, para poder conocer y explorar
+todas las URL que se quieren extraer y no se conocen de antemano.
+
+Un \textit{web crawler}, también conocido como robot o araña, es un programa
+automático que explora y descarga páginas web en masa. Estas arañas se usan en
+muchos ámbitos, como por ejemplo en los motores de búsqueda para crear un corpus
+de páginas web, indexarlas y que los usuarios puedan hacer consultas a ese
+índice para obtener la página que se adapte a sus consultas. También se emplea
+en el archivado de páginas web para la posteridad o en la minería de datos,
+donde se analizan las páginas para extraer propiedades o características de
+ellas \cite{olston2010web}. Este último caso de uso es el más relacionado con el
+\textit{scraping}, en el que no solo se exploran y descargan páginas web, sino
+que se entra en ellas y se analizan más en profundidad.
+
+El algoritmo básico de una araña consiste en, partiendo de una o varias URL base
+llamadas semillas, descargar todas y cada una de las páginas a las que se hacen
+referencia en ellas, extrayendo todos los hipervínculos que contienen y
+recursivamente descargando las páginas a las que se refieren esos hipervínculos
+\cite{olston2010web}. A lo largo de la ejecución de la araña se tiene un
+conjunto de URL candidatas para explorar llamada frontera, al cual se le van
+añadiendo los hipervínculos encontrados, comprobando previamente si esa URL se
+ha encontrado antes para evitar añadir repetidos y entrar en un bucle infinito.
+El almacenamiento de las páginas exploradas requiere de una estructura de datos
+que soporte eficientemente la búsqueda, como una tabla hash, y se debe prestar
+especial atención al tamaño que puede tomar este almacenamiento, ya que, puede
+ser imposible mantener tantas páginas en memoria y puede ser conveniente
+almacenarlos en disco y así además prevenir posibles fallos. Por otro lado, el
+almacenamiento de la frontera se puede implementar en disco mediante una cola
+por prioridad que favorezca aquellas URL más importantes ya sea por tener mayor
+interés o porque sus contenidos se actualicen más a menudo. Por último, para
+verificar si una página ha cambiado se puede almacenar en la frontera su
+\textit{checksum}, determinando de esta manera en nuevas exploraciones si el
+contenido ha cambiado o no y ajustar su prioridad \cite{najork2009web}.
+
+El proceso de extracción de datos en internet se puede dividir en dos fases
+esenciales: primero adquirir los recursos web, por parte de las arañas, y
+segundo extraer la información de estos recursos, por parte del
+\textit{scraper}. En relación con esto, se pueden identificar dos módulos
+esenciales de un programa de \textit{scraping}: el módulo que realiza peticiones
+HTTP para obtener el código HTML y el módulo que entiende el formato HTML y sus
+etiquetas para poder extraer la información concreta \cite{zhao2017web}. En la
+propia extracción de la información se usan los selectores de CSS para apuntar a
+partes concretas de todo el código HTML, como ciertas etiquetas, clases,
+primeras ocurrencias dentro de una etiqueta, etc. \cite{scraperworld}
+
+Sin embargo, en el proceso de \textit{scraping} no siempre basta con indexar
+toda la web y entender la estructura de la página para la extracción, sino que
+el \textit{crawler} se puede encontrar con problemas que impidan hacer
+peticiones a la web. Las webs pueden levantar mecanismos que impidan o
+interfieran en el funcionamiento de una herramienta de \textit{scraping},
+identificando si es un usuario humano o un bot. Por ejemplo, analizando si la IP
+que está accediendo a la web proviene de una lista negra de direcciones IP no
+confiables, analizando patrones de comportamiento extraños en el uso de la web
+como un gran número de peticiones en poco tiempo \cite{zhao2017web} o los
+CAPTCHA, un test que determina si el usuario es humano, que son difíciles de
+superar por un programa e implícitamente quieren decir que la web no acepta bots
+\cite{apress2018scraping}. 
+
+En relación con los problemas mencionados anteriormente, un \textit{crawler}
+tiene que tener en cuenta el principal problema de ingeniería al que se
+enfrenta, que es la escalabilidad. La araña explorará y almacenará miles de
+páginas en un solo segundo y con cierta periodicidad para refrescar el corpus de
+páginas, es decir, hará un gran número de peticiones HTTP a una web en un corto
+periodo de tiempo. Un gran número de peticiones puede sobrecargar el servidor y
+hacer que no esté disponible, más aún si estas peticiones se realizan de forma
+paralela para mejorar la eficiencia del programa. Por esta razón los
+\textit{crawlers} deben implementar ``políticas de cortesía'' que limitan la
+cantidad de tráfico dirigido a la web, generalmente sabiendo de antemano la
+capacidad de carga que tiene el servidor. Una política de cortesía posible sería
+reducir el número de peticiones concurrentes o esperar un tiempo antes de volver
+a efectuar peticiones al servidor \cite{najork2009web}.
+
+\subsection{Formatos de representación de datos}
+Tabla comparativa
 \section{Trabajos relacionados}
 \subsection{Tropescraper}
+Este trabajo toma como base la biblioteca
+Tropescraper\footnote{\url{https://github.com/rhgarcia/tropescraper/}}
+\cite{garcia2020startroper}
+
 \subsection{DBTropes}
-\subsection{PicTropes}
+La web DBTropes\footnote{\url{http://skipforward.opendfki.de/wiki/DBTropes}}
+\cite{kiesel2010dbtropes}
+
+\subsection{Consejos sobre el scraping de TvTropes}
+No existen demasiados proyectos \textit{software} en internet que se centren en
+extraer la información de TvTropes además de los vistos anteriormente, lo cual
+motiva este proyecto, ya que, puede aportar una solución que aún no existe a un
+problema real. Artículos como \cite{gala2020analyzing}, que analiza el sesgo de
+género que existe en los tropos narrativos, o \cite{boyd2013spoiler}, que genera
+un modelo de aprendizaje automático para detectar spoilers usando información de
+TvTropes, generan sus propios conjuntos de datos ya sea con un \textit{scraper}
+o de otro modo sin dar mucha más información de ello, puesto que se centran en
+el análisis. 
+
+Sin embargo, el artículo de Sachita Nishal \cite{nishalscraping} presenta uno de
+los pocos ejemplos reales que relatan el desarrollo de un \textit{scraper} de
+TvTropes y las dificultades que presenta. En él se describe el proceso de
+construcción del \textit{scraper} con el lenguaje Python a modo de ayuda para
+cualquier interesado en extraer la información de esta web, y da una serie de
+consejos que suponen un buen punto de partida para comenzar con el desarrollo
+del \textit{software} de este trabajo. Además, el artículo sirve para tener en
+cuenta muchas características de un desarrollo del mismo tipo, como los retos
+que ofrece la estructura de TvTropes y cómo analizarla y explorarla de la mejor
+forma posible, habiendo aprendido de los errores y dificultades de otra persona
+al querer hacer lo mismo que pretende este trabajo.
+
+Como se ha comentado al inicio de este trabajo, los contenidos de una página de
+TvTropes no siempre están organizados igual. Generalmente, aunque todas las
+páginas tienen un aspecto similar, presentan pequeños cambios significativos que
+influyen enormemente en cómo estructuran la información y, por tanto, en cómo el
+\textit{scraper} debe explorarlas \cite{nishalscraping}. El proceso seguido en
+el artículo para extraer la información de la web y superar estos problemas es
+el siguiente:
+\begin{enumerate}
+    \item \textbf{Definir qué se quiere extraer y por qué}
+    
+    En esta primera fase hay que pensar por qué queremos extraer información de
+    una web y qué queremos concretamente, para así saber cómo organizar los
+    datos mientras se van extrayendo. Esto hará que en el futuro la limpieza y
+    procesado de estos datos sea más sencilla. Se destaca la importancia de
+    diferenciar la extracción de la limpieza, siguiendo una estrategia de
+    primero extraer toda la información que se pueda y decidir en fases más
+    tardías con qué quedarse realmente.
+    \item \textbf{Analizar la estructura general e identificar las excepciones}
+    
+    Una vez sabiendo qué se quiere extraer, el siguiente paso que siguió es el
+    de mirar las distintas partes de la web y cómo están organizadas usando la
+    herramienta de inspeccionar elemento de cualquier navegador web, que permite
+    entender cómo están organizadas las etiquetas HTML en la web. Familiarizarse
+    antes con cómo está organizada la web tanto por fuera como por dentro en las
+    primeras fases del desarrollo permite estructurar mejor el código y saber
+    desde el principio por dónde atacar.
+
+    Identificar todas las excepciones mínimas en la plantilla de las páginas no
+    es recomendable, ya que, como avisa el artículo, se puede volver una tarea
+    inabarcable y sin fin. En su lugar se debe intentar no encontrar todas y
+    cada una de las excepciones, sino construir el código de forma flexible para
+    que sea capaz de tratar con aquellas excepciones que no se han identificado
+    previamente.
+
+    \item \textbf{Extraer la información}
+    
+    El propio proceso de \textit{scraping}, que requiere de una biblioteca que
+    permita hacer peticiones HTTP para obtener el código HTML y que también
+    pueda entender y transformar las etiquetas de la web en un árbol que sea
+    fácilmente explorable por el programa para encontrar exactamente la
+    información que se quiere. Además, conforme se vayan extrayendo los datos,
+    se debe ir diciendo un formato adecuado en el que almacenar todos los datos
+    que se quieren tener. Este formato permite que el programa tenga una idea de
+    lo que tiene que buscar, ya que, aunque la estructura de cada página sea
+    distinta, la información que se busca es siempre la misma.
+
+    La estrategia que sigue el artículo es de primero extraer los datos y
+    almacenarlos según sus etiquetas, almacenar el texto de cada una de las
+    etiquetas independientemente de si servirán luego o no. Una vez se tiene
+    esto, quedarse con lo verdaderamente importante limpiando los datos.
+
+    \item \textbf{Elegir un formato para representar la información}
+    
+    El artículo finalmente hace hincapié en la importancia de representar los
+    datos extraídos en un formato correcto para lo que se quiera, teniendo en
+    cuenta factores como el poder usarlos en distintos lenguajes o la rapidez de
+    lectura y escritura entre otros.
+\end{enumerate}
+
+Varias de las características que se identifican en \cite{nishalscraping} se
+resumen en los siguientes puntos:
+\begin{itemize}
+    \item Cada página de una obra en TvTropes tiene una sección que contiene
+    metadatos en forma de texto, y esto a veces se presenta en varios párrafos
+    de resumen o dentro de una carpeta que el usuario tiene que hacer clic para
+    abrir. 
+    \item Los marcadores que indican que empieza una sección no se utilizan
+    uniformemente en todas las páginas. Marcadores que indican, por ejemplo, la
+    lista de actores de una película o la lista de tropos no siempre están
+    presentes en todas las páginas.
+    \item Los \textit{tropos} a veces están representados como una lista, otras
+    veces están dentro de una carpeta e incluso existen páginas que listan los
+    \textit{tropos} de varias películas distintas que están dentro de una
+    franquicia.
+    \item Es importante identificar los distintos marcadores de sección;
+    concretamente el que precede a la lista de tropos suele ser del tipo
+    \begin{otherlanguage}{english} ``This film contains examples of''
+    \end{otherlanguage} cuando los tropos son para una sola película, mientras
+    que cuando es para múltiples películas el texto es
+    \begin{otherlanguage}{english} ``This series contains examples
+    of''\end{otherlanguage}. En este último caso la palabra clave ``series''
+    permite solucionar fácilmente el problema de páginas que hacen referencia a
+    \textit{tropos} de múltiples obras.
+    \item Toda la información útil de una página de TvTropes está contenida en
+    el cuerpo principal y tiene unos mismos atributos \textit{id} y
+    \textit{class}, por lo que este sería el punto de partida del
+    \textit{scraper}, y a partir de aquí exploraría el resto de etiquetas según
+    la página en la que se esté.
+    \item Pueden aparecer menciones a \textit{tropos} dentro de la sección de
+    resumen, fuera de la propia lista principal de la página, que pueden ser
+    importantes también. En general, todos ellos suelen presentar el mismo
+    atributo de clase ``twikilink'', por lo que el título del \textit{tropo} es
+    fácilmente identificable.
+\end{itemize}
+
+Estas características se usarán como base en el capítulo 5 de este trabajo para
+definir completamente las particularidades de la plantilla que presentan las
+distintas páginas de TvTropes, analizar correctamente su estructura y saber cómo
+proceder con la extracción de su información.

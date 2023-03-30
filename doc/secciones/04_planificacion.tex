@@ -26,60 +26,100 @@ problemas mencionados y alcanzar la excelencia técnica.
 
 La ingeniería del \textit{software} es el establecimiento y uso de principios
 fundamentales de la ingeniería con objeto de desarrollar \textit{software}
-confiable y eficiente. Lo más importante a tener en cuenta es que la ingeniería
-del software es un proceso que forma la base para el control de la
-administración de proyectos de \textit{software}, y establece el contexto en el
-que se aplican métodos técnicos, se generan productos (modelos, documentación,
+confiable y eficiente. Es un proceso que forma la base para el control de la
+administración de proyectos \textit{software}, y establece el contexto en el que
+se aplican métodos técnicos, se generan productos (modelos, documentación,
 código, etc.), se establecen puntos de referencia, se asegura la calidad y se
 aborda al cambio de manera apropiada \cite{pressman_software_2015}.
 
-Dentro del marco de la ingeniería del \textit{software} están las metodologías
-ágiles... \cite{abrahamsson2017agile}.
+Debido a que las metodologías tradicionales son incapaces de abordar un
+desarrollo moderno y no consiguen permanecer en el tiempo, siendo muy mecánicas,
+con largos ciclos de desarrollo que requieren una larga planificación fija y
+extensa documentación que no garantizan un producto de calidad, surgen una serie
+de nuevos métodos conocidos como ``ágiles`` \cite{abrahamsson2017agile}. Estos
+nuevos métodos pretenden resolver todos estos problemas, centrándose
+principalmente en el usuario final y en la calidad, y que gozan de una gran
+popularidad en la actualidad. En la actualidad la mayoría de proyectos que se
+desarrollan siguen metodologías ágiles y tienen una mayor tasa de éxito,
+consiguiendo mejores resultados en productividad, calidad del \textit{software}
+y entregas al cliente más frecuentes con cambios frecuentes
+\cite{agilestatistics}.
 
-Todo el proyecto, desde su concepción, se ha planteado siguiendo una metodología
-de desarrollo ágil que siga los principios del manifiesto ágil
-\cite{agilemanifesto}. El principal objetivo del desarrollo ágil es el de buscar
-la calidad del producto y asegurar un desarrollo flexible centrado en las
-necesidades de los usuarios, a los que se desarrolla el \textit{software}, y en
-el que exista una tolerancia al cambio.
+La creación de la metodología \textit{Extreme Programming} dio inicio a muchas
+otras que se siguen utilizando actualmente, y aunque existen muchos marcos de
+trabajo concretos para dotar de agilidad a un desarrollo, todos siguen los
+mismos principios \cite{abrahamsson2017agile}. Estos principios fueron definidos
+en el año 2001 en el manifiesto ágil \cite{agilemanifesto} y siguen vigentes a
+día de hoy. En estos principios se definen como valores centrales el priorizar
+las relaciones entre personas y sus capacidades sobre procesos predefinidos,
+entregar constantemente nuevas versiones del \textit{software} testeado y
+mantener una estrecha relación con el cliente con la que evolucione el contrato
+y necesidades del proyecto en el ciclo de trabajo en lugar de tener algo fijo e
+inalterable.
+
+Cuando hablamos de agilidad estamos hablando de estar preparado a los cambios y
+de ofrecer métodos para que los procesos de desarrollo sean más rápidos y
+ligeros. En \cite{abrahamsson2017agile} se dan las características que definen
+el desarrollo ágil: modularidad en los procesos de desarrollo, cortos ciclos
+iterativos de una a seis semanas que permitan verificaciones y correcciones
+rápidas, adaptación a riesgos emergentes, desarrollo incremental que permita
+construir una aplicación funcional en pequeños pasos y minimice riesgos,
+orientado a las personas y trabajo de forma colaborativa y comunicativa. 
+
+Todo el proyecto se ha planteado siguiendo estos principios. Se ha elegido así,
+puesto que es el tipo de desarrollo más utilizado en la actualidad y es más
+flexible que el clásico desarrollo en cascada con requisitos fuertes que
+requieren tener toda la información desde el principio y ceñirse estrictamente a
+un plan prefijado, cosa que dificulta mucho el desarrollo e impide ponerse a
+trabajar cuanto antes. Este enfoque ágil se adapta perfectamente a un proyecto
+individual como este en el que se tienen unos requisitos débilmente definidos
+que irán evolucionando conforme se vaya desentrañando la complejidad de TvTropes
+y analizándolo para desarrollar el scraper, debido tanto a la necesidad de
+desarrollar una herramienta que se adapte a las diversas necesidades de los
+usuarios como al carácter que tiene este trabajo como proyecto de aprendizaje.
 
 La flexibilidad que da el desarrollo ágil a la hora de detectar cambios permite
-tener un enfoque más centrado en la implementación del \textit{software} y estar
-menos centrado en la documentación.
+tener un enfoque más centrado en la implementación del \textit{software} y menos
+en la documentación, pudiendo adaptarse a las nuevas necesidades que vayan
+surgiendo, para tener un producto final tecnológicamente puntero, eficiente,
+eficaz y de calidad que cumpla lo mejor posible los objetivos.
+
+Por tanto, siguiendo los principios ágiles y sus ventajas anteriormente
+definidas, se resumen las características del desarrollo de este proyecto como
+las siguientes:
 
 \begin{itemize}
     \item El desarrollo es iterativo e incremental, en el cual se definen una
     serie de hitos (o entregables) que conforman un Producto Mínimamente Viable
     (PMV). Este PMV conforma una parte de la funcionalidad total que se quiere
-    tener al final para cumplir los objetivos especificados, y los tests se
-    asegurarán de que sea completamente funcional, garantizando su calidad.
-    \item El desarrollo está organizado por una serie de historias de usuario
-    que definen de forma precisa y adecuada el funcionamiento del
-    \textit{software} y cómo organizar el desarrollo del mismo, siempre desde el
-    punto de si satisfacen al usuario, que es para quien se desarrolla.
-    \item Durante todo el desarrollo se acepta que surjan problemas o nuevos
-    requisitos, que se documentarán adecuadamente y se incorporarán a la
-    planificación en mitad del desarrollo para adaptarse a esos cambios lo antes
-    posible y siempre cumplir las necesidades de los usuarios.
+    tener al final para cumplir los objetivos especificados, siguiendo la idea
+    del desarrollo ágil de entregas constantes de pequeños incrementos. Los
+    tests se asegurarán de que este incremento sea completamente funcional,
+    garantizando su calidad.
+    \item El desarrollo está organizado por una serie de historias de usuario,
+    que se utilizan en las metodologías ágiles para especificar los requisitos
+    desde el punto de vista del usuario y con las que posteriormente se extraen
+    las tareas de desarrollo, que especifican más concretamente los problemas de
+    implementación que se quieren resolver y de qué manera. Las historias de
+    usuario permiten organizar el desarrollo del proyecto, siempre teniendo en
+    cuenta si satisfacen al usuario, que es para quien se desarrolla.
+    \item Se acepta que surjan problemas o nuevos requisitos, que se
+    documentarán adecuadamente y se incorporarán a la planificación en mitad del
+    desarrollo para adaptarse a esos cambios lo antes posible y siempre cumplir
+    las necesidades de los usuarios.
     \item Se busca siempre la calidad del \textit{software}, usando para ello
     las mejores prácticas del lenguaje tanto en código como en su documentación,
-    teniendo que estar todo debidamente testeado. Se va a desarrollar una
-    herramienta que en última instancia será utilizada usuarios reales y estos
-    deben obtener el mejor producto posible.
+    usando diversas herramientas que faciliten la automatización de tareas como
+    la compilación o el testeo. Se va a desarrollar una herramienta que en
+    última instancia será utilizada por usuarios reales y estos deben obtener el
+    mejor producto posible.
 \end{itemize}
 
-Este tipo de desarrollo se adapta bien a un proyecto como este, en el que pueden
-ir surgiendo necesidades conforme se vaya desarrollando el scraper, puesto que
-es un problema del cual no se sabe desde el principio todas las necesidades que
-va a plantear debido a la complejidad de la web de TvTropes y a la de las
-propias herramientas de scraping. Por tanto, esta metodología permite que los
-problemas que puedan surgir en medio del desarrollo se aborden a tiempo,
-documentándolos correctamente y sabiendo en todo momento qué se ha hecho, cuál
-es el estado del desarrollo del proyecto, qué hacer y cómo hacerlo.
-
-Con el propósito de cumplir correctamente todos los principios ágiles que se han
-definido se emplean varias herramientas y buenas prácticas para el seguimiento
-del desarrollo y que se describen a continuación.
+En las siguientes secciones se profundizará más sobre estas características del
+desarrollo, introduciendo y describiendo los hitos e historias de usuario.
+Además, con el propósito de cumplir correctamente todos los principios ágiles
+que se han definido se emplean varias herramientas y buenas prácticas para el
+seguimiento del desarrollo que se describen a continuación.
 
 \section{Seguimiento del desarrollo}
 \subsection{GitHub}
@@ -136,19 +176,31 @@ saber siempre el trabajo que se tiene que hacer y poder avanzar de una forma má
 cómoda en alcanzar los objetivos y satisfacer al usuario. 
 
 \subsection{Hitos}
-Los hitos o \textit{milestones} representan cada uno de los estados en los que
-va a ir evolucionando la aplicación, conformando un Producto Mínimamente Viable.
-Cada PMV se construye encima de los anteriores, por lo que no se avanza en el
-desarrollo hasta que un hito quede completo en su totalidad. 
+Como se ha visto anteriormente, uno de los principios básicos del desarrollo
+ágil es el de ir creando rápidamente pequeños incrementos funcionales del
+producto para ir teniendo un \textit{feedback} continuo del cliente, abordar
+cambios y problemas lo antes posible y así minimizar el riesgo. Cada uno de
+estos incrementos lo representamos como un hito, o \textit{milestone}, que
+representa cada uno de los estados en los que va a ir evolucionando el
+\textit{software}, conformando un Producto Mínimamente Viable. Cada PMV se
+construye encima de los anteriores, por lo que no se avanza en el desarrollo
+hasta que un hito quede completo en su totalidad. 
 
-Cada hito equivaldría a un sprint, puesto que son ciclos de ejecución cortos (de
-máximo 4 semanas) con una serie de historias de usuario y tareas definidas que
-se deben completar en un periodo de tiempo y cuyo objetivo es conseguir un
-incremento de valor en el producto que se está construyendo, es decir, un PMV.
-Puesto que se está siguiendo un desarrollo ágil estos hitos se van adaptando al
-propio proceso de desarrollo y van cambiando a lo largo del trabajo conforme
-surgen nuevas necesidades al entender mejor el dominio del problema o al
-necesitar productos mínimos intermedios antes de poder trabajar en el siguiente.
+Cada hito equivaldría a un sprint, que es un ciclo de desarrollo corto (y
+debería durar entre 1 y 6 semanas \cite{abrahamsson2017agile}) en el que se
+desarrolla todo lo necesario para resolver los \textit{issues} convenientes, que
+se deducen de las historias de usuario definidas. Estos \textit{issues} siempre
+expresan un problema, cuya resolución satisface una historia de usuario, y por
+consiguiente, al cliente. Al final del sprint se consigue un incremento de valor
+en el producto que se está construyendo, es decir, un PMV. 
+
+Estos hitos se van adaptando al propio proceso de desarrollo y van cambiando a
+lo largo del trabajo conforme surgen nuevas necesidades al entender mejor el
+dominio del problema o al necesitar productos mínimos intermedios antes de poder
+trabajar en el siguiente. Es posible que para conseguir llegar a cierto
+incremento haya que realizar antes otro que no se haya tenido en cuenta desde el
+principio; la flexibilidad del desarrollo ágil nos permite hacer estos cambios
+de planificación sin tener que replantear todo desde cero.
 
 Un \textit{milestone} se considerará como completado una vez se hayan resuelto
 todos sus \textit{issues} asociados. Al terminarlo y subir sus cambios a la rama
@@ -325,25 +377,31 @@ Sabiendo el problema que se quiere resolver y las partes interesadas se pueden
 definir las historias de usuario que guiarán todo el desarrollo de principio a
 fin, ayudando en la toma de decisiones para llegar a cumplir los objetivos.
 
-\subsection{[HU01] Investigador - Obtener información estructurada sobre todos los tropos}
-Como investigador necesito poder obtener información estructurada sobre todos
-los tropos existentes de cualquier tipo de medio audiovisual, en un formato
-estandarizado y con una estructura definida para que sean de fácil acceso tanto
-a humanos como programas para su análisis.
+\subsection{[HU01] Investigador - Obtener información sobre tropos}
+Como investigador necesito poder obtener información sobre todos los tropos
+existentes de cualquier tipo de medio audiovisual, en un formato estandarizado y
+con una estructura definida para que sean de fácil acceso tanto a humanos como
+programas para su análisis.
 
 \subsection{[HU02] Investigador - Obtener un subconjunto de la información}
 Como investigador necesito poder elegir qué parte de la información sobre tropos
 quiero obtener, ya sea de un medio audiovisual concreto, todo un género, etc.
 
-\subsection{[HU03] Investigador - Relacionar medios audiovisuales con su ficha en IMDB}
+\subsection{[HU03] Investigador - Relacionar medios audiovisuales con fuentes externas}
 Como investigador necesito obtener información de metadatos sobre cualquier
 medio audiovisual, para lo cual necesito que los medios audiovisuales de los
-cuales se han sacado sus tropos se puedan relacionar con su ficha en IMDB.
+cuales se han sacado sus tropos sean fácilmente identificables y se puedan
+relacionar con su ficha en IMDB u otras fuentes de datos externas del mismo
+tipo.
 
 \subsection{[HU04] Investigador - Información actualizada}
 Como investigador quiero que la información de tropos que obtenga esté lo más
 actualizada posible, sepa cuándo se ha extraído y pueda obtenerla actualizada
 cuando quiera para traer la nueva información que pueda existir.
+
+\subsection{[HU05] Investigador - Representación de los datos}
+Como investigador quiero poder elegir el formato en el que se represente el
+conjunto de datos de entre los más comunes en ciencia de datos.
 
 \section{Temporización}
 Una vez vistos los hitos que se esperan alcanzar en el desarrollo, los cuales
@@ -399,17 +457,16 @@ tareas tiene el proyecto y ejecutarlas.
 Al hablar de gestores de tareas el más destacable y utilizado es
 \textit{make}\footnote{\url{https://www.gnu.org/software/make/}}, ya que, es una
 herramienta instalada por defecto en cualquier sistema Linux. \textit{Make} está
-presente en cualquier ámbito de la programación, sirve para cualquier
-lenguaje y en general para automatizar cualquier tarea de terminal. Sin embargo,
-se busca un gestor de tareas más moderno, autodescriptivo y simple, que permita
-conocer nuevas alternativas, y su \textit{Makefile} suele ser bastante
-complicado de entender a primera vista y no se puede saber fácilmente cuáles son
-las tareas que tiene definidas. Aún teniendo en cuenta esto se emplea
-\textit{make} en una parte del proyecto, delegando en él la compilación de la
-documentación en LaTeX, puesto que, es más fácil gestionar la compilación de
-algo que tiene tantos ficheros usando las variables especiales de make. El
-gestor de tareas elegido ejecutará con una orden el Makefile encargado de
-compilar el documento.
+presente en cualquier ámbito de la programación, sirve para cualquier lenguaje y
+en general para automatizar cualquier tarea de terminal. Sin embargo, se busca
+un gestor de tareas más moderno, autodescriptivo y simple, que permita conocer
+nuevas alternativas, y su \textit{Makefile} suele ser bastante complicado de
+entender a primera vista y no se puede saber fácilmente cuáles son las tareas
+que tiene definidas. Aún teniendo en cuenta esto se emplea \textit{make} en una
+parte del proyecto, delegando en él la compilación de la documentación en LaTeX,
+puesto que, es más fácil gestionar la compilación de algo que tiene tantos
+ficheros usando las variables especiales de make. El gestor de tareas elegido
+ejecutará con una orden el Makefile encargado de compilar el documento.
 
 Otros de los más famosos son Gulp\footnote{\url{https://gulpjs.com/}} y
 Grunt\footnote{\url{https://gruntjs.com/}}, sin embargo, son gestores de tareas
@@ -424,12 +481,12 @@ tareas muy simple que se define a sí mismo como una alternativa más fácil a
 make, el cual es interesante porque está escrito en Go, el mismo lenguaje con el
 que se escribirá el software de este proyecto. Tiene una sintaxis simple con
 ficheros en formato YAML, el cual tiene la ventaja de que es un formato muy
-común en infraestructura como código. Es un proyecto que se sigue
-manteniendo a día de hoy, pero se ha decidido descartarlo porque no aporta tanta
-legibilidad como el que finalmente se ha elegido, su fichero de configuración es
-más complejo de confeccionar y tiene más funcionalidades de las realmente
-necesarias para el proyecto por lo que no es tan simple. Sin embargo, es una
-opción muy buena que se podría considerar para cualquier proyecto.
+común en infraestructura como código. Es un proyecto que se sigue manteniendo a
+día de hoy, pero se ha decidido descartarlo porque no aporta tanta legibilidad
+como el que finalmente se ha elegido, su fichero de configuración es más
+complejo de confeccionar y tiene más funcionalidades de las realmente necesarias
+para el proyecto por lo que no es tan simple. Sin embargo, es una opción muy
+buena que se podría considerar para cualquier proyecto.
 
 En el ámbito de los gestores de tareas de Go se ha visto
 Realize\footnote{\url{https://github.com/oxequa/realize}}, que también usa
@@ -449,17 +506,16 @@ desarrollo es
 gestor de tareas simple, con buena documentación y ejemplos, que sigue teniendo
 soporte a día de hoy y está en constante desarrollo. Su principal ventaja es que
 aprenderlo implica poder aplicar este mismo gestor en cualquier otro proyecto
-independientemente del lenguaje, además de que el propio fichero de
-descripción de tareas, al estar escrito en \textit{markdown}, es a la vez
-legible para humanos y ejecutable por el programa gestor de tareas lo cual es
-una manera muy inteligente de combinar documentación y ejecución de tareas.
-Dentro del propio fichero de configuración se puede ver tanto una descripción
-como las propias órdenes que ejecuta para lanzar la tarea, teniendo una forma
-fácil de saber qué hace exactamente. Cualquier persona que esté interesada en
-ver qué tareas tiene el proyecto no tiene más que abrir el fichero
-\textit{maskfile.md}, además de que el fichero al abrirlo en GitHub se verá
-formateado, puesto que, tiene un lector de \textit{markdown}, centralizando todo aún
-más en el repositorio.
+independientemente del lenguaje, además de que el propio fichero de descripción
+de tareas, al estar escrito en \textit{markdown}, es a la vez legible para
+humanos y ejecutable por el programa gestor de tareas lo cual es una manera muy
+inteligente de combinar documentación y ejecución de tareas. Dentro del propio
+fichero de configuración se puede ver tanto una descripción como las propias
+órdenes que ejecuta para lanzar la tarea, teniendo una forma fácil de saber qué
+hace exactamente. Cualquier persona que esté interesada en ver qué tareas tiene
+el proyecto no tiene más que abrir el fichero \textit{maskfile}, además de
+que el fichero al abrirlo en GitHub se verá formateado, puesto que, tiene un
+lector de \textit{markdown}, centralizando todo aún más en el repositorio.
 
 \subsection{Framework de testing}
 \subsection{Sistema de integración continua}
