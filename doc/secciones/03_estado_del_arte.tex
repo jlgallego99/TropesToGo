@@ -16,7 +16,8 @@ relacionados que tienen también como objetivo extraer la información de
 \textit{tropos} de TvTropes. 
 
 \section{Dominio del problema}
-\subsection{Scraping}
+\subsection{\textit{Scraping}}
+
 El \textit{web scraping}, o extracción de datos web, se define como la
 construcción de agentes que sean capaz de descargar, entender y organizar los
 datos de una web de manera autónoma \cite{apress2018scraping}. Actualmente, los
@@ -122,8 +123,172 @@ capacidad de carga que tiene el servidor. Una política de cortesía posible ser
 reducir el número de peticiones concurrentes o esperar un tiempo antes de volver
 a efectuar peticiones al servidor \cite{najork2009web}.
 
+En cuanto a la manera en la que un programa \textit{scraper} interaccionar con
+una página web, la comunicación con un servidor web para obtener una página se
+efectúa mediante el protocolo HTTP, que define una estructura de los mensajes
+para las peticiones, principalmente un cuerpo con el contenido de la petición y
+una cabecera con información necesaria para identificar la propia petición.
+Entre los parámetros que se encuentran en una cabecera HTTP se destacan cuatro,
+\textit{User-Agent}, \textit{Referer}, \textit{Set-Cookie} y \textit{Cookie},
+especialmente importantes en el ámbito de la extracción de datos en internet.
+Los navegadores usan la cabecera \textit{User-Agent} para informar al servidor
+qué navegador es y en qué versión está, y puede ser que una página no permita
+peticiones si vienen de fuentes desconocidas. La mayoría de bibliotecas para
+manejar peticiones HTTP incluyen por defecto y por cortesía su propio
+\textit{User-Agent} indicando que son una biblioteca y, por tanto, una web puede
+decidir negarle el acceso, ya que, no se está accediendo a través de un
+navegador. Sin embargo, este parámetro se puede modificar fácilmente en la
+cabecera de la petición para hacerse pasar por un navegador, en cuyo caso se
+podría acceder sin problemas. Por otro lado, \textit{Referer} sirve para indicar
+desde qué URL se está haciendo la petición, y las páginas pueden utilizar esto
+para impedir el acceso a páginas ``secretas'' que no podrías acceder simplemente
+copiando el link, sino que tendrías que acceder navegando antes desde otra
+página. Esta cabecera también se puede modificar analizando la web y viendo qué
+URL requiere en el campo \textit{Referer} para permitir el paso. Por último
+están los parámetros de la cabecera que controlan las \textit{cookies}, pequeños
+conjuntos de información que se almacenan localmente en el cliente para mantener
+la sesión entre páginas y que es muy común en todo tipo de páginas web. Se
+emplea \textit{Set-Cookie} en la respuesta por parte del servidor indicando que
+se le ha enviado una \textit{cookie} al cliente, y \textit{Cookie} en las
+siguientes peticiones HTTP por parte del cliente si quiere seguir manteniendo
+esta información, que es importante para que el servidor entienda la sesión en
+la que se encuentra el cliente \cite{apress2018scraping}.
+
+Por último cabe destacar que una web moderna, aparte de tener HTML y CSS como ya
+hemos visto, usa también JavaScript para dotar de interactividad y dinamismo a
+una página web. Un \textit{scraper} tiene que tener en cuenta esto a la hora de
+explorar y extraer la información de una página, ya que, puede ser que esta esté
+oculta bajo un programa JavaScript que elimine, añada o modifique la información
+de forma dinámica al realizar ciertas acciones o estar en estados concretos y,
+por tanto, necesitará manipularlo. Todos los navegadores soportan JavaScript,
+debido a que prácticamente todas las páginas existentes lo incorporan en mayor o
+menor medida y se debe tener en cuenta \cite{apress2018scraping}. Esto puede
+influir por ejemplo al analizar una web con las herramientas de desarrollador;
+puede ser que ciertas partes del código HTML las haya insertado un programa
+JavaScript que el navegador entiende y te muestra al usar sus herramientas de
+análisis, pero que luego a la hora de llevar a cabo una petición HTTP desde el
+código y obtener el código HTML en texto falte esa sección importante al haber
+obtenido solamente el código base.
+
 \subsection{Formatos de representación de datos}
+La ciencia de datos se suele describir como un proceso o ciclo de trabajo que
+describe los pasos que se deben tomar en un proyecto en el que se busque extraer
+valor de un conjunto de datos, y en ese proceso entran muchas fases de
+tratamiento para que ese conjunto sea valioso \cite{apress2018scraping}. El
+\textit{scraping} se incorpora en las primeras fases de identificación,
+recolección y a menudo limpieza de los procesos de ciencia de datos y análisis.
+La naturaleza cambiante de la web implica tener en cuenta aspectos como que la
+calidad de los datos no siempre será la mejor y que estos se pueden volver
+obsoletos rápidamente, por lo que es necesario tomar decisiones teniendo en
+cuenta cada caso concreto para ver si es necesario mantener algún tipo de
+persistencia en los datos e información relativa a cuando fue la última vez que
+se actualizaron.
+
+Para que las siguientes fases del proceso de ciencia de datos se sucedan sin
+complicaciones un \textit{scraper} que recolecte los datos debe tener en cuenta
+para quién van dirigidos esos datos y cómo los va a usar. El principal objetivo
+del \textit{scraper} en este caso será tener un buen conjunto de datos extraído,
+que será lo que realmente le interesa al científico de datos que los analizará.
+Existen múltiples métodos para persistir los datos, muchos de los cuales pasan
+por almacenarlos en ficheros de distinta extensión.
+
 Tabla comparativa
+
+\subsection{Aspectos legales y éticos del \textit{scraping}} 
+
+En el ámbito del \textit{scraping} suelen surgir dudas sobre la legalidad y
+ética de la extracción de datos de páginas web. A continuación se comentan
+brevemente estos aspectos y se tendrán en cuenta en la elaboración de este
+trabajo.
+
+El panorama legal con respecto al \textit{scraping} no está del todo maduro a
+día de hoy y está en constante cambio. Sin embargo, en la mayoría de casos
+jurídicos en los que se ha abordado la legalidad de extraer información de webs
+se han discutido las siguientes infracciones \cite{apress2018scraping}:
+
+\begin{itemize}
+    \item \textbf{Incumplimiento de los términos y condiciones}: La mayoría de
+    páginas web tiene una sección de términos y condiciones, que en muchos casos
+    hacen referencia directa al uso de \textit{scrapers} en su web. Esto
+    establece un contrato de responsabilidad entre el propietario de la web y el
+    \textit{scraper}, sin embargo, no suele ser suficiente para establecer
+    cuándo se rompen los términos de la página, ya que, la parte responsable del
+    \textit{scraper} no acepta activamente esos términos, indicándolo
+    explícitamente.
+    \item \textbf{Infracciones de copyright}: El
+    \begin{otherlanguage}{english}\textit{fair use}\end{otherlanguage} es un
+    término inglés que hace referencia a la doctrina que permite que los
+    contenidos con derechos de autor se utilicen ilimitadamente sin la
+    autorización del titular siempre y cuando sea sin ánimo de lucro, educativo
+    o informativo y según el contexto y explotación que se le dé a esa
+    información. Este trabajo al ser educativo, de investigación y sin ánimo de
+    lucro de la información entraría dentro del
+    \begin{otherlanguage}{english}uso justo\end{otherlanguage} .
+    \item \textbf{Protocolo de Exclusión de Robots}: Este protocolo es un
+    estándar de la industria que especifica que una web puede incluir un fichero
+    llamado \texttt{robots\.txt} que indica a los web \textit{crawlers} qué
+    páginas son accesibles. Esto tiene un valor legal limitado, sin embargo, se
+    considera de cortesía y buena práctica el tenerlo en cuenta para saber
+    fácilmente si el administrador de la web realmente permite este tipo de bots
+    o no.
+    \item \textbf{Infracciones a la propiedad}: Es posible que, legalmente, se
+    considere una web como el bien o propiedad de su administrador y, por tanto,
+    puede alegar daños o pérdida de dinero debido al impacto de un
+    \textit{scraper} en su página.
+\end{itemize}
+
+En general, se recomienda siempre seguir los siguientes principios
+\cite{apress2018scraping}:
+\begin{itemize}
+    \item Conseguir permiso escrito por parte de la web de qué contenidos se
+    pueden extraer es la mejor forma de evitar problemas legales.
+    \item Comprobar los términos de servicio de la página, ya que, puede ser que
+    contengan directivas específicas relacionadas con la extracción de datos.
+    \item Si se obtiene solo información pública moderadamente y que no requiera
+    de aceptar ningunos términos y condiciones previos no suele haber ningún
+    problema con extraer la información. Las páginas del wiki de TvTropes
+    cumplen esto, puesto que todas las páginas de tropos y contenidos
+    audiovisuales están abiertas a todo el público sin necesidad de aceptar
+    ningún término o usar una cuenta de usuario de ningún tipo.
+    \item Relacionado con lo anterior, especial énfasis en que el
+    \textit{scraping} sea moderado y, por tanto, no cause daños a la web. Un
+    \textit{scraper} no debe sobrecargar a la página de peticiones. Las
+    políticas de cortesía mencionadas en la sección anterior están estrechamente
+    relacionadas con esto, ya que, su objetivo es no sobrecargar el servidor y
+    no convertir el intento de \textit{scraping} en un ataque de denegación de
+    servicio.
+    \item Tener en cuenta el copyright de los contenidos y comprobar que la
+    información extraída entra dentro del
+    \begin{otherlanguage}{english}\textit{fair use}\end{otherlanguage}. Y, sobre
+    todo, no utilizar contenido con copyright en proyectos comerciales.
+\end{itemize}
+
+TvTropes tiene una licencia Creative Commons\footnote{\url{https://Creative
+Commons.org/licenses/by-nc-sa/3.0/}} que permite copiar y redistribuir el
+material de la web en cualquier medio o formato, así como adaptarlo o
+modificarlo, siempre que se dé crédito al propietario, sea para fines no
+comerciales y se distribuya la contribución bajo una licencia Creative Commons.
+La web tiene licencia sobre todos los contenidos que la comunidad contribuye a
+ella, y hace especial hincapié en que si otra web emplea sus contenidos debe
+atribuirlos a TvTropes, o se considerará plagio. En todo este trabajo se hace
+constante referencia, tanto en la documentación como en el código, de donde
+viene toda esta información, y parte de la información que del propio
+\textit{scraper} serán enlaces hacia las distintas páginas de TvTropes. 
+
+El desarrollo de un \textit{scraper} para TvTropes en este trabajo constituye un
+uso legítimo, puesto que, su objetivo es puramente educativo y sin ningún
+interés comercial, y los contenidos están bajo una licencia Creative Commons,
+atribuyendo el crédito a sus propietarios. 
+
+Como cuestión adicional, al comprobar el archivo \texttt{robots\.txt} de la
+página vemos que tiene las cabeceras vacías y, por tanto, podemos deducir que
+esta web no tiene ningún problema con que un \textit{scraper} extraiga
+información de ella, siempre y cuando no suponga ningún problema técnico a la
+web por un gran volumen de peticiones, cosa que se regulará en el desarrollo de
+la herramienta. Además de esto, como se verá en la siguiente sección, existen
+otros ejemplos de \textit{scrapers} de TvTropes y no han tenido problemas de ese
+tipo, por lo que es seguro hacer uno nuevo.
+
 \section{Trabajos relacionados}
 \subsection{Tropescraper}
 Este trabajo toma como base la biblioteca
