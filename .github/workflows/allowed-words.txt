@@ -80,3 +80,16 @@ learning
 hash
 checksum
 CAPTCHA
+User
+Agent
+Referer
+Set
+Cookie
+cookie
+Creative
+Pickle
+Feather
+Parquet
+deserializar
+avro
+Avro

@@ -170,7 +170,7 @@ análisis, pero que luego a la hora de llevar a cabo una petición HTTP desde el
 código y obtener el código HTML en texto falte esa sección importante al haber
 obtenido solamente el código base.
 
-\subsection{Formatos de representación de datos}
+\subsection{\textit{Scraping} en ciencia de datos y persistencia de los datos}
 La ciencia de datos se suele describir como un proceso o ciclo de trabajo que
 describe los pasos que se deben tomar en un proyecto en el que se busque extraer
 valor de un conjunto de datos, y en ese proceso entran muchas fases de
@@ -186,13 +186,86 @@ se actualizaron.
 
 Para que las siguientes fases del proceso de ciencia de datos se sucedan sin
 complicaciones un \textit{scraper} que recolecte los datos debe tener en cuenta
-para quién van dirigidos esos datos y cómo los va a usar. El principal objetivo
-del \textit{scraper} en este caso será tener un buen conjunto de datos extraído,
+para quién van dirigidos y cómo los va a usar. El principal objetivo de los
+\textit{scrapers} en este caso será tener un buen conjunto de datos extraído,
 que será lo que realmente le interesa al científico de datos que los analizará.
-Existen múltiples métodos para persistir los datos, muchos de los cuales pasan
-por almacenarlos en ficheros de distinta extensión.
+En la actualidad existen múltiples métodos para persistir los datos, desde
+ficheros de texto plano con distinto formato hasta bases de datos completas.
+Cada una de estas formas de persistir los datos se elegirán según la complejidad
+y tamaño que tengan los que se quieran almacenar o las preferencias del
+científico de datos o del lenguaje o herramienta que se utilice para tratarlos.
+Existen formatos cuya ventaja es la rapidez de lectura y escritura, pero que no
+permiten modelar estructuras de datos complejas y otros que requieran de montar
+todo un sistema complejo para tener un mayor control. En general, no hay una
+solución única a este problema y es algo que se debe abordar correctamente, ya
+que el cometido de un \textit{scraper} en los flujos de ciencia de datos es
+poder presentar esa información para que satisfaga las necesidades de la persona
+que la vaya a tratar.
 
-Tabla comparativa
+El formato más común para representar un conjunto de datos en el ámbito de la
+ciencia de datos y el machine learning es CSV. La razón de esto se debe a que no
+necesita instalar nada, ya que, es simplemente un fichero de texto plano
+delimitado por comas y que se puede entender fácilmente, sin embargo, presenta
+varios problemas. Los archivos CSV, al ser de texto plano, no tienen ningún tipo
+de optimización al almacenar o leer los datos, pudiendo ser costoso
+computacionalmente leer ficheros muy grandes y almacenarlos en memoria. Además
+de esto, no permiten anidar datos y almacenar información de metadatos. Pueden
+presentar problemas al tener caracteres Unicode, puesto que, no hay forma de
+saber qué tipo de codificación usa el fichero y hay que especificarla
+explícitamente al leerlo \cite{murallie_csvs_2022}.
+
+Una de las alternativas más utilizadas, principalmente por ser una solución
+concreta para Python, que es un lenguaje muy utilizado en ciencia de datos, es
+Pickle\footnote{\url{https://docs.python.org/3/library/pickle.html}}\cite{murallie_csvs_2022}.
+Pickle permite serializar objetos Python rápidamente, y también es capaz de
+almacenar información de metadatos. Sin embargo, su principal problema es que
+está atada al lenguaje Python, y no se podrían deserializar objetos en otros
+lenguajes muy populares en este ámbito como es R. 
+
+Existen nuevas soluciones que aborden el problema de la representación de datos
+eficiente e independiente del lenguaje. Una de las más modernas y con gran
+interés es Apache Parquet\footnote{\url{https://parquet.apache.org/}}, una
+alternativa libre cuya principal ventaja es que permite almacenar y recuperar
+datos eficientemente en cualquier lenguaje de programación, framework o modelo
+de datos. Parquet da una representación binaria de los datos en columnas, los
+comprime y proporciona información de metadatos como la codificación.
+
+Si se quiere una representación por filas, en la que se tienen los registros
+contiguos en memoria como en una base de datos tradicional, la alternativa a
+Parquet es Avro\footnote{\url{https://avro.apache.org/}}. Avro permite
+serializar estructuras de datos complejas y representarlas en esquemas de tipo
+JSON, lo cual facilita la integración con cualquier lenguaje de programación. Es
+una solución altamente eficiente en la escritura, pero mucho más lenta en la
+lectura \cite{ramos_big_2023}.
+
+Otra alternativa parecida a Parquet es
+Feather\footnote{\url{https://arrow.apache.org/docs/python/feather.html}}.
+Propone un formato de ficheros rápido que, sin embargo, solo funciona con los
+lenguajes Python y R, a diferencia de Parquet.
+
+En el estudio de \cite{murallie_csvs_2022} sobre diferentes formatos de datos se
+concluye que Parquet es el más eficiente en consultar datos, mejorando bastante
+a los formatos de representación en texto, y también ocupa menos espacio en
+disco que Feather y CSV. Feather es el más rápido para escribir en disco,
+seguido muy de cerca por Parquet. 
+
+Entre otros formatos de representación muy comunes está JSON, usado
+principalmente para conjuntos de datos pequeños y por la mayoría de API. Es un
+formato muy legible para humanos, siempre y cuando no tenga muchos campos
+anidados \cite{ramos_big_2023}. Sin embargo, es el menos deseable, puesto que,
+ocupa el doble de espacio en disco que un CSV y eso hace que también se tarde
+mucho en cargarlo en memoria \cite{murallie_csvs_2022}.
+
+Por último, cabe destacar la importancia de las bases de datos en este ámbito.
+Las bases de datos son la forma más usual de almacenar cualquier tipo de
+información, por tanto, también están muy presentes como una alternativa para
+almacenar conjuntos de datos que se quieran analizar. Una base de datos es una
+solución más completa que un fichero de texto para el almacenamiento datos.
+Requiere montar un sistema de bases de datos, lo que hace que la solución sea
+más compleja que las otras que se han visto. La complejidad de estas se compensa
+con, por ejemplo, la facilidad que tienen para añadir o eliminar campos, a
+diferencia que con ficheros simples \cite{ramos_big_2023}, o la compatibilidad
+que tienen con casi cualquier lenguaje.
 
 \subsection{Aspectos legales y éticos del \textit{scraping}} 
 
