@@ -122,6 +122,16 @@ que se han definido se emplean varias herramientas y buenas prácticas para el
 seguimiento del desarrollo que se describen a continuación.
 
 \section{Seguimiento del desarrollo}
+En esta sección se introducirá todo el ecosistema de desarrollo que se empleará
+en todo el trabajo para asegurar que se cumplan los objetivos. Primero se
+describirá cómo será el proceso de desarrollo del código y su seguimiento a
+través de la plataforma GitHub como herramienta central para guiar el proyecto
+en su totalidad. A continuación, se describirán los distintos hitos que se
+pretenden alcanzar consecutivamente. Finalmente se estudiarán y justificarán una
+serie de buenas prácticas y herramientas que se seguirán al escribir el código y
+testearlo para asegurar la calidad y desarrollar correctamente el
+\textit{software}.
+
 \subsection{GitHub}
 Al ser un proyecto de \textit{software} libre el uso de Git y GitHub como
 \textit{software} de control de versiones es imprescindible. Esto permite tener
@@ -403,15 +413,15 @@ cuando quiera para traer la nueva información que pueda existir.
 Como investigador quiero poder elegir el formato en el que se represente el
 conjunto de datos de entre los más comunes en ciencia de datos.
 
-\section{Temporización}
-Una vez vistos los hitos que se esperan alcanzar en el desarrollo, los cuales
-conformarían cada uno un sprint con una fecha de inicio y de fin, podemos
-representar la temporización de todo el desarrollo en un diagrama de Gantt.
+%\section{Temporización} Una vez vistos los hitos que se esperan alcanzar en el
+%desarrollo, los cuales conformarían cada uno un sprint con una fecha de inicio
+%y de fin, podemos representar la temporización de todo el desarrollo en un
+%diagrama de Gantt.
 
-A lo largo de todo el desarrollo se ha ido manteniendo contacto con el tutor
-tanto en tutorías presenciales como mediante mensajes por Telegram y GitHub para
-transmitir y resolver todas las dudas que han ido surgiendo, tanto del código
-como del propio documento.
+%A lo largo de todo el desarrollo se ha ido manteniendo contacto con el tutor
+%tanto en tutorías presenciales como mediante mensajes por Telegram y GitHub
+%para transmitir y resolver todas las dudas que han ido surgiendo, tanto del
+%código como del propio documento.
 
 \section{Elección de herramientas para el desarrollo}
 Al llevar un proyecto de ingeniería del software a la práctica, en el cual se
@@ -419,13 +429,72 @@ tiene como primer objetivo la calidad, se requieren herramientas para poder
 llevar a cabo todas las buenas prácticas descritas a lo largo de este capítulo. 
 
 Es por esto que por último se comentarán todas las herramientas que se van a
-utilizar tanto para desarrollar el propio software como para tener un buen
-ecosistema de desarrollo en el repositorio de GitHub y cumplir con las buenas
-prácticas que se han descrito en las secciones anteriores. Se justifica la
-elección de cada una comparando entre varias alternativas y teniendo siempre la
-calidad como criterio más importante para elegir la más adecuada.
+utilizar para desarrollar el propio software, comenzando por el propio lenguaje
+de programación en el que se escribirá el código. También se justificarán
+herramientas para tener un buen ecosistema de desarrollo en el repositorio de
+GitHub y cumplir con las buenas prácticas que se han descrito en las secciones
+anteriores. Se justifica la elección de cada una comparando entre varias
+alternativas, teniendo en cuenta las características concretas de este proyecto
+y siempre con la calidad como criterio más importante para elegir la más
+adecuada.
 
 \subsection{Lenguaje de programación}
+La principal herramienta a considerar para construir un \textit{software} es el
+lenguaje de programación, concretamente uno que se adapte a las necesidades de
+este proyecto. Se puede desarrollar un \textit{scraper} en cualquier lenguaje de
+programación, sin embargo, debido a la naturaleza de aplicación en red de este,
+se busca un lenguaje de programación que se bastante afín a trabajar con el
+protocolo HTTP, sea rápido y compilado para poder gestionar el gran volúmen de
+datos que se tratará y además sea concurrente para intentar mejorar el ritmo de
+las peticiones del \textit{crawler}, como se comentó en el estado del arte.
+
+Teniendo en cuenta esto, se elegirá Go\footnote{\url{https://go.dev/}} como el
+lenguaje de programación para desarrollar el \textit{scraper} de este proyecto.
+Go es un lenguaje de programación libre, concurrente, rápido, fácil de utilizar
+y con una sintaxis muy legible y moderna, que facilita mucho el reestructurar y
+reescribir el código. Además, una de las principales ventajas de Go con respecto
+a otros lenguajes es que tiene una biblioteca estándar amplia y con múltiples
+funcionalidades que pueden ahorrar el usar bibliotecas de terceros, y un gran
+ecosistema de bibliotecas modernas y bien mantenidas. Entre los casos de uso de
+este lenguaje entran principalmente el desarrollo de aplicaciones de línea de
+comandos y aplicaciones en red, por lo que se adapta perfectamente a este
+trabajo. Además, es el lenguaje empleado por Google para desarrollar el
+\textit{crawler} que indexa páginas para su motor de búsquedas
+\cite{go_at_google}, así que se asume que es un lenguaje lo suficientemente
+preparado para realizar este tipo de tareas.
+
+En relación con el lenguaje de programación, también es importante elegir el
+entorno de desarrollo en el que se escribirá, ejecutará y probará todo el
+código. Usar un buen entorno que ayude en el proceso de construcción del
+\textit{software}, con tareas como refactorización, depuración, ejecución,
+sugerencias, análisis, organización del código, etc. es imprescindible para
+poder obtener un software de calidad y que todo el proceso de desarrollo sea lo
+más agradable y libre de problemas posible.
+
+La web oficial de Go recomienda principalmente tres editores con plugins
+oficiales para desarrollar en Go: VS Code, GoLand y Vim. Por otro lado, una
+encuesta oficial llevada a cabo en 2021 \cite{go_survey} revelaba, además de
+varios datos con respecto al lenguaje como que el 92\% de los usuarios estaban
+satisfechos con Go y el 75\% lo usaban en el trabajo, qué entornos de desarrollo
+eran los preferidos por la comunidad. Los dos entornos principalmente usados son
+los propios que se recomiendan oficialmente, VS Code y GoLand, siendo VS Code el
+más utilizado con diferencia, lo cual es comprensible puesto que es una opción
+gratuita y muy utilizada en todos los ámbitos, sin embargo, GoLand pese a ser de
+pago se sigue utilizando bastante y demuestra la popularidad de la herramienta.
+
+De entre estas dos alternativas se decide usar GoLand. Su principal ventaja es
+que, a diferencia de VS Code, el cual usa un plugin, GoLand es un IDE
+enteramente dedicado a Go y tiene funcionalidades más avanzadas debido a que es
+un entorno de desarrollo más potente, con mayores funcionalidades y que nos
+permite centrarnos en el desarrollo de un sólo lenguaje. Además de esto, también
+se prefiere GoLand desde el punto de vista educativo, ya que, tiene interés
+aprender a utilizar una herramienta oficial centrada en un lenguaje y la
+Universidad de Granada ofrece una licencia gratuita para todos los productos de
+JetBrains, incluido GoLand, por lo que el precio no supone un problema. GoLand
+es una herramienta pensada para proyectos más grandes como este y permitirá
+facilitar el desarrollo gracias a las múltiples funciones que tiene, como
+autocompletar o refactorizar el código, que hace mucho más fácil implementar
+cambios en un ambiente ágil como el que nos encontramos.
 
 \subsection{Gestor de tareas}
 Dentro de los procesos de calidad del software entran los gestores de tareas,
@@ -513,12 +582,10 @@ inteligente de combinar documentación y ejecución de tareas. Dentro del propio
 fichero de configuración se puede ver tanto una descripción como las propias
 órdenes que ejecuta para lanzar la tarea, teniendo una forma fácil de saber qué
 hace exactamente. Cualquier persona que esté interesada en ver qué tareas tiene
-el proyecto no tiene más que abrir el fichero \textit{maskfile}, además de
+el proyecto no tiene más que abrir el fichero \texttt{maskfile.md}, además de
 que el fichero al abrirlo en GitHub se verá formateado, puesto que, tiene un
 lector de \textit{markdown}, centralizando todo aún más en el repositorio.
 
 \subsection{Framework de testing}
 \subsection{Sistema de integración continua}
 \subsection{Bibliotecas de scraping en Go}
-El uso de una buena biblioteca de scraping permite reducir varios de los
-problemas que pueden surgir en esta disciplina.
