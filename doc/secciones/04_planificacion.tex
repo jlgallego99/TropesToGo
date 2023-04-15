@@ -444,9 +444,9 @@ lenguaje de programación, concretamente uno que se adapte a las necesidades de
 este proyecto. Se puede desarrollar un \textit{scraper} en cualquier lenguaje de
 programación, sin embargo, debido a la naturaleza de aplicación en red de este,
 se busca un lenguaje de programación que sea bastante afín a trabajar con el
-protocolo HTTP, sea rápido y compilado para poder gestionar el gran volumen de
-datos que se tratará y además sea concurrente para intentar mejorar el ritmo de
-las peticiones del \textit{crawler}, como se comentó en el estado del arte.
+protocolo HTTP y sea para poder gestionar el gran volumen de datos que se
+tratará y además sea concurrente para intentar mejorar el ritmo de las
+peticiones del \textit{crawler}, como se comentó en el estado del arte.
 
 Teniendo en cuenta esto, se elegirá Go\footnote{\url{https://go.dev/}} como el
 lenguaje de programación para desarrollar el \textit{scraper} de este proyecto.
@@ -462,6 +462,14 @@ trabajo. Además, es el lenguaje empleado por Google para desarrollar el
 \textit{crawler} que indexa páginas para su motor de búsquedas
 \cite{go_at_google}, así que se asume que es un lenguaje lo suficientemente
 preparado para realizar este tipo de tareas.
+
+Go es un lenguaje muy atractivo para desarrollar un \textit{scraper} debido a su
+rapidez y eficiencia al ser un lenguaje compilado, mezclado con la facilidad de
+programación que tiene al tener recolector de basura y opción de tipos
+dinámicos. Estas características lo hacen una opción ideal para
+\textit{scraping}, a diferencia de Python, el cual es otro lenguaje muy común en
+este ámbito, pero que no tiene concurrencia en el propio lenguaje, no es tan
+rápido y su gestión de errores es más compleja \cite{coleman_ultimate_2021}.
 
 En relación con el lenguaje de programación, también es importante elegir el
 entorno de desarrollo en el que se escribirá, ejecutará y probará todo el
@@ -611,12 +619,12 @@ el que constantemente salen nuevas funcionalidades y requiere mantenerse al día
 
 Go es un caso especial a diferencia de otros lenguajes, ya que, tiene una
 biblioteca estándar provista de multitud de funcionalidades muy bien mantenidas
-y utilizadas, como el testing. La utilidad de línea de comandos \texttt{go
-test} para ejecutar el código de tests y el paquete \texttt{Testing} para
-escribir el propio test, permiten realizar pruebas de forma nativa en Go. Sin
-embargo, estas pruebas no se escriben mediante aserciones, sino controlando
-errores y, por tanto, no son tan legibles ni proporcionan un gran control o
-funcionalidad al ser una utilidad básica del lenguaje.
+y utilizadas, como el testing. La utilidad de línea de comandos \texttt{go test}
+para ejecutar el código de tests y el paquete \texttt{Testing} para escribir el
+propio test, permiten realizar pruebas de forma nativa en Go. Sin embargo, estas
+pruebas no se escriben mediante aserciones, sino controlando errores y, por
+tanto, no son tan legibles ni proporcionan un gran control o funcionalidad al
+ser una utilidad básica del lenguaje.
 
 Al ser parte del lenguaje, tenemos ya de base un método y herramienta oficial
 para escribir y ejecutar tests, que además nos asegura buenas prácticas dentro
@@ -678,3 +686,149 @@ emplearlo en cualquier otro proyecto que se desarrolle con el mismo lenguaje,
 por lo que también tiene un gran interés personal como algo a aprender.
 
 \subsection{Bibliotecas de scraping en Go}
+Por último, necesitamos justificar el uso de herramientas para
+\textit{scraping}, que son de gran importancia. El desarrollo de un
+\textit{scraper} es siempre un problema que se puede abordar desde múltiples
+ángulos y está centrado en una o varias páginas web, que pueden ser
+completamente distintas de otras. En el \textit{scraping} se utilizan
+herramientas y métodos que resuelvan un problema concreto, analizando cómo está
+organizada una página concreta y qué problemas va presentando conforme se va
+conociendo más de ella a fondo, por lo que en la mayoría de casos las
+necesidades son específicas. Lo más importante en esta disciplina es tener a
+nuestra disposición un buen número de herramientas y métodos para interaccionar
+con las páginas web y superar los retos que ponen a usuarios no humanos
+\cite{apress2018scraping}. En este caso necesitamos aquellas herramientas que
+nos ayuden con los retos concretos que presenta TvTropes.
+
+La web de TvTropes está formateada en HTML y eso hace que necesitemos una manera
+de entenderlo y extraer su información. Los \textit{scrapers} exploran multitud
+de páginas buscando información concreta, ya que, no queremos toda sino
+solamente la que necesitamos y descartar el resto, para ahorrar recursos y tener
+un programa que cumpla el objetivo que se propone. Esta información está
+contenida en una vorágine de texto de muchos tipos, entre etiquetas de HTML y
+clases CSS, e incluso a veces escondidas por una capa de JavaScript que
+dinámicamente cambia la información. Sin embargo, existen multitud de
+bibliotecas que nos facilitan este proceso de análisis (o \textit{parsing} en
+inglés) del código HTML, para extraer lo que queremos. En
+\cite{apress2018scraping} se recomienda no analizar el HTML manualmente, sino
+apoyarse de bibliotecas externas que lo hagan, ya que es algo que puede ser muy
+complejo y se sale del ámbito del trabajo. No buscamos reinventar la rueda sino
+tener una herramienta de apoyo para que el programa entienda la web y se pueda
+desarrollar un buen \textit{scraper}.
+
+Al igual que con el resto de herramientas se usa como criterio de elección
+imprescindible el que tenga buena documentación y sea un proyecto libre con
+soporte en la actualidad. No buscamos un \textit{framework} que lo haga todo,
+sino bibliotecas que ayuden en el proceso sin trivializar el proceso de
+desarrollar una solución, con el principal objetivo de aprender a desarrollar
+tanto el \textit{scraper} como el \textit{crawler} de forma autónoma y separada,
+teniendo un mayor grado de control sobre lo que se hace con cada una de ellas y
+dejando abierta la posibilidad de ampliarlas con otras bibliotecas. La
+biblioteca de análisis de HTML debe soportar selectores CSS dentro del lenguaje
+de programación para encontrar y recuperar fácilmente los elementos de la página
+que queremos. Debe ser capaz de analizar, estructurar y organizar un texto HTML,
+pudiendo codificarlo en una estructura del propio lenguaje de programación con
+la que poder trabajar más fácilmente. Además, se busca que la biblioteca sea
+capaz de arreglar los posibles errores de sintaxis que pueda tener la web, y no
+nos dé fallos al analizar el HTML de una web. Esta última razón apoya aún más la
+idea de apoyarnos en una biblioteca, ya que, aunque muchas páginas son
+renderizadas por los navegadores, no siempre tienen un código HTML correcto (y
+esto es algo que los navegadores entienden y corrigen). Además de esto, también
+se busca una forma sencilla de realizar las peticiones HTTP y que permita
+controlar las cabeceras, para obtener el texto HTML que posteriormente analice
+la biblioteca de \textit{parsing}.
+
+Además de esto, se tiene que tener en cuenta la posibilidad de tener que
+gestionar el JavaScript de una página como se vio en el estado del arte.
+Analizar todo el código JavaScript de una página y lo que hace en cada momento
+puede resultar una tarea imposible, por lo que es necesario tener algún tipo de
+herramienta que sea capaz de tener esto en cuenta. Otra recomendación de
+\cite{apress2018scraping} es no ir directamente a por una biblioteca con un
+motor de JavaScript, pero sí tenerlo en cuenta por si fuese necesario en el
+futuro, ya que puede ser demasiado complejo usar una herramienta grande y
+compleja para un problema que luego es más pequeño y simple. No siempre es
+necesario que un \textit{scraper} gestione el JavaScript de una página; en
+muchos casos basta con obtener el HTML base para obtener lo que se quiere. Como
+se verá en la siguiente sección, al analizar la web de TvTropes observamos que
+no tiene un uso intensivo de JavaScript que esconda algún tipo de información
+que necesitemos y no hace falta interaccionar con la página directamente como si
+se estuviese utilizando un navegador. Por tanto, como criterio adicional, se
+añade que no es necesario que la biblioteca elegida tenga integrado un motor
+completo de JavaScript, aunque sí debería permitir integrárselo en caso de ser
+necesario. Es decir, buscamos una biblioteca que no nos impida hacer esto si
+fuese necesario tras posteriores análisis.
+% Esto es lo que creo ahora, en el caso de que luego en el siguiente milestone
+% vea que no es el caso y resulte que sí que hace falta tratar JavaScript, se
+% modificará esta sección.
+
+Aunque como criterio de elección hemos decidido usar un analizador de HTML y no
+un \textit{framework} que gestione todo el proceso de \textit{crawling} y
+\textit{scraping}, cabe destacar la existencia de
+\textit{Colly}\footnote{\url{https://github.com/gocolly/colly}}, una de las
+herramientas más populares en Go para este propósito. \textit{Colly} proporciona
+un \textit{framework} completo y rápido que, de forma tanto síncrona como
+asíncrona, permite crear a la vez un \textit{scraper} y \textit{araña} en pocas
+líneas de código. La principal desventaja de \textit{Colly} es que no interpreta
+JavaScript y no sería posible integrarlo con otras herramientas que solucionen
+esto. Esta opción se descarta con el objetivo de tener solo bibliotecas básicas
+e imprescindibles, intentar desarrollar algo en lo que se tenga un mayor
+control, separación explícita entre \textit{scraper} y araña, se pueda aprender
+a desarrollar un \textit{software} de este tipo desde un nivel más bajo y no nos
+impida el integrar otras herramientas en caso de necesitar gestionar la
+interacción con la página y JavaScript. Si se escogiese \textit{Colly} desde el
+principio, y luego resultase que necesitamos gestionar esto, tendría un gran
+coste el refactorizar todo el código para adaptarse a una nueva herramienta, por
+lo que desde el principio decidimos usar la opción más versátil posible.
+
+Al hablar de bibliotecas para \textit{scraping}, independientemente del
+lenguaje, la principal alternativa \textit{Beautiful
+Soup}\footnote{\url{https://www.crummy.com/software/BeautifulSoup/bs4/doc/}}.
+Esta es la principal biblioteca para este ámbito en Python y transforma los
+contenidos HTML en una representación en árbol. Debido a su popularidad, existe
+una alternativa igual para Go llamada
+\textit{Soup}\footnote{\url{https://github.com/anaskhan96/soup}}. \textit{Soup}
+es una muy buena opción para analizar HTML, ya que, tiene una interfaz muy
+similar a \textit{Beautiful Soup}, lo cual hace que sea más sencillo encontrar
+recursos para ella al existir los de Python. Sin embargo, aunque se podría
+considerar para este proyecto, se rechazará debido a que lleva descontinuada más
+de un año y preferimos buscar una solución más popular y que funcione
+correctamente, además de que no tiene demasiada documentación propia y, aunque
+como se ha dicho se podría entender viendo ejemplos de Python, es bastante
+posible encontrar problemas específicos de Go que serían difíciles de resolver
+al no tener una documentación y un soporte dedicados.
+
+Se ha hablado varias veces de la importancia de la biblioteca estándar en Go y
+que contiene un gran número de paquetes con muchas funcionalidades. Entre ellas
+está un analizador de HTML que, sin embargo, no es la mejor opción para este
+caso. La biblioteca estándar de Go contiene el módulo \texttt{net/html} capaz de
+analizar HTML que, sin embargo, devuelve nodos y no construye un árbol DOM que
+tendría más funcionalidades y sería más fácil de recorrer, además de que no
+permite el uso de selectores CSS para acceder a clases y extraer la información
+más efectivamente, por lo que no es la mejor opción para resolver este problema.
+Para algo tan central en el \textit{scraper} como es analizar el HTML, es
+imprescindible elegir una herramienta que facilite el proceso todo lo que se
+pueda, permita un mayor control sobre el código HTML, construya un DOM y soporte
+los selectores CSS.
+
+La biblioteca Goquery\footnote{\url{https://github.com/PuerkitoBio/goquery}}
+supone una mejor alternativa con respecto a \textit{Soup}, y es la alternativa
+que se elige finalmente. Es una biblioteca muy popular, con una sintaxis muy
+sencilla, y que tiene las mismas funcionalidades que jQuery, la biblioteca de
+manipulación y exploración de documentos HTML más conocida. Permite generar un
+árbol del DOM completo con varias funcionalidades, entre ellas la posibilidad de
+recorrerlo mediante selectores CSS. En el propio repositorio de Goquery se
+informa que su API es completamente estable y no tiene errores, además sigue
+teniendo cambios para pequeñas mejoras a día de hoy. Tiene una wiki y varios
+ejemplos, tanto en su propio repositorio como en internet, ya que es una opción
+generalmente preferida en proyectos sin \textit{Colly}.
+
+Goquery suele ir en conjunto con el paquete \texttt{net/http} de la biblioteca
+estándar, tanto en los \textit{scrapers} desarrollados en Go como en los propios
+ejemplos oficiales. Todas las bibliotecas de terceros que realizan conexiones
+HTTP tienen este paquete como base, y la mayoría de bibliotecas de
+\textit{scraping} para Go también. Este paquete nos permite hacer peticiones con
+diferentes verbos HTTP, modificar fácilmente las cabeceras, mantener la
+conexión, etc. y todo de manera idiomática, completamente funcional y sin
+necesidad de depender de terceros, ya que, forma parte del núcleo de Go. Por
+tanto, en este caso emplearemos el paquete \texttt{net/http} para gestionar la
+conexión con TvTropes. 
