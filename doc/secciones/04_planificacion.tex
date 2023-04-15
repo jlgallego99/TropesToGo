@@ -127,9 +127,9 @@ en todo el trabajo para asegurar que se cumplan los objetivos. Primero se
 describirá cómo será el proceso de desarrollo del código y su seguimiento a
 través de la plataforma GitHub como herramienta central para guiar el proyecto
 en su totalidad. A continuación, se describirán los distintos hitos que se
-pretenden alcanzar consecutivamente. Finalmente se estudiarán y justificarán una
-serie de buenas prácticas y herramientas que se seguirán al escribir el código y
-testearlo para asegurar la calidad y desarrollar correctamente el
+pretenden alcanzar consecutivamente. Finalmente, se estudiarán y justificarán
+una serie de buenas prácticas y herramientas que se seguirán al escribir el
+código y testearlo para asegurar la calidad y desarrollar correctamente el
 \textit{software}.
 
 \subsection{GitHub}
@@ -443,8 +443,8 @@ La principal herramienta a considerar para construir un \textit{software} es el
 lenguaje de programación, concretamente uno que se adapte a las necesidades de
 este proyecto. Se puede desarrollar un \textit{scraper} en cualquier lenguaje de
 programación, sin embargo, debido a la naturaleza de aplicación en red de este,
-se busca un lenguaje de programación que se bastante afín a trabajar con el
-protocolo HTTP, sea rápido y compilado para poder gestionar el gran volúmen de
+se busca un lenguaje de programación que sea bastante afín a trabajar con el
+protocolo HTTP, sea rápido y compilado para poder gestionar el gran volumen de
 datos que se tratará y además sea concurrente para intentar mejorar el ritmo de
 las peticiones del \textit{crawler}, como se comentó en el estado del arte.
 
@@ -465,7 +465,7 @@ preparado para realizar este tipo de tareas.
 
 En relación con el lenguaje de programación, también es importante elegir el
 entorno de desarrollo en el que se escribirá, ejecutará y probará todo el
-código. Usar un buen entorno que ayude en el proceso de construcción del
+código. Un buen entorno ayudará enormemente en el proceso de construcción del
 \textit{software}, con tareas como refactorización, depuración, ejecución,
 sugerencias, análisis, organización del código, etc. es imprescindible para
 poder obtener un software de calidad y que todo el proceso de desarrollo sea lo
@@ -475,26 +475,29 @@ La web oficial de Go recomienda principalmente tres editores con plugins
 oficiales para desarrollar en Go: VS Code, GoLand y Vim. Por otro lado, una
 encuesta oficial llevada a cabo en 2021 \cite{go_survey} revelaba, además de
 varios datos con respecto al lenguaje como que el 92\% de los usuarios estaban
-satisfechos con Go y el 75\% lo usaban en el trabajo, qué entornos de desarrollo
-eran los preferidos por la comunidad. Los dos entornos principalmente usados son
-los propios que se recomiendan oficialmente, VS Code y GoLand, siendo VS Code el
-más utilizado con diferencia, lo cual es comprensible puesto que es una opción
-gratuita y muy utilizada en todos los ámbitos, sin embargo, GoLand pese a ser de
-pago se sigue utilizando bastante y demuestra la popularidad de la herramienta.
+satisfechos con Go y el 75\% lo empleaban en el trabajo, qué entornos de
+desarrollo eran los preferidos por la comunidad. Los dos entornos más populares
+son los propios que se recomiendan oficialmente, VS Code y GoLand, quedando Vim
+con un porcentaje muy bajo y siendo VS Code el más utilizado con diferencia, lo
+cual es comprensible al ser una opción gratuita y muy utilizada en todos los
+ámbitos. Sin embargo, GoLand pese a ser de pago sigue siendo una opción muy
+preferida por la comunidad y demuestra la popularidad de la herramienta.
 
-De entre estas dos alternativas se decide usar GoLand. Su principal ventaja es
-que, a diferencia de VS Code, el cual usa un plugin, GoLand es un IDE
-enteramente dedicado a Go y tiene funcionalidades más avanzadas debido a que es
-un entorno de desarrollo más potente, con mayores funcionalidades y que nos
-permite centrarnos en el desarrollo de un sólo lenguaje. Además de esto, también
-se prefiere GoLand desde el punto de vista educativo, ya que, tiene interés
-aprender a utilizar una herramienta oficial centrada en un lenguaje y la
-Universidad de Granada ofrece una licencia gratuita para todos los productos de
-JetBrains, incluido GoLand, por lo que el precio no supone un problema. GoLand
-es una herramienta pensada para proyectos más grandes como este y permitirá
-facilitar el desarrollo gracias a las múltiples funciones que tiene, como
-autocompletar o refactorizar el código, que hace mucho más fácil implementar
-cambios en un ambiente ágil como el que nos encontramos.
+De entre estas dos alternativas se decide optar por GoLand. Su principal ventaja
+es que, a diferencia de VS Code, el cual funciona mediante un plugin que puede
+no funcionar siempre tan bien al ser un editor que tiene en cuenta muchos otros
+lenguajes de programación, GoLand es un IDE enteramente dedicado a Go y tiene
+funcionalidades más avanzadas debido a que es un entorno de desarrollo más
+potente, con mayores funcionalidades y que nos permite centrarnos en el
+desarrollo de un solo lenguaje. Además de esto, también se prefiere GoLand desde
+el punto de vista educativo, ya que, tiene interés aprender una herramienta
+oficial centrada en un lenguaje y la Universidad de Granada ofrece una licencia
+gratuita para todos los productos de JetBrains, incluido GoLand, por lo que el
+precio no supone un problema. GoLand es una herramienta pensada para proyectos
+más grandes como este y permitirá facilitar el desarrollo gracias a las
+múltiples funciones que tiene, como autocompletar o refactorizar el código, que
+hace mucho más fácil implementar cambios en un ambiente ágil como el que nos
+encontramos.
 
 \subsection{Gestor de tareas}
 Dentro de los procesos de calidad del software entran los gestores de tareas,
@@ -582,10 +585,96 @@ inteligente de combinar documentación y ejecución de tareas. Dentro del propio
 fichero de configuración se puede ver tanto una descripción como las propias
 órdenes que ejecuta para lanzar la tarea, teniendo una forma fácil de saber qué
 hace exactamente. Cualquier persona que esté interesada en ver qué tareas tiene
-el proyecto no tiene más que abrir el fichero \texttt{maskfile.md}, además de
+el proyecto no tiene más que abrir el fichero \texttt{maskfile\.md} además de
 que el fichero al abrirlo en GitHub se verá formateado, puesto que, tiene un
 lector de \textit{markdown}, centralizando todo aún más en el repositorio.
 
-\subsection{Framework de testing}
-\subsection{Sistema de integración continua}
+\subsection{\textit{Framework} de testing} En un entorno de desarrollo ágil hay
+que asegurarse de que todo código esté completamente testado para garantizar su
+calidad, ya que, código que no está testeado es código que se considera que no
+funciona. Para ello se deben escribir una serie de tests en el propio lenguaje
+de programación que el resto del código y que sean legibles y correctos,
+escritos antes que la propia funcionalidad, para que automáticamente pase unas
+pruebas que garanticen qué partes del código funcionan y cuáles no, poder cerrar
+\textit{issues} y saber qué construir a continuación.
+
+Se busca un marco de trabajo para pruebas en Go en el que las aserciones sigan
+el estilo BDD, es decir, permitan desarrollar unos tests más legibles desde el
+propio código, lo cual facilita mucho el escribirlos y comprobarlos. El estilo
+BDD se centra en el comportamiento de las funcionalidades que se evalúan, y esto
+hace que se tenga una correlación más directa con las historias de usuario y el
+ámbito del problema. Por tanto, se quiere un \textit{framework} de testing que
+tenga estas características de BDD, sea libre, popular, con buena documentación
+y siga manteniéndose a día de hoy, para evitar cualquier problema que pueda
+surgir de usar herramientas obsoletas, más aún en un lenguaje moderno como Go en
+el que constantemente salen nuevas funcionalidades y requiere mantenerse al día.
+
+Go es un caso especial a diferencia de otros lenguajes, ya que, tiene una
+biblioteca estándar provista de multitud de funcionalidades muy bien mantenidas
+y utilizadas, como el testing. La utilidad de línea de comandos \texttt{go
+test} para ejecutar el código de tests y el paquete \texttt{Testing} para
+escribir el propio test, permiten realizar pruebas de forma nativa en Go. Sin
+embargo, estas pruebas no se escriben mediante aserciones, sino controlando
+errores y, por tanto, no son tan legibles ni proporcionan un gran control o
+funcionalidad al ser una utilidad básica del lenguaje.
+
+Al ser parte del lenguaje, tenemos ya de base un método y herramienta oficial
+para escribir y ejecutar tests, que además nos asegura buenas prácticas dentro
+del lenguaje y buen soporte a lo largo del tiempo, es simple y se pueden
+encontrar multitud de recursos debido a su popularidad. Sin embargo, se queda
+corta, no da mucha versatilidad y no usa un estilo BDD, por lo que gran parte de
+las bibliotecas de aserciones y frameworks que podemos encontrar se centran en
+ayudar a la biblioteca estándar de varias maneras. Debido a esto, tener una de
+estas bibliotecas o frameworks adicionales no descarta por completo su uso, sino
+que a la vez se aprenderá también el propio de Go.
+
+Se han estudiado las siguientes bibliotecas:
+\begin{itemize}
+    \item Testify\footnote{\url{https://github.com/stretchr/testify}} es una de
+    las bibliotecas de aserciones más famosas para Go, sin embargo, es de estilo
+    TDD, con unas aserciones más complejas y menos legibles, además de que es
+    más parecida a la biblioteca estándar.
+    \item Gocheck\footnote{\url{https://github.com/go-check/check}} es otra
+    biblioteca de aserciones TDD. Es una alternativa a Testify que permite
+    aserciones más complejas, sin embargo, el proyecto está abandonado y no es
+    tan popular, además de que no es BDD y la documentación es muy escasa.
+    \item La biblioteca Gopwt\footnote{\url{https://github.com/ToQoz/gopwt}}
+    ofrece aserciones sencillas de tipo TDD y como principal característica
+    tiene que permitir identificar en qué parte del código falla un test,
+    facilitando el arreglar errores. El problema que tiene esta biblioteca,
+    además de ser TDD, es que al igual que la Gocheck no es muy popular y lleva
+    aún más años abandonada. 
+    \item Goconvey\footnote{\url{https://github.com/smartystreets/goconvey}} es
+    una de las bibliotecas de aserciones BDD más populares de Go y una de las
+    que ofrece una funcionalidad bastante distinta al resto. El punto principal
+    de esta biblioteca es que da un análisis muy extenso y profundo sobre los
+    tests y los muestra generando una página web en lugar de en terminal. Es una
+    muy buena opción que está mantenida y se podría considerar en otros
+    proyectos, sin embargo, el código no resulta tan legible como otras
+    alternativas y la posibilidad de idear aserciones personalizables junto al
+    generar una web completa complica demasiado algo que se busca que vaya lo
+    más al grano posible con lo que ya ofrezca. Además de esto, en el
+    repositorio de GitHub se observan varios \textit{issues} abiertos haciendo
+    referencia a que el resultado de los tests no siempre es del todo correcto.
+\end{itemize}
+
+Finalmente, se ha optado por usar
+Ginkgo\footnote{\url{https://github.com/onsi/ginkgo}}. Es un \textit{framework}
+de testing bastante popular y con muy buena y extensa documentación y ejemplos,
+que además proporciona herramientas de cobertura de código, que podrían ser
+útiles en el futuro si se decidiese analizar si los tests aseguran que la
+totalidad del código está testeado. Aunque provee su propia utilidad para
+ejecutar los tests, la propia utilidad de Go también funciona, por lo que es una
+ventaja que no haga falta instalar ningún programa adicional. Esta herramienta
+tiene varias ventajas por las que se ha elegido: da una salida de los tests muy
+legible y bonita con colores para entender bien la división entre cada parte,
+tiene una utilidad que permite generar un esqueleto de pruebas a partir de cada
+paquete, para facilitar el desarrollo y permite un buen manejo de los errores y
+las aserciones con funciones legibles al estilo BDD. Además, también tiene la
+ventaja de que se pueden agrupar tests por un mismo tema, para ejecutarlos
+separadamente y leerlos mejor. Es un \textit{framework} muy completo que se
+adapta bien a un proyecto grande como este y aprenderlo significaría poder
+emplearlo en cualquier otro proyecto que se desarrolle con el mismo lenguaje,
+por lo que también tiene un gran interés personal como algo a aprender.
+
 \subsection{Bibliotecas de scraping en Go}
