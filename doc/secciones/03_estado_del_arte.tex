@@ -16,6 +16,13 @@ relacionados que tienen también como objetivo extraer la información de
 \textit{tropos} de TvTropes. 
 
 \section{Dominio del problema}
+Como introducción al estado del arte se discutirán los términos más importantes
+relacionados con el dominio del problema para poder entender como se procederá
+con el resto del trabajo: estado actual del \textit{scraping}, buenas prácticas,
+dificultades, inclusión del \textit{scraping} en el ámbito de la ciencia de
+datos, formatos de representación de datos más populares en la actualidad y
+aspectos legales y éticos.
+
 \subsection{\textit{Scraping}}
 
 El \textit{web scraping}, o extracción de datos web, se define como la
@@ -123,36 +130,36 @@ capacidad de carga que tiene el servidor. Una política de cortesía posible ser
 reducir el número de peticiones concurrentes o esperar un tiempo antes de volver
 a efectuar peticiones al servidor \cite{najork2009web}.
 
-En cuanto a la manera en la que un programa \textit{scraper} interaccionar con
-una página web, la comunicación con un servidor web para obtener una página se
-efectúa mediante el protocolo HTTP, que define una estructura de los mensajes
-para las peticiones, principalmente un cuerpo con el contenido de la petición y
-una cabecera con información necesaria para identificar la propia petición.
-Entre los parámetros que se encuentran en una cabecera HTTP se destacan cuatro,
-\textit{User-Agent}, \textit{Referer}, \textit{Set-Cookie} y \textit{Cookie},
-especialmente importantes en el ámbito de la extracción de datos en internet.
-Los navegadores usan la cabecera \textit{User-Agent} para informar al servidor
-qué navegador es y en qué versión está, y puede ser que una página no permita
+En cuanto a la manera en la que un programa \textit{scraper} interacciona con un
+servidor web, la comunicación para obtener una página se efectúa mediante el
+protocolo HTTP, que define una estructura de los mensajes para las peticiones,
+principalmente un cuerpo con el contenido de la petición y una cabecera con
+información necesaria para identificar la propia petición. Entre los parámetros
+que se encuentran en una cabecera HTTP se destacan cuatro importantes:
+\texttt{User-Agent}, \texttt{Referer}, \texttt{Set-Cookie} y \texttt{Cookie} que
+son muy comunes en el ámbito de la extracción de datos en internet. Los
+navegadores usan la cabecera \texttt{User-Agent} para informar al servidor qué
+navegador es y en qué versión está, y puede ser que una página no permita
 peticiones si vienen de fuentes desconocidas. La mayoría de bibliotecas para
-manejar peticiones HTTP incluyen por defecto y por cortesía su propio
-\textit{User-Agent} indicando que son una biblioteca y, por tanto, una web puede
-decidir negarle el acceso, ya que, no se está accediendo a través de un
-navegador. Sin embargo, este parámetro se puede modificar fácilmente en la
-cabecera de la petición para hacerse pasar por un navegador, en cuyo caso se
-podría acceder sin problemas. Por otro lado, \textit{Referer} sirve para indicar
-desde qué URL se está haciendo la petición, y las páginas pueden utilizar esto
-para impedir el acceso a páginas ``secretas'' que no podrías acceder simplemente
-copiando el link, sino que tendrías que acceder navegando antes desde otra
-página. Esta cabecera también se puede modificar analizando la web y viendo qué
-URL requiere en el campo \textit{Referer} para permitir el paso. Por último
-están los parámetros de la cabecera que controlan las \textit{cookies}, pequeños
-conjuntos de información que se almacenan localmente en el cliente para mantener
-la sesión entre páginas y que es muy común en todo tipo de páginas web. Se
-emplea \textit{Set-Cookie} en la respuesta por parte del servidor indicando que
-se le ha enviado una \textit{cookie} al cliente, y \textit{Cookie} en las
-siguientes peticiones HTTP por parte del cliente si quiere seguir manteniendo
-esta información, que es importante para que el servidor entienda la sesión en
-la que se encuentra el cliente \cite{apress2018scraping}.
+manejar peticiones HTTP incluyen por defecto y la cabecera \texttt{User-Agent}
+indicando que son una biblioteca y, por tanto, una web puede decidir negarle el
+acceso, ya que, no se está accediendo a través de un navegador. Sin embargo,
+este parámetro se puede modificar fácilmente en la cabecera de la petición para
+hacerse pasar por un navegador, en cuyo caso se podría acceder sin problemas.
+Por otro lado, \texttt{Referer} sirve para indicar desde qué URL se está
+haciendo la petición, y las páginas pueden utilizar esto para impedir el acceso
+a páginas ``\texttt{secretas}'' que no podrías acceder simplemente copiando el
+link, sino que tendrías que acceder navegando antes desde otra página. Esta
+cabecera también se puede modificar analizando la web y viendo qué URL requiere
+en el campo \texttt{Referer} para permitir el paso. Por último están los
+parámetros de la cabecera que controlan las \textit{cookies}, pequeños conjuntos
+de información que se almacenan localmente en el cliente para mantener la sesión
+entre páginas y que es muy común en todo tipo de páginas web. El parámetro \texttt{Set-Cookie} 
+aparece en la respuesta por parte del servidor indicando que se le ha enviado
+una \textit{cookie} al cliente, y \texttt{Cookie} en las siguientes peticiones
+HTTP por parte del cliente si quiere seguir manteniendo esta información, que es
+importante para que el servidor entienda la sesión en la que se encuentra el
+cliente \cite{apress2018scraping}.
 
 Por último cabe destacar que una web moderna, aparte de tener HTML y CSS como ya
 hemos visto, usa también JavaScript para dotar de interactividad y dinamismo a
@@ -363,14 +370,95 @@ otros ejemplos de \textit{scrapers} de TvTropes y no han tenido problemas de ese
 tipo, por lo que es seguro hacer uno nuevo.
 
 \section{Trabajos relacionados}
-\subsection{Tropescraper}
-Este trabajo toma como base la biblioteca
-Tropescraper\footnote{\url{https://github.com/rhgarcia/tropescraper/}}
-\cite{garcia2020startroper}
-
 \subsection{DBTropes}
-La web DBTropes\footnote{\url{http://skipforward.opendfki.de/wiki/DBTropes}}
-\cite{kiesel2010dbtropes}
+La web DBTropes\footnote{\url{http://skipforward.opendfki.de/wiki/DBTropes}} es
+un servicio independiente que se define como un \textit{wrapper}, o envoltorio,
+para TVTropes y extrae sus contenidos. Usa un \textit{scraper} interno, lo
+traduce en un formato de datos enlazado estándar en la web semántica conocido
+como RDF y lo ofrece mediante su web para que sea tanto legible por humanos como
+extraíble por máquinas. Los datos que extrae son ambiguos y contienen mucho
+ruido, por tanto, la propia web ofrece una interfaz mediante la cual los
+usuarios pueden corregir los datos extraídos. Como resultado, el
+\textit{scraper} hace una extracción masiva de datos que limpia la comunidad y
+no un programa automático. Además, para reducir la carga de TVTropes, extrae la
+información HTML de cada página una sola vez y la almacena en caché para evitar
+sobrecargar el servidor con constantes peticiones \cite{kiesel2010dbtropes}.
+
+La base de datos contiene únicamente información de películas, teniendo
+registradas en 2010 más de 13000 películas y 18000 \textit{tropos}
+\cite{kiesel2010dbtropes}. Al acceder a la web se puede comprobar que la fecha
+de última modificación es de 2016, por lo que podemos asumir que los datos que
+proporciona están desactualizados, y como se vio en \cite{garcia2020tropes}, en
+ese periodo de tiempo hubo una gran cantidad de nuevos \textit{tropos} que se
+añadieron a TvTropes.
+
+De DBTropes surgen varios artículos que utilizan esa base de datos para generar
+nuevos conjuntos de datos y análisis. Entre ellos está
+\cite{garcia2018overview}, que usa un subconjunto de la información más
+actualizada que contiene, de 2016, para generar un nuevo conjunto de datos en
+formato JSON llamado PicTropes que contiene únicamente el nombre de las
+películas y el nombre de sus \textit{tropos}. Este conjunto de datos se emplea
+para extraer conocimiento estadístico y servir de base para futuras
+investigaciones relacionadas con machine learning y la generación de narrativas.
+Por último, expresan la necesidad de que el conjunto tenga información de
+metadatos adicional, como la popularidad o la fecha de salida, que implica el
+extraer información de bases de datos de películas y preparar los datos de forma
+que las películas y tropos se relacionen inequívocamente. 
+
+\subsection{Tropescraper}
+Este trabajo toma como base
+Tropescraper\footnote{\url{https://github.com/rhgarcia/tropescraper/}}, un
+\textit{scraper} desarrollado en Python por Rubén Héctor García Ortega para
+\cite{garcia2020startroper} como alternativa a DBTropes debido a que este
+contiene datos anticuados. Este \textit{software} se lanzó como
+\textit{software} libre en GitHub en el año 2021, sin embargo, no ha tenido
+actualizaciones desde entonces.
+
+En una primera versión de Tropescraper se consideró que todas las películas
+estaban en el índice de películas de
+TvTropes\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Main/Film}}, y que
+todos los tropos de esa película están contenidos en la sección principal. Sin
+embargo, esto dejaba fuera muchos de los \textit{tropos} más populares, lo que
+hizo que se crease una segunda versión con una nueva estrategia. La estrategia
+final de Tropescraper para explorar TvTropes es de primero extraer todas las
+categorías del índice principal de TvTropes y por cada una de ellas extraer los
+identificadores de las películas que tiene asignadas, para así generar una lista
+de todas las páginas de películas del sitio. Finalmente, extrae los
+\textit{tropos} de cada una de las páginas identificadas, a veces incluyendo una
+fecha en la propia cadena de texto del nombre, generando un diccionario que
+relaciona películas con tropos, representándolo en un formato JSON, al igual que
+PicTropes. En resumen, la primera versión identificaba primero las películas y
+desde ahí los \textit{tropos}, mientras que la segunda versión lo hace al revés.
+
+En \cite{garcia2020startroper} se propone una metodología para sintetizar
+conjuntos de \textit{tropos} que maximicen la potencial puntuación que podría
+obtener en críticas una película con esos \textit{tropos}. Una de las
+necesidades con el conjunto de datos que extrae Tropescraper es que, para
+obtener la puntuación de las películas, el nombre de la película debe poder
+identificarse sin ambigüedad con la misma en IMDB. Tropescraper codifica los
+nombres de películas en \textit{CamelCase}, pero para poder identificarlos con
+IMDB deciden normalizar los títulos en ambos casos. Las tareas de transformación
+del título, cambiando de \textit{CamelCase} a \textit{Title case}, eliminando
+caracteres no alfanuméricos y espacios adicionales y separando nombre y año
+cuando sea necesario no son siempre suficientes. En la práctica, cuando la
+información de fechas no está disponible, IMDB tiene una gran lista de
+candidatos por cada película de TvTropes. Para solucionar esta ambigüedad, se
+usa una heurística que compara la popularidad de ambas películas para
+identificar si hacen referencia a la misma. 
+
+En el repositorio de Tropescraper se informa que el \textit{script} puede tardar
+entre días y horas en ejecutarse por completo, y solo permite un modo de
+ejecución en el que se obtiene de golpe el fichero JSON con todas las películas
+y sus tropos. Para aliviar este inconveniente, se ayuda de un archivo a modo de
+caché para poder reanudar la extracción en cualquier momento en caso de haberse
+detenido y no volver a descargar páginas repetidas. 
+
+Debido a la naturaleza de TvTropes, Tropescraper no puede evaluar si faltan
+películas, \textit{tropos} o relaciones. Al acceder a la sección de
+\textit{issues} se pueden ver varios hilos abiertos de la comunidad sobre
+problemas y mejoras que han identificado en el programa. Estos problemas y
+características que tiene este \textit{scraper} se discutirán en el capítulo 5
+del trabajo, con el objetivo de mejorarlos y solucionarlos.
 
 \subsection{Consejos sobre el scraping de TvTropes}
 No existen demasiados proyectos \textit{software} en internet que se centren en

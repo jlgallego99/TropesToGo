@@ -111,3 +111,8 @@ Colly
 descontinuada
 DOM
 Goquery
+wrapper
+StarTroper
+CamelCase
+Title
+case
