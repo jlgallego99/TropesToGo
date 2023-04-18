@@ -1,2 +1,87 @@
 \chapter{Análisis del problema}
- 
+En este capítulo se modela el problema de construcción de un \textit{scraper} de
+TvTropes aplicando el patrón de \textit{Domain Driven Design}. Luego, se analiza
+la estructura que sigue la web, desarrollando una estrategia con la que saber
+cómo abordar la creación de la araña que explore todas las páginas relevantes de
+TvTropes y la extracción de la información que queremos en cada una de ellas. El
+objetivo del capítulo es servir de preludio al capítulo 6, en el que se
+implementará finalmente el \textit{scraper} de TvTropes.
+
+\section{Modelado del problema}
+
+\textit{Domain Driven Design}
+
+\section{Análisis de la estructura de TvTropes}
+TvTropes es un wiki complejo en el que la estructura de una página y entre ellas
+cambia bastante, la información está desperdigada por distintos lugares y no
+siempre toda la información que necesitamos es fácilmente accesible o existe
+siquiera. A continuación, tras haber visto cómo se pretende modelar el problema
+y organizar el código, se estudian los problemas y particularidades que tiene
+TvTropes y que queremos resolver con el \textit{scraper} para poder extraer toda
+la información que sea posible de la manera más sencilla y eficiente. Para ello,
+se estudia la organización de las páginas de TvTropes tanto entre sí como dentro
+de ellas, y se observan los puntos más importantes que el \textit{scraper} debe
+saber identificar, a modo de estrategia para poder desarrollarlo en el siguiente
+capítulo.
+
+\subsection{El índice de TvTropes}
+
+\subsection{Estructura de las páginas de TvTropes}
+Estos cambios se pueden observar al buscar dos páginas que hacen referencia a un
+mismo tema como puede ser dos obras audiovisuales, no importa si son del mismo
+medio o no, el propósito es el mismo: describir la obra y sus \textit{tropos}.
+Por ejemplo, la página de la serie Los
+Soprano\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Series/TheSopranos}}
+presenta varias características interesantes, como por ejemplo que el
+\textit{tropo}
+\begin{otherlanguage}{english}\textit{GenreDeconstruction}\end{otherlanguage}\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Main/GenreDeconstruction}}
+no está presente en la sección de \textit{tropos}, que está organizada en cuatro
+carpetas según el rango alfabético, sino que se encuentra referenciado en la
+propia descripción de la serie. También se pueden encontrar otros
+\textit{tropos} que no están en la propia lista, pero a los que se hace
+referencia en la descripción de un \textit{tropo} concreto que sí que está en la
+lista. Al entrar en otra página, como la de la película El Viaje de
+Chihiro\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Anime/SpiritedAway}},
+podemos ver que la información ha cambiado por completo de forma y ahora los
+\textit{tropos} no se presentan en carpetas y no están organizados por género o
+cualquier otra idea, simplemente están en una lista ordenada alfabéticamente.
+Por último, es interesante observar una página más, la de la serie
+Hannibal\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Series/Hannibal}},
+que aunque inicialmente puede parecer que tiene la misma estructura que la de
+Los Soprano con cuatro carpetas por rango alfabético, observamos que esos rangos
+son distintos. Esta última serie también evidencia otro problema de estructura
+que es necesario resolver, y es que existen otras entradas en TvTropes que
+también se llaman Hannibal, haciendo referencia o al personaje o a la novela, y
+que tienen distinta manera de presentar sus tropos. Sin embargo, cada una de
+estas páginas tienen un tipo definido en la web (personaje, serie, libro,
+película, etc.) por lo que son más fácilmente identificables.
+
+Como se ha explicado antes, estos cambios estructurales y de organización están
+presentes también entre páginas con distintos propósitos, como por ejemplo, en
+la página de un \textit{tropo} y de una obra. La página de una obra concreta
+muestra los \textit{tropos} organizados en carpetas o listas con distintas
+organizaciones, mientras que una página de un \textit{tropo} concreto como el
+visto anteriormente de
+\begin{otherlanguage}{english}\textit{GenreDeconstruction}\end{otherlanguage} da
+la información inversa, es decir, todas las obras que tienen ese \textit{tropo}.
+Sin embargo, en este caso la información está presentada de una forma
+completamente distinta, esta vez requiere de una mayor exploración a fondo,
+puesto que, se dan una serie de géneros con un hipervínculo a sub páginas que
+cuelgan de la principal del \textit{tropo} y que ya sí que listan las obras.
+
+Algunas teniendo los \textit{tropos} organizados por carpetas alfabéticas o por
+géneros, otras teniéndolos en una lista; información de tropos anidada dentro de
+otros o contenida en sub páginas llamadas
+YMMV\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/YMMV/HomePage}}, las
+cuales contienen otros \textit{tropos} que no toda la comunidad identifica como
+correctos o con el mismo significado y, por tanto, no corresponden en la página
+principal, que lista los que no tienen diferencias de opinión. Estos son solo
+varios de los muchos otros métodos de organización que requieren de un análisis
+para poder adaptarse a las plantillas que presenta la web para dar su
+información y el \textit{scraper} pueda entenderlos.
+
+Finalmente, se resumen los puntos principales que se deducen de este análisis de
+TvTropes:
+\begin{itemize}
+    \item 
+\end{itemize}
