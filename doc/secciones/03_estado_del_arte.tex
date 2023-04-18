@@ -16,7 +16,15 @@ relacionados que tienen también como objetivo extraer la información de
 \textit{tropos} de TvTropes. 
 
 \section{Dominio del problema}
-\subsection{Scraping}
+Como introducción al estado del arte se discutirán los términos más importantes
+relacionados con el dominio del problema para poder entender como se procederá
+con el resto del trabajo: estado actual del \textit{scraping}, buenas prácticas,
+dificultades, inclusión del \textit{scraping} en el ámbito de la ciencia de
+datos, formatos de representación de datos más populares en la actualidad y
+aspectos legales y éticos.
+
+\subsection{\textit{Scraping}}
+
 El \textit{web scraping}, o extracción de datos web, se define como la
 construcción de agentes que sean capaz de descargar, entender y organizar los
 datos de una web de manera autónoma \cite{apress2018scraping}. Actualmente, los
@@ -122,17 +130,335 @@ capacidad de carga que tiene el servidor. Una política de cortesía posible ser
 reducir el número de peticiones concurrentes o esperar un tiempo antes de volver
 a efectuar peticiones al servidor \cite{najork2009web}.
 
-\subsection{Formatos de representación de datos}
-Tabla comparativa
-\section{Trabajos relacionados}
-\subsection{Tropescraper}
-Este trabajo toma como base la biblioteca
-Tropescraper\footnote{\url{https://github.com/rhgarcia/tropescraper/}}
-\cite{garcia2020startroper}
+En cuanto a la manera en la que un programa \textit{scraper} interacciona con un
+servidor web, la comunicación para obtener una página se efectúa mediante el
+protocolo HTTP, que define una estructura de los mensajes para las peticiones,
+principalmente un cuerpo con el contenido de la petición y una cabecera con
+información necesaria para identificar la propia petición. Entre los parámetros
+que se encuentran en una cabecera HTTP se destacan cuatro importantes:
+\texttt{User-Agent}, \texttt{Referer}, \texttt{Set-Cookie} y \texttt{Cookie} que
+son muy comunes en el ámbito de la extracción de datos en internet. Los
+navegadores usan la cabecera \texttt{User-Agent} para informar al servidor qué
+navegador es y en qué versión está, y puede ser que una página no permita
+peticiones si vienen de fuentes desconocidas. La mayoría de bibliotecas para
+manejar peticiones HTTP incluyen por defecto y la cabecera \texttt{User-Agent}
+indicando que son una biblioteca y, por tanto, una web puede decidir negarle el
+acceso, ya que, no se está accediendo a través de un navegador. Sin embargo,
+este parámetro se puede modificar fácilmente en la cabecera de la petición para
+hacerse pasar por un navegador, en cuyo caso se podría acceder sin problemas.
+Por otro lado, \texttt{Referer} sirve para indicar desde qué URL se está
+haciendo la petición, y las páginas pueden utilizar esto para impedir el acceso
+a páginas ``\texttt{secretas}'' que no podrías acceder simplemente copiando el
+link, sino que tendrías que acceder navegando antes desde otra página. Esta
+cabecera también se puede modificar analizando la web y viendo qué URL requiere
+en el campo \texttt{Referer} para permitir el paso. Por último están los
+parámetros de la cabecera que controlan las \textit{cookies}, pequeños conjuntos
+de información que se almacenan localmente en el cliente para mantener la sesión
+entre páginas y que es muy común en todo tipo de páginas web. El parámetro \texttt{Set-Cookie} 
+aparece en la respuesta por parte del servidor indicando que se le ha enviado
+una \textit{cookie} al cliente, y \texttt{Cookie} en las siguientes peticiones
+HTTP por parte del cliente si quiere seguir manteniendo esta información, que es
+importante para que el servidor entienda la sesión en la que se encuentra el
+cliente \cite{apress2018scraping}.
 
+Por último cabe destacar que una web moderna, aparte de tener HTML y CSS como ya
+hemos visto, usa también JavaScript para dotar de interactividad y dinamismo a
+una página web. Un \textit{scraper} tiene que tener en cuenta esto a la hora de
+explorar y extraer la información de una página, ya que, puede ser que esta esté
+oculta bajo un programa JavaScript que elimine, añada o modifique la información
+de forma dinámica al realizar ciertas acciones o estar en estados concretos y,
+por tanto, necesitará manipularlo. Todos los navegadores soportan JavaScript,
+debido a que prácticamente todas las páginas existentes lo incorporan en mayor o
+menor medida y se debe tener en cuenta \cite{apress2018scraping}. Esto puede
+influir por ejemplo al analizar una web con las herramientas de desarrollador;
+puede ser que ciertas partes del código HTML las haya insertado un programa
+JavaScript que el navegador entiende y te muestra al usar sus herramientas de
+análisis, pero que luego a la hora de llevar a cabo una petición HTTP desde el
+código y obtener el código HTML en texto falte esa sección importante al haber
+obtenido solamente el código base.
+
+\subsection{\textit{Scraping} en ciencia de datos y persistencia de los datos}
+La ciencia de datos se suele describir como un proceso o ciclo de trabajo que
+describe los pasos que se deben tomar en un proyecto en el que se busque extraer
+valor de un conjunto de datos, y en ese proceso entran muchas fases de
+tratamiento para que ese conjunto sea valioso \cite{apress2018scraping}. El
+\textit{scraping} se incorpora en las primeras fases de identificación,
+recolección y a menudo limpieza de los procesos de ciencia de datos y análisis.
+La naturaleza cambiante de la web implica tener en cuenta aspectos como que la
+calidad de los datos no siempre será la mejor y que estos se pueden volver
+obsoletos rápidamente, por lo que es necesario tomar decisiones teniendo en
+cuenta cada caso concreto para ver si es necesario mantener algún tipo de
+persistencia en los datos e información relativa a cuando fue la última vez que
+se actualizaron.
+
+Para que las siguientes fases del proceso de ciencia de datos se sucedan sin
+complicaciones un \textit{scraper} que recolecte los datos debe tener en cuenta
+para quién van dirigidos y cómo los va a usar. El principal objetivo de los
+\textit{scrapers} en este caso será tener un buen conjunto de datos extraído,
+que será lo que realmente le interesa al científico de datos que los analizará.
+En la actualidad existen múltiples métodos para persistir los datos, desde
+ficheros de texto plano con distinto formato hasta bases de datos completas.
+Cada una de estas formas de persistir los datos se elegirán según la complejidad
+y tamaño que tengan los que se quieran almacenar o las preferencias del
+científico de datos o del lenguaje o herramienta que se utilice para tratarlos.
+Existen formatos cuya ventaja es la rapidez de lectura y escritura, pero que no
+permiten modelar estructuras de datos complejas y otros que requieran de montar
+todo un sistema complejo para tener un mayor control. En general, no hay una
+solución única a este problema y es algo que se debe abordar correctamente, ya
+que el cometido de un \textit{scraper} en los flujos de ciencia de datos es
+poder presentar esa información para que satisfaga las necesidades de la persona
+que la vaya a tratar.
+
+El formato más común para representar un conjunto de datos en el ámbito de la
+ciencia de datos y el machine learning es CSV. La razón de esto se debe a que no
+necesita instalar nada, ya que, es simplemente un fichero de texto plano
+delimitado por comas y que se puede entender fácilmente, sin embargo, presenta
+varios problemas. Los archivos CSV, al ser de texto plano, no tienen ningún tipo
+de optimización al almacenar o leer los datos, pudiendo ser costoso
+computacionalmente leer ficheros muy grandes y almacenarlos en memoria. Además
+de esto, no permiten anidar datos y almacenar información de metadatos. Pueden
+presentar problemas al tener caracteres Unicode, puesto que, no hay forma de
+saber qué tipo de codificación usa el fichero y hay que especificarla
+explícitamente al leerlo \cite{murallie_csvs_2022}.
+
+Una de las alternativas más utilizadas, principalmente por ser una solución
+concreta para Python, que es un lenguaje muy utilizado en ciencia de datos, es
+Pickle\footnote{\url{https://docs.python.org/3/library/pickle.html}}\cite{murallie_csvs_2022}.
+Pickle permite serializar objetos Python rápidamente, y también es capaz de
+almacenar información de metadatos. Sin embargo, su principal problema es que
+está atada al lenguaje Python, y no se podrían deserializar objetos en otros
+lenguajes muy populares en este ámbito como es R. 
+
+Existen nuevas soluciones que aborden el problema de la representación de datos
+eficiente e independiente del lenguaje. Una de las más modernas y con gran
+interés es Apache Parquet\footnote{\url{https://parquet.apache.org/}}, una
+alternativa libre cuya principal ventaja es que permite almacenar y recuperar
+datos eficientemente en cualquier lenguaje de programación, framework o modelo
+de datos. Parquet da una representación binaria de los datos en columnas, los
+comprime y proporciona información de metadatos como la codificación.
+
+Si se quiere una representación por filas, en la que se tienen los registros
+contiguos en memoria como en una base de datos tradicional, la alternativa a
+Parquet es Avro\footnote{\url{https://avro.apache.org/}}. Avro permite
+serializar estructuras de datos complejas y representarlas en esquemas de tipo
+JSON, lo cual facilita la integración con cualquier lenguaje de programación. Es
+una solución altamente eficiente en la escritura, pero mucho más lenta en la
+lectura \cite{ramos_big_2023}.
+
+Otra alternativa parecida a Parquet es
+Feather\footnote{\url{https://arrow.apache.org/docs/python/feather.html}}.
+Propone un formato de ficheros rápido que, sin embargo, solo funciona con los
+lenguajes Python y R, a diferencia de Parquet.
+
+En el estudio de \cite{murallie_csvs_2022} sobre diferentes formatos de datos se
+concluye que Parquet es el más eficiente en consultar datos, mejorando bastante
+a los formatos de representación en texto, y también ocupa menos espacio en
+disco que Feather y CSV. Feather es el más rápido para escribir en disco,
+seguido muy de cerca por Parquet. 
+
+Entre otros formatos de representación muy comunes está JSON, usado
+principalmente para conjuntos de datos pequeños y por la mayoría de API. Es un
+formato muy legible para humanos, siempre y cuando no tenga muchos campos
+anidados \cite{ramos_big_2023}. Sin embargo, es el menos deseable, puesto que,
+ocupa el doble de espacio en disco que un CSV y eso hace que también se tarde
+mucho en cargarlo en memoria \cite{murallie_csvs_2022}.
+
+Por último, cabe destacar la importancia de las bases de datos en este ámbito.
+Las bases de datos son la forma más usual de almacenar cualquier tipo de
+información, por tanto, también están muy presentes como una alternativa para
+almacenar conjuntos de datos que se quieran analizar. Una base de datos es una
+solución más completa que un fichero de texto para el almacenamiento datos.
+Requiere montar un sistema de bases de datos, lo que hace que la solución sea
+más compleja que las otras que se han visto. La complejidad de estas se compensa
+con, por ejemplo, la facilidad que tienen para añadir o eliminar campos, a
+diferencia que con ficheros simples \cite{ramos_big_2023}, o la compatibilidad
+que tienen con casi cualquier lenguaje.
+
+\subsection{Aspectos legales y éticos del \textit{scraping}} 
+
+En el ámbito del \textit{scraping} suelen surgir dudas sobre la legalidad y
+ética de la extracción de datos de páginas web. A continuación se comentan
+brevemente estos aspectos y se tendrán en cuenta en la elaboración de este
+trabajo.
+
+El panorama legal con respecto al \textit{scraping} no está del todo maduro a
+día de hoy y está en constante cambio. Sin embargo, en la mayoría de casos
+jurídicos en los que se ha abordado la legalidad de extraer información de webs
+se han discutido las siguientes infracciones \cite{apress2018scraping}:
+
+\begin{itemize}
+    \item \textbf{Incumplimiento de los términos y condiciones}: La mayoría de
+    páginas web tiene una sección de términos y condiciones, que en muchos casos
+    hacen referencia directa al uso de \textit{scrapers} en su web. Esto
+    establece un contrato de responsabilidad entre el propietario de la web y el
+    \textit{scraper}, sin embargo, no suele ser suficiente para establecer
+    cuándo se rompen los términos de la página, ya que, la parte responsable del
+    \textit{scraper} no acepta activamente esos términos, indicándolo
+    explícitamente.
+    \item \textbf{Infracciones de copyright}: El
+    \begin{otherlanguage}{english}\textit{fair use}\end{otherlanguage} es un
+    término inglés que hace referencia a la doctrina que permite que los
+    contenidos con derechos de autor se utilicen ilimitadamente sin la
+    autorización del titular siempre y cuando sea sin ánimo de lucro, educativo
+    o informativo y según el contexto y explotación que se le dé a esa
+    información. Este trabajo al ser educativo, de investigación y sin ánimo de
+    lucro de la información entraría dentro del
+    \begin{otherlanguage}{english}uso justo\end{otherlanguage} .
+    \item \textbf{Protocolo de Exclusión de Robots}: Este protocolo es un
+    estándar de la industria que especifica que una web puede incluir un fichero
+    llamado \texttt{robots\.txt} que indica a los web \textit{crawlers} qué
+    páginas son accesibles. Esto tiene un valor legal limitado, sin embargo, se
+    considera de cortesía y buena práctica el tenerlo en cuenta para saber
+    fácilmente si el administrador de la web realmente permite este tipo de bots
+    o no.
+    \item \textbf{Infracciones a la propiedad}: Es posible que, legalmente, se
+    considere una web como el bien o propiedad de su administrador y, por tanto,
+    puede alegar daños o pérdida de dinero debido al impacto de un
+    \textit{scraper} en su página.
+\end{itemize}
+
+En general, se recomienda siempre seguir los siguientes principios
+\cite{apress2018scraping}:
+\begin{itemize}
+    \item Conseguir permiso escrito por parte de la web de qué contenidos se
+    pueden extraer es la mejor forma de evitar problemas legales.
+    \item Comprobar los términos de servicio de la página, ya que, puede ser que
+    contengan directivas específicas relacionadas con la extracción de datos.
+    \item Si se obtiene solo información pública moderadamente y que no requiera
+    de aceptar ningunos términos y condiciones previos no suele haber ningún
+    problema con extraer la información. Las páginas del wiki de TvTropes
+    cumplen esto, puesto que todas las páginas de tropos y contenidos
+    audiovisuales están abiertas a todo el público sin necesidad de aceptar
+    ningún término o usar una cuenta de usuario de ningún tipo.
+    \item Relacionado con lo anterior, especial énfasis en que el
+    \textit{scraping} sea moderado y, por tanto, no cause daños a la web. Un
+    \textit{scraper} no debe sobrecargar a la página de peticiones. Las
+    políticas de cortesía mencionadas en la sección anterior están estrechamente
+    relacionadas con esto, ya que, su objetivo es no sobrecargar el servidor y
+    no convertir el intento de \textit{scraping} en un ataque de denegación de
+    servicio.
+    \item Tener en cuenta el copyright de los contenidos y comprobar que la
+    información extraída entra dentro del
+    \begin{otherlanguage}{english}\textit{fair use}\end{otherlanguage}. Y, sobre
+    todo, no utilizar contenido con copyright en proyectos comerciales.
+\end{itemize}
+
+TvTropes tiene una licencia Creative Commons\footnote{\url{https://Creative
+Commons.org/licenses/by-nc-sa/3.0/}} que permite copiar y redistribuir el
+material de la web en cualquier medio o formato, así como adaptarlo o
+modificarlo, siempre que se dé crédito al propietario, sea para fines no
+comerciales y se distribuya la contribución bajo una licencia Creative Commons.
+La web tiene licencia sobre todos los contenidos que la comunidad contribuye a
+ella, y hace especial hincapié en que si otra web emplea sus contenidos debe
+atribuirlos a TvTropes, o se considerará plagio. En todo este trabajo se hace
+constante referencia, tanto en la documentación como en el código, de donde
+viene toda esta información, y parte de la información que del propio
+\textit{scraper} serán enlaces hacia las distintas páginas de TvTropes. 
+
+El desarrollo de un \textit{scraper} para TvTropes en este trabajo constituye un
+uso legítimo, puesto que, su objetivo es puramente educativo y sin ningún
+interés comercial, y los contenidos están bajo una licencia Creative Commons,
+atribuyendo el crédito a sus propietarios. 
+
+Como cuestión adicional, al comprobar el archivo \texttt{robots\.txt} de la
+página vemos que tiene las cabeceras vacías y, por tanto, podemos deducir que
+esta web no tiene ningún problema con que un \textit{scraper} extraiga
+información de ella, siempre y cuando no suponga ningún problema técnico a la
+web por un gran volumen de peticiones, cosa que se regulará en el desarrollo de
+la herramienta. Además de esto, como se verá en la siguiente sección, existen
+otros ejemplos de \textit{scrapers} de TvTropes y no han tenido problemas de ese
+tipo, por lo que es seguro hacer uno nuevo.
+
+\section{Trabajos relacionados}
 \subsection{DBTropes}
-La web DBTropes\footnote{\url{http://skipforward.opendfki.de/wiki/DBTropes}}
-\cite{kiesel2010dbtropes}
+La web DBTropes\footnote{\url{http://skipforward.opendfki.de/wiki/DBTropes}} es
+un servicio independiente que se define como un \textit{wrapper}, o envoltorio,
+para TVTropes y extrae sus contenidos. Usa un \textit{scraper} interno, lo
+traduce en un formato de datos enlazado estándar en la web semántica conocido
+como RDF y lo ofrece mediante su web para que sea tanto legible por humanos como
+extraíble por máquinas. Los datos que extrae son ambiguos y contienen mucho
+ruido, por tanto, la propia web ofrece una interfaz mediante la cual los
+usuarios pueden corregir los datos extraídos. Como resultado, el
+\textit{scraper} hace una extracción masiva de datos que limpia la comunidad y
+no un programa automático. Además, para reducir la carga de TVTropes, extrae la
+información HTML de cada página una sola vez y la almacena en caché para evitar
+sobrecargar el servidor con constantes peticiones \cite{kiesel2010dbtropes}.
+
+La base de datos contiene únicamente información de películas, teniendo
+registradas en 2010 más de 13000 películas y 18000 \textit{tropos}
+\cite{kiesel2010dbtropes}. Al acceder a la web se puede comprobar que la fecha
+de última modificación es de 2016, por lo que podemos asumir que los datos que
+proporciona están desactualizados, y como se vio en \cite{garcia2020tropes}, en
+ese periodo de tiempo hubo una gran cantidad de nuevos \textit{tropos} que se
+añadieron a TvTropes.
+
+De DBTropes surgen varios artículos que utilizan esa base de datos para generar
+nuevos conjuntos de datos y análisis. Entre ellos está
+\cite{garcia2018overview}, que usa un subconjunto de la información más
+actualizada que contiene, de 2016, para generar un nuevo conjunto de datos en
+formato JSON llamado PicTropes que contiene únicamente el nombre de las
+películas y el nombre de sus \textit{tropos}. Este conjunto de datos se emplea
+para extraer conocimiento estadístico y servir de base para futuras
+investigaciones relacionadas con machine learning y la generación de narrativas.
+Por último, expresan la necesidad de que el conjunto tenga información de
+metadatos adicional, como la popularidad o la fecha de salida, que implica el
+extraer información de bases de datos de películas y preparar los datos de forma
+que las películas y tropos se relacionen inequívocamente. 
+
+\subsection{Tropescraper}
+Este trabajo toma como base
+Tropescraper\footnote{\url{https://github.com/rhgarcia/tropescraper/}}, un
+\textit{scraper} desarrollado en Python por Rubén Héctor García Ortega para
+\cite{garcia2020startroper} como alternativa a DBTropes debido a que este
+contiene datos anticuados. Este \textit{software} se lanzó como
+\textit{software} libre en GitHub en el año 2021, sin embargo, no ha tenido
+actualizaciones desde entonces.
+
+En una primera versión de Tropescraper se consideró que todas las películas
+estaban en el índice de películas de
+TvTropes\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Main/Film}}, y que
+todos los tropos de esa película están contenidos en la sección principal. Sin
+embargo, esto dejaba fuera muchos de los \textit{tropos} más populares, lo que
+hizo que se crease una segunda versión con una nueva estrategia. La estrategia
+final de Tropescraper para explorar TvTropes es de primero extraer todas las
+categorías del índice principal de TvTropes y por cada una de ellas extraer los
+identificadores de las películas que tiene asignadas, para así generar una lista
+de todas las páginas de películas del sitio. Finalmente, extrae los
+\textit{tropos} de cada una de las páginas identificadas, a veces incluyendo una
+fecha en la propia cadena de texto del nombre, generando un diccionario que
+relaciona películas con tropos, representándolo en un formato JSON, al igual que
+PicTropes. En resumen, la primera versión identificaba primero las películas y
+desde ahí los \textit{tropos}, mientras que la segunda versión lo hace al revés.
+
+En \cite{garcia2020startroper} se propone una metodología para sintetizar
+conjuntos de \textit{tropos} que maximicen la potencial puntuación que podría
+obtener en críticas una película con esos \textit{tropos}. Una de las
+necesidades con el conjunto de datos que extrae Tropescraper es que, para
+obtener la puntuación de las películas, el nombre de la película debe poder
+identificarse sin ambigüedad con la misma en IMDB. Tropescraper codifica los
+nombres de películas en \textit{CamelCase}, pero para poder identificarlos con
+IMDB deciden normalizar los títulos en ambos casos. Las tareas de transformación
+del título, cambiando de \textit{CamelCase} a \textit{Title case}, eliminando
+caracteres no alfanuméricos y espacios adicionales y separando nombre y año
+cuando sea necesario no son siempre suficientes. En la práctica, cuando la
+información de fechas no está disponible, IMDB tiene una gran lista de
+candidatos por cada película de TvTropes. Para solucionar esta ambigüedad, se
+usa una heurística que compara la popularidad de ambas películas para
+identificar si hacen referencia a la misma. 
+
+En el repositorio de Tropescraper se informa que el \textit{script} puede tardar
+entre días y horas en ejecutarse por completo, y solo permite un modo de
+ejecución en el que se obtiene de golpe el fichero JSON con todas las películas
+y sus tropos. Para aliviar este inconveniente, se ayuda de un archivo a modo de
+caché para poder reanudar la extracción en cualquier momento en caso de haberse
+detenido y no volver a descargar páginas repetidas. 
+
+Debido a la naturaleza de TvTropes, Tropescraper no puede evaluar si faltan
+películas, \textit{tropos} o relaciones. Al acceder a la sección de
+\textit{issues} se pueden ver varios hilos abiertos de la comunidad sobre
+problemas y mejoras que han identificado en el programa. Estos problemas y
+características que tiene este \textit{scraper} se discutirán en el capítulo 5
+del trabajo, con el objetivo de mejorarlos y solucionarlos.
 
 \subsection{Consejos sobre el scraping de TvTropes}
 No existen demasiados proyectos \textit{software} en internet que se centren en

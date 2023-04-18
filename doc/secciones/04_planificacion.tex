@@ -122,6 +122,16 @@ que se han definido se emplean varias herramientas y buenas prácticas para el
 seguimiento del desarrollo que se describen a continuación.
 
 \section{Seguimiento del desarrollo}
+En esta sección se introducirá todo el ecosistema de desarrollo que se empleará
+en todo el trabajo para asegurar que se cumplan los objetivos. Primero se
+describirá cómo será el proceso de desarrollo del código y su seguimiento a
+través de la plataforma GitHub como herramienta central para guiar el proyecto
+en su totalidad. A continuación, se describirán los distintos hitos que se
+pretenden alcanzar consecutivamente. Finalmente, se estudiarán y justificarán
+una serie de buenas prácticas y herramientas que se seguirán al escribir el
+código y testearlo para asegurar la calidad y desarrollar correctamente el
+\textit{software}.
+
 \subsection{GitHub}
 Al ser un proyecto de \textit{software} libre el uso de Git y GitHub como
 \textit{software} de control de versiones es imprescindible. Esto permite tener
@@ -403,15 +413,15 @@ cuando quiera para traer la nueva información que pueda existir.
 Como investigador quiero poder elegir el formato en el que se represente el
 conjunto de datos de entre los más comunes en ciencia de datos.
 
-\section{Temporización}
-Una vez vistos los hitos que se esperan alcanzar en el desarrollo, los cuales
-conformarían cada uno un sprint con una fecha de inicio y de fin, podemos
-representar la temporización de todo el desarrollo en un diagrama de Gantt.
+%\section{Temporización} Una vez vistos los hitos que se esperan alcanzar en el
+%desarrollo, los cuales conformarían cada uno un sprint con una fecha de inicio
+%y de fin, podemos representar la temporización de todo el desarrollo en un
+%diagrama de Gantt.
 
-A lo largo de todo el desarrollo se ha ido manteniendo contacto con el tutor
-tanto en tutorías presenciales como mediante mensajes por Telegram y GitHub para
-transmitir y resolver todas las dudas que han ido surgiendo, tanto del código
-como del propio documento.
+%A lo largo de todo el desarrollo se ha ido manteniendo contacto con el tutor
+%tanto en tutorías presenciales como mediante mensajes por Telegram y GitHub
+%para transmitir y resolver todas las dudas que han ido surgiendo, tanto del
+%código como del propio documento.
 
 \section{Elección de herramientas para el desarrollo}
 Al llevar un proyecto de ingeniería del software a la práctica, en el cual se
@@ -419,13 +429,83 @@ tiene como primer objetivo la calidad, se requieren herramientas para poder
 llevar a cabo todas las buenas prácticas descritas a lo largo de este capítulo. 
 
 Es por esto que por último se comentarán todas las herramientas que se van a
-utilizar tanto para desarrollar el propio software como para tener un buen
-ecosistema de desarrollo en el repositorio de GitHub y cumplir con las buenas
-prácticas que se han descrito en las secciones anteriores. Se justifica la
-elección de cada una comparando entre varias alternativas y teniendo siempre la
-calidad como criterio más importante para elegir la más adecuada.
+utilizar para desarrollar el propio software, comenzando por el propio lenguaje
+de programación en el que se escribirá el código. También se justificarán
+herramientas para tener un buen ecosistema de desarrollo en el repositorio de
+GitHub y cumplir con las buenas prácticas que se han descrito en las secciones
+anteriores. Se justifica la elección de cada una comparando entre varias
+alternativas, teniendo en cuenta las características concretas de este proyecto
+y siempre con la calidad como criterio más importante para elegir la más
+adecuada.
 
 \subsection{Lenguaje de programación}
+La principal herramienta a considerar para construir un \textit{software} es el
+lenguaje de programación, concretamente uno que se adapte a las necesidades de
+este proyecto. Se puede desarrollar un \textit{scraper} en cualquier lenguaje de
+programación, sin embargo, debido a la naturaleza de aplicación en red de este,
+se busca un lenguaje de programación que sea bastante afín a trabajar con el
+protocolo HTTP y sea para poder gestionar el gran volumen de datos que se
+tratará y además sea concurrente para intentar mejorar el ritmo de las
+peticiones del \textit{crawler}, como se comentó en el estado del arte.
+
+Teniendo en cuenta esto, se elegirá Go\footnote{\url{https://go.dev/}} como el
+lenguaje de programación para desarrollar el \textit{scraper} de este proyecto.
+Go es un lenguaje de programación libre, concurrente, rápido, fácil de utilizar
+y con una sintaxis muy legible y moderna, que facilita mucho el reestructurar y
+reescribir el código. Además, una de las principales ventajas de Go con respecto
+a otros lenguajes es que tiene una biblioteca estándar amplia y con múltiples
+funcionalidades que pueden ahorrar el usar bibliotecas de terceros, y un gran
+ecosistema de bibliotecas modernas y bien mantenidas. Entre los casos de uso de
+este lenguaje entran principalmente el desarrollo de aplicaciones de línea de
+comandos y aplicaciones en red, por lo que se adapta perfectamente a este
+trabajo. Además, es el lenguaje empleado por Google para desarrollar el
+\textit{crawler} que indexa páginas para su motor de búsquedas
+\cite{go_at_google}, así que se asume que es un lenguaje lo suficientemente
+preparado para realizar este tipo de tareas.
+
+Go es un lenguaje muy atractivo para desarrollar un \textit{scraper} debido a su
+rapidez y eficiencia al ser un lenguaje compilado, mezclado con la facilidad de
+programación que tiene al tener recolector de basura y opción de tipos
+dinámicos. Estas características lo hacen una opción ideal para
+\textit{scraping}, a diferencia de Python, el cual es otro lenguaje muy común en
+este ámbito, pero que no tiene concurrencia en el propio lenguaje, no es tan
+rápido y su gestión de errores es más compleja \cite{coleman_ultimate_2021}.
+
+En relación con el lenguaje de programación, también es importante elegir el
+entorno de desarrollo en el que se escribirá, ejecutará y probará todo el
+código. Un buen entorno ayudará enormemente en el proceso de construcción del
+\textit{software}, con tareas como refactorización, depuración, ejecución,
+sugerencias, análisis, organización del código, etc. es imprescindible para
+poder obtener un software de calidad y que todo el proceso de desarrollo sea lo
+más agradable y libre de problemas posible.
+
+La web oficial de Go recomienda principalmente tres editores con plugins
+oficiales para desarrollar en Go: VS Code, GoLand y Vim. Por otro lado, una
+encuesta oficial llevada a cabo en 2021 \cite{go_survey} revelaba, además de
+varios datos con respecto al lenguaje como que el 92\% de los usuarios estaban
+satisfechos con Go y el 75\% lo empleaban en el trabajo, qué entornos de
+desarrollo eran los preferidos por la comunidad. Los dos entornos más populares
+son los propios que se recomiendan oficialmente, VS Code y GoLand, quedando Vim
+con un porcentaje muy bajo y siendo VS Code el más utilizado con diferencia, lo
+cual es comprensible al ser una opción gratuita y muy utilizada en todos los
+ámbitos. Sin embargo, GoLand pese a ser de pago sigue siendo una opción muy
+preferida por la comunidad y demuestra la popularidad de la herramienta.
+
+De entre estas dos alternativas se decide optar por GoLand. Su principal ventaja
+es que, a diferencia de VS Code, el cual funciona mediante un plugin que puede
+no funcionar siempre tan bien al ser un editor que tiene en cuenta muchos otros
+lenguajes de programación, GoLand es un IDE enteramente dedicado a Go y tiene
+funcionalidades más avanzadas debido a que es un entorno de desarrollo más
+potente, con mayores funcionalidades y que nos permite centrarnos en el
+desarrollo de un solo lenguaje. Además de esto, también se prefiere GoLand desde
+el punto de vista educativo, ya que, tiene interés aprender una herramienta
+oficial centrada en un lenguaje y la Universidad de Granada ofrece una licencia
+gratuita para todos los productos de JetBrains, incluido GoLand, por lo que el
+precio no supone un problema. GoLand es una herramienta pensada para proyectos
+más grandes como este y permitirá facilitar el desarrollo gracias a las
+múltiples funciones que tiene, como autocompletar o refactorizar el código, que
+hace mucho más fácil implementar cambios en un ambiente ágil como el que nos
+encontramos.
 
 \subsection{Gestor de tareas}
 Dentro de los procesos de calidad del software entran los gestores de tareas,
@@ -513,12 +593,242 @@ inteligente de combinar documentación y ejecución de tareas. Dentro del propio
 fichero de configuración se puede ver tanto una descripción como las propias
 órdenes que ejecuta para lanzar la tarea, teniendo una forma fácil de saber qué
 hace exactamente. Cualquier persona que esté interesada en ver qué tareas tiene
-el proyecto no tiene más que abrir el fichero \textit{maskfile}, además de
+el proyecto no tiene más que abrir el fichero \texttt{maskfile\.md} además de
 que el fichero al abrirlo en GitHub se verá formateado, puesto que, tiene un
 lector de \textit{markdown}, centralizando todo aún más en el repositorio.
 
-\subsection{Framework de testing}
-\subsection{Sistema de integración continua}
+\subsection{\textit{Framework} de testing} En un entorno de desarrollo ágil hay
+que asegurarse de que todo código esté completamente testado para garantizar su
+calidad, ya que, código que no está testeado es código que se considera que no
+funciona. Para ello se deben escribir una serie de tests en el propio lenguaje
+de programación que el resto del código y que sean legibles y correctos,
+escritos antes que la propia funcionalidad, para que automáticamente pase unas
+pruebas que garanticen qué partes del código funcionan y cuáles no, poder cerrar
+\textit{issues} y saber qué construir a continuación.
+
+Se busca un marco de trabajo para pruebas en Go en el que las aserciones sigan
+el estilo BDD, es decir, permitan desarrollar unos tests más legibles desde el
+propio código, lo cual facilita mucho el escribirlos y comprobarlos. El estilo
+BDD se centra en el comportamiento de las funcionalidades que se evalúan, y esto
+hace que se tenga una correlación más directa con las historias de usuario y el
+ámbito del problema. Por tanto, se quiere un \textit{framework} de testing que
+tenga estas características de BDD, sea libre, popular, con buena documentación
+y siga manteniéndose a día de hoy, para evitar cualquier problema que pueda
+surgir de usar herramientas obsoletas, más aún en un lenguaje moderno como Go en
+el que constantemente salen nuevas funcionalidades y requiere mantenerse al día.
+
+Go es un caso especial a diferencia de otros lenguajes, ya que, tiene una
+biblioteca estándar provista de multitud de funcionalidades muy bien mantenidas
+y utilizadas, como el testing. La utilidad de línea de comandos \texttt{go test}
+para ejecutar el código de tests y el paquete \texttt{Testing} para escribir el
+propio test, permiten realizar pruebas de forma nativa en Go. Sin embargo, estas
+pruebas no se escriben mediante aserciones, sino controlando errores y, por
+tanto, no son tan legibles ni proporcionan un gran control o funcionalidad al
+ser una utilidad básica del lenguaje.
+
+Al ser parte del lenguaje, tenemos ya de base un método y herramienta oficial
+para escribir y ejecutar tests, que además nos asegura buenas prácticas dentro
+del lenguaje y buen soporte a lo largo del tiempo, es simple y se pueden
+encontrar multitud de recursos debido a su popularidad. Sin embargo, se queda
+corta, no da mucha versatilidad y no usa un estilo BDD, por lo que gran parte de
+las bibliotecas de aserciones y frameworks que podemos encontrar se centran en
+ayudar a la biblioteca estándar de varias maneras. Debido a esto, tener una de
+estas bibliotecas o frameworks adicionales no descarta por completo su uso, sino
+que a la vez se aprenderá también el propio de Go.
+
+Se han estudiado las siguientes bibliotecas:
+\begin{itemize}
+    \item Testify\footnote{\url{https://github.com/stretchr/testify}} es una de
+    las bibliotecas de aserciones más famosas para Go, sin embargo, es de estilo
+    TDD, con unas aserciones más complejas y menos legibles, además de que es
+    más parecida a la biblioteca estándar.
+    \item Gocheck\footnote{\url{https://github.com/go-check/check}} es otra
+    biblioteca de aserciones TDD. Es una alternativa a Testify que permite
+    aserciones más complejas, sin embargo, el proyecto está abandonado y no es
+    tan popular, además de que no es BDD y la documentación es muy escasa.
+    \item La biblioteca Gopwt\footnote{\url{https://github.com/ToQoz/gopwt}}
+    ofrece aserciones sencillas de tipo TDD y como principal característica
+    tiene que permitir identificar en qué parte del código falla un test,
+    facilitando el arreglar errores. El problema que tiene esta biblioteca,
+    además de ser TDD, es que al igual que la Gocheck no es muy popular y lleva
+    aún más años abandonada. 
+    \item Goconvey\footnote{\url{https://github.com/smartystreets/goconvey}} es
+    una de las bibliotecas de aserciones BDD más populares de Go y una de las
+    que ofrece una funcionalidad bastante distinta al resto. El punto principal
+    de esta biblioteca es que da un análisis muy extenso y profundo sobre los
+    tests y los muestra generando una página web en lugar de en terminal. Es una
+    muy buena opción que está mantenida y se podría considerar en otros
+    proyectos, sin embargo, el código no resulta tan legible como otras
+    alternativas y la posibilidad de idear aserciones personalizables junto al
+    generar una web completa complica demasiado algo que se busca que vaya lo
+    más al grano posible con lo que ya ofrezca. Además de esto, en el
+    repositorio de GitHub se observan varios \textit{issues} abiertos haciendo
+    referencia a que el resultado de los tests no siempre es del todo correcto.
+\end{itemize}
+
+Finalmente, se ha optado por usar
+Ginkgo\footnote{\url{https://github.com/onsi/ginkgo}}. Es un \textit{framework}
+de testing bastante popular y con muy buena y extensa documentación y ejemplos,
+que además proporciona herramientas de cobertura de código, que podrían ser
+útiles en el futuro si se decidiese analizar si los tests aseguran que la
+totalidad del código está testeado. Aunque provee su propia utilidad para
+ejecutar los tests, la propia utilidad de Go también funciona, por lo que es una
+ventaja que no haga falta instalar ningún programa adicional. Esta herramienta
+tiene varias ventajas por las que se ha elegido: da una salida de los tests muy
+legible y bonita con colores para entender bien la división entre cada parte,
+tiene una utilidad que permite generar un esqueleto de pruebas a partir de cada
+paquete, para facilitar el desarrollo y permite un buen manejo de los errores y
+las aserciones con funciones legibles al estilo BDD. Además, también tiene la
+ventaja de que se pueden agrupar tests por un mismo tema, para ejecutarlos
+separadamente y leerlos mejor. Es un \textit{framework} muy completo que se
+adapta bien a un proyecto grande como este y aprenderlo significaría poder
+emplearlo en cualquier otro proyecto que se desarrolle con el mismo lenguaje,
+por lo que también tiene un gran interés personal como algo a aprender.
+
 \subsection{Bibliotecas de scraping en Go}
-El uso de una buena biblioteca de scraping permite reducir varios de los
-problemas que pueden surgir en esta disciplina.
+Por último, necesitamos justificar el uso de herramientas para
+\textit{scraping}, que son de gran importancia. El desarrollo de un
+\textit{scraper} es siempre un problema que se puede abordar desde múltiples
+ángulos y está centrado en una o varias páginas web, que pueden ser
+completamente distintas de otras. En el \textit{scraping} se utilizan
+herramientas y métodos que resuelvan un problema concreto, analizando cómo está
+organizada una página concreta y qué problemas va presentando conforme se va
+conociendo más de ella a fondo, por lo que en la mayoría de casos las
+necesidades son específicas. Lo más importante en esta disciplina es tener a
+nuestra disposición un buen número de herramientas y métodos para interaccionar
+con las páginas web y superar los retos que ponen a usuarios no humanos
+\cite{apress2018scraping}. En este caso necesitamos aquellas herramientas que
+nos ayuden con los retos concretos que presenta TvTropes.
+
+La web de TvTropes está formateada en HTML y eso hace que necesitemos una manera
+de entenderlo y extraer su información. Los \textit{scrapers} exploran multitud
+de páginas buscando información concreta, ya que, no queremos toda sino
+solamente la que necesitamos y descartar el resto, para ahorrar recursos y tener
+un programa que cumpla el objetivo que se propone. Esta información está
+contenida en una vorágine de texto de muchos tipos, entre etiquetas de HTML y
+clases CSS, e incluso a veces escondidas por una capa de JavaScript que
+dinámicamente cambia la información. Sin embargo, existen multitud de
+bibliotecas que nos facilitan este proceso de análisis (o \textit{parsing} en
+inglés) del código HTML, para extraer lo que queremos. En
+\cite{apress2018scraping} se recomienda no analizar el HTML manualmente, sino
+apoyarse de bibliotecas externas que lo hagan, ya que es algo que puede ser muy
+complejo y se sale del ámbito del trabajo. No buscamos reinventar la rueda sino
+tener una herramienta de apoyo para que el programa entienda la web y se pueda
+desarrollar un buen \textit{scraper}.
+
+Al igual que con el resto de herramientas se usa como criterio de elección
+imprescindible el que tenga buena documentación y sea un proyecto libre con
+soporte en la actualidad. No buscamos un \textit{framework} que lo haga todo,
+sino bibliotecas que ayuden en el proceso sin trivializar el proceso de
+desarrollar una solución, con el principal objetivo de aprender a desarrollar
+tanto el \textit{scraper} como el \textit{crawler} de forma autónoma y separada,
+teniendo un mayor grado de control sobre lo que se hace con cada una de ellas y
+dejando abierta la posibilidad de ampliarlas con otras bibliotecas. La
+biblioteca de análisis de HTML debe soportar selectores CSS dentro del lenguaje
+de programación para encontrar y recuperar fácilmente los elementos de la página
+que queremos. Debe ser capaz de analizar, estructurar y organizar un texto HTML,
+pudiendo codificarlo en una estructura del propio lenguaje de programación con
+la que poder trabajar más fácilmente. Además, se busca que la biblioteca sea
+capaz de arreglar los posibles errores de sintaxis que pueda tener la web, y no
+nos dé fallos al analizar el HTML de una web. Esta última razón apoya aún más la
+idea de apoyarnos en una biblioteca, ya que, aunque muchas páginas son
+renderizadas por los navegadores, no siempre tienen un código HTML correcto (y
+esto es algo que los navegadores entienden y corrigen). Además de esto, también
+se busca una forma sencilla de realizar las peticiones HTTP y que permita
+controlar las cabeceras, para obtener el texto HTML que posteriormente analice
+la biblioteca de \textit{parsing}.
+
+Además de esto, se tiene que tener en cuenta la posibilidad de tener que
+gestionar el JavaScript de una página como se vio en el estado del arte.
+Analizar todo el código JavaScript de una página y lo que hace en cada momento
+puede resultar una tarea imposible, por lo que es necesario tener algún tipo de
+herramienta que sea capaz de tener esto en cuenta. Otra recomendación de
+\cite{apress2018scraping} es no ir directamente a por una biblioteca con un
+motor de JavaScript, pero sí tenerlo en cuenta por si fuese necesario en el
+futuro, ya que puede ser demasiado complejo usar una herramienta grande y
+compleja para un problema que luego es más pequeño y simple. No siempre es
+necesario que un \textit{scraper} gestione el JavaScript de una página; en
+muchos casos basta con obtener el HTML base para obtener lo que se quiere. Como
+se verá en la siguiente sección, al analizar la web de TvTropes observamos que
+no tiene un uso intensivo de JavaScript que esconda algún tipo de información
+que necesitemos y no hace falta interaccionar con la página directamente como si
+se estuviese utilizando un navegador. Por tanto, como criterio adicional, se
+añade que no es necesario que la biblioteca elegida tenga integrado un motor
+completo de JavaScript, aunque sí debería permitir integrárselo en caso de ser
+necesario. Es decir, buscamos una biblioteca que no nos impida hacer esto si
+fuese necesario tras posteriores análisis.
+% Esto es lo que creo ahora, en el caso de que luego en el siguiente milestone
+% vea que no es el caso y resulte que sí que hace falta tratar JavaScript, se
+% modificará esta sección.
+
+Aunque como criterio de elección hemos decidido usar un analizador de HTML y no
+un \textit{framework} que gestione todo el proceso de \textit{crawling} y
+\textit{scraping}, cabe destacar la existencia de
+\textit{Colly}\footnote{\url{https://github.com/gocolly/colly}}, una de las
+herramientas más populares en Go para este propósito. \textit{Colly} proporciona
+un \textit{framework} completo y rápido que, de forma tanto síncrona como
+asíncrona, permite crear a la vez un \textit{scraper} y \textit{araña} en pocas
+líneas de código. La principal desventaja de \textit{Colly} es que no interpreta
+JavaScript y no sería posible integrarlo con otras herramientas que solucionen
+esto. Esta opción se descarta con el objetivo de tener solo bibliotecas básicas
+e imprescindibles, intentar desarrollar algo en lo que se tenga un mayor
+control, separación explícita entre \textit{scraper} y araña, se pueda aprender
+a desarrollar un \textit{software} de este tipo desde un nivel más bajo y no nos
+impida el integrar otras herramientas en caso de necesitar gestionar la
+interacción con la página y JavaScript. Si se escogiese \textit{Colly} desde el
+principio, y luego resultase que necesitamos gestionar esto, tendría un gran
+coste el refactorizar todo el código para adaptarse a una nueva herramienta, por
+lo que desde el principio decidimos usar la opción más versátil posible.
+
+Al hablar de bibliotecas para \textit{scraping}, independientemente del
+lenguaje, la principal alternativa \textit{Beautiful
+Soup}\footnote{\url{https://www.crummy.com/software/BeautifulSoup/bs4/doc/}}.
+Esta es la principal biblioteca para este ámbito en Python y transforma los
+contenidos HTML en una representación en árbol. Debido a su popularidad, existe
+una alternativa igual para Go llamada
+\textit{Soup}\footnote{\url{https://github.com/anaskhan96/soup}}. \textit{Soup}
+es una muy buena opción para analizar HTML, ya que, tiene una interfaz muy
+similar a \textit{Beautiful Soup}, lo cual hace que sea más sencillo encontrar
+recursos para ella al existir los de Python. Sin embargo, aunque se podría
+considerar para este proyecto, se rechazará debido a que lleva descontinuada más
+de un año y preferimos buscar una solución más popular y que funcione
+correctamente, además de que no tiene demasiada documentación propia y, aunque
+como se ha dicho se podría entender viendo ejemplos de Python, es bastante
+posible encontrar problemas específicos de Go que serían difíciles de resolver
+al no tener una documentación y un soporte dedicados.
+
+Se ha hablado varias veces de la importancia de la biblioteca estándar en Go y
+que contiene un gran número de paquetes con muchas funcionalidades. Entre ellas
+está un analizador de HTML que, sin embargo, no es la mejor opción para este
+caso. La biblioteca estándar de Go contiene el módulo \texttt{net/html} capaz de
+analizar HTML que, sin embargo, devuelve nodos y no construye un árbol DOM que
+tendría más funcionalidades y sería más fácil de recorrer, además de que no
+permite el uso de selectores CSS para acceder a clases y extraer la información
+más efectivamente, por lo que no es la mejor opción para resolver este problema.
+Para algo tan central en el \textit{scraper} como es analizar el HTML, es
+imprescindible elegir una herramienta que facilite el proceso todo lo que se
+pueda, permita un mayor control sobre el código HTML, construya un DOM y soporte
+los selectores CSS.
+
+La biblioteca Goquery\footnote{\url{https://github.com/PuerkitoBio/goquery}}
+supone una mejor alternativa con respecto a \textit{Soup}, y es la alternativa
+que se elige finalmente. Es una biblioteca muy popular, con una sintaxis muy
+sencilla, y que tiene las mismas funcionalidades que jQuery, la biblioteca de
+manipulación y exploración de documentos HTML más conocida. Permite generar un
+árbol del DOM completo con varias funcionalidades, entre ellas la posibilidad de
+recorrerlo mediante selectores CSS. En el propio repositorio de Goquery se
+informa que su API es completamente estable y no tiene errores, además sigue
+teniendo cambios para pequeñas mejoras a día de hoy. Tiene una wiki y varios
+ejemplos, tanto en su propio repositorio como en internet, ya que es una opción
+generalmente preferida en proyectos sin \textit{Colly}.
+
+Goquery suele ir en conjunto con el paquete \texttt{net/http} de la biblioteca
+estándar, tanto en los \textit{scrapers} desarrollados en Go como en los propios
+ejemplos oficiales. Todas las bibliotecas de terceros que realizan conexiones
+HTTP tienen este paquete como base, y la mayoría de bibliotecas de
+\textit{scraping} para Go también. Este paquete nos permite hacer peticiones con
+diferentes verbos HTTP, modificar fácilmente las cabeceras, mantener la
+conexión, etc. y todo de manera idiomática, completamente funcional y sin
+necesidad de depender de terceros, ya que, forma parte del núcleo de Go. Por
+tanto, en este caso emplearemos el paquete \texttt{net/http} para gestionar la
+conexión con TvTropes. 
