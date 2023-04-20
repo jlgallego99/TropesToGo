@@ -121,3 +121,8 @@ Domain
 Driven
 Design
 DDD
+tropes
+Main
+Laconic
+TearJerker
+Trivia
