@@ -1,35 +1,125 @@
 \chapter{Análisis del problema}
 En este capítulo se modela el problema de construcción de un \textit{scraper} de
 TvTropes aplicando el patrón de \textit{Domain Driven Design}. Luego, se analiza
-la estructura que sigue la web, desarrollando una estrategia con la que saber
-cómo abordar la creación de la araña que explore todas las páginas relevantes de
-TvTropes y la extracción de la información que queremos en cada una de ellas. El
-objetivo del capítulo es servir de preludio al capítulo 6, en el que se
-implementará finalmente el \textit{scraper} de TvTropes.
+la estructura que sigue la web, identificando los puntos más importantes para
+saber cómo abordar la creación de la araña que explore todas las páginas
+relevantes de TvTropes y la extracción de la información que queremos en cada
+una de ellas. El objetivo general del capítulo es servir de inicio para saber
+cómo abordar la solución al problema y así poder llevarlo luego a lo práctico en
+la implementación del \textit{software} en el capítulo 6, en el que se
+desarrollará la estrategia final para resolver el problema de la extracción de
+datos en TvTropes.
 
 \section{Modelado del problema}
 
 \textit{Domain Driven Design}
 
-\section{Análisis de la estructura de TvTropes}
-TvTropes es un wiki complejo en el que la estructura de una página y entre ellas
-cambia bastante, la información está desperdigada por distintos lugares y no
-siempre toda la información que necesitamos es fácilmente accesible o existe
-siquiera. A continuación, tras haber visto cómo se pretende modelar el problema
-y organizar el código, se estudian los problemas y particularidades que tiene
-TvTropes y que queremos resolver con el \textit{scraper} para poder extraer toda
-la información que sea posible de la manera más sencilla y eficiente. Para ello,
-se estudia la organización de las páginas de TvTropes tanto entre sí como dentro
-de ellas, y se observan los puntos más importantes que el \textit{scraper} debe
-saber identificar, a modo de estrategia para poder desarrollarlo en el siguiente
-capítulo.
+\section{Análisis de TvTropes}
+TvTropes es un wiki complejo en el que tanto la estructura concreta de una
+página como entre ellas cambia bastante; la información está desperdigada por
+distintos lugares y no siempre toda la información que necesitamos es fácilmente
+accesible o existe siquiera. A continuación, tras haber visto cómo se pretende
+modelar el problema y organizar el código, se estudian los problemas y
+particularidades que tiene TvTropes y que queremos resolver con el
+\textit{scraper} para poder extraer toda la información que sea posible de la
+manera más sencilla y eficiente. Para ello, se estudia la organización de las
+páginas de TvTropes tanto entre sí como dentro de ellas, y se observan los
+puntos más importantes que el bot debe saber identificar, para poder desarrollar
+una estrategia en el siguiente capítulo conociendo todas las características de
+la web.
 
-\subsection{El índice de TvTropes}
+Primero, se hará una breve introducción sobre cómo funciona TvTropes en general
+y a nivel de usuario. Luego, se analizará la organización entre páginas para el
+desarrollo del \textit{crawler} o araña. Finalmente, se analizará la estructura
+del código HTML dentro de una misma página, para el desarrollo del
+\textit{scraper}.
+
+\subsection{Organización general de TvTropes}
+Antes de pasar a entender en profundidad cómo estan relacionadas las partes de
+TvTropes, es necesario primero ver cómo funciona la web en general y qué
+contenidos ofrece.
+
+En este trabajo el interés está en identificar y extraer los \textit{tropos},
+que son la principal fuente de información de TvTropes.
+
+Al ser la principal información de la web, todos los \textit{tropos} están .
+Este índice se verá más en profundidad en la siguiente subsección, pero por lo
+pronto se puede ver que todos siguen en su URL la misma forma que consiste en
+\texttt{https://tvtropes.org/pmwiki/pmwiki.php/Main/} más el nombre del tropo en
+estilo \textit{CamelCase}. Es decir, todos los \textit{tropos} cuelgan de
+\textit{Main} y están escritos de la forma \texttt{NombreDelTropo}.
+
+\subsection{El indexado en TvTropes}
+Para construir una buena araña que sea capaz de explorar todas las páginas de
+TvTropes es necesario entender cómo están relacionadas entre sí las páginas.
+Para esto es necesario conocer cómo funciona el indexado en TvTropes, es decir,
+de qué manera están organizadas todas las secciones de la web y cómo un usuario
+puede encontrar lo que quiere. Al saber cómo un usuario puede encontrar lo que
+quiere, también sabemos cómo debe comportarse el \textit{crawler} para indexar
+las páginas que necesitamos.
+
+La araña necesita un buen punto de partida a partir del cual, indexando todos
+los hipervínculos que encuentre, pueda ir explorando recursivamente y encontrar
+todas las páginas que necesita luego el \textit{scraper}.
+
+Como se ha visto antes, el índice más importante es el índice principal, o
+\textit{Main}. De este índice cuelgan todos los \textit{tropos} y su URL tiene
+siempre las mismas partes, solo cambiando el nombre del tropo. Sin embargo, para
+encontrar los propios \textit{tropos} desde la web la organización es distinta.
+
+Existe dos índices de \textit{tropos} ordenados alfabéticamente. Uno de esos
+índices\footnote{\url{https://tvtropes.org/pmwiki/index_namespaces.php}} da una
+barra de búsqueda en la que poder escribir el nombre del tropo que se busca y
+una lista que, sin embargo, no contiene ni mucho menos todos los
+\textit{tropos}. Al buscar, por ejemplo, aquellos que empiecen por la letra Z
+vemos que sólo se listan tres, mientras que con una breve búsqueda en cualquier
+obra se puede ver que hay muchísimos otros con la letra Z que no están listados.
+Esto evidencia que en este índice faltan muchos \textit{tropos} y no puede
+usarse como un buen punto de partida para ellos. Por suerte, existe otro índice
+que sí que los contiene
+todos\footnote{\url{https://tvtropes.org/pmwiki/pagelist_having_pagetype_in_namespace.php?n=Main&t=trope}}
+ya que es un script interno de TvTropes que hace una búsqueda en toda la web con
+páginas de un tipo llamado \textit{trope}. Por tanto, se debería tener en cuenta
+este último ya que nos asegura que están listados todos los existentes en la
+página y además es el que se recomienda en los
+foros\footnote{\url{https://tvtropes.org/pmwiki/posts.php?discussion=14420393930A40584600&page=1}}.
+
+Por último, se puede observar que la URL de este último índice contiene
+parámetros que, si se modifican, nos permiten obtener un índice completo de, por
+ejemplo, todas las
+películas\footnote{\url{https://tvtropes.org/pmwiki/pagelist_having_pagetype_in_namespace.php?n=Film&t=work}}
+o todos los
+videojuegos\footnote{\url{https://tvtropes.org/pmwiki/pagelist_having_pagetype_in_namespace.php?n=Videogame&t=work}}.
+
+En resumen, se han podido encontrar índices que sabemos con toda seguridad que
+contienen todos los tropos y obras separadas por tipo, por lo que esto supone un
+muy buen punto de partida para la araña y ya mejoraría a \textit{Tropescraper},
+el cual usaba como punto de partida la entrada de la wiki de \textit{tropos} y
+\textit{películas}, que no contiene todas las entradas existentes y son páginas
+más difíciles de explorar al tener que entrar en sub índices según género o tipo
+de media.
 
 \subsection{Estructura de las páginas de TvTropes}
-Estos cambios se pueden observar al buscar dos páginas que hacen referencia a un
-mismo tema como puede ser dos obras audiovisuales, no importa si son del mismo
-medio o no, el propósito es el mismo: describir la obra y sus \textit{tropos}.
+Por último, se analiza la estructura que tiene cada página de TvTropes, tanto de
+un \textit{tropo} como de una obra audiovisual, ya sea película, serie,
+videojuego, etc. Se intentan definir los tipos de páginas más comunes e
+importantes, pero no todos los que puedan existir. Es imposible predecir todas
+las formas que puede tomar una página, y además eso haría que el
+\textit{scraper} no supiese adaptarse y fuese demasiado rígido
+\cite{nishalscraping}. En general, en esta última sección se busca identificar
+las partes más importantes del código HTML de las páginas para que el
+\textit{scraper} sepa dónde tiene que buscar la información que necesita sin
+redundancia.
+
+Las páginas de obras audiovisuales, independientemente del tipo, se tratan de
+forma esencialmente igual y podrían presentar las mismas diferencias que dos del
+mismo tipo, sin embargo, suelen tener secciones adicionales. Por ejemplo, si la
+página es de una película, es probable que contenga la lista de actores, cosa
+que por ejemplo no pasará en un libro o videojuego generalmente, pero en general
+entre los cambios que se pueden observar al buscar dos páginas que hacen
+referencia a un mismo tema como puede ser dos obras audiovisuales el propósito
+es el mismo: describir la obra y sus \textit{tropos}.
+
 Por ejemplo, la página de la serie Los
 Soprano\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Series/TheSopranos}}
 presenta varias características interesantes, como por ejemplo que el
@@ -80,8 +170,16 @@ varios de los muchos otros métodos de organización que requieren de un anális
 para poder adaptarse a las plantillas que presenta la web para dar su
 información y el \textit{scraper} pueda entenderlos.
 
+Identificar cuándo se hace referencia a un \textit{tropo}, independientemente de
+la página, es sencillo puesto que siempre son hipervínculos con la clase CSS
+``\textit{twikilink}'' que, además, siguen el mismo estilo de URL que se ha
+visto anteriormente.
+
 Finalmente, se resumen los puntos principales que se deducen de este análisis de
 TvTropes:
 \begin{itemize}
-    \item 
+    \item Se considera que todos los \textit{tropos} de una obra audiovisual son
+    la suma de todos los que aparecen listados en la página principal y los que
+    aparecen referenciados en las distintas sub páginas dentro de la propia
+    obra.
 \end{itemize}
