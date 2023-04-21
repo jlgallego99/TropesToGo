@@ -185,7 +185,11 @@ las formas que puede tomar una página, y además eso haría que el
 \cite{nishalscraping}. En general, en esta última sección se busca identificar
 las partes más destacables del código HTML de las páginas para que el
 \textit{scraper} sepa dónde tiene que buscar la información que necesita sin
-redundancia.
+redundancia. Este análisis del código HTML se realiza usando las herramientas de
+desarrollador presentes en cualquier navegador web, que permiten observar todo
+el código HTML de la página, activar o desactivar el JavaScript para observar
+los cambios en ella, y demás funcionalidades útiles que sirven en el ámbito del
+\textit{scraping} y para sacar conclusiones de las páginas.
 
 Las páginas de obras audiovisuales, independientemente del tipo, se tratan
 esencialmente igual y podrían presentar las mismas diferencias que dos del mismo
@@ -237,22 +241,93 @@ cuelgan de la principal del \textit{tropo} y que ya sí que listan las obras.
 
 En general, los \textit{tropos} pueden aparecer en casi cualquier parte dentro
 de la página de una obra y estar organizados de distintas maneras. Algunas los
-tienen organizados en una lista o por carpetas alfabéticas, por géneros o
-cualquier otro método de diferenciarlos. También puede haber información de
+tienen organizados en una lista o por carpetas en orden alfabético, de géneros o
+cualquier otro método de diferenciarlas. También puede haber información de
 \textit{tropos} anidada dentro de otros, referenciados en la descripción de la
 obra, o incluidos en sub páginas de distinta índole.
 
+En la figura \ref{fig:tropelist} se pueden ver los tres tipos más comunes para
+presentar la lista de \textit{tropos} de una obra que se pueden encontrar en
+TvTropes. En el primero de la figura \ref{fig:tropelist1} se tiene simplemente
+una lista en la cual el primer elemento de cada ítem de la lista es una etiqueta
+llamada \texttt{<a class=``twikilink''>} con el nombre del \textit{tropo}, la
+clase que ya se ha identificado anteriormente y un enlace a la página de ese
+\textit{tropo}. También se puede observar como en la descripción aparecen
+enlaces a otros \textit{tropos} que no salen en la lista. El segundo tipo, en la
+figura \ref{fig:tropelist2}, es muy parecido al primero solamente que esta vez
+están separados en distintas listas, que suelen cambiar el rango alfabético
+según la página. Estas carpetas se abren haciendo clic sobre ellas y, mediante
+un \textit{script} de JavaScript, aparece la lista de \textit{tropos}, sin
+embargo, lo único que hace ese \textit{script} es mostrar la lista modificando
+el parámetro CSS de visibilidad. La lista no se inserta dinámicamente, sino que
+se pone visible o invisible, por lo que el código HTML base tiene todas las
+listas ya definidas independientemente de si están visibles o no. Por último, la
+figura \ref{fig:tropelist3} muestra el tipo más complejo y que no es tan común.
+Suele aparecer en las obras más famosas, que por lo general tienen un gran
+número de \textit{tropos} que hacen que la lista esté contenida en una sub
+página y se acceda mediante un enlace en la principal. La dificultad en este
+tipo está en que la araña tiene que profundizar en la búsqueda, accediendo a sub
+páginas. La ruta de estas será del tipo \texttt{/<NombreDeLaObra>/Tropes<XtoY>}
+al final de la URL de TvTropes. En ella, \texttt{<XtoY>} representa un rango
+alfabético, siempre precedido por la palabra \textit{Tropes}. Además, estos
+enlaces son siempre elementos de primer nivel en la lista, ya que, pueden
+aparecer otros que no tienen que ver directamente con los \textit{tropos} y se
+pueden ignorar. Una vez entrado en el enlace, la forma de presentar la lista
+puede ser de cualquiera de los otros dos tipos vistos.
+
+En el caso concreto de que estén organizados en carpetas, cada una de ellas está
+contenida en una etiqueta \texttt{<div>} con un identificador \texttt{folderX}
+donde \textit{X} a veces es un número y otras veces puede ser cualquier otra
+cosa, generalmente la palabra \textit{label}. En general no siguen una
+nomenclatura muy uniforme, pero sí es común que sean etiquetas del mismo tipo y
+que empiecen por \textit{folder}. 
+
+Independientemente de cómo se presenten, al final todas las listas que contienen
+\textit{tropos} son listas en el lenguaje HTML. Siempre empiezan con una
+etiqueta \texttt{<ul>} y cada uno de sus elementos se presentan primero con el
+elemento \texttt{<li>} y luego con el enlace que incluye el nombre del
+\textit{tropo}. Es bastante usual que, incluso si no están presentados por
+carpetas y visualmente parecen una sola lista uniforme, internamente sean varios
+elementos \texttt{<ul>} distintos. Las listas siempre están precedidas de una
+etiqueta \texttt{<hr>} que pone una línea horizontal y un título de sección \texttt{<h2>} en el que, como se vio en \cite{nishalscraping}, varía el texto,
+aunque es bastante frecuente que contenga las palabras
+\begin{otherlanguage}{english}\textit{provides examples of}\end{otherlanguage}.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{\textwidth}
+      \includegraphics[width=\linewidth]{img/tropes1.png}
+      \caption{Lista alfabética de \textit{tropos}.}
+      \label{fig:tropelist1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{\textwidth}
+      \includegraphics[width=\linewidth]{img/tropes2.png}
+      \caption{\textit{Tropos} listados en carpetas.}
+      \label{fig:tropelist2}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{\textwidth}%
+      \includegraphics[width=\linewidth]{img/tropes3.png}
+      \caption{\textit{Tropos} listados en sub páginas.}
+      \label{fig:tropelist3}
+    \end{subfigure}
+    \caption{Formas más comunes de presentar los \textit{tropos}
+    de una obra en TvTropes.}
+    \label{fig:tropelist}
+\end{figure}
+
 En cuanto a las sub páginas dentro de una obra, estas pueden ser muchas o pocas
 según la obra, ya que, también las crea la comunidad. Cualquiera de estas sub
-páginas busca dar información interesante relacionada con una obra, pero
-centrado en distintas temáticas o con distinto objetivo y, por tanto, presentan
-información que puede ser novedosa. Existen varias muy comunes, como
-\textit{Laconic}, que da una descripción muy breve de la obra referenciando
-varios \textit{tropos} que generalmente no suelen aparecer en la lista
-principal, \textit{TearJerker}, que referencia mediante \textit{tropos} aspectos
-tristes de la obra, o \textit{Trivia}, que presenta curiosidades sobra la obra y
-\textit{tropos} que tienen que ver con esas curiosidades. Otra de las sub
-páginas más destacables es la llamada
+páginas busca dar información interesante relacionada con una obra. En este
+caso, están centradas en distintas temáticas o con distintos objetivos y, por
+tanto, presentan información que puede ser novedosa. Existen varias muy
+frecuentes, como \textit{Laconic}, que da una descripción muy breve de la obra
+referenciando varios \textit{tropos} que generalmente no suelen aparecer en la
+lista principal, \textit{TearJerker}, que referencia mediante \textit{tropos}
+aspectos tristes de la obra, o \textit{Trivia}, que presenta curiosidades sobra
+la obra y \textit{tropos} que tienen que ver con esas curiosidades. Otra de las
+sub páginas más destacables es la llamada
 YMMV\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/YMMV/HomePage}}, la
 cual contiene otros \textit{tropos} que no toda la comunidad identifica como
 correctos o con el mismo significado y, por tanto, no corresponden en la página
