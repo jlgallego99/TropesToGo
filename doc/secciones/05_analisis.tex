@@ -239,6 +239,86 @@ completamente distinta, esta vez requiere de una mayor exploración a fondo,
 puesto que, se dan una serie de géneros con un hipervínculo a sub páginas que
 cuelgan de la principal del \textit{tropo} y que ya sí que listan las obras.
 
+En la figura \ref{fig:tvtropes-work} se representan las partes de una página de
+una obra en TvTropes que el \textit{scraper} debe saber identificar, ya que
+contienen la información que necesitamos. En color azul se muestran las
+secciones donde se encuentra información relevante, en verde se muestran las
+partes en las que posiblemente se quiera extraer el enlace y/o deban explorarse
+más en profundidad y, por último, en rojo se destacan partes no importantes o
+que sirven para separar otras que sí son relevantes. Varias de estas partes se
+pueden identificar fácilmente en el HTML, puesto que, usan unas etiquetas,
+clases e identificadores que siempre son los mismos al ser parte de cómo
+funciona internamente la wiki y no contenido que escriben la comunidad. A
+continuación se describen estas partes y cómo el \textit{scraper} puede
+tratarlas:
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=\textwidth]{img/esquema-obra.png}
+  \caption{Esquema de las secciones de la página de una obra en TvTropes.}
+  \label{fig:tvtropes-work}
+\end{figure}
+
+\begin{itemize}
+  \item El cuerpo principal es siempre un elemento
+  \begin{otherlanguage}{english}\texttt{<article
+  id=``main-entry''>}\end{otherlanguage} que nos permite identificar fácilmente
+  el cuerpo principal independientemente del tipo de página.
+  \item La primera parte del cuerpo principal es siempre una cabecera de sección
+  \begin{otherlanguage}{english}\texttt{<h1
+  class=``entry-title''>}\end{otherlanguage}. La cabecera contiene en el mismo
+  texto el nombre del índice y el título de la obra separados por una barra. El
+  nombre del índice siempre está marcado con énfasis, contenido en una etiqueta
+  \texttt{<strong>} que lo diferencia del título. Esta diferenciación permite
+  conocer a qué índice pertenece cualquier obra.
+  \item La sección de enlaces a sub páginas es un poco más compleja; está
+  siempre contenida en un elemento de navegación
+  \begin{otherlanguage}{english}\texttt{<nav
+  class=``body-options''>}\end{otherlanguage} que tiene dentro una lista sin
+  ordenar \begin{otherlanguage}{english}\texttt{<ul
+  class=``subpage-links''>}\end{otherlanguage}. Dentro de la lista, cada
+  etiqueta \texttt{<li>} contiene un hipervínculo a la sub sección de la obra,
+  que contendrá otros \textit{tropos} referenciados. En el caso de que una
+  página tenga muchos enlaces a sub páginas, no todos se mostrarán directamente,
+  y el último botón será un desplegable con el resto. No hace falta usar
+  JavaScript para interaccionar con esta parte, ya que, el resto de sub
+  secciones que no cabían siguen contenidas ahí. Concretamente, están contenidas
+  en el último elemento de lista, que tendrá dentro una etiqueta
+  \texttt{<select>} donde cada opción tiene como valor una cadena de texto con
+  la ruta URI de la sub página.
+  \item A veces, entre las sub páginas y el resumen con metadatos aparece una
+  sección con una cita de la obra que se puede ignorar.
+  \item Cada obra tiene un resumen, a veces más largo y a veces más corto, que
+  cuenta las características principales que tiene. Esta sección es una fuente
+  de metadatos difícil de identificar al ser un texto en lenguaje natural, sin
+  embargo, también suele contener \textit{tropos} referenciados mediante un
+  elemento de hipervínculo. Es posible que parte de los metadatos se encuentren
+  separados del resumen, en otro elemento que contenga el texto distinto o
+  dentro de una carpeta. Esa carpeta, al igual que con la de \textit{tropos},
+  simplemente cambia el texto a visible, por lo que, está en el HTML base y no
+  hace falta sacarla de ninguna manera. El resumen está delimitado por un
+  elemento \begin{otherlanguage}{english}\texttt{<div
+  id=``main-article''>}\end{otherlanguage}, cuyo contenido suele ser muy diverso
+  no solo en texto sino en elementos HTML que contiene. Generalmente, los
+  distintos párrafos del texto están contenidos en etiquetas \texttt{<p>} o de
+  otros tipos. Lo importante aquí es extraer el texto, independientemente de
+  dónde esté contenido.
+  \item La sección que más interés tiene en cada página de una obra es la de sus
+  \textit{tropos}. Antes de esta parte suele aparecer una cabecera que, como se
+  vio en \cite{nishalscraping}, tiene un texto que suele cambiar, pero siempre
+  suele ser una etiqueta \texttt{<h2>} precedida de una barra horizontal
+  \texttt{<hr>} que lo separa del resumen. La sección de los \textit{tropos}
+  suele cambiar de forma. A continuación se estudiará más en profundidad cómo
+  encontrar los \textit{tropos} en una página de este tipo.
+  \item Los marcadores que indican que empieza una sección de \textit{tropos}
+  (la línea horizontal y la cabecera) no siempre están presentes. Además, en
+  otros casos de páginas, pueden introducir una sección que no contenga
+  \textit{tropos}, como pueden ser los actores de una película. En este caso,
+  habrá que analizar correctamente las listas e hipervínculos, buscando solo
+  aquellos que se sepa que hacen referencia a un \textit{tropo}, que es de la
+  página \textit{Main} de TvTropes.
+\end{itemize}
+
 En general, los \textit{tropos} pueden aparecer en casi cualquier parte dentro
 de la página de una obra y estar organizados de distintas maneras. Algunas los
 tienen organizados en una lista o por carpetas en orden alfabético, de géneros o
@@ -289,25 +369,24 @@ elemento \texttt{<li>} y luego con el enlace que incluye el nombre del
 \textit{tropo}. Es bastante usual que, incluso si no están presentados por
 carpetas y visualmente parecen una sola lista uniforme, internamente sean varios
 elementos \texttt{<ul>} distintos. Las listas siempre están precedidas de una
-etiqueta \texttt{<hr>} que pone una línea horizontal y un título de sección \texttt{<h2>} en el que, como se vio en \cite{nishalscraping}, varía el texto,
-aunque es bastante frecuente que contenga las palabras
+etiqueta \texttt{<hr>} que pone una línea horizontal y un título \texttt{<h2>}
+en el que, como se vio en \cite{nishalscraping}, varía el texto, aunque es
+bastante frecuente que contenga las palabras
 \begin{otherlanguage}{english}\textit{provides examples of}\end{otherlanguage}.
 
-\begin{figure}[H]
+\begin{figure}[!h]
     \centering
-    \begin{subfigure}[b]{\textwidth}
+    \begin{subfigure}{\textwidth}
       \includegraphics[width=\linewidth]{img/tropes1.png}
       \caption{Lista alfabética de \textit{tropos}.}
       \label{fig:tropelist1}
     \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{\textwidth}
+    \begin{subfigure}{\textwidth}
       \includegraphics[width=\linewidth]{img/tropes2.png}
       \caption{\textit{Tropos} listados en carpetas.}
       \label{fig:tropelist2}
     \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{\textwidth}%
+    \begin{subfigure}{\textwidth}%
       \includegraphics[width=\linewidth]{img/tropes3.png}
       \caption{\textit{Tropos} listados en sub páginas.}
       \label{fig:tropelist3}
@@ -334,7 +413,25 @@ correctos o con el mismo significado y, por tanto, no corresponden en la página
 principal, que lista los que no tienen diferencias de opinión. Definir todas las
 sub páginas de cada obra es imposible, por lo que el \textit{scraper} debe saber
 identificar la sección en la que aparecen todas estas páginas, explorarlas y
-buscar enlaces de \textit{tropos}.
+buscar enlaces de \textit{tropos}. En cualquier caso, en todas ellas la
+prioridad es identificar el elemento \texttt{<div>} principal que contiene la
+información de la sub página y buscar todas las etiquetas de enlace a
+\textit{tropos}. Salvo \textit{Laconic}, que es un pequeño texto, el resto
+suelen ser todas siempre del mismo tipo: dos secciones separadas de un pequeño
+resumen de la sección (que también incluye referencias a \textit{tropos}) y
+varias listas con otros ejemplos nuevos de \textit{tropos}. Esas listas están
+separadas generalmente por elementos de \textit{header} que cambian según la
+obra, pero donde el \textit{tropo} está incluido en el propio texto y no al
+principio de él. Se pueden ignorar los \textit{headers} y simplemente buscar los
+elementos de lista. Se puede ver, de forma general, un esquema de cómo son las
+sub páginas de una obra en la figura \ref{fig:subpage}.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=\textwidth]{img/esquema-subpagina.png}
+  \caption{Esquema de las secciones de una sub página de una obra en TvTropes.}
+  \label{fig:subpage}
+\end{figure}
 
 Identificar cuándo se hace referencia a un \textit{tropo}, independientemente de
 la página, es sencillo puesto que siempre son hipervínculos con la clase CSS
@@ -353,12 +450,44 @@ TvTropes:
     y los que aparecen referenciados en cualquier texto, ya sea el resumen de la
     obra o la descripción de otro \textit{tropo}.
     \item Un \textit{tropo} se identifica al ser una etiqueta HTML \texttt{<a
-    class=``twikilink''>}. Todos los \textit{tropos} tienen una URL de la forma
-    \texttt{https://tvtropes.org/pmwiki/pmwiki.php/Main/} más su nombre en
-    estilo \textit{CamelCase}, sin embargo, no todas las páginas con este tipo
-    de URL son \textit{tropos}.
+    class=``twikilink''>}. Su URL es del tipo
+    \texttt{https://tvtropes.org/pmwiki/pmwiki.php/Main/} más su nombre en estilo 
+    \textit{CamelCase}, sin embargo, no todas las
+    páginas con este tipo de URL son necesariamente \textit{tropos}.
     \item Existen índices que contienen completamente todos los tropos y obras
     audiovisuales separadas por tipo, listados alfabéticamente y sin confusión
     de pertenecer a cualquier otra categoría. Por tanto, se sabe sin lugar a
     dudas si una página es un \textit{tropo} si está contenido en ese índice.
+    \item Se respetarán los nombres que usa TvTropes para almacenar cada obra
+    según su tipo de \textit{media}. Extraer dentro de la página de una obra el
+    índice al que pertenece permitirá distinguir obras con mismo nombre que son
+    de distinto tipo.
+    \item La información a extraer en una página de una obra se encuentra
+    contenida en el cuerpo principal (figura \ref{fig:tvtropes-work}), punto de
+    partida del \textit{scraper}, que contiene varias etiquetas, clases e
+    identificadores fácilmente identificables al ser siempre los mismos
+    independientemente de la página. De la página de una obra se puede sacar, en
+    orden: el índice al que pertenece, su título, un resumen con metadatos y
+    \textit{tropos} referenciados, una lista principal de sus \textit{tropos} y
+    sub páginas a las que habrá que acceder para identificar otros
+    \textit{tropos} listados.
+    \item No es necesario entrar dentro de la página de un \textit{tropo} y
+    explorar su código HTML, puesto que, esta solo contiene una descripción de
+    este y algunos ejemplos de obras que lo contienen. No es necesario explorar
+    esas obras porque ya se encontrarán desde los índices.
+    \item No es necesario el uso de un motor de JavaScript en ninguna de las
+    páginas, puesto que, toda la información que nos interesa está ya contenida
+    en el HTML. En las páginas en las que aparecen contenidos al interaccionar
+    con botones o menús desplegables, ese contenido está ya codificado en el
+    HTML y el código JavaScript únicamente lo pone visible o invisible.
 \end{itemize}
+
+Todas estas características que se han analizado en las páginas de TvTropes
+permitirán poder orientar una estrategia de extracción de información con el
+\textit{scraper} y que este sepa identificar cuándo una página es extraíble, ya
+que sabrá si la estructura de la página que está analizando se adapta a la
+información que tiene codificada. Hay que tener en cuenta que todo lo analizado
+en este capítulo son generalidades que comparten gran parte de las páginas de
+TvTropes. Existen muchas excepciones que se irán encontrando durante el propio
+proceso de desarrollo y que se estudiará en el próximo capítulo cómo proceder
+con ellas.
