@@ -139,3 +139,6 @@ Media
 modularizado
 instanciar
 Work
+Journey
+Journeys
+README

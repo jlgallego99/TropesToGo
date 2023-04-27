@@ -366,21 +366,200 @@ Todos los sistemas de integración continua que se configuren se harán con GitH
 Actions para seguir con la idea de centralizar todo el desarrollo en el
 repositorio de GitHub.
 
-\subsection{Infraestructura como código}
-
 \section{Usuarios o partes interesadas}
-Antes de definir las historias de usuario se han analizado los usuarios o partes
-interesadas en el proyecto para enfocarlo en resolver sus problemas. Son los
-siguientes:
+Antes de definir las historias de usuario se analizan los usuarios o partes
+interesadas en el proyecto, para así poder enfocarlo en resolver sus problemas.
+Este trabajo está orientado como un \textit{software} que pueda integrarse en
+los procesos de ciencia de datos, por tanto, se ha identificado un único usuario
+que representa el interesado en este ámbito:
 \begin{itemize}
-    \item \textbf{Tribunal}: el tribunal es el encargado de valorar este trabajo
-    de fin de máster y, por tanto, busca que tenga una memoria bien redactada
-    con todo el proceso de estudio, análisis y desarrollo del proyecto.
-    \item \textbf{Investigador}: el investigador, o analista de datos, necesita
-    tener la información estructurada de los tropos para construir modelos que
-    le permitan hacer inferencias sobre las relaciones que tienen los tropos
-    entre sí y llegar a conclusiones que sirvan para su investigación.
+    \item \textbf{Investigador}: el investigador, o analista de datos,
+    representa cualquier persona interesada en el estudio de los \textit{tropos}
+    en narrativas para la generación de análisis y modelos de ciencia de datos y
+    aprendizaje automático. Se asume que es una persona con cierto conocimiento
+    informático y que sabe utilizar algún lenguaje de programación o herramienta
+    de análisis de datos. Necesita tener la información estructurada y limpia de
+    los tropos para construir modelos que le permitan hacer inferencias sobre
+    las relaciones que tienen los tropos entre sí y llegar a conclusiones que
+    sirvan para su investigación.
 \end{itemize}
+
+\section{\textit{User Journeys}} 
+
+Una vez definido el usuario para el que queremos desarrollar, es necesario
+entenderlo para poder definir una serie de historias de usuario que expresen
+correctamente sus necesidades. Para facilitar esto, desarrollamos una serie de
+\textit{User Journeys}, que describen, a modo de narración, todo lo que hace el
+usuario desde que empieza a usar el \textit{software} hasta que termina, con el
+objetivo de identificar distintas situaciones que nos permitan saber qué
+desarrollar y de qué manera. En esta fase se tienen en cuenta aspectos como la
+manera en la que accede al programa, para qué lo necesita, con qué frecuencia,
+en qué contexto se encuentra, con qué dispositivo, los pasos para llegar a
+solucionar su problema, etc. Esto nos dará una abstracción a alto nivel con la
+que empatizar con los usuarios, entendiendo y representando cómo actuarían
+finalmente al tratar con el \textit{software} que pretendemos construir. Este
+enfoque permite desarrollar siempre con el usuario en mente, que es el objetivo
+en el desarrollo ágil, y además ayuda a no solo contextualizar mejor las
+historias de usuario, sino también a definirlas correctamente y poder generar
+nuevas, al tener un punto del que partir.
+
+Para desarrollar los distintos perfiles de usuario tenemos en cuenta los
+artículos y líneas de investigación que se han ido mencionando a lo largo de
+este documento. En estos se expresan las necesidades que tienen los
+investigadores para tratar con \textit{tropos} y sus motivaciones, que a su vez
+motivan a la creación de este proyecto y que sirven de ayuda para tener en mente
+el tipo de personas a las que queremos ofrecerle una solución mediante
+\textit{software}.
+
+Para empezar con el proceso de generación de \textit{User Journeys} definimos
+los objetivos que se van a estudiar y que definen la razón de ser del
+\textit{software} que se quiere desarrollar. Queremos estudiar los casos en los
+que un investigador quiere obtener un conjunto de datos de películas con sus
+\textit{tropos} y un conjunto de datos de toda la información de TvTropes, en
+ambos casos para realizar algún tipo de investigación. A partir de esta premisa
+buscamos varios caminos para que, mediante la experimentación, se lleguen a
+cubrir varios mapas interesantes en los que el usuario alcance su objetivo.
+
+\subsection{\textit{User Journey} 1} 
+
+Juan Benito García Martínez es un catedrático de la Universidad de Granada,
+tiene 59 años y tanto la ciencia de datos como el aprendizaje automático entran
+dentro de sus líneas de investigación.
+
+\begin{itemize}
+    \item Juan está trabajando en un artículo que estudia cómo los
+    \textit{tropos} usados por películas influyen en el éxito que acabe teniendo
+    tanto en taquilla como en crítica, estudiando también si existe algún cambio
+    en los \textit{tropos} utilizados y el éxito cosechado a lo largo de los
+    años.
+    \item La fecha límite para entregar el artículo es dentro de una semana y
+    aún necesita construir varios modelos de clasificación automática con tanto
+    Python como R para cerrar el capítulo de análisis, así que necesita un
+    fichero que contenga los datos que quiere. Está frustrado porque TvTropes no
+    exporta su información y no tiene tiempo para trascribir tanta información a
+    mano o construir una herramienta que lo haga por él.
+    \item Decide buscar en internet para ver si alguien ya ha sacado esos datos.
+    Encuentra varias recopilaciones de los datos de TvTropes que, sin embargo,
+    datan del año 2016. Juan quiere que su artículo sea novedoso, ya que,
+    entiende que en los últimos años han salido muchas películas de renombre que
+    han batido récords en taquilla. Tras una búsqueda más prolongada se
+    encuentra con el repositorio de TropesToGo en GitHub, lee el \textit{README}
+    del proyecto y se alegra al ver que le puede proporcionar justo lo que
+    necesita: los datos de las películas y sus \textit{tropos} de TvTropes.
+    Siguiendo las instrucciones del repositorio ve que es un programa que se
+    puede instalar fácilmente con una sola orden, así que lo instala en su
+    ordenador portátil.
+    \item Siguiendo la documentación que hay en el repositorio encuentra
+    rápidamente la opción que necesita. Juan ya ha usado aplicaciones de línea
+    de comandos antes, por lo que, sin mucho problema ejecuta la orden exacta en
+    el terminal especificando mediante varios \textit{flags} que quiere obtener
+    un conjunto de datos en formato CSV para poder cargarlo con los dos
+    lenguajes que va a utilizar y que quiere únicamente los \textit{tropos} de
+    todas las películas que existan.
+    \item Juan observa cómo en el terminal aparecen varios mensajes que le
+    indican el estado del programa, que muestra cuántos \textit{tropos} lleva
+    extraídos en cada momento. Juan está muy impaciente, pero de repente aparece
+    un último mensaje que le indica que ya está listo su fichero, lo que le
+    sorprende. Juan va a la ruta que ha especificado al ejecutar el comando y se
+    encuentra con el fichero. Tras observarlo durante unos instantes está
+    satisfecho, ya que, entiende rápidamente cómo están codificados los datos y
+    que contiene justo lo que necesita. Aún queda día, así que puede ponerse ya
+    a trabajar. 
+    \item Finalmente, ha podido entregar el artículo antes de tiempo gracias a
+    lo rápido que ha conseguido el conjunto de datos y a que no ha necesitado
+    realizar demasiadas tareas para limpiar los datos, puesto que, ya estaban
+    bastante utilizables. Contento y satisfecho, decide dejar instalado el
+    programa en su ordenador por si necesitase otros datos de TvTropes para
+    futuros análisis.
+\end{itemize}
+
+\subsection{\textit{User Journey} 2}
+
+María Conde Alcaraz tiene 23 años y está terminando de estudiar el máster en
+ciencia de datos en la Universidad de Granada.
+
+\begin{itemize}
+    \item María aprendió a utilizar TropesToGo al empezar a redactar su trabajo
+    fin de máster, en el que tiene que construir un clasificador binario lo más
+    preciso posible que permita identificar si un conjunto de \textit{tropos}
+    pueden formar una serie de televisión que aguante en emisión varias
+    temporadas.
+    \item María se dio cuenta de que para su clasificador necesitaba más
+    información de la que le provee el conjunto de datos que genera TropesToGo,
+    principalmente el número de temporadas de una serie. Para solucionar esto,
+    usó la información que ya posee, el título de la serie y el año en el que
+    salió, para poder identificar la información adicional que necesita de otro
+    lado. De esta manera, añade a su programa clasificador un módulo que se
+    comunica con IMDB para sacar el número de temporadas que tiene cada una de
+    las series que tiene en su conjunto de datos, añadiéndole un campo nuevo. Se
+    siente aliviada, puesto que, ha podido resolver fácilmente el problema
+    gracias a la simplicidad y efectividad del conjunto de datos que tenía, que
+    permitía relacionar las series fácilmente y no confundir las que tienen un
+    mismo nombre.
+    \item 6 meses después, queda un mes para la entrega del TFM y se da cuenta
+    de que en ese tiempo TvTropes ha añadido muchísimos \textit{tropos} y
+    series, que han tenido mucho tirón en ese periodo. María se siente. Sin
+    embargo, vuelve a ejecutar TropesToGo con las mismas opciones que había
+    utilizado anteriormente, y en muy poco tiempo el programa le informa de las
+    series que se han actualizado en el conjunto de datos que ya tenía, por lo
+    que, puede volver a ejecutar los modelos tal y como los tenía programados
+    sin cambiar nada.
+    \item María queda ahora muy satisfecha; podrá ir actualizando su conjunto de
+    datos con el tiempo para que su clasificador automático entrene siempre con
+    los últimos datos existentes.
+\end{itemize}
+
+\subsection{\textit{User Journey} 3} 
+
+Pablo Antonio Molina Ocaña es un estudiante del grado en estadística en la
+Universidad de Granada. Es una persona joven, de 19 años, que únicamente usa un
+ordenador muy básico para sus tareas de la universidad y es capaz de controlarlo
+de forma básica en términos de usuario.
+
+\begin{itemize}
+    \item Pablo es un cinéfilo que pertenece a la comunidad de TvTropes, por lo
+    que está muy familiarizado con lo que ofrece la página y tiene gran interés
+    en ello. En clase le mandan un trabajo libre, y él decide que quiere hacerlo
+    sobre los \textit{tropos} de sus películas favoritas y cómo se relacionan
+    entre sí.
+    \item Pablo es muy perezoso y no quiere escribir a mano toda la información
+    que necesita de las películas que le gustan. Él está acostumbrado a tratar
+    con el formato JSON y un \textit{software} que le permite sacar múltiples
+    gráficas estadísticas basándose en el fichero que introduce. Buscando
+    encuentra muy pocos conjuntos de datos de TvTropes, y la mayoría tienen más
+    de lo que quiere y en otros formatos que desconoce, como CSV. Finalmente, se
+    encuentra con TropesToGo y prueba a instalarlo en su ordenador portátil.
+    \item Pablo no entiende muy bien cómo funciona el programa ni se ha parado a
+    leer la documentación. Simplemente, lo ejecuta, y este le informa de lo que
+    es el programa, lo que hace y le da varias opciones que él puede seguir.
+    Introduce con su teclado que solo quiere obtener los \textit{tropos} de tres
+    películas que le gustan. El programa le indica que debe introducir la URL de
+    TvTropes de la película que quiere extraer, cosa que Pablo sí conoce, así
+    que lo hace. Finalmente, el programa le ofrece varias opciones simples de
+    cómo quiere obtener los datos, a lo que pablo selecciona la opción de JSON.
+    \item Observa como rápidamente el programa le indica que ya está todo listo,
+    y le informa de dónde puede encontrar el fichero JSON con los datos de la
+    película que necesitaba. Pablo repite el proceso para las otras que necesita
+    y, viendo lo sencillo que es, se emociona y decide extraer unas cuantas más
+    de las que tenía pensadas en un primer lugar.
+    \item Al final consigue los datos que necesitaba y puede terminar su trabajo
+    sin demasiadas complicaciones, lo que deja a Pablo con una gran sensación de
+    autorrealización.
+\end{itemize}
+
+De estos \textit{User Journeys} podemos sacar varias conclusiones, como por
+ejemplo para qué pueden los usuarios necesitar los datos, que los investigadores
+pueden utilizar distintos lenguajes de programación, que valoran muy
+positivamente un conjunto de datos limpio y preparado para ahorrarles trabajo o
+que quieren desarrollar análisis vanguardistas. También se hace referencia a
+cómo interactúan con la aplicación final y las facilidades o dificultades que
+pueden encontrar, como encontrar documentación que les permita saber cómo usar
+la herramienta o que el propio programa les ayude a conseguir lo que necesitan
+sin perder mucho el tiempo. Estas necesidades identificadas a lo largo de este
+proceso se tendrán en cuenta a la hora de implementar el \textit{software}, para
+cumplir con lo que los usuarios como los de este análisis esperan del producto
+final, y se condensan a continuación en forma de historias de usuario, que serán
+el principal artefacto que nos dirá cómo proceder con el desarrollo.
 
 \section{Historias de usuario}
 Sabiendo el problema que se quiere resolver y las partes interesadas se pueden
