@@ -396,7 +396,7 @@ detectarlas durante el desarrollo.
   \centering
   \includegraphics[width=\textwidth]{img/sitemap.png}
   \caption{Mapa del sitio de TvTropes.}
-  \label{fig:sitema}
+  \label{fig:sitemap}
 \end{figure}
 
 Las relaciones más destacables que se pueden observar en el mapa del sitio son
@@ -475,18 +475,20 @@ obras y \textit{tropos} al estar referenciándose continuamente.
 \subsection{Estructura de las páginas de TvTropes}
 Por último, se analiza la estructura que tiene cada página de TvTropes, tanto de
 un \textit{tropo} como de una obra audiovisual, ya sea película, serie,
-videojuego, etc. Se intentan definir los tipos de páginas más comunes e
-importantes, pero no todos los que puedan existir. Es imposible predecir todas
-las formas que puede tomar una página, y además eso haría que el
-\textit{scraper} no supiese adaptarse y fuese demasiado rígido
-\cite{nishalscraping}. En general, en esta última sección se busca identificar
-las partes más destacables del código HTML de las páginas para que el
-\textit{scraper} sepa dónde tiene que buscar la información que necesita sin
-redundancia. Este análisis del código HTML se realiza usando las herramientas de
-desarrollador presentes en cualquier navegador web, que permiten observar todo
-el código HTML de la página, activar o desactivar el JavaScript para observar
-los cambios en ella, y demás funcionalidades útiles que sirven en el ámbito del
-\textit{scraping} y para sacar conclusiones de las páginas.
+videojuego, etc. al ser lo que piden las historias de usuario principales
+\href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]} y
+\href{https://github.com/jlgallego99/TropesToGo/issues/7}{[HU02]}. Se intentan
+definir los tipos de páginas más comunes e importantes, pero no todos los que
+puedan existir. Es imposible predecir todas las formas que puede tomar una
+página, y además eso haría que el \textit{scraper} no supiese adaptarse y fuese
+demasiado rígido \cite{nishalscraping}. En general, en esta última sección se
+busca identificar las partes más destacables del código HTML de las páginas para
+que el \textit{scraper} sepa dónde tiene que buscar la información que necesita
+sin redundancia. Este análisis del código HTML se realiza usando las
+herramientas de desarrollador presentes en cualquier navegador web, que permiten
+observar todo el código HTML de la página, activar o desactivar el JavaScript
+para observar los cambios en ella, y demás funcionalidades útiles que sirven en
+el ámbito del \textit{scraping} y para sacar conclusiones de las páginas.
 
 Las páginas de obras audiovisuales, independientemente del tipo, se tratan
 esencialmente igual y podrían presentar las mismas diferencias que dos del mismo
@@ -767,7 +769,13 @@ TvTropes:
     orden: el índice al que pertenece, su título, un resumen con metadatos y
     \textit{tropos} referenciados, una lista principal de sus \textit{tropos} y
     sub páginas a las que habrá que acceder para identificar otros
-    \textit{tropos} listados.
+    \textit{tropos} listados. Esta información de metadatos sirve para
+    satisfacer la historia de usuario
+    \href{https://github.com/jlgallego99/TropesToGo/issues/8}{[HU03]},
+    eliminando la ambigüedad entre obras, y la historia
+    \href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]} y
+    \href{https://github.com/jlgallego99/TropesToGo/issues/46}{[HU07]}, para
+    saber si la página ha tenido cambios y actualizar los datos.
     \item No es necesario entrar dentro de la página de un \textit{tropo} y
     explorar su código HTML, puesto que, esta solo contiene una descripción de
     este y algunos ejemplos de obras que lo contienen. No es necesario explorar
