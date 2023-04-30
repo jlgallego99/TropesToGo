@@ -337,13 +337,140 @@ anime. En general, estas categorías son subjetivas, por lo que no hay una
 solución concreta, sin embargo, se busca poder extraer la información de todos
 los tipos de \textit{media} posibles.
 
+Existen índices que agrupan las obras por otros criterios como el género de la
+obra, sin embargo, estos son más generales y dividen de forma más ambigua y
+subjetiva las obras. Esto, sumado a que atendiendo a los \textit{User Journeys}
+especificados y a la
+\href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]}, nos permite
+saber que los usuarios quieren el conjunto de datos por tipo de obra y es, por
+tanto, el índice que la araña debe explorar, lo cual se verá más en profundidad
+a continuación. Adicionalmente, en el caso de necesitar el género de la obra,
+podrán extraerlo de fuentes más fiables como IMDB atendiendo a la
+\href{https://github.com/jlgallego99/TropesToGo/issues/8}{[HU03]}.
+
 En resumen, se han podido encontrar índices que sabemos con toda seguridad que
-contienen todos los tropos y obras separadas por tipo, por lo que esto supone un
-muy buen punto de partida para la araña y ya mejoraría a \textit{Tropescraper},
-el cual tenía como punto de partida la entrada de la wiki de \textit{tropos} y
-\textit{películas}, que no contiene todas las entradas existentes y son páginas
-más difíciles de explorar al tener que entrar en sub índices según género o tipo
-de media.
+contienen todos los tropos y obras separadas por medio, por lo que esto supone
+un muy buen punto de partida para la araña y ya mejoraría a
+\textit{Tropescraper}, el cual tenía como punto de partida la entrada de la wiki
+de \textit{tropos} y \textit{películas}, que no contiene todas las entradas
+existentes y son páginas más difíciles de explorar al tener que entrar en sub
+índices según género o tipo de media.
+
+\subsection{Organización de las páginas de TvTropes}
+
+TvTropes es una web muy compleja que, aunque su principal objetivo sea listar y
+explicar \textit{tropos}, proporciona adicionalmente una gran cantidad de
+información para los fans sobre las obras audiovisuales que contiene. Para
+seguir profundizando en lo relativo al estudio de esta web, es necesario
+analizar el sitio completo, es decir, estudiar cómo se relacionan sus páginas
+más relevantes entre sí de una forma entendible. En su
+\textit{sitemap}
+\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Sandbox/Sitemap}} se
+pueden encontrar todas las páginas PHP que dividen las páginas en secciones y
+cómo funcionan sus URL. No todas las páginas de TvTropes nos interesan, en
+concreto este trabajo está interesado únicamente en las páginas de obras y
+\textit{tropos} según las historias de usuario
+\href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]} y
+\href{https://github.com/jlgallego99/TropesToGo/issues/7}{[HU02]}.
+
+En la figura \ref{fig:sitemap} se representa un mapa del sitio de TvTropes como
+un multi grafo dirigido, donde se pueden ver principalmente las páginas que
+necesita la araña, aunque también aparecen otras en gris que, aunque no son
+necesarias para cumplir con las necesidades del usuario, se representan con el
+objetivo de dar un esquema fiel de la web y sus partes principales. Los enlaces
+entre ellas se representan mediante flechas que indican la dirección de
+navegación y se añaden algunas características adicionales como el patrón de la
+URL o la información que se puede encontrar. Esta representación permite poder
+entender cómo programar luego la araña para que entienda todo el sitio y sepa en
+qué páginas tiene que buscar enlaces que le permitan avanzar a otras páginas
+para encontrar todo lo que busca sin perder nada. Es necesario tener en cuenta
+que este es un esquema general que no representa todas las páginas; es posible
+que, por ejemplo, un índice tenga una página intermedia antes de llegar a un sub
+índice, a diferencia de las otras que están en su mismo nivel. En general se
+debe tener en cuenta que la navegación entre páginas puede tener excepciones a
+las que se observan en este diagrama y que, en caso de ser necesarias para la
+araña, se estudiarán y justificarán en el capítulo de implementación al
+detectarlas durante el desarrollo.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=\textwidth]{img/sitemap.png}
+  \caption{Mapa del sitio de TvTropes.}
+  \label{fig:sitema}
+\end{figure}
+
+Las relaciones más destacables que se pueden observar en el mapa del sitio son
+las siguientes:
+\begin{itemize}
+  \item De \textit{Main} cuelgan la gran mayoría de páginas e índices que debe
+  explorar la araña. Existen muchas páginas individuales sin relación entre
+  otras y con información que no se han representado al no ser necesaria para
+  este trabajo, representando diversos aspectos de la web como la comunidad,
+  guías de estilo, información, etc. Estas páginas siguen la misma filosofía que
+  las de obras, presentándolas de la misma manera e incluso asociando
+  \textit{tropos} a aspectos como el funcionamiento de la propia web, que da a
+  ver aún más lo centrales que son estos recursos en esta web.
+  \item Existen páginas que, si bien son del mismo tipo, tienen contenidos
+  distintos según el contexto, como las páginas de \textit{tropos}, de obras, de
+  los distintos índices de \textit{tropos} o de los distintos índices de obras.
+  Se han representado como tres rectángulos uno encima de otro para simplificar
+  el diagrama, pero todos ellos hacen referencia a que existen muchas páginas de
+  esa clase, y no es posible representarlas todas con sus nombres específicos.
+  Por ejemplo, la página de una obra dependerá de qué obra represente, y lo
+  mismo con los \textit{tropos}. Los índices de \textit{tropos} según temática,
+  medio, género o tópico incluyen páginas como \textit{tropos} del género de
+  acción o de aventuras, de miedo, de películas, videojuegos o de cualquier otro
+  método de organización.
+  \item Como se ha explicado antes, existen índices para explorar todos los
+  tropos o las obras por tipo de medio. Los índices que aparecen en el mapa del
+  sitio, que dependen de \textit{Main}, no son fiables, debido a que no suelen
+  contener todas las obras existentes en la web y muchas veces enlazan a índices
+  que no tienen que ver. Por ejemplo, es bastante común ir al índice de
+  animación asiática y encontrarse con multitud de películas o series que caen
+  en la categoría de animación general o en algo completamente distinto como
+  animación occidental. Esto hace que sea más fiable saber el índice al que
+  pertenece una obra desde dentro de la misma obra y teniendo en cuenta el
+  índice principal visto.
+  \item Por tanto, el índice más fiable es el que se representa con el nombre de
+  índice de tipos de páginas, que es el que se ha visto en la sección anterior.
+  Es el más ideal para encontrar todas las páginas porque nos permite listar
+  todos los \textit{tropos} u obras según los distintos índices a los que
+  pertenecen sin perder ninguno, y navegar hacia cualquiera de ellos, como
+  indica la flecha unidireccional. Para navegar dentro del índice hay que tener
+  en cuenta que la lista que presenta está paginada, de ahí la flecha de
+  navegación hacia sí mismo, ya que, para que la araña explore todo el índice
+  debe explorar en profundidad esa página, utilizando el enlace de pasar a la
+  siguiente parte de la lista que hay abajo del todo.
+  \item Hay relaciones que no se representan al no ser necesarias, como por
+  ejemplo que desde la página principal se puede navegar directamente a
+  cualquiera de las páginas relevantes de \textit{tropos} u obras, ya sea
+  mediante la barra de búsqueda o mediante enlaces que van cambiando
+  dinámicamente, ya que, la página destaca cada día nuevas páginas relevantes de
+  rápido acceso.
+  \item Los \textit{tropos} se están referenciando entre sí constantemente por
+  lo que navegar desde uno hacia otro puede ser un proceso interminable. La
+  araña puede encontrar otros \textit{tropos} explorando las distintas sub
+  páginas de una obra. Las sub páginas, como pueden ser Trivia o YMMV, están
+  también representadas como un conjunto genérico, ya que, pueden tomar muchos
+  nombres y temáticas. Es importante saber que están siempre enlazadas a la obra
+  sobre la que hablan, y no se puede navegar a la de otra obra distinta. Desde
+  ellas solo se puede navegar o a otra sub página (siempre de la misma obra en
+  la que nos encontramos), a la página principal de la obra o a la página de un
+  \textit{tropo} que tiene referenciado en cualquier sub página. Sin embargo,
+  cuando desde una página de un \textit{tropo} se referencia a una obra, es
+  siempre a la principal.
+\end{itemize}
+
+En resumen, desde el índice principal se puede navegar a cualquiera de las
+páginas de obras, que pertenecen a un índice de medio audiovisual. Estos medios
+audiovisuales se pueden encontrar en el índice principal en \textit{Main}, y
+todas las obras están relacionadas únicamente con uno de ellos. Desde la obra se
+puede acceder a dos tipos de páginas: sub páginas de la obra y páginas de
+\textit{tropos}. Las sub páginas, a su vez, también están relacionadas con los
+\textit{tropos}, por lo que se puede navegar hacia ellos desde ahí. Por último,
+dentro de una página de \textit{tropos} también se puede navegar hacia otras que
+están referenciadas. En general existen una relación casi bidireccional entre
+obras y \textit{tropos} al estar referenciándose continuamente. 
 
 \subsection{Estructura de las páginas de TvTropes}
 Por último, se analiza la estructura que tiene cada página de TvTropes, tanto de
