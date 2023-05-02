@@ -311,3 +311,6 @@ typings/
 
 # Textodite reports
 *.html
+
+# .idea folder
+tropestogo/.idea/
