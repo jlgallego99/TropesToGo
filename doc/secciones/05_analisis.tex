@@ -1,20 +1,41 @@
-\chapter{Análisis del problema}
-En este capítulo se modela el problema de construcción de un \textit{scraper} de
-TvTropes aplicando el patrón de \textit{Domain Driven Design}. Luego, se analiza
-la estructura que sigue la web, identificando los puntos más importantes para
-saber cómo abordar la creación de la araña que explore todas las páginas
-relevantes de TvTropes y la extracción de la información que queremos en cada
-una de ellas. El objetivo general del capítulo es servir de inicio para saber
-cómo abordar la solución al problema y así poder llevarlo luego a lo práctico en
-la implementación del \textit{software} en el \autoref{c:6}, en el que se
-desarrollará la estrategia final para resolver el problema de la extracción de
-datos en TvTropes.
+\chapter{Análisis previo del problema}
+Este capítulo servirá de preludio al capítulo de implementación dando un primer
+análisis de los diversos aspectos tanto del problema como del funcionamiento y
+estructura de TvTropes, de modo que permita proceder con los primeros
+\textit{milestones} del desarrollo del \textit{software} y entender la
+estrategia que se seguirá a lo largo del desarrollo con respecto a entender y
+resolver el problema. Primero se dará un modelo inicial del problema de
+construcción de un \textit{scraper} de TvTropes aplicando el patrón de
+\textit{Domain Driven Design}. Luego, se analiza la estructura que sigue la web
+de TvTropes, identificando los puntos más importantes para saber cómo abordar la
+creación de la araña que explore todas las páginas relevantes de TvTropes y la
+extracción de la información que queremos en cada una de ellas. El objetivo
+general del capítulo es servir de inicio para saber cómo abordar la solución al
+problema y así poder llevarlo luego a lo práctico en la implementación del
+\textit{software} en el \autoref{c:6}, en el que se modelarán nuevas partes del
+problema conforme se van alcanzando los distintos hitos que permitan llegar a la
+solución final.
 
-\section{Modelado del problema}
-Mediante el modelado del problema se representará una abstracción del sistema
-que se pretende construir y que describirá lo necesario para entender el dominio
-del problema y pasar de las historias de usuario a un diseño inicial del código
-correctamente modularizado. 
+\section{Modelado inicial del problema}
+Con el objetivo de cumplir los dos milestones siguientes, relativos al inicio
+del desarrollo del \textit{scraper} que extrae información de películas
+(\href{https://github.com/jlgallego99/TropesToGo/milestone/3}{M2} y
+\href{https://github.com/jlgallego99/TropesToGo/milestone/7}{M3}), se describe
+primero la metodología a seguir para modelar el problema que se pretende
+resolver en todo este trabajo y luego se definen las partes básicas de ella para
+poder comenzar con el desarrollo en el siguiente capítulo. Al estar en un marco
+de desarrollo ágil no se tiene un modelo completo desde el principio, sino que
+se necesitarán modelar nuevas y diferentes partes del problema conforme se
+avance en el desarrollo. Esto se especificará en el \ref{c:6}, donde se
+introducirán progresivamente nuevos elementos al modelo del problema y se irán
+resolviendo. Por tanto, en este capítulo se pretende dar un modelo inicial con
+el que entender cómo se va a abordar este aspecto del desarrollo y cómo poder
+empezar con las primeras etapas de construcción del \textit{software}. El
+modelado del problema es una forma de tener una abstracción de las distintas
+partes del sistema de modo que haya una relación entendible entre el código, el
+problema y sus términos concretos. Con esto se tendrá lo necesario para entender
+el dominio del problema y pasar de las historias de usuario a un diseño inicial
+del código correctamente modularizado.
 
 El diseño dirigido por dominio (\textit{Domain Driven Design} en inglés,
 \textit{DDD} para acortar) es una de las metodologías más populares y efectivas
@@ -127,14 +148,14 @@ investigador expresa la necesidad de poder elegir el formato de representación
 para el conjunto de datos, y cada formato de representación de datos será un
 repositorio.
 
-Finalmente, queda un componente de \textit{DDD} para terminar de formar el
-modelo de la aplicación: los servicios. El concepto de servicio tiene múltiples
-significados según el contexto, sin embargo, en esta metodología hace referencia
-al componente que orquesta el resto de componentes que se han definido
-anteriormente, los cuales están débilmente acoplados y necesitan de una unidad
-que los haga funcionar para poder formar la aplicación que cumpla las
-necesidades del dominio. El servicio es el principal encargado de tratar con los
-repositorios.
+Finalmente, queda un componente de \textit{DDD} para terminar de formar las
+partes básicas del modelo de la aplicación: los servicios. El concepto de
+servicio tiene múltiples significados según el contexto, sin embargo, en esta
+metodología hace referencia al componente que orquesta el resto de componentes
+que se han definido anteriormente, los cuales están débilmente acoplados y
+necesitan de una unidad que los haga funcionar para poder formar la aplicación
+que cumpla las necesidades del dominio. El servicio es el principal encargado de
+tratar con los repositorios.
 
 Adicionalmente, en el ámbito del \textit{Domain Driven Design} se sugiere el uso
 del patrón factoría para la creación de agregados, repositorios y servicios
@@ -143,9 +164,17 @@ creación de todo el objeto de forma transparente al desarrollador que lo esté
 utilizando; no necesita saber qué ocurre sino solamente el objeto correctamente
 creado.
 
-Finalmente, se definen los siguientes componentes que modelan la extracción de
-datos en TvTropes, definiendo lo necesario para la representación del dominio de
-este problema:
+Finalmente, se definen los siguientes componentes que modelan los principales
+módulos que se tendrán en la extracción de datos en TvTropes, definiendo lo
+necesario para entender el dominio del problema a un nivel general y poder
+comenzar a desarrollar el \textit{scraper} y conocer las distintas partes que
+componen el dominio: las páginas de TvTropes, las obras y los \textit{tropos}.
+Todos estos componentes son necesarios para extraer la información de cualquier
+página de TvTropes, razón por la que el primer \textit{milestone} del desarrollo
+se centra en ello, ya que, su objetivo es dar una primera versión funcional de
+un \textit{scraper} básico para TvTropes. A continuación se describen los
+componentes \textit{DDD} que permiten modelar esto y poder organizar
+inicialmente los distintos ficheros y directorios del código: 
 \begin{itemize}
   \item \textbf{Objetos valor:}
   \begin{itemize}
@@ -157,9 +186,12 @@ este problema:
     descripción. Si se le cambiase la descripción o nombre a un \textit{tropo}
     resultaría en uno distinto, que casaría con la idea de que en este ámbito de
     estudios surgen constantemente nuevos \textit{tropos}, a veces relacionados
-    con anteriores, pero que son distintos. En el ámbito de este trabajo
-    definimos que una obra está definida por sus \textit{tropos}, describen un
-    aspecto del dominio, lo que hace que estos sean objetos valor. 
+    con anteriores, pero que son distintos.\\
+    En el ámbito de este trabajo definimos que una obra está definida por sus
+    \textit{tropos}, describen un aspecto del dominio, lo que hace que estos
+    sean objetos valor. Al ser un objeto valor, se tratará únicamente
+    instanciándolo, se representará como un \textit{struct} en Go y sus campos
+    serán privados, accesibles desde funciones. 
   \end{itemize}
   \item \textbf{Entidades:}
   \begin{itemize}
@@ -171,14 +203,29 @@ este problema:
     en cualquier momento y se debe tener en cuenta para satisfacer la historia
     \href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}, en la que
     se especifica la necesidad de tener la información lo más actualizada
-    posible.
+    posible. Estas páginas hacen referencia a todas las páginas de obras de
+    cualquier medio audiovisual, puesto que, es lo que pide el usuario
+    (\href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]}).
+    Adicionalmente, el \textit{scraper} necesitará toda la información del HTML
+    para poder analizarla, por lo que debe estar codificada como un árbol DOM
+    que permita recorrerlo. Una página de TvTropes debe almacenar solamente el
+    HTML que le interesa al usuario atendiendo a las
+    \href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]} y
+    \href{https://github.com/jlgallego99/TropesToGo/issues/7}{[HU02]}. Esto se
+    verá más en profundidad en la siguiente sección, donde se analizará la
+    estructura de una página de TvTropes.\\
+    Al ser una entidad, se tratará desde los agregados como una referencia
+    (utilizando punteros), ya que, cada una de las páginas mantiene su identidad
+    según su URL y va cambiando.
     \item
     \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/work.go}{\textit{Work}}},
     es la denominación en TvTropes para una obra audiovisual, independientemente
     del medio al que pertenezca. En el dominio del problema, una obra evoluciona
     en el tiempo conforme sus \textit{tropos} cambian y, además, está
     identificada por su título. Si tuviese otro título sería una obra distinta,
-    por tanto, se llega a la conclusión de que esto es una entidad.
+    por tanto, se llega a la conclusión de que esto es una entidad.\\
+    Al igual que las páginas, las obras también se tratarán desde los agregados
+    como referencias mediante punteros, manteniendo su identidad.
   \end{itemize}
   \item \textbf{Agregados:}
   \begin{itemize}
@@ -203,12 +250,18 @@ este problema:
     \href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]} y
     \href{https://github.com/jlgallego99/TropesToGo/issues/7}{[HU02]}, que piden
     que se obtenga toda la información de \textit{tropos} o un subconjunto de
-    ellos. El agregado se asegurará, por tanto, de que se tienen todos los
-    \textit{tropos} existentes en una obra y permitiendo poder elegir tanto la
-    obra u obras como el medio, con posibilidad de extraerlo todo o una parte.
-    Este agregado se encargará de extraer los datos de TvTropes y dar una API
-    para dar acceso a la principal unidad que pretende conseguir este trabajo:
-    la obra con sus \textit{tropos}.
+    ellos. Una obra con sus \textit{tropos} debe tener además información
+    adicional de metadatos que permita distinguirla de otras con mismo nombre
+    para cumplir la
+    \href{https://github.com/jlgallego99/TropesToGo/issues/8}{[HU03]} y saber lo
+    actualizada que está para cumplir
+    \href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}. El
+    agregado se asegurará, por tanto, de que se tienen todos los \textit{tropos}
+    existentes en una obra y permitiendo poder elegir tanto la obra u obras como
+    el medio, con posibilidad de extraerlo todo o una parte. Este agregado se
+    encargará de extraer los datos de TvTropes y dar una API para dar acceso a
+    la principal unidad que pretende conseguir este trabajo: la obra con sus
+    \textit{tropos}.
   \end{itemize}
   \item \textbf{Repositorios:}
   \begin{itemize}
@@ -246,13 +299,18 @@ Un wiki complejo como TvTropes, en el que tanto la estructura concreta de una
 página como entre ellas cambia bastante, contiene información que es de difícil
 acceso y está desperdigada por distintos lugares. A veces, no existe siquiera.
 Es por esto que a continuación, tras haber visto cómo se pretende modelar el
-problema y organizar el código, se estudian los problemas y particularidades que
-tiene TvTropes y que queremos resolver con el \textit{scraper} para poder
-extraer toda la información que sea posible de la manera más sencilla y
-eficiente. Para ello, se estudia la organización de las páginas de TvTropes
-tanto entre sí como dentro de ellas, y se observan los puntos más importantes
-que el bot debe saber identificar para poder desarrollar una estrategia en el
-siguiente capítulo conociendo todos los puntos relevantes de la web.
+problema y organizar el código para poder empezar con las primeras fases del
+desarrollo, se estudian los problemas y particularidades que tiene TvTropes y
+que queremos resolver con el \textit{scraper} para poder extraer toda la
+información que sea posible de la manera más sencilla y eficiente. Esto nos
+permitirá resolver los dos primeros \textit{milestones}, donde se analizará y
+entenderá la estructura de una página y se extraerá exactamente la información
+que se quiere, además de dar información adicional que sirva para entender
+TvTropes en general y poder aplicarlo en siguientes hitos. Para ello, se estudia
+la organización de las páginas de TvTropes tanto entre sí como dentro de ellas,
+y se observan los puntos más importantes que el bot debe saber identificar para
+poder desarrollar una estrategia en el siguiente capítulo conociendo todos los
+puntos relevantes de la web.
 
 Primero, se hará una breve introducción sobre cómo funciona TvTropes en general.
 Luego, se analizará la organización entre páginas para el desarrollo del
