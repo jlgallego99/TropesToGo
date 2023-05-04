@@ -11,9 +11,12 @@ var (
 
 // RepositoryIndex defines an interface for operations related to the Crawler
 type RepositoryIndex interface {
-	// Add a new crawled page to the Index
+	// AddPage adds a new crawled page to the Index
 	AddPage(tropestogo.Page) error
 
 	// UpdatePage updates a page in the Index based on if it's been updated or not
 	UpdatePage(tropestogo.Page) error
+
+	// GetIndex returns a traversable Index for the Scraper to analyze and extract information
+	GetIndex() (Index, error)
 }
