@@ -29,5 +29,6 @@ go version
 ## test
 > Executes all the tests of the project
 ~~~sh
+cd tropestogo
 go test -v ./...
 ~~~
