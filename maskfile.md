@@ -29,5 +29,5 @@ go version
 ## test
 > Executes all the tests of the project
 ~~~sh
-go version
+go test -v ./...
 ~~~
