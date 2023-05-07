@@ -5,6 +5,7 @@ import (
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/index"
 	"github.com/jlgallego99/TropesToGo/media"
+	"regexp"
 	"strings"
 )
 
@@ -82,5 +83,44 @@ func (*ServiceScraper) CheckValidWorkPage(page *tropestogo.Page) (bool, error) {
 		return false, ErrNotWorkPage
 	}
 
-	return true, nil
+	// Look for the tropes section
+	if page.Document.Find("#main-article ul").Length() == 0 &&
+		strings.Contains(strings.ToLower(page.Document.Find("#main-article h2").First().Text()), "tropes") {
+
+		return false, ErrUnknownPageStructure
+	} else {
+		// Check if the list is a) a simple trope list or c) a list of subpages with tropes
+		if page.Document.Find("#main-article ul li a.twikilink").Length() != 0 {
+			// Get the first word of the first element of the list, check if is an anchor to a trope page or a sub page
+			tropeHref, exists := page.Document.Find("#main-article ul li a.twikilink").First().Attr("href")
+
+			// a) Tropes are presented on a single list
+			// Checks if it's a Main page
+			if exists && strings.HasPrefix(tropeHref, "/pmwiki/pmwiki.php/Main/") {
+				return true, nil
+			}
+
+			// c) Tropes are on subpages
+			// Checks if the elements of the list are anchors to a subpage inside the work
+			// A regex matches if the last part of the URL is of the type TropesXtoY
+			hrefSplit := strings.Split(tropeHref, "/")
+			r, _ := regexp.Compile("Tropes[A-Z]To[A-Z]")
+			match := r.MatchString(hrefSplit[len(hrefSplit)-1])
+			if exists && strings.HasPrefix(tropeHref, "/pmwiki/pmwiki.php/") && match {
+				return true, nil
+			}
+		}
+
+		// b) Check if tropes are on folders
+		// If there's a close all folders button, then the tropes are on folders
+		folderFunctionName, existsFolderButton := page.Document.Find("#main-article div.folderlabel").Attr("onclick")
+		if existsFolderButton && folderFunctionName == "toggleAllFolders()" {
+			return true, nil
+		}
+
+		// Tropes are presented in an unknown form, so data can't be extracted
+		return false, ErrUnknownPageStructure
+	}
+
+	// If it isn't any of the know formats for the trope list, check if there are tropes references
 }
