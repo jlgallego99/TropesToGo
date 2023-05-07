@@ -13,7 +13,7 @@ import (
 )
 
 var _ = Describe("Scraper", func() {
-	// An scraper service for test purposes
+	// A scraper service for test purposes
 	var serviceScraper *scraper.ServiceScraper
 	var newScraperErr error
 	// A valid TvTropes page and one page that is from other website
@@ -23,31 +23,31 @@ var _ = Describe("Scraper", func() {
 	// DOM Tree of a TvTropes Work page
 	var doc *goquery.Document
 
-	BeforeAll(func() {
+	BeforeEach(func() {
 		serviceScraper, newScraperErr = scraper.NewServiceScraper()
 
-		res, _ = http.Get("https://tvtropes.org/pmwiki/pmwiki.php/VideoGame/Xenogears")
+		res, _ = http.Get("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
 		doc, _ = goquery.NewDocumentFromReader(res.Body)
 
-		tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/VideoGame/Xenogears")
+		tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
 		differentUrl, _ := url.Parse("https://www.google.com/")
 		notWorkUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Main/Media")
 
 		tvTropesPage = &tropestogo.Page{
 			URL:         tvTropesUrl,
-			DOMTree:     doc,
+			Document:    doc,
 			LastUpdated: time.Now(),
 		}
 
 		notTvTropesPage = &tropestogo.Page{
 			URL:         differentUrl,
-			DOMTree:     &goquery.Document{},
+			Document:    &goquery.Document{},
 			LastUpdated: time.Now(),
 		}
 
 		notWorkPage = &tropestogo.Page{
 			URL:         notWorkUrl,
-			DOMTree:     &goquery.Document{},
+			Document:    &goquery.Document{},
 			LastUpdated: time.Now(),
 		}
 	})
@@ -61,7 +61,7 @@ var _ = Describe("Scraper", func() {
 
 		Context("The service is created incorrectly", func() {
 			It("Should return an empty ServiceScraper", func() {
-				Expect(serviceScraper).To(BeEmpty())
+				Expect(*serviceScraper).To(Equal(scraper.ServiceScraper{}))
 			})
 
 			It("Should return an appropriate error", func() {
@@ -74,7 +74,7 @@ var _ = Describe("Scraper", func() {
 		var validTvTropesPage, validDifferentPage, validNotWorkPage bool
 		var errTvTropes, errDifferent, errNotWorkPage error
 
-		BeforeAll(func() {
+		BeforeEach(func() {
 			validTvTropesPage, errTvTropes = serviceScraper.CheckValidWorkPage(tvTropesPage)
 			validDifferentPage, errDifferent = serviceScraper.CheckValidWorkPage(notTvTropesPage)
 			validNotWorkPage, errNotWorkPage = serviceScraper.CheckValidWorkPage(notWorkPage)
