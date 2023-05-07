@@ -56,6 +56,7 @@ func ConfigRepository(mr media.RepositoryMedia) ScraperConfig {
 }
 
 // CheckValidWorkPage checks if a TvTropes Work page has a valid structure in which the scraper can extract data
+// This allows the scraper to check if TvTropes template has somewhat changed
 func (*ServiceScraper) CheckValidWorkPage(page *tropestogo.Page) (bool, error) {
 	// First check if the domain is TvTropes
 	if page.URL.Hostname() != "tvtropes.org" {
@@ -68,14 +69,18 @@ func (*ServiceScraper) CheckValidWorkPage(page *tropestogo.Page) (bool, error) {
 		return false, ErrNotWorkPage
 	}
 
-	// Check the main article structure
+	// Check if the main article structure has all known ids and elements that comprise a TvTropes work page
+	if page.Document.Find("#main-article").Length() == 0 ||
+		page.Document.Find("nav.body-options").Find("ul.subpage-links").Find("a.subpage-link").Length() == 0 {
+		return false, ErrUnknownPageStructure
+	}
+
+	// Check the title
 	title := page.Document.Find("h1.entry-title")
 	index := title.Find("strong")
 	if strings.Trim(index.Text(), " /") != "Film" {
 		return false, ErrNotWorkPage
 	}
-
-	// Check if the tropes part of the page has a known structure
 
 	return true, nil
 }
