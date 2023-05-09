@@ -2,11 +2,14 @@ package scraper
 
 import (
 	"errors"
+	"net/http"
+	"regexp"
+	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/index"
 	"github.com/jlgallego99/TropesToGo/media"
-	"regexp"
-	"strings"
 )
 
 var (
@@ -59,6 +62,9 @@ func ConfigRepository(mr media.RepositoryMedia) ScraperConfig {
 // CheckValidWorkPage checks if a TvTropes Work page has a valid structure in which the scraper can extract data
 // This allows the scraper to check if TvTropes template has somewhat changed
 func (*ServiceScraper) CheckValidWorkPage(page *tropestogo.Page) (bool, error) {
+	res, _ := http.Get(page.URL.String())
+	doc, _ := goquery.NewDocumentFromReader(res.Body)
+
 	// First check if the domain is TvTropes
 	if page.URL.Hostname() != "tvtropes.org" {
 		return false, ErrNotTvTropes
@@ -71,28 +77,28 @@ func (*ServiceScraper) CheckValidWorkPage(page *tropestogo.Page) (bool, error) {
 	}
 
 	// Check if the main article structure has all known ids and elements that comprise a TvTropes work page
-	if page.Document.Find("#main-article").Length() == 0 ||
-		page.Document.Find("nav.body-options").Find("ul.subpage-links").Find("a.subpage-link").Length() == 0 {
+	if doc.Find("#main-article").Length() == 0 ||
+		doc.Find("nav.body-options").Find("ul.subpage-links").Find("a.subpage-link").Length() == 0 {
 		return false, ErrUnknownPageStructure
 	}
 
 	// Check the title
-	title := page.Document.Find("h1.entry-title")
+	title := doc.Find("h1.entry-title")
 	index := title.Find("strong")
 	if strings.Trim(index.Text(), " /") != "Film" {
 		return false, ErrNotWorkPage
 	}
 
 	// Look for the tropes section
-	if page.Document.Find("#main-article ul").Length() == 0 &&
-		strings.Contains(strings.ToLower(page.Document.Find("#main-article h2").First().Text()), "tropes") {
+	if doc.Find("#main-article ul").Length() == 0 &&
+		strings.Contains(strings.ToLower(doc.Find("#main-article h2").First().Text()), "tropes") {
 
 		return false, ErrUnknownPageStructure
 	} else {
 		// Check if the list is a) a simple trope list or c) a list of subpages with tropes
-		if page.Document.Find("#main-article ul li a.twikilink").Length() != 0 {
+		if doc.Find("#main-article ul li a.twikilink").Length() != 0 {
 			// Get the first word of the first element of the list, check if is an anchor to a trope page or a sub page
-			tropeHref, exists := page.Document.Find("#main-article ul li a.twikilink").First().Attr("href")
+			tropeHref, exists := doc.Find("#main-article ul li a.twikilink").First().Attr("href")
 
 			// a) Tropes are presented on a single list
 			// Checks if it's a Main page
@@ -113,7 +119,7 @@ func (*ServiceScraper) CheckValidWorkPage(page *tropestogo.Page) (bool, error) {
 
 		// b) Check if tropes are on folders
 		// If there's a close all folders button, then the tropes are on folders
-		folderFunctionName, existsFolderButton := page.Document.Find("#main-article div.folderlabel").Attr("onclick")
+		folderFunctionName, existsFolderButton := doc.Find("#main-article div.folderlabel").Attr("onclick")
 		if existsFolderButton && folderFunctionName == "toggleAllFolders()" {
 			return true, nil
 		}
