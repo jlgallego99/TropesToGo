@@ -143,3 +143,9 @@ Journey
 Journeys
 README
 sitemap
+stakeholders
+user
+journey
+journeys
+instanciada
+instanciándolo

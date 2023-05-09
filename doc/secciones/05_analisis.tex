@@ -1,47 +1,87 @@
-\chapter{Análisis del problema}
-En este capítulo se modela el problema de construcción de un \textit{scraper} de
-TvTropes aplicando el patrón de \textit{Domain Driven Design}. Luego, se analiza
-la estructura que sigue la web, identificando los puntos más importantes para
-saber cómo abordar la creación de la araña que explore todas las páginas
-relevantes de TvTropes y la extracción de la información que queremos en cada
-una de ellas. El objetivo general del capítulo es servir de inicio para saber
-cómo abordar la solución al problema y así poder llevarlo luego a lo práctico en
-la implementación del \textit{software} en el capítulo 6, en el que se
-desarrollará la estrategia final para resolver el problema de la extracción de
-datos en TvTropes.
+\chapter{Análisis previo del problema}
+Este capítulo servirá de preludio al capítulo de implementación dando un primer
+análisis de los diversos aspectos tanto del problema como del funcionamiento y
+estructura de TvTropes, de modo que permita proceder con los primeros
+\textit{milestones} del desarrollo del \textit{software} y entender la
+estrategia que se seguirá a lo largo del desarrollo con respecto a entender y
+resolver el problema. Primero se dará un modelo inicial del problema de
+construcción de un \textit{scraper} de TvTropes aplicando el patrón de
+\textit{Domain Driven Design}. Luego, se analiza la estructura que sigue la web
+de TvTropes, identificando los puntos más importantes para saber cómo abordar la
+creación de la araña que explore todas las páginas relevantes de TvTropes y la
+extracción de la información que queremos en cada una de ellas. El objetivo
+general del capítulo es servir de inicio para saber cómo abordar la solución al
+problema y así poder llevarlo luego a lo práctico en la implementación del
+\textit{software} en el \autoref{c:6}, en el que se modelarán nuevas partes del
+problema conforme se van alcanzando los distintos hitos que permitan llegar a la
+solución final.
 
-\section{Modelado del problema}
-Mediante el modelado del problema se representará una abstracción del sistema
-que se pretende construir y que describirá lo necesario para entender el dominio
-del problema y pasar de las historias de usuario a un diseño inicial del código
-correctamente modularizado. 
+\section{Modelado inicial del problema}
+Con el objetivo de cumplir los dos milestones siguientes, relativos al inicio
+del desarrollo del \textit{scraper} que extrae información de películas
+(\href{https://github.com/jlgallego99/TropesToGo/milestone/3}{M2} y
+\href{https://github.com/jlgallego99/TropesToGo/milestone/7}{M3}), se describe
+primero la metodología a seguir para modelar el problema que se pretende
+resolver en todo este trabajo y luego se definen las partes básicas de ella para
+poder comenzar con el desarrollo en el siguiente capítulo. Al estar en un marco
+de desarrollo ágil no se tiene un modelo completo desde el principio, sino que
+se necesitarán modelar nuevas y diferentes partes del problema conforme se
+avance en el desarrollo. Esto se especificará en el \ref{c:6}, donde se
+introducirán progresivamente nuevos elementos al modelo del problema y se irán
+resolviendo. Por tanto, en este capítulo se pretende dar un modelo inicial con
+el que entender cómo se va a abordar este aspecto del desarrollo y cómo poder
+empezar con las primeras etapas de construcción del \textit{software}. El
+modelado del problema es una forma de tener una abstracción de las distintas
+partes del sistema de modo que haya una relación entendible entre el código, el
+problema y sus términos concretos. Con esto se tendrá lo necesario para entender
+el dominio del problema y pasar de las historias de usuario a un diseño inicial
+del código correctamente modularizado.
 
 El diseño dirigido por dominio (\textit{Domain Driven Design} en inglés,
 \textit{DDD} para acortar) es una de las metodologías más populares y efectivas
-para modelar un problema en el ámbito de la ingeniería del software. Mediante
-esta metodología se definen una serie de términos y patrones para modelar un
-problema como una abstracción de los componentes necesarios que puedan manejar
-el dominio del problema; en este caso, la extracción de información de TvTropes.
-Este modelado del problema nos permite definir las estructuras de datos,
-interfaces y los posibles errores o excepciones de forma general en el código
-que describan todas las partes importantes del dominio del problema y que luego
-se implementarán en el capítulo 6. De esta manera, se definirá un lenguaje
-unificado que todo el mundo implicado con este trabajo, tanto usuarios como
-clientes como desarrolladores, pueda entender y nos permita referirnos a todos
-los conceptos del dominio por términos fácilmente identificables y traducibles a
-código.
+para modelar un problema en el ámbito de la ingeniería del software
+\cite{ddd_golang}. Mediante esta metodología se definen una serie de términos y
+patrones para modelar un problema como una abstracción de los componentes
+necesarios que puedan manejar el dominio del problema; en este caso, la
+extracción de información de TvTropes. Este modelado del problema nos permite
+definir las estructuras de datos, interfaces y los posibles errores o
+excepciones de forma general en el código que describan todas las partes
+importantes del dominio del problema y que luego se implementarán en el
+\autoref{c:6}. De esta manera, se definirá un lenguaje unificado que todo el
+mundo implicado con este trabajo, tanto usuarios como clientes como
+desarrolladores, pueda entender y nos permita referirnos a todos los conceptos
+del dominio por términos fácilmente identificables y traducibles a código
+\cite{ddd_golang}.
 
 \textit{DDD} define una serie de componentes que permiten dividir el dominio del
 problema en contextos muy definidos para facilitar que se creen unidades con
 responsabilidad única y que se puedan desarrollar de manera independiente. Los
 componentes que utilizaremos en este proyecto para modelarlo son: las entidades,
-los objetos valor, los agregados, los repositorios y los servicios. Las
-entidades son ítems o estructuras mutables y únicamente identificables que
-mantienen su identidad a lo largo del ciclo de vida, pero que pueden cambiar de
-estado. Por otro lado, los objetos valor son ítems inmutables no identificables,
-muy cercanos a tipos de datos que pueden ser más simples o complejos que, no
-obstante, describen las características de algo como una instancia; producir uno
-implica instanciar uno nuevo y no modificar el ya existente.
+los objetos valor, los agregados, los repositorios y los servicios
+\cite{ddd_golang}. 
+
+Este lenguaje único propicia el código limpio en este desarrollo, ya que,
+\textit{DDD} es una metodología que sigue varios de sus principios
+\cite{clean_code_rules}; el código sigue una estructura sencilla, bien definida
+y comprensible a primera vista, que serían las distinciones de dominio que
+define. Además, todos los componentes en \textit{Domain Driven Design} están
+relacionados entre sí siguiendo su filosofía, lo que propicia que esas
+relaciones se entiendan de primeras. Cada componente del dominio es fácilmente
+traducible a un módulo con responsabilidad única que define una serie de
+funciones descriptivas, simples y que realizan una sola tarea. Luego, existen
+otros componentes llamados servicios que relacionan de forma entendible todas
+esas funciones simples para formar un núcleo lógico, manteniendo las relaciones
+y flujo de ejecución entendibles y a un alto nivel, sin necesitar de saber cómo
+están implementados por dentro.
+
+El principal componente de estudio son las entidades y objetos valor, ya que, el
+resto de componentes se deducen de estos. Las entidades son ítems o estructuras
+mutables y únicamente identificables que mantienen su identidad a lo largo del
+ciclo de vida, pero que pueden cambiar de estado \cite{jannik_ddd}. Por otro
+lado, los objetos valor son ítems inmutables no identificables, muy cercanos a
+tipos de datos que pueden ser más simples o complejos que, no obstante,
+describen las características de algo como una instancia; producir uno implica
+instanciar uno nuevo y no modificar el ya existente \cite{jannik_ddd}.
 
 Estos dos conceptos se unen mediante los agregados. Un agregado permite combinar
 y encapsular estas entidades y objetos valor, definiendo una interfaz común para
@@ -52,135 +92,205 @@ Se puede entender un agregado como un objeto completo que realiza las
 funcionalidades que queremos y en el que sus datos no son accesibles desde
 fuera, solamente utilizables desde funciones. Es responsabilidad de las
 entidades y objetos valor el representar correctamente su información para que
-el agregado los pueda utilizar correctamente.
+el agregado los pueda utilizar correctamente \cite{ddd_golang}.
 
 En esta metodología entra también el concepto de repositorio, que almacena o
 persiste la información de un agregado, puesto que estos son la unidad de mayor
-importancia en \textit{DDD}. El repositorio añade una capa de abstracción para
-el almacenamiento de datos, generalmente usando el patrón repositorio, que
-oculta los detalles de implementación del almacenamiento, consiguiendo así que
-la lógica de negocio funcione de manera independiente. Esto garantiza la
-propiedad de única responsabilidad y permite que, en caso de necesitar a lo
-largo del desarrollo otro método de persistencia de datos, no haga falta
-refactorizar todo el código, sino simplemente modificar el repositorio,
-manteniendo el resto del código intacto. 
+importancia en \textit{DDD} \cite{ddd_golang}. El repositorio añade una capa de
+abstracción para el almacenamiento de datos, generalmente usando el patrón
+repositorio, el cual fue introducido por \begin{otherlanguage}{english}Edward
+Hieatt y Rob Mee\end{otherlanguage} en el libro
+\begin{otherlanguage}{english} Patterns of Enterprise Application Architecture
+\end{otherlanguage}\cite{fowler2002eea} y cuyo cometido es mediar entre las
+capas de datos y de dominio usando una interfaz que permita acceder a los
+objetos del dominio. El repositorio acepta peticiones de objetos cliente del
+dominio (que generalmente serán los servicios) y encapsula el código que ejecuta
+todas las operaciones sobre la colección de datos, ocultando los detalles de
+implementación del almacenamiento, consiguiendo así que la lógica de negocio
+funcione de manera independiente. Esto garantiza la propiedad de única
+responsabilidad y permite que, en caso de necesitar a lo largo del desarrollo
+otro método de persistencia de datos, no haga falta refactorizar todo el código,
+sino simplemente modificar el repositorio, manteniendo el resto del código
+intacto. 
 
 Se tendrán repositorios encargados de persistir los resultados de la extracción
-del \textit{scraper}, es decir, las obras con sus \textit{tropos}. Este
-repositorio dará finalmente el producto que el \textit{software} ofrece al
-usuario para satisfacer sus necesidades. Esto se definirá como una interfaz en
-Go, que describe las distintas funciones que tratan con los datos
-independientemente de la manera en la que se persistan. El patrón composición en
-Go permite luego poder implementar estas mismas funciones usando distintos
-\textit{structs}. Cada \textit{struct} que implemente la interfaz repositorio
-será considerado un repositorio, por lo que, se pueden crear tantos
-\textit{structs} como almacenes de datos se necesiten de forma sencilla. Los
-repositorios deben tener en cuenta también el dominio del problema, y en este
-caso están relacionados con la historia de usuario
+del \textit{scraper}, es decir, las obras con sus \textit{tropos}, el cual dará
+finalmente el producto que el \textit{software} ofrece al usuario para
+satisfacer sus necesidades. Para implementar esto en Go es necesario entender su
+filosofía de programación. Go no es un lenguaje orientado a objetos; utiliza un
+patrón más moderno para la reutilización del código que es el de composición y
+no existe el concepto de herencia \cite{debnath_introduction_2022}. Programar en
+Go implica seguir sus propias reglas y alejarse de la mentalidad clásica de la
+programación orientada a objetos. La principal herramienta de composición en Go
+son las interfaces y los \textit{structs}, con las cuales se puede implementar
+algo cercano al polimorfismo. Se pueden embeber distintos \textit{structs}
+dentro de otros, cada uno con su propia responsabilidad, para formar objetos
+compuestos, formando una relación de pertenencia entre \textit{structs}, a
+diferencia de las relaciones de herencia. Mientras que un \textit{struct}
+permite definir un tipo concreto, una interfaz nos permite definir un tipo
+abstracto. En Go una interfaz define una serie de métodos genéricos que abstraen
+de cualquier tipo de datos concreto y permiten realizar una misma acción de
+distintas maneras. Una interfaz solamente es instanciada cuando un
+\textit{struct} implementa todos sus métodos, en cuyo caso se dice que el objeto
+cumple la interfaz. 
+
+Visto esto, tiene sentido describir los repositorios usando una interfaz, que no
+solo nos dará una definición de las operaciones del repositorio, sino que además
+permitirá implementar esa interfaz con distintos \textit{structs} para distintos
+repositorios que traten con los datos independientemente de la manera en la que
+se persistan. Cada \textit{struct} que implemente la interfaz repositorio con
+distintas formas de persistencia será considerado un repositorio, por lo que, se
+pueden crear tantos \textit{structs} como almacenes de datos se necesiten de
+forma sencilla. Los repositorios deben tener en cuenta también el dominio del
+problema, y en este caso están relacionados con la historia de usuario
 \href{https://github.com/jlgallego99/TropesToGo/issues/30}{[HU05]} en la que el
 investigador expresa la necesidad de poder elegir el formato de representación
 para el conjunto de datos, y cada formato de representación de datos será un
 repositorio.
 
-Finalmente, queda un componente de \textit{DDD} para terminar de formar el
-modelo de la aplicación: los servicios. El concepto de servicio tiene múltiples
-significados según el contexto, sin embargo, en esta metodología hace referencia
-al componente que orquesta el resto de componentes que se han definido
-anteriormente, los cuales están débilmente acoplados y necesitan de una unidad
-que los haga funcionar para poder formar la aplicación que cumpla las
-necesidades del dominio. El servicio es el principal encargado de tratar con los
-repositorios.
+Finalmente, queda un componente de \textit{DDD} para terminar de formar las
+partes básicas del modelo de la aplicación: los servicios. El concepto de
+servicio tiene múltiples significados según el contexto, sin embargo, en esta
+metodología hace referencia al componente que orquesta el resto de componentes
+que se han definido anteriormente, los cuales están débilmente acoplados y
+necesitan de una unidad que los haga funcionar para poder formar la aplicación
+que cumpla las necesidades del dominio. El servicio es el principal encargado de
+tratar con los repositorios.
 
 Adicionalmente, en el ámbito del \textit{Domain Driven Design} se sugiere el uso
-del patrón factoría para la creación de agregados, repositorios y servicios. Por
-tanto, se tendrán funciones que se encargarán de la creación de todo el objeto
-de forma transparente al desarrollador que lo esté utilizando; no necesita saber
-qué ocurre sino solamente el objeto correctamente creado.
+del patrón factoría para la creación de agregados, repositorios y servicios
+\cite{ddd_golang}. Por tanto, se tendrán funciones que se encargarán de la
+creación de todo el objeto de forma transparente al desarrollador que lo esté
+utilizando; no necesita saber qué ocurre sino solamente el objeto correctamente
+creado.
 
-Finalmente, se definen los siguientes componentes que modelan la extracción de
-datos en TvTropes, definiendo lo necesario para la representación del dominio de
-este problema:
+Finalmente, se definen los siguientes componentes que modelan los principales
+módulos que se tendrán en la extracción de datos en TvTropes, definiendo lo
+necesario para entender el dominio del problema a un nivel general y poder
+comenzar a desarrollar el \textit{scraper} y conocer las distintas partes que
+componen el dominio: las páginas de TvTropes, las obras y los \textit{tropos}.
+Todos estos componentes son necesarios para extraer la información de cualquier
+página de TvTropes, razón por la que el primer \textit{milestone} del desarrollo
+se centra en ello, ya que, su objetivo es dar una primera versión funcional de
+un \textit{scraper} básico para TvTropes. A continuación se describen los
+componentes \textit{DDD} que permiten modelar esto y poder organizar
+inicialmente los distintos ficheros y directorios del código: 
 \begin{itemize}
   \item \textbf{Objetos valor:}
   \begin{itemize}
-    \item \textbf{\textit{Trope}}, el recurso reiterativo en el que se pone el
-    foco en este trabajo. Un \textit{tropo} es inmutable, ya que, sigue una
-    denominación concreta que provee TvTropes y, aunque cada uno es único, están
-    definidos por su nombre y descripción. Si se le cambiase la descripción o
-    nombre a un \textit{tropo} resultaría en uno distinto, que casaría con la
-    idea de que en este ámbito de estudios surgen constantemente nuevos
-    \textit{tropos}, a veces relacionados con anteriores, pero que son
-    distintos. En el ámbito de este trabajo definimos que una obra está definida
-    por sus \textit{tropos}, describen un aspecto del dominio, lo que hace que
-    estos sean objetos valor. 
+    \item
+    \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/trope.go}{\textit{Trope}}},
+    el recurso reiterativo en el que se pone el foco en este trabajo. Un
+    \textit{tropo} es inmutable, ya que, sigue una denominación concreta que
+    provee TvTropes y, aunque cada uno es único, están definidos por su nombre y
+    descripción. Si se le cambiase la descripción o nombre a un \textit{tropo}
+    resultaría en uno distinto, que casaría con la idea de que en este ámbito de
+    estudios surgen constantemente nuevos \textit{tropos}, a veces relacionados
+    con anteriores, pero que son distintos.\\
+    En el ámbito de este trabajo definimos que una obra está definida por sus
+    \textit{tropos}, describen un aspecto del dominio, lo que hace que estos
+    sean objetos valor. Al ser un objeto valor, se tratará únicamente
+    instanciándolo, se representará como un \textit{struct} en Go y sus campos
+    serán privados, accesibles desde funciones. 
   \end{itemize}
   \item \textbf{Entidades:}
   \begin{itemize}
-    \item \textbf{\textit{Page}}, concretamente las páginas de las obras, que
-    contienen toda una estructura HTML y se identifican unívocamente por su URL.
-    Sus características pueden cambiar, ya que, la comunidad puede modificar o
-    añadir nuevos datos a ella en cualquier momento y se debe tener en cuenta
-    para satisfacer la historia
+    \item
+    \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/page.go}{\textit{Page}}},
+    concretamente las páginas de las obras, que contienen toda una estructura
+    HTML y se identifican unívocamente por su URL. Sus características pueden
+    cambiar, ya que, la comunidad puede modificar o añadir nuevos datos a ella
+    en cualquier momento y se debe tener en cuenta para satisfacer la historia
     \href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}, en la que
     se especifica la necesidad de tener la información lo más actualizada
-    posible.
-    \item \textbf{\textit{Work}}, es la denominación en TvTropes para una obra
-    audiovisual, independientemente del medio al que pertenezca. En el dominio
-    del problema, una obra evoluciona en el tiempo conforme sus \textit{tropos}
-    cambian y, además, está identificada por su título. Si tuviese otro título
-    sería una obra distinta, por tanto, se llega a la conclusión de que esto es
-    una entidad.
+    posible. Estas páginas hacen referencia a todas las páginas de obras de
+    cualquier medio audiovisual, puesto que, es lo que pide el usuario
+    (\href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]}).
+    Adicionalmente, el \textit{scraper} necesitará toda la información del HTML
+    para poder analizarla, por lo que debe estar codificada como un árbol DOM
+    que permita recorrerlo. Una página de TvTropes debe almacenar solamente el
+    HTML que le interesa al usuario atendiendo a las
+    \href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]} y
+    \href{https://github.com/jlgallego99/TropesToGo/issues/7}{[HU02]}. Esto se
+    verá más en profundidad en la siguiente sección, donde se analizará la
+    estructura de una página de TvTropes.\\
+    Al ser una entidad, se tratará desde los agregados como una referencia
+    (utilizando punteros), ya que, cada una de las páginas mantiene su identidad
+    según su URL y va cambiando.
+    \item
+    \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/work.go}{\textit{Work}}},
+    es la denominación en TvTropes para una obra audiovisual, independientemente
+    del medio al que pertenezca. En el dominio del problema, una obra evoluciona
+    en el tiempo conforme sus \textit{tropos} cambian y, además, está
+    identificada por su título. Si tuviese otro título sería una obra distinta,
+    por tanto, se llega a la conclusión de que esto es una entidad.\\
+    Al igual que las páginas, las obras también se tratarán desde los agregados
+    como referencias mediante punteros, manteniendo su identidad.
   \end{itemize}
   \item \textbf{Agregados:}
   \begin{itemize}
-    \item \textbf{\textit{Index}}: Relacionado con la funcionalidad del
-    \textit{crawler}, se encarga de indexar las entidades página de TvTropes,
-    para que luego el siguiente agregado, el \textit{scraper}, extraiga su
-    información. La entidad raíz de este agregado será la página. Los índices se
-    deben persistir en un repositorio para cumplir la historia de usuario
+    \item
+    \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/index/index.go}{\textit{Index}}}:
+    Relacionado con la funcionalidad del \textit{crawler}, se encarga de indexar
+    las entidades página de TvTropes, para que luego el siguiente agregado, el
+    \textit{scraper}, extraiga su información. La entidad raíz de este agregado
+    será la página. Los índices se deben persistir en un repositorio para
+    cumplir la historia de usuario
     \href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}, que
     especifica que la información debe estar actualizada, por lo que, el
     propósito de este agregado es obtener las páginas que no se tienen y
     actualizar las que ya están registradas, sin caer en peticiones redundantes.
-    \item \textbf{\textit{Media}}: Relacionado con la funcionalidad del
-    \textit{scraper}, extrae el conjunto de todos los \textit{tropos} de todas
-    las obra que pertenecen a un medio audiovisual (llamado \textit{media} en
-    inglés y en TvTropes) concreto. La entidad raíz en este caso será la obra,
-    de la que cuelgan sus \textit{tropos}. Pretende cumplir las dos primeras
-    historias de usuario
+    \item
+    \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/media/media.go}{\textit{Media}}}:
+    Relacionado con la funcionalidad del \textit{scraper}, extrae el conjunto de
+    todos los \textit{tropos} de todas las obra que pertenecen a un medio
+    audiovisual (llamado \textit{media} en inglés y en TvTropes) concreto. La
+    entidad raíz en este caso será la obra, de la que cuelgan sus
+    \textit{tropos}. Pretende cumplir las dos primeras historias de usuario
     \href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]} y
     \href{https://github.com/jlgallego99/TropesToGo/issues/7}{[HU02]}, que piden
     que se obtenga toda la información de \textit{tropos} o un subconjunto de
-    ellos. El agregado se asegurará, por tanto, de que se tienen todos los
-    \textit{tropos} existentes en una obra y permitiendo poder elegir tanto la
-    obra u obras como el medio, con posibilidad de extraerlo todo o una parte.
-    Este agregado se encargará de extraer los datos de TvTropes y dar una API
-    para dar acceso a la principal unidad que pretende conseguir este trabajo:
-    la obra con sus \textit{tropos}.
+    ellos. Una obra con sus \textit{tropos} debe tener además información
+    adicional de metadatos que permita distinguirla de otras con mismo nombre
+    para cumplir la
+    \href{https://github.com/jlgallego99/TropesToGo/issues/8}{[HU03]} y saber lo
+    actualizada que está para cumplir
+    \href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}. El
+    agregado se asegurará, por tanto, de que se tienen todos los \textit{tropos}
+    existentes en una obra y permitiendo poder elegir tanto la obra u obras como
+    el medio, con posibilidad de extraerlo todo o una parte. Este agregado se
+    encargará de extraer los datos de TvTropes y dar una API para dar acceso a
+    la principal unidad que pretende conseguir este trabajo: la obra con sus
+    \textit{tropos}.
   \end{itemize}
   \item \textbf{Repositorios:}
   \begin{itemize}
-    \item Un repositorio que almacene el indexado de las páginas relevantes de
-    TvTropes para su posterior extracción, identificar si ha cambiado su
-    contenido y no estar constantemente haciendo peticiones a la web
+    \item Un repositorio que almacene el
+    \href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/index/repository.go}{indexado}
+    de las páginas relevantes de TvTropes para su posterior extracción,
+    identificar si ha cambiado su contenido y no estar constantemente haciendo
+    peticiones a la web
     (\href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}).
-    \item Adicionalmente, uno o más repositorios que persistan el conjunto de
-    datos en varios formatos
+    \item Adicionalmente, uno o más repositorios que persistan el
+    \href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/media/repository.go}{conjunto
+    de datos} en varios formatos
     (\href{https://github.com/jlgallego99/TropesToGo/issues/30}{[HU05]}).
   \end{itemize}
   \item \textbf{Servicios:}
   \begin{itemize}
-    \item El \textbf{\textit{Crawler}} será el servicio encargado de controlar
-    el flujo del agregado \textit{Index}. Identificará e indexará las páginas de
-    TvTropes que se necesitan y las almacenará en un repositorio para persistir
-    el resultado del \textit{crawling} y no sobrecargar la red con numerosas
-    peticiones a la misma página, ya que, ya se tendrá extraída en su totalidad
-    de forma bruta.
-    \item Por otro lado, el \textbf{\textit{Scraper}} será el servicio que
-    interaccione con el repositorio que contiene las páginas indexadas para
-    analizarlas y extraer la información que se busca, que finalmente se
-    almacenarán en uno o varios repositorios pertenecientes a los distintos
-    almacenes de datos que se definan. 
+    \item El
+    \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/service/crawler/crawler.go}{\textit{Crawler}}}
+    será el servicio encargado de controlar el flujo del agregado
+    \textit{Index}. Identificará e indexará las páginas de TvTropes que se
+    necesitan y las almacenará en un repositorio para persistir el resultado del
+    \textit{crawling} y no sobrecargar la red con numerosas peticiones a la
+    misma página, ya que, ya se tendrá extraída en su totalidad de forma bruta.
+    \item Por otro lado, el
+    \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/service/scraper/scraper.go}{\textit{Scraper}}}
+    será el servicio que interaccione con el repositorio que contiene las
+    páginas indexadas para analizarlas y extraer la información que se busca,
+    que finalmente se almacenarán en uno o varios repositorios pertenecientes a
+    los distintos almacenes de datos que se definan. 
   \end{itemize}
 \end{itemize}
 
@@ -189,13 +299,18 @@ Un wiki complejo como TvTropes, en el que tanto la estructura concreta de una
 página como entre ellas cambia bastante, contiene información que es de difícil
 acceso y está desperdigada por distintos lugares. A veces, no existe siquiera.
 Es por esto que a continuación, tras haber visto cómo se pretende modelar el
-problema y organizar el código, se estudian los problemas y particularidades que
-tiene TvTropes y que queremos resolver con el \textit{scraper} para poder
-extraer toda la información que sea posible de la manera más sencilla y
-eficiente. Para ello, se estudia la organización de las páginas de TvTropes
-tanto entre sí como dentro de ellas, y se observan los puntos más importantes
-que el bot debe saber identificar para poder desarrollar una estrategia en el
-siguiente capítulo conociendo todos los puntos relevantes de la web.
+problema y organizar el código para poder empezar con las primeras fases del
+desarrollo, se estudian los problemas y particularidades que tiene TvTropes y
+que queremos resolver con el \textit{scraper} para poder extraer toda la
+información que sea posible de la manera más sencilla y eficiente. Esto nos
+permitirá resolver los dos primeros \textit{milestones}, donde se analizará y
+entenderá la estructura de una página y se extraerá exactamente la información
+que se quiere, además de dar información adicional que sirva para entender
+TvTropes en general y poder aplicarlo en siguientes hitos. Para ello, se estudia
+la organización de las páginas de TvTropes tanto entre sí como dentro de ellas,
+y se observan los puntos más importantes que el bot debe saber identificar para
+poder desarrollar una estrategia en el siguiente capítulo conociendo todos los
+puntos relevantes de la web.
 
 Primero, se hará una breve introducción sobre cómo funciona TvTropes en general.
 Luego, se analizará la organización entre páginas para el desarrollo del
@@ -339,7 +454,7 @@ los tipos de \textit{media} posibles.
 
 Existen índices que agrupan las obras por otros criterios como el género de la
 obra, sin embargo, estos son más generales y dividen de forma más ambigua y
-subjetiva las obras. Esto, sumado a que atendiendo a los \textit{User Journeys}
+subjetiva las obras. Esto, sumado a que atendiendo a los \textit{user journey}
 especificados y a la
 \href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]}, nos permite
 saber que los usuarios quieren el conjunto de datos por tipo de obra y es, por
