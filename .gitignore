@@ -311,3 +311,10 @@ typings/
 
 # Textodite reports
 *.html
+
+# ignore .idea folder except needed files
+tropestogo/.idea/*
+!tropestogo/.idea/workspace.xml
+!tropestogo/.idea/tasks.xml
+!tropestogo/.idea/usage.statistics.xml
+!tropestogo/.idea/shelf
