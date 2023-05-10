@@ -60,7 +60,7 @@ componentes que utilizaremos en este proyecto para modelarlo son: las entidades,
 los objetos valor, los agregados, los repositorios y los servicios
 \cite{ddd_golang}. 
 
-Este lenguaje único propicia el código limpio en este desarrollo, ya que,
+Este lenguaje único propicia el código limpio en este desarrollo, ya que
 \textit{DDD} es una metodología que sigue varios de sus principios
 \cite{clean_code_rules}; el código sigue una estructura sencilla, bien definida
 y comprensible a primera vista, que serían las distinciones de dominio que
@@ -74,7 +74,7 @@ esas funciones simples para formar un núcleo lógico, manteniendo las relacione
 y flujo de ejecución entendibles y a un alto nivel, sin necesitar de saber cómo
 están implementados por dentro.
 
-El principal componente de estudio son las entidades y objetos valor, ya que, el
+El principal componente de estudio son las entidades y objetos valor, ya que el
 resto de componentes se deducen de estos. Las entidades son ítems o estructuras
 mutables y únicamente identificables que mantienen su identidad a lo largo del
 ciclo de vida, pero que pueden cambiar de estado \cite{jannik_ddd}. Por otro
@@ -171,7 +171,7 @@ comenzar a desarrollar el \textit{scraper} y conocer las distintas partes que
 componen el dominio: las páginas de TvTropes, las obras y los \textit{tropos}.
 Todos estos componentes son necesarios para extraer la información de cualquier
 página de TvTropes, razón por la que el primer \textit{milestone} del desarrollo
-se centra en ello, ya que, su objetivo es dar una primera versión funcional de
+se centra en ello, ya que su objetivo es dar una primera versión funcional de
 un \textit{scraper} básico para TvTropes. A continuación se describen los
 componentes \textit{DDD} que permiten modelar esto y poder organizar
 inicialmente los distintos ficheros y directorios del código: 
@@ -181,7 +181,7 @@ inicialmente los distintos ficheros y directorios del código:
     \item
     \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/trope.go}{\textit{Trope}}},
     el recurso reiterativo en el que se pone el foco en este trabajo. Un
-    \textit{tropo} es inmutable, ya que, sigue una denominación concreta que
+    \textit{tropo} es inmutable, ya que sigue una denominación concreta que
     provee TvTropes y, aunque cada uno es único, están definidos por su nombre y
     descripción. Si se le cambiase la descripción o nombre a un \textit{tropo}
     resultaría en uno distinto, que casaría con la idea de que en este ámbito de
@@ -199,7 +199,7 @@ inicialmente los distintos ficheros y directorios del código:
     \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/page.go}{\textit{Page}}},
     concretamente las páginas de las obras, que contienen toda una estructura
     HTML y se identifican unívocamente por su URL. Sus características pueden
-    cambiar, ya que, la comunidad puede modificar o añadir nuevos datos a ella
+    cambiar, ya que la comunidad puede modificar o añadir nuevos datos a ella
     en cualquier momento y se debe tener en cuenta para satisfacer la historia
     \href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}, en la que
     se especifica la necesidad de tener la información lo más actualizada
@@ -215,7 +215,7 @@ inicialmente los distintos ficheros y directorios del código:
     verá más en profundidad en la siguiente sección, donde se analizará la
     estructura de una página de TvTropes.\\
     Al ser una entidad, se tratará desde los agregados como una referencia
-    (utilizando punteros), ya que, cada una de las páginas mantiene su identidad
+    (utilizando punteros), ya que cada una de las páginas mantiene su identidad
     según su URL y va cambiando.
     \item
     \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/work.go}{\textit{Work}}},
@@ -284,7 +284,7 @@ inicialmente los distintos ficheros y directorios del código:
     \textit{Index}. Identificará e indexará las páginas de TvTropes que se
     necesitan y las almacenará en un repositorio para persistir el resultado del
     \textit{crawling} y no sobrecargar la red con numerosas peticiones a la
-    misma página, ya que, ya se tendrá extraída en su totalidad de forma bruta.
+    misma página, ya que ya se tendrá extraída en su totalidad de forma bruta.
     \item Por otro lado, el
     \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/service/scraper/scraper.go}{\textit{Scraper}}}
     será el servicio que interaccione con el repositorio que contiene las
@@ -364,7 +364,7 @@ una cuenta de usuario. Las cuentas de usuario no son necesarias para consultar
 TvTropes; se emplean para contribuir a la comunidad tanto en el foro como en la
 creación de nuevos \textit{tropos}, por lo que se salen fuera del ámbito de este
 trabajo y el \textit{scraper} no las tiene que tener en cuenta. Esto además
-facilita ciertos aspectos legales, ya que, al tener toda la información
+facilita ciertos aspectos legales, ya que al tener toda la información
 disponible públicamente y sin tener que pasar por la creación de una cuenta que
 tenga una serie de condiciones asociadas, permite que el bot pueda recoger esa
 información sin mayores consideraciones.
@@ -553,20 +553,20 @@ las siguientes:
   pertenecen sin perder ninguno, y navegar hacia cualquiera de ellos, como
   indica la flecha unidireccional. Para navegar dentro del índice hay que tener
   en cuenta que la lista que presenta está paginada, de ahí la flecha de
-  navegación hacia sí mismo, ya que, para que la araña explore todo el índice
+  navegación hacia sí mismo, ya que para que la araña explore todo el índice
   debe explorar en profundidad esa página, utilizando el enlace de pasar a la
   siguiente parte de la lista que hay abajo del todo.
   \item Hay relaciones que no se representan al no ser necesarias, como por
   ejemplo que desde la página principal se puede navegar directamente a
   cualquiera de las páginas relevantes de \textit{tropos} u obras, ya sea
   mediante la barra de búsqueda o mediante enlaces que van cambiando
-  dinámicamente, ya que, la página destaca cada día nuevas páginas relevantes de
+  dinámicamente, ya que la página destaca cada día nuevas páginas relevantes de
   rápido acceso.
   \item Los \textit{tropos} se están referenciando entre sí constantemente por
   lo que navegar desde uno hacia otro puede ser un proceso interminable. La
   araña puede encontrar otros \textit{tropos} explorando las distintas sub
   páginas de una obra. Las sub páginas, como pueden ser Trivia o YMMV, están
-  también representadas como un conjunto genérico, ya que, pueden tomar muchos
+  también representadas como un conjunto genérico, ya que pueden tomar muchos
   nombres y temáticas. Es importante saber que están siempre enlazadas a la obra
   sobre la que hablan, y no se puede navegar a la de otra obra distinta. Desde
   ellas solo se puede navegar o a otra sub página (siempre de la misma obra en
@@ -695,7 +695,7 @@ tratarlas:
   que contendrá otros \textit{tropos} referenciados. En el caso de que una
   página tenga muchos enlaces a sub páginas, no todos se mostrarán directamente,
   y el último botón será un desplegable con el resto. No hace falta usar
-  JavaScript para interaccionar con esta parte, ya que, el resto de sub
+  JavaScript para interaccionar con esta parte, ya que el resto de sub
   secciones que no cabían siguen contenidas ahí. Concretamente, están contenidas
   en el último elemento de lista, que tendrá dentro una etiqueta
   \texttt{<select>} donde cada opción tiene como valor una cadena de texto con
@@ -764,7 +764,7 @@ tipo está en que la araña tiene que profundizar en la búsqueda, accediendo a 
 páginas. La ruta de estas será del tipo \texttt{/<NombreDeLaObra>/Tropes<XtoY>}
 al final de la URL de TvTropes. En ella, \texttt{<XtoY>} representa un rango
 alfabético, siempre precedido por la palabra \textit{Tropes}. Además, estos
-enlaces son siempre elementos de primer nivel en la lista, ya que, pueden
+enlaces son siempre elementos de primer nivel en la lista, ya que pueden
 aparecer otros que no tienen que ver directamente con los \textit{tropos} y se
 pueden ignorar. Una vez entrado en el enlace, la forma de presentar la lista
 puede ser de cualquiera de los otros dos tipos vistos.
@@ -811,7 +811,7 @@ bastante frecuente que contenga las palabras
 \end{figure}
 
 En cuanto a las sub páginas dentro de una obra, estas pueden ser muchas o pocas
-según la obra, ya que, también las crea la comunidad. Cualquiera de estas sub
+según la obra, ya que también las crea la comunidad. Cualquiera de estas sub
 páginas busca dar información interesante relacionada con una obra. En este
 caso, están centradas en distintas temáticas o con distintos objetivos y, por
 tanto, presentan información que puede ser novedosa. Existen varias muy
