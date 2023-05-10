@@ -12,9 +12,9 @@ creación de la araña que explore todas las páginas relevantes de TvTropes y l
 extracción de la información que queremos en cada una de ellas. El objetivo
 general del capítulo es servir de inicio para saber cómo abordar la solución al
 problema y así poder llevarlo luego a lo práctico en la implementación del
-\textit{software} en el \autoref{c:6}, en el que se modelarán nuevas partes del
-problema conforme se van alcanzando los distintos hitos que permitan llegar a la
-solución final.
+\textit{software} en el \autoref{chapter:6}, en el que se modelarán nuevas
+partes del problema conforme se van alcanzando los distintos hitos que permitan
+llegar a la solución final.
 
 \section{Modelado inicial del problema}
 Con el objetivo de cumplir los dos milestones siguientes, relativos al inicio
@@ -26,7 +26,7 @@ resolver en todo este trabajo y luego se definen las partes básicas de ella par
 poder comenzar con el desarrollo en el siguiente capítulo. Al estar en un marco
 de desarrollo ágil no se tiene un modelo completo desde el principio, sino que
 se necesitarán modelar nuevas y diferentes partes del problema conforme se
-avance en el desarrollo. Esto se especificará en el \ref{c:6}, donde se
+avance en el desarrollo. Esto se especificará en el \ref{chapter:6}, donde se
 introducirán progresivamente nuevos elementos al modelo del problema y se irán
 resolviendo. Por tanto, en este capítulo se pretende dar un modelo inicial con
 el que entender cómo se va a abordar este aspecto del desarrollo y cómo poder
@@ -47,8 +47,8 @@ extracción de información de TvTropes. Este modelado del problema nos permite
 definir las estructuras de datos, interfaces y los posibles errores o
 excepciones de forma general en el código que describan todas las partes
 importantes del dominio del problema y que luego se implementarán en el
-\autoref{c:6}. De esta manera, se definirá un lenguaje unificado que todo el
-mundo implicado con este trabajo, tanto usuarios como clientes como
+\autoref{chapter:6}. De esta manera, se definirá un lenguaje unificado que todo
+el mundo implicado con este trabajo, tanto usuarios como clientes como
 desarrolladores, pueda entender y nos permita referirnos a todos los conceptos
 del dominio por términos fácilmente identificables y traducibles a código
 \cite{ddd_golang}.
@@ -171,22 +171,20 @@ comenzar a desarrollar el \textit{scraper} y conocer las distintas partes que
 componen el dominio: las páginas de TvTropes, las obras y los \textit{tropos}.
 Todos estos componentes son necesarios para extraer la información de cualquier
 página de TvTropes, razón por la que el primer \textit{milestone} del desarrollo
-se centra en ello, ya que su objetivo es dar una primera versión funcional de
-un \textit{scraper} básico para TvTropes. A continuación se describen los
+se centra en ello, ya que su objetivo es dar una primera versión funcional de un
+\textit{scraper} básico para TvTropes. A continuación se describen los
 componentes \textit{DDD} que permiten modelar esto y poder organizar
 inicialmente los distintos ficheros y directorios del código: 
 \begin{itemize}
   \item \textbf{Objetos valor:}
   \begin{itemize}
-    \item
-    \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/trope.go}{\textit{Trope}}},
-    el recurso reiterativo en el que se pone el foco en este trabajo. Un
-    \textit{tropo} es inmutable, ya que sigue una denominación concreta que
-    provee TvTropes y, aunque cada uno es único, están definidos por su nombre y
-    descripción. Si se le cambiase la descripción o nombre a un \textit{tropo}
-    resultaría en uno distinto, que casaría con la idea de que en este ámbito de
-    estudios surgen constantemente nuevos \textit{tropos}, a veces relacionados
-    con anteriores, pero que son distintos.\\
+    \item \textbf{Trope}, el recurso reiterativo en el que se pone el foco en
+    este trabajo. Un \textit{tropo} es inmutable, ya que sigue una denominación
+    concreta que provee TvTropes y, aunque cada uno es único, están definidos
+    por su nombre y descripción. Si se le cambiase la descripción o nombre a un
+    \textit{tropo} resultaría en uno distinto, que casaría con la idea de que en
+    este ámbito de estudios surgen constantemente nuevos \textit{tropos}, a
+    veces relacionados con anteriores, pero que son distintos.\\
     En el ámbito de este trabajo definimos que una obra está definida por sus
     \textit{tropos}, describen un aspecto del dominio, lo que hace que estos
     sean objetos valor. Al ser un objeto valor, se tratará únicamente
@@ -196,11 +194,11 @@ inicialmente los distintos ficheros y directorios del código:
   \item \textbf{Entidades:}
   \begin{itemize}
     \item
-    \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/page.go}{\textit{Page}}},
-    concretamente las páginas de las obras, que contienen toda una estructura
-    HTML y se identifican unívocamente por su URL. Sus características pueden
-    cambiar, ya que la comunidad puede modificar o añadir nuevos datos a ella
-    en cualquier momento y se debe tener en cuenta para satisfacer la historia
+    \textbf{Page}, concretamente las páginas de las obras, que contienen toda
+    una estructura HTML y se identifican unívocamente por su URL. Sus
+    características pueden cambiar, ya que la comunidad puede modificar o añadir
+    nuevos datos a ella en cualquier momento y se debe tener en cuenta para
+    satisfacer la historia
     \href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}, en la que
     se especifica la necesidad de tener la información lo más actualizada
     posible. Estas páginas hacen referencia a todas las páginas de obras de
@@ -218,36 +216,34 @@ inicialmente los distintos ficheros y directorios del código:
     (utilizando punteros), ya que cada una de las páginas mantiene su identidad
     según su URL y va cambiando.
     \item
-    \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/work.go}{\textit{Work}}},
-    es la denominación en TvTropes para una obra audiovisual, independientemente
-    del medio al que pertenezca. En el dominio del problema, una obra evoluciona
-    en el tiempo conforme sus \textit{tropos} cambian y, además, está
-    identificada por su título. Si tuviese otro título sería una obra distinta,
-    por tanto, se llega a la conclusión de que esto es una entidad.\\
+    \textbf{Work}, es la denominación en TvTropes para una obra audiovisual,
+    independientemente del medio al que pertenezca. En el dominio del problema,
+    una obra evoluciona en el tiempo conforme sus \textit{tropos} cambian y,
+    además, está identificada por su título. Si tuviese otro título sería una
+    obra distinta, por tanto, se llega a la conclusión de que esto es una
+    entidad.\\
     Al igual que las páginas, las obras también se tratarán desde los agregados
     como referencias mediante punteros, manteniendo su identidad.
   \end{itemize}
   \item \textbf{Agregados:}
   \begin{itemize}
     \item
-    \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/index/index.go}{\textit{Index}}}:
-    Relacionado con la funcionalidad del \textit{crawler}, se encarga de indexar
-    las entidades página de TvTropes, para que luego el siguiente agregado, el
-    \textit{scraper}, extraiga su información. La entidad raíz de este agregado
-    será la página. Los índices se deben persistir en un repositorio para
-    cumplir la historia de usuario
+    \textbf{Index}: Relacionado con la funcionalidad del \textit{crawler}, se
+    encarga de indexar las entidades página de TvTropes, para que luego el
+    siguiente agregado, el \textit{scraper}, extraiga su información. La entidad
+    raíz de este agregado será la página. Los índices se deben persistir en un
+    repositorio para cumplir la historia de usuario
     \href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}, que
     especifica que la información debe estar actualizada, por lo que, el
     propósito de este agregado es obtener las páginas que no se tienen y
     actualizar las que ya están registradas, sin caer en peticiones redundantes.
     \item
-    \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/media/media.go}{\textit{Media}}}:
-    Relacionado con la funcionalidad del \textit{scraper}, extrae el conjunto de
-    todos los \textit{tropos} de todas las obra que pertenecen a un medio
-    audiovisual (llamado \textit{media} en inglés y en TvTropes) concreto. La
-    entidad raíz en este caso será la obra, de la que cuelgan sus
-    \textit{tropos}. Pretende cumplir las dos primeras historias de usuario
-    \href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]} y
+    \textbf{Media}: Relacionado con la funcionalidad del \textit{scraper},
+    extrae el conjunto de todos los \textit{tropos} de todas las obra que
+    pertenecen a un medio audiovisual (llamado \textit{media} en inglés y en
+    TvTropes) concreto. La entidad raíz en este caso será la obra, de la que
+    cuelgan sus \textit{tropos}. Pretende cumplir las dos primeras historias de
+    usuario \href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]} y
     \href{https://github.com/jlgallego99/TropesToGo/issues/7}{[HU02]}, que piden
     que se obtenga toda la información de \textit{tropos} o un subconjunto de
     ellos. Una obra con sus \textit{tropos} debe tener además información
@@ -265,28 +261,25 @@ inicialmente los distintos ficheros y directorios del código:
   \end{itemize}
   \item \textbf{Repositorios:}
   \begin{itemize}
-    \item Un repositorio que almacene el
-    \href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/index/repository.go}{indexado}
-    de las páginas relevantes de TvTropes para su posterior extracción,
-    identificar si ha cambiado su contenido y no estar constantemente haciendo
-    peticiones a la web
+    \item Un repositorio que almacene el indexado de las páginas relevantes de
+    TvTropes para su posterior extracción, identificar si ha cambiado su
+    contenido y no estar constantemente haciendo peticiones a la web
     (\href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}).
-    \item Adicionalmente, uno o más repositorios que persistan el
-    \href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/media/repository.go}{conjunto
-    de datos} en varios formatos
+    \item Adicionalmente, uno o más repositorios que persistan el conjunto de
+    datos en varios formatos
     (\href{https://github.com/jlgallego99/TropesToGo/issues/30}{[HU05]}).
   \end{itemize}
   \item \textbf{Servicios:}
   \begin{itemize}
     \item El
-    \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/service/crawler/crawler.go}{\textit{Crawler}}}
+    \textbf{Crawler}
     será el servicio encargado de controlar el flujo del agregado
     \textit{Index}. Identificará e indexará las páginas de TvTropes que se
     necesitan y las almacenará en un repositorio para persistir el resultado del
     \textit{crawling} y no sobrecargar la red con numerosas peticiones a la
     misma página, ya que ya se tendrá extraída en su totalidad de forma bruta.
     \item Por otro lado, el
-    \textbf{\href{https://github.com/jlgallego99/TropesToGo/blob/master/tropestogo/service/scraper/scraper.go}{\textit{Scraper}}}
+    \textbf{Scraper}
     será el servicio que interaccione con el repositorio que contiene las
     páginas indexadas para analizarlas y extraer la información que se busca,
     que finalmente se almacenarán en uno o varios repositorios pertenecientes a
@@ -695,11 +688,11 @@ tratarlas:
   que contendrá otros \textit{tropos} referenciados. En el caso de que una
   página tenga muchos enlaces a sub páginas, no todos se mostrarán directamente,
   y el último botón será un desplegable con el resto. No hace falta usar
-  JavaScript para interaccionar con esta parte, ya que el resto de sub
-  secciones que no cabían siguen contenidas ahí. Concretamente, están contenidas
-  en el último elemento de lista, que tendrá dentro una etiqueta
-  \texttt{<select>} donde cada opción tiene como valor una cadena de texto con
-  la ruta URI de la sub página.
+  JavaScript para interaccionar con esta parte, ya que el resto de sub secciones
+  que no cabían siguen contenidas ahí. Concretamente, están contenidas en el
+  último elemento de lista, que tendrá dentro una etiqueta \texttt{<select>}
+  donde cada opción tiene como valor una cadena de texto con la ruta URI de la
+  sub página.
   \item A veces, entre las sub páginas y el resumen con metadatos aparece una
   sección con una cita de la obra que se puede ignorar.
   \item Cada obra tiene un resumen, a veces más largo y a veces más corto, que
