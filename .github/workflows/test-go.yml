@@ -1,0 +1,23 @@
+name: Build Go project
+on: 
+    push:
+      branches:
+        - 'master'
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            
+            # Mask task runner needs Rust
+            - name: Setup Rust
+              uses: ATiltedTree/setup-rust@v1
+              with:
+                rust-version: stable
+
+            - name: Install task runner
+              run: cargo install mask
+            
+            - name: Build
+              run: mask test docker
