@@ -1,12 +1,7 @@
 package media
 
 import (
-	"errors"
 	tropestogo "github.com/jlgallego99/TropesToGo"
-)
-
-var (
-	ErrEmptyTitle = errors.New("a media work must have a title")
 )
 
 // MediaType enumerates all supported Media types in TropesToGo
@@ -19,11 +14,16 @@ const (
 	VideoGames
 )
 
-// Media holds the logic of a work with its tropes that exist within a particular medium in TvTropes
+// Media holds the logic of all Works with its tropes that exist within a particular medium in TvTropes
 type Media struct {
-	work      *tropestogo.Work // Root entity
-	tropes    []tropestogo.Trope
-	mediatype MediaType
+	// work is the root entity, holds the work information and its tropes
+	work *tropestogo.Work
+
+	// page is the TvTropes webpage from where the Work information is extracted
+	page *tropestogo.Page
+
+	// MediaType is the media index that this work belongs to
+	MediaType MediaType
 }
 
 // NewMedia is a factory that creates a Media aggregate with validations
