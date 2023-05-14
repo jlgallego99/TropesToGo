@@ -1,4 +1,49 @@
 \chapter{Implementación}
 \label{chapter:6}
 
-La implementación del software se ha dividido en hitos. Estos han sido definidos en GitHub y cada uno de ellos contiene un grupo de \textit{issues} que se corresponden con las distintas mejoras que se han ido incorporando al software a lo largo de su desarrollo.
+Este capítulo relata el proceso completo de desarrollo del \textit{software
+scraper} para TvTropes que resuelve los problemas y cumple los objetivos
+definidos en el \ref{chapter:2}. Se siguen uno a uno los distintos hitos que se
+han ido alcanzando, explicando por qué son necesarios y las decisiones que se
+han tomado en cada uno de ellos para cumplir las historias de usuario, que guían
+todo el desarrollo con agilidad.
+
+\section{Comienzo del desarrollo y comprobación de la estructura de una página de TvTropes}
+Con el primer modelado del problema que se ha realizado en el \ref{chapter:5},
+tenemos definido todo lo necesario para poder comenzar con el desarrollo y dar
+una primera versión de un \textit{scraper} que sea capaz de extraer la
+información de \textit{tropos} contenida en páginas individuales de películas de
+TvTropes. El primer \textit{milestone} de desarrollo es el
+\href{https://github.com/jlgallego99/TropesToGo/milestone/3}{M2}, que resuelve
+la parte previa a la extracción. Antes de que el \textit{scraper} extraiga la
+información que necesita el usuario, que es el objetivo del siguiente hito,
+tiene que determinar si la página sobre la que está trabajando es extraíble, es
+decir, pertenece a una página de TvTropes que describe una obra con sus
+\textit{tropos} y tiene una estructura HTML conocida. Esto permite determinar,
+antes de llevar a cabo el proceso de extracción, que el wiki de TvTropes no ha
+cambiado demasiado, lo suficiente para saber si el \textit{scraper} programado
+sigue funcionando y así evitar procesamiento innecesario. 
+
+Puesto que se está construyendo un producto mínimo, este hito se centra en que
+las páginas de obras que se analicen sean solamente de películas, teniendo un
+\textit{milestone} futuro dedicado a ampliarlo a otros tipos de medios
+audiovisuales. Solo es necesario comprobar y extraer páginas de un tipo de medio
+audiovisual concreto para determinar que el \textit{scraper} completa
+correctamente sus tareas, ya que el resto de medios consisten en explorar otras
+páginas con una estructura similar y que se obtendrán una vez se tenga una araña
+que encuentre ese tipo de páginas. Se han elegido páginas de películas por ser
+el medio en el que se centran la mayoría de trabajos de investigación estudiados
+en la introducción y el estado del arte, y son las que más interés tienen para
+una primera versión funcional.
+
+\section{Extracción de información en la página de una película}
+
+\section{Desarrollo de la araña}
+
+\subsection{Estrategia general para la extracción de información de TvTropes}
+El crawler primero indexa todas las páginas relevantes, el scraper luego extrae
+la información y almacena en un fichero, etc.
+
+\subsection{Arquitectura del \textit{crawler}}
+
+\section{Aplicación de línea de comandos}
