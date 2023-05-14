@@ -1,9 +1,6 @@
 name: DockerHub jlgallego99/TropesToGo
 
-on:
-    push:
-        branches:
-            - 'main'
+on: push
 
 jobs:
     docker:
