@@ -1,4 +1,4 @@
-name: Test Go project
+name: Build Go project
 on: push
 jobs:
     build:
