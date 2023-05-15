@@ -1,36 +1,28 @@
 name: Build and Test Go project
 on: push
 jobs:
-    setup:
-      runs-on: ubuntu-latest
-      steps:
-          - name: Checkout
-            uses: actions/checkout@v3
-          
-          - name: Set up Go
-            uses: actions/setup-go@v4
-            with:
-              go-version: '1.20'
+    buildandtest:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            
+            - name: Set up Go
+              uses: actions/setup-go@v4
+              with:
+                go-version: '1.20'
 
-          # Mask task runner needs Rust
-          - name: Setup Rust
-            uses: ATiltedTree/setup-rust@v1
-            with:
-              rust-version: stable
+            # Mask task runner needs Rust
+            - name: Setup Rust
+              uses: ATiltedTree/setup-rust@v1
+              with:
+                rust-version: stable
 
-          - name: Install task runner
-            run: cargo install mask
+            - name: Install task runner
+              run: cargo install mask
+            
+            - name: Build Go code
+              run: mask build code
 
-    build:
-      runs-on: ubuntu-latest
-      needs: setup
-      steps:
-        - name: Build Go code
-          run: mask build code
-
-    test:
-      runs-on: ubuntu-latest
-      needs: setup
-      steps:
-        - name: Test Go code
-          run: mask test
+            - name: Test Go code
+              run: mask test
