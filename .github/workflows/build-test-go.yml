@@ -1,4 +1,4 @@
-name: Test Go project
+name: Build and Test Go project
 on: push
 jobs:
     build:
@@ -6,12 +6,12 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v3
-
+            
             - name: Set up Go
               uses: actions/setup-go@v4
               with:
                 go-version: '1.20'
-            
+
             # Mask task runner needs Rust
             - name: Setup Rust
               uses: ATiltedTree/setup-rust@v1
@@ -21,5 +21,8 @@ jobs:
             - name: Install task runner
               run: cargo install mask
             
-            - name: Test
+            - name: Build Go code
+              run: mask build code
+
+            - name: Test Go code
               run: mask test
