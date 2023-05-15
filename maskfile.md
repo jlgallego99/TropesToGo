@@ -29,8 +29,10 @@ go build -v ./...
 
 if [ $? -eq 0 ]; then
     echo "Code built successfully"
+    exit 0
 else
     echo "There's been an error building the project"
+    exit 1
 fi
 ~~~
 
