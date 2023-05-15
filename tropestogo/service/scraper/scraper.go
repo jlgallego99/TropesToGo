@@ -19,6 +19,24 @@ var (
 	ErrUnknownPageStructure = errors.New("the scraper doesn't recognize the page structure")
 )
 
+const (
+	TvTropesHostname        = "tvtropes.org"
+	TvTropesPmwiki          = "/pmwiki/pmwiki.php/"
+	TvTropesMainPath        = TvTropesPmwiki + "Main/"
+	WorkTitleSelector       = "h1.entry-title"
+	WorkIndexSelector       = WorkTitleSelector + " strong"
+	MainArticleSelector     = "#main-article"
+	TropeListSelector       = "#main-article ul"
+	TropeListHeaderSelector = "#main-article h2"
+	SubPagesNavSelector     = "nav.body-options"
+	SubPageListSelector     = "ul.subpage-links"
+	SubPageLinkSelector     = "a.subpage-link"
+	TropeTag                = "a.twikilink"
+	TropeLinkSelector       = "#main-article ul li " + TropeTag
+	TropeFolderSelector     = "#main-article div.folderlabel"
+	FolderToggleFunction    = "toggleAllFolders()"
+)
+
 // ScraperConfig is an alias for a function that will accept a pointer to a ServiceScraper and modify its fields
 // Each function acts as one configuration for the scraper
 type ScraperConfig func(ss *ServiceScraper) error
@@ -66,43 +84,42 @@ func (*ServiceScraper) CheckValidWorkPage(page *tropestogo.Page) (bool, error) {
 	doc, _ := goquery.NewDocumentFromReader(res.Body)
 
 	// First check if the domain is TvTropes
-	if page.URL.Hostname() != "tvtropes.org" {
+	if page.URL.Hostname() != TvTropesHostname {
 		return false, ErrNotTvTropes
 	}
 
 	// Check if it's a Film Work page
 	splitPath := strings.Split(page.URL.Path, "/")
-	if !strings.HasPrefix(page.URL.Path, "/pmwiki/pmwiki.php") || splitPath[3] != "Film" {
+	if !strings.HasPrefix(page.URL.Path, TvTropesMainPath) || splitPath[3] != media.Film.String() {
 		return false, ErrNotWorkPage
 	}
 
 	// Check if the main article structure has all known ids and elements that comprise a TvTropes work page
-	if doc.Find("#main-article").Length() == 0 ||
-		doc.Find("nav.body-options").Find("ul.subpage-links").Find("a.subpage-link").Length() == 0 {
+	if doc.Find(MainArticleSelector).Length() == 0 ||
+		doc.Find(SubPagesNavSelector).Find(SubPageListSelector).Find(SubPageLinkSelector).Length() == 0 {
 		return false, ErrUnknownPageStructure
 	}
 
-	// Check the title
-	title := doc.Find("h1.entry-title")
-	index := title.Find("strong")
-	if strings.Trim(index.Text(), " /") != "Film" {
+	// Check the index of the work
+	index := doc.Find(WorkIndexSelector)
+	if strings.Trim(index.Text(), " /") != media.Film.String() {
 		return false, ErrNotWorkPage
 	}
 
 	// Look for the tropes section
-	if doc.Find("#main-article ul").Length() == 0 &&
-		strings.Contains(strings.ToLower(doc.Find("#main-article h2").First().Text()), "tropes") {
+	if doc.Find(TropeListSelector).Length() == 0 &&
+		strings.Contains(strings.ToLower(doc.Find(TropeListHeaderSelector).First().Text()), "tropes") {
 
 		return false, ErrUnknownPageStructure
 	} else {
 		// Check if the list is a) a simple trope list or c) a list of subpages with tropes
-		if doc.Find("#main-article ul li a.twikilink").Length() != 0 {
+		if doc.Find(TropeLinkSelector).Length() != 0 {
 			// Get the first word of the first element of the list, check if is an anchor to a trope page or a sub page
-			tropeHref, exists := doc.Find("#main-article ul li a.twikilink").First().Attr("href")
+			tropeHref, exists := doc.Find(TropeLinkSelector).First().Attr("href")
 
 			// a) Tropes are presented on a single list
 			// Checks if it's a Main page
-			if exists && strings.HasPrefix(tropeHref, "/pmwiki/pmwiki.php/Main/") {
+			if exists && strings.HasPrefix(tropeHref, TvTropesMainPath) {
 				return true, nil
 			}
 
@@ -112,21 +129,19 @@ func (*ServiceScraper) CheckValidWorkPage(page *tropestogo.Page) (bool, error) {
 			hrefSplit := strings.Split(tropeHref, "/")
 			r, _ := regexp.Compile("Tropes[A-Z]To[A-Z]")
 			match := r.MatchString(hrefSplit[len(hrefSplit)-1])
-			if exists && strings.HasPrefix(tropeHref, "/pmwiki/pmwiki.php/") && match {
+			if exists && strings.HasPrefix(tropeHref, TvTropesPmwiki) && match {
 				return true, nil
 			}
 		}
 
 		// b) Check if tropes are on folders
 		// If there's a close all folders button, then the tropes are on folders
-		folderFunctionName, existsFolderButton := doc.Find("#main-article div.folderlabel").Attr("onclick")
-		if existsFolderButton && folderFunctionName == "toggleAllFolders()" {
+		folderFunctionName, existsFolderButton := doc.Find(TropeFolderSelector).Attr("onclick")
+		if existsFolderButton && folderFunctionName == FolderToggleFunction {
 			return true, nil
 		}
 
 		// Tropes are presented in an unknown form, so data can't be extracted
 		return false, ErrUnknownPageStructure
 	}
-
-	// If it isn't any of the know formats for the trope list, check if there are tropes references
 }
