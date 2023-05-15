@@ -14,12 +14,15 @@ import (
 var _ = Describe("Scraper", func() {
 	// A scraper service for test purposes
 	var serviceScraper *scraper.ServiceScraper
-	var newScraperErr error
+	var newScraperErr, invalidScraperErr error
 	// A valid TvTropes page and one page that is from other website
 	var tvTropesPage, tvTropesPage2, tvTropesPage3, notTvTropesPage, notWorkPage *tropestogo.Page
 
 	BeforeEach(func() {
 		serviceScraper, newScraperErr = scraper.NewServiceScraper()
+
+		// Create invalid scraper
+		_, invalidScraperErr = scraper.NewServiceScraper(scraper.ConfigIndexRepository(nil))
 
 		tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
 		tvTropesUrl2, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012")
@@ -67,7 +70,7 @@ var _ = Describe("Scraper", func() {
 			})
 
 			It("Should return an appropriate error", func() {
-				Expect(newScraperErr).To(Equal(scraper.ErrInvalidField))
+				Expect(invalidScraperErr).To(Equal(scraper.ErrInvalidField))
 			})
 		})
 	})
