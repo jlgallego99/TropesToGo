@@ -39,5 +39,6 @@ fi
 ## test
 > Executes all the tests of the project
 ~~~sh
-go version
+cd tropestogo
+go test -v ./...
 ~~~
