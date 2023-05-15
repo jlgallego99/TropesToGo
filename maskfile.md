@@ -39,9 +39,3 @@ fi
 ~~~sh
 go version
 ~~~
-
-### test docker
-> Executes all the tests of the project on the docker container
-~~~bash
-docker run jlgallego99/tropestogo
-~~~
