@@ -3,17 +3,26 @@
 
 Este capítulo relata el proceso completo de desarrollo del \textit{software
 scraper} para TvTropes que resuelve los problemas y cumple los objetivos
-definidos en el \ref{chapter:2}. Se siguen uno a uno los distintos hitos que se
-han ido alcanzando, explicando por qué son necesarios y las decisiones que se
+definidos en el \autoref{chapter:2}. Se siguen uno a uno los distintos hitos que
+se han ido alcanzando, explicando por qué son necesarios y las decisiones que se
 han tomado en cada uno de ellos para cumplir las historias de usuario, que guían
 todo el desarrollo con agilidad.
 
-\section{Comienzo del desarrollo y comprobación de la estructura de una página de TvTropes}
-Con el primer modelado del problema que se ha realizado en el \ref{chapter:5},
-tenemos definido todo lo necesario para poder comenzar con el desarrollo y dar
-una primera versión de un \textit{scraper} que sea capaz de extraer la
-información de \textit{tropos} contenida en páginas individuales de películas de
-TvTropes. El primer \textit{milestone} de desarrollo es el
+En este capítulo se llevan a la práctica todas las buenas prácticas,
+recomendaciones y herramientas justificadas en el \autoref{chapter:4} para
+llevar un desarrollo ágil. Esto implica, además, que todos los hitos se
+desarrollan con el principal objetivo de satisfacer al usuario y asegurar la
+calidad, por lo que conforme se justifiquen las decisiones tomadas para avanzar
+en cada uno de ellos, se relacionarán con las historias de usuario definidas,
+que son las que confirman qué se debe implementar para cumplir con las
+expectativas del usuario.
+
+\section{Comienzo del desarrollo}
+Con el primer modelado del problema que se ha realizado en el
+\autoref{chapter:5}, tenemos definido todo lo necesario para poder comenzar con
+el desarrollo y dar una primera versión de un \textit{scraper} que sea capaz de
+extraer la información de \textit{tropos} contenida en páginas individuales de
+películas de TvTropes. El primer \textit{milestone} de desarrollo es el
 \href{https://github.com/jlgallego99/TropesToGo/milestone/3}{M2}, que resuelve
 la parte previa a la extracción. Antes de que el \textit{scraper} extraiga la
 información que necesita el usuario, que es el objetivo del siguiente hito,
@@ -35,6 +44,64 @@ que encuentre ese tipo de páginas. Se han elegido páginas de películas por se
 el medio en el que se centran la mayoría de trabajos de investigación estudiados
 en la introducción y el estado del arte, y son las que más interés tienen para
 una primera versión funcional.
+
+\subsection{Flujo de integración continua para pruebas y compilación}
+En este hito se empieza a programar código funcional con lógica de negocio, así
+que se comienzan también a desarrollar conjuntamente los tests, concretamente
+antes de la propia funcionalidad, tal y como se especifica en el desarrollo
+dirigido por pruebas \cite{beck2002driven} y se definió en el
+\autoref{chapter:4}. Por tanto, uno de los objetivos de este hito es tener
+integrado en el código del proyecto el \textit{framework} de pruebas Ginkgo, que
+es el que permitirá desarrollar los tests en Go, para que en los próximos hitos
+se puedan desarrollar todas las pruebas para testear las nuevas funcionalidades.
+Además, al estar en un entorno de desarrollo ágil la ejecución de las pruebas
+estará automatizada, de forma que se tenga un flujo de integración continua que
+ejecute automáticamente todos los tests definidos y se pueda comprobar desde el
+repositorio de GitHub. 
+
+En cada uno de los hitos, cuando se desarrolla nueva funcionalidad, se abre un
+\textit{pull request} en GitHub con los cambios realizados en el proyecto para
+saber qué incremento en el producto se está haciendo y qué \textit{issues}
+pretende resolver para avanzar en completar el hito. Los nuevos flujos de CI que
+se añaden en este hito permiten automatizar la ejecución de las pruebas y
+compilar todo el proyecto, para cumplir que todo el código sea funcional y
+asegurar su calidad. Si cualquiera de estos flujos de CI fallan, no se podrá
+aceptar el \textit{pull request} y añadir los cambios a la rama principal. La
+integración continua en este proyecto se configura mediante \textit{GitHub
+Actions}, que automatizan los procesos apoyándose en nuevas tareas definidas
+mediante el gestor de tareas \textit{Mask}. Estas tareas ejecutan los tests para
+todo el proyecto, ambas usando por debajo la propia utilidad del lenguaje Go:
+\texttt{go test} para las pruebas y \texttt{go build} para comprobar que todos
+los paquetes del código compilan correctamente. Esto permite que no haga falta
+modificarlos en el futuro; servirán para todo el desarrollo de ahora en adelante
+y ejecutarán automáticamente todas las nuevas pruebas que se programen. En el
+caso de necesitar algún cambio en la ejecución de los tests o la compilación,
+bastará con cambiar las tareas del gestor de tareas, sin necesidad de tocar la
+configuración de la integración continua.
+
+Por tanto, para poder cumplir con la automatización de las pruebas y la
+compilación se configura un nuevo \textit{Github Action} en el que se prepara
+Go, se instala el gestor de tareas \textit{Mask} y se ejecutan las tareas
+definidas para la compilación y el testeo. En un principio se probó a instalar
+\textit{Mask} mediante \textit{cargo}, el gestor de paquetes del lenguaje Rust,
+ya que la máquina virtual que utiliza el \textit{Action} es de Ubuntu y su
+gestor de paquetes no tiene disponible este gestor de tareas en su repositorio
+para instalarlo. Sin embargo, esta manera de instalar el gestor de tareas
+suponía una gran sobrecarga en el flujo de trabajo al tener que instalar todo el
+lenguaje Rust únicamente para instalar un paquete, tardando casi 2 minutos en
+ejecutarlo por completo, gastando la mayoría de recursos en instalar el gestor
+de tareas. Para solucionar esto se acabó optando por introducir los comandos en
+el flujo de CI necesarios para descargar directamente el binario de
+\textit{Mask}; esto hizo que se mejorase el tiempo en más de la mitad, ahorrando
+los recursos de GitHub y teniendo el resultado del flujo de CI mucho antes.
+Adicionalmente, una de las ventajas que tiene el usar Go es que, al ejecutar
+cualquier comando de compilación, testeo o ejecución del código, comprueba
+automáticamente si las dependencias definidas en el fichero \texttt{go.mod}
+están instaladas, y si no lo están las descarga automáticamente, por lo que no
+hace falta especificar explícitamente qué dependencias hay que instalar para que
+el código funcione.
+
+\subsection{Comprobación de la estructura de una página de TvTropes}
 
 \section{Extracción de información en la página de una película}
 
