@@ -12,14 +12,11 @@ jobs:
               with:
                 go-version: '1.20'
 
-            # Mask task runner needs Rust
-            - name: Setup Rust
-              uses: ATiltedTree/setup-rust@v1
-              with:
-                rust-version: stable
-
+            # Install mask task runner
             - name: Install task runner
-              run: cargo install mask
+              run: |
+                wget https://github.com/jacobdeichert/mask/releases/download/v0.11.3/mask-v0.11.3-x86_64-unknown-linux-gnu.zip
+                mv mask-v0.11.3-x86_64-unknown-linux-gnu/mask /usr/local/bin
             
             - name: Build Go code
               run: mask build code
