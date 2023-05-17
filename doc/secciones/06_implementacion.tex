@@ -1,21 +1,23 @@
 \chapter{Implementación}
 \label{chapter:6}
 
-Este capítulo relata el proceso completo de desarrollo del \textit{software
-scraper} para TvTropes que resuelve los problemas y cumple los objetivos
-definidos en el \autoref{chapter:2}. Se siguen uno a uno los distintos hitos que
-se han ido alcanzando, explicando por qué son necesarios y las decisiones que se
-han tomado en cada uno de ellos para cumplir las historias de usuario, que guían
-todo el desarrollo con agilidad.
+Este capítulo relata el proceso completo de desarrollo del \textit{scraper} para
+TvTropes que resuelve los problemas y cumple los objetivos definidos en el
+\autoref{chapter:2}. Se siguen uno a uno los distintos hitos que se han ido
+alcanzando, explicando por qué son necesarios y las decisiones que se han tomado
+en cada uno de ellos para cumplir las historias de usuario, que guían todo el
+desarrollo con agilidad.
 
-En este capítulo se llevan a la práctica todas las buenas prácticas,
-recomendaciones y herramientas justificadas en el \autoref{chapter:4} para
-llevar un desarrollo ágil. Esto implica, además, que todos los hitos se
-desarrollan con el principal objetivo de satisfacer al usuario y asegurar la
-calidad, por lo que conforme se justifiquen las decisiones tomadas para avanzar
-en cada uno de ellos, se relacionarán con las historias de usuario definidas,
-que son las que confirman qué se debe implementar para cumplir con las
-expectativas del usuario.
+En este capítulo se irá describiendo el proceso de desarrollo ágil que se ha
+llevado a cabo para poder entender cómo se ha llegado a cada uno de los
+sucesivos productos mínimamente viables. A lo largo del proceso se justificarán
+una serie de buenas prácticas, recomendaciones y herramientas que permitirán ir
+refinando el producto hasta llegar a una solución final de calidad. Esto implica
+que todos los hitos se desarrollan con el principal objetivo de satisfacer al
+usuario y asegurar la calidad, por lo que conforme se justifiquen las decisiones
+tomadas para avanzar en cada uno de ellos, se relacionarán con las historias de
+usuario definidas, que son las que confirman qué se debe implementar para
+cumplir con las expectativas del usuario.
 
 \section{Comienzo del desarrollo}
 Con el primer modelado del problema que se ha realizado en el
@@ -108,7 +110,8 @@ TvTropes no ha cambiado y se puede extraer. Un servicio en DDD hace referencia a
 un paquete de código que ejecuta cierta lógica de negocio para un cliente y en
 este caso el cliente sería el usuario que necesita los datos. 
 
-El objetivo de este hito se alcanza implementando la función \texttt{CheckValidWorkPage} que encapsula la funcionalidad de revisar toda la
+El objetivo de este hito se alcanza implementando la función \texttt{CheckValidWorkPage}
+que encapsula la funcionalidad de revisar toda la
 estructura de una página de película de TvTropes y validar si el
 \textit{scraper} podrá extraerla. Recibe una entidad \textit{Page}, de la cual
 el \textit{scraper} extrae lo principal que necesita, que es el URL de la página
@@ -122,71 +125,87 @@ entidades siempre como referencias, puesto que son mutables, mientras que los
 objetos valor se tratarán como variables instanciadas. 
 
 Esta función se ha modularizado en distintas subfunciones que realizan
-revisiones de distintos tipos, cumpliendo la propiedad de única
-responsabilidad de cada una de las funciones y haciéndolas más legibles. Esto
-facilita que, en caso de que se necesitasen analizar nuevas partes, se modifiquen
-las sub funciones ya existentes o se añada una nueva, que simplemente se
-llamaría desde el método principal. Según \textit{clean code} no se deben tener
-funciones que mezclen llamadas a otras funciones de alto nivel con lógica más
-compleja, por lo que el método principal \texttt{CheckValidWorkPage} se encarga
-de llamar a las distintas sub funciones que llevan a cabo verificaciones de distintos
-tipos y trata sus resultados para determinar finalmente si la información de la
-página es extraíble o no. Estas funciones son:
+revisiones de distintos tipos, cumpliendo la propiedad de única responsabilidad
+de cada una de las funciones y haciéndolas más legibles. Esto facilita que, en
+caso de que se necesitasen analizar nuevas partes, se modifiquen las sub
+funciones ya existentes o se añada una nueva, que simplemente se llamaría desde
+el método principal. Según \textit{clean code} no se deben tener funciones que
+mezclen llamadas a otras funciones de alto nivel con lógica más compleja, por lo
+que el método principal \texttt{CheckValidWorkPage} se encarga de llamar a las
+distintas sub funciones que llevan a cabo verificaciones de distintos tipos y
+trata sus resultados para determinar finalmente si la información de la página
+es extraíble o no.
+
+Estas comprobaciones se efectúan en orden de menor a mayor complejidad y de
+mayor a menor nivel, intentando que el filtrado se lleve a cabo cuanto antes para
+evitar entrar en análisis complejos de páginas innecesarias. Se busca poder
+validar la página lo antes posible, sin perder mucho tiempo en el proceso para
+cumplir la \href{https://github.com/jlgallego99/TropesToGo/issues/45}{[HU06]} lo
+mejor posible y que el usuario obtenga cuanto antes el resultado. Primero se
+determina si la página pertenece a TvTropes, luego se analiza la estructura
+general del artículo principal de la página y finalmente se comprueba la sección
+donde deberían estar contenidos los \textit{tropos}.
 \begin{itemize}
-    \item La función \texttt{CheckTvTropesWorkPage} analiza el URL de la página
-    para comprobar si el \textit{host} es \url{tvtropes.org} y si el URI
+    \item Para verificar que la página es de TvTropes se extrae el URL de la
+    página y se compara si el \textit{host} es \url{tvtropes.org} y si el URI
     corresponde a lo que entendemos como una página de película, es decir,
     pertenece a \textit{Main} y está bajo el índice \textit{Film}. La penúltima
     parte de la ruta tiene que ser el índice al que pertenece la obra, en este
     caso \textit{Film}, y la última parte será el nombre de la película. Esto es
     lo primero que se debe hacer; si la página que se está analizando no es de
     TvTropes y/o no pertenece a una obra, no tiene sentido seguir adelante con
-    ella.
-    \item La función \texttt{CheckMainArticle} itera por el árbol DOM construido
-    a partir del HTML de la página y va viendo si sigue la estructura de una
-    página de una obra en el wiki de TvTropes. Principalmente, revisa si la
-    página tiene las partes vistas en el análisis de la Figura
-    \ref{fig:tvtropes-work}: un artículo principal con sus identificadores y
-    clases conocidas y si el índice, dentro del título del artículo, pertenece
-    al de películas.
-    \item Por último, se tiene la función \texttt{CheckTropeSection} que realiza
-    verificaciones más complejas relacionadas con la principal sección que se
-    querrá analizar: la sección de \textit{tropos}. Analiza las tres formas más
-    comunes que toma la sección de \textit{tropos} y que se pueden ver en la
-    Figura \ref{fig:tropelist} del \autoref{chapter:5}. En este primer hito solo
-    se tienen en cuenta los tres tipos, ya que bastan para conformar un
+    ella. Sin embargo, puede ser que su estructura interna haya cambiado, por lo
+    que es necesario estudiarla más a fondo.
+    \item Una vez se sabe que la página es de TvTropes, es necesario ver si
+    pertenece a una página de obra y su HTML interno no ha cambiado, ya que es
+    de donde luego el \textit{scraper} extraerá la información. Principalmente,
+    se revisa en el árbol DOM si la página tiene las partes vistas en el
+    análisis de la Figura \ref{fig:tvtropes-work}: un artículo principal con sus
+    identificadores y clases conocidas y si el índice, dentro del título del
+    artículo, pertenece al de películas. Todas las páginas de obra,
+    independientemente de si son películas o no, siguen esta misma estructura,
+    por lo que esto basta para confirmar si este tipo de páginas siguen igual.
+    \item Por último, se realizan las verificaciones más complejas relacionadas
+    con la principal sección que se querrá analizar: la sección de
+    \textit{tropos}. Debido al estudio de la Figura \ref{fig:tropelist} del
+    \autoref{chapter:5} sabemos que existen tres formas comunes que toma la
+    sección de \textit{tropos}, y esto es lo que el \textit{scraper} verifica,
+    para asegurarnos de que podemos entender la sección. En este primer hito
+    solo se tienen en cuenta los tres tipos, ya que bastan para conformar un
     producto mínimo que sea capaz de analizar la mayoría de páginas de TvTropes,
     sin embargo, en futuros hitos se tendrán en cuenta casos más extremos.\\
-    La función primero identifica la sección donde se encuentran los
-    \textit{tropos}, que es una lista sin ordenar dentro del artículo y que está
-    siempre después del resumen y precedida de una etiqueta de \textit{header}.
-    Una vez confirmado que la página tiene esa sección, se ocupa de ver si se
-    adapta a uno de los tres tipos que se conocen. Identifica si los
-    \textit{tropos} están contenidos en carpetas buscando el botón de abrir
-    carpetas, que sabemos su etiqueta, clase y función JavaScript que utiliza
-    para abrirlas, al estar generado siempre igual por el motor del wiki. En
-    todos los casos se comprueba si el primer elemento de la lista es un enlace
-    a una página de \textit{tropos} o a una sub página de ellos. Para este
-    último caso, que pertenecería al tercer tipo, se ha hecho uso de una
-    expresión regular que confirma si el URI al que redirigen sigue un patrón
-    concreto. Si la última parte del URI está codificada como la cadena
+    Se sigue la misma estrategia de buscar primero lo más relevante, que en este
+    caso es encontrar la sección donde se encuentran los \textit{tropos}, la
+    cual está conformada por una lista sin ordenar dentro del artículo principal
+    y que está siempre después del resumen y precedida de una etiqueta de
+    \textit{header}. Se ignora el comprobar el texto de la cabecera de la
+    sección de \textit{tropos}, ya que como se vio en \cite{nishalscraping} el
+    contenido cambia mucho y es poco fiable, siendo lo único fiable el hecho de
+    que la sección está separada por una cabecera cualquiera. Una vez confirmado
+    que la página tiene esa sección, toca ver si se adapta a uno de los tres
+    tipos que se conocen. Para probar si los \textit{tropos} están contenidos en
+    carpetas basta con buscar el botón de abrir carpetas, que sabemos su
+    etiqueta, clase y función JavaScript que utiliza para abrirlas, al estar
+    generado siempre igual por el motor del wiki. En todos los casos se
+    valida si el primer elemento de la lista es un enlace a una página de
+    \textit{tropos} o a una sub página de ellos. Para este último caso, que
+    pertenecería al tercer tipo, se ha hecho uso de una expresión regular que
+    confirma si el URI al que redirigen sigue un patrón concreto. Si la última
+    parte del URI está codificada como la cadena
     \texttt{/<NombreDeLaObra>/Tropes<XtoY>} entonces se acepta como algo
     conocido. Si la lista contiene cualquier otro elemento inesperado, se
     considera que la página tiene una estructura desconocida y no se puede
     extraer su información.
 \end{itemize}
 
-Todas estas sub funciones no forman parte de la interfaz de funciones del servicio
-ni están exportadas al ser simplemente funciones internas solo para el
-\textit{scraper}, por lo que no se pueden llamar fuera de su paquete. Además,
-todas ellas devuelven un valor booleano, que indica si la página es extraíble o
-no, y un error que indica el por qué no es extraíble en caso de no serlo. En
-general, es idiomático en Go que todas las funciones devuelvan siempre un error
-como último valor para que el código sea autoexplicativo y se tenga un completo
-y correcto control de los errores tanto para que las funciones de testing puedan
-comprobar todos los casos como para que cualquier cliente que llame a la función
-del servicio entienda exactamente qué ha pasado en caso de error
-\cite{effective_go}.
+La función de comprobación devuelve un valor booleano, que indica si la página
+es extraíble o no, y un error que indica el por qué no es extraíble en caso de
+no serlo. En general, es idiomático en Go que todas las funciones devuelvan
+siempre un error como último valor para que el código sea autoexplicativo y se
+tenga un completo y correcto control de los errores tanto para que las funciones
+de testing puedan comprobar todos los casos como para que cualquier cliente que
+llame a la función del servicio entienda exactamente qué ha pasado en caso de
+error \cite{effective_go}.
 
 Finalmente, en este hito se toma la decisión de que los selectores CSS, los
 cuales son una cadena de \textit{string} que hacen referencia a varias etiquetas
@@ -196,7 +215,8 @@ código y evitando la repetición. De este modo, el \textit{scraper} pasará com
 parámetro estas constantes a las funciones de Goquery que encuentran los nodos
 del árbol DOM de la página que se está explorando. A estas constantes se les da
 un nombre lo más semántico posible de forma que el código sea legible y limpio.
-Por ejemplo, la constante \texttt{TropeTag} contiene el selector \texttt{a.twikilink} que hace referencia a todos los \textit{anchor} de HTML
+Por ejemplo, la constante \texttt{TropeTag} contiene el selector \texttt{a.twikilink} 
+que hace referencia a todos los \textit{anchor} de HTML
 cuya clase es \textit{twikilink}, que sabemos debido al análisis del capítulo
 anterior que hacen referencia a enlaces hacia páginas de \textit{tropos}. El
 tener constantes con selectores importantes para lo que quiere buscar el
@@ -204,8 +224,8 @@ tener constantes con selectores importantes para lo que quiere buscar el
 selectores de modo que se entienda su significado completo con solo leerlo o el
 poder adaptarse a los futuros y posibles cambios que pueda sufrir TvTropes. En
 el caso de que cambie alguna clase o etiqueta con la que encontrar alguna
-sección valiosa de una página, baste con cambiar la constante y no cambiarlo
-en cada parte del código en la que aparezca. En general, al usar constantes
+sección valiosa de una página, baste con cambiar la constante y no cambiarlo en
+cada parte del código en la que aparezca. En general, al usar constantes
 semánticas para los selectores se facilita mucho la legibilidad de algo que de
 otro modo requeriría de un análisis más exhaustivo para entender qué significa
 el selector utilizado, ya que pueden volverse muy complejos al unir varias
@@ -216,8 +236,8 @@ reglas.
 \section{Desarrollo de la araña}
 
 \subsection{Estrategia general para la extracción de información de TvTropes}
-El crawler primero indexa todas las páginas relevantes, el scraper luego extrae
-la información y almacena en un fichero, etc.
+El \textit{crawler} primero indexa todas las páginas relevantes, el
+\textit{scraper} luego extrae la información y almacena en un fichero, etc.
 
 \subsection{Arquitectura del \textit{crawler}}
 
