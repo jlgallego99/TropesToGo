@@ -1,0 +1,33 @@
+name: Build and Test Go project
+on: 
+  pull_request:
+  push:
+    paths:
+      - 'tropestogo/**'
+jobs:
+    build_and_test:
+        runs-on: ubuntu-latest
+        strategy:
+          matrix:
+            go: [ '1.19', '1.20' ]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            
+            - name: Set up Go ${{ matrix.go }}
+              uses: actions/setup-go@v4
+              with:
+                go-version: ${{ matrix.go }}
+
+            # Install mask task runner
+            - name: Install task runner
+              run: |
+                wget https://github.com/jacobdeichert/mask/releases/download/v0.11.3/mask-v0.11.3-x86_64-unknown-linux-gnu.zip
+                unzip mask-v0.11.3-x86_64-unknown-linux-gnu.zip
+                mv mask-v0.11.3-x86_64-unknown-linux-gnu/mask /usr/local/bin
+            
+            - name: Build Go code
+              run: mask build code
+
+            - name: Test Go code
+              run: mask test
