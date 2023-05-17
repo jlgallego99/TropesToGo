@@ -20,14 +20,25 @@ make
 ~~~
 
 ### build code
-> Builds the project's code
+> Builds the project's code without installing packages
+> checking that the packages can be built
 ~~~sh
 echo "Building project's code..."
-go version
+cd tropestogo
+go build -v ./...
+
+if [ $? -eq 0 ]; then
+    echo "Code built successfully"
+    exit 0
+else
+    echo "There's been an error building the project"
+    exit 1
+fi
 ~~~
 
 ## test
 > Executes all the tests of the project
 ~~~sh
-go version
+cd tropestogo
+go test -v ./...
 ~~~
