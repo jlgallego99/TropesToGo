@@ -2,7 +2,6 @@ package media
 
 import (
 	"errors"
-	"fmt"
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"regexp"
 	"time"
@@ -18,7 +17,8 @@ var (
 type MediaType int64
 
 const (
-	Film MediaType = iota
+	UnknownMediaType MediaType = iota
+	Film
 	Series
 	Anime
 	VideoGames
@@ -36,7 +36,7 @@ func (mediatype MediaType) String() string {
 	case VideoGames:
 		return "VideoGames"
 	default:
-		return fmt.Sprintf("%d", int(mediatype))
+		return "UnknownMediaType"
 	}
 }
 
@@ -47,6 +47,17 @@ func (mediatype MediaType) IsValid() bool {
 	}
 
 	return false
+}
+
+// ToMediaType converts a string to a MediaType
+func ToMediaType(mediaTypeString string) (MediaType, error) {
+	for mediatype := UnknownMediaType + 1; mediatype <= VideoGames; mediatype++ {
+		if mediaTypeString == mediatype.String() {
+			return mediatype, nil
+		}
+	}
+
+	return UnknownMediaType, ErrUnsupportedMediaType
 }
 
 // Media holds the logic of all Works with its tropes that exist within a particular medium in TvTropes
@@ -62,7 +73,7 @@ type Media struct {
 }
 
 // NewMedia is a factory that creates a Media aggregate with validations
-func NewMedia(title, year string, lastUpdated time.Time, tropes []tropestogo.Trope, page *tropestogo.Page, mediaType MediaType) (Media, error) {
+func NewMedia(title, year string, lastUpdated time.Time, tropes map[tropestogo.Trope]struct{}, page *tropestogo.Page, mediaType MediaType) (Media, error) {
 	if page == nil {
 		return Media{}, ErrMissingValues
 	}

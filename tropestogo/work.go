@@ -17,6 +17,6 @@ type Work struct {
 	Year string
 	// LastUpdated is the last time the Work information was updated
 	LastUpdated time.Time
-	// Tropes that define the Work
-	Tropes []Trope
+	// Tropes that define the Work. Is a set, which means that all tropes are unique
+	Tropes map[Trope]struct{}
 }
