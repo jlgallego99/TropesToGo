@@ -152,18 +152,19 @@ var _ = Describe("Scraper", func() {
 	})
 
 	Describe("Scrape Film Page", func() {
-		var validFilm1 media.Media
-		var errorFilm1 error
-
-		BeforeEach(func() {
-			validFilm1, errorFilm1 = serviceScraper.ScrapeWorkPage(tvTropesPage)
-		})
+		var validFilm1, validFilm3 media.Media
+		var errorFilm1, errorFilm3 error
 
 		Context("Valid Film Page with tropes on a simple list", func() {
+			BeforeEach(func() {
+				validFilm1, errorFilm1 = serviceScraper.ScrapeWorkPage(tvTropesPage)
+			})
+
 			It("Should have correct Work fields", func() {
 				Expect(validFilm1.GetWork().Title).To(Equal("Oldboy (2003)"))
 				Expect(validFilm1.GetMediaType()).To(Equal(media.Film))
 				Expect(validFilm1.GetWork().Tropes).To(Not(BeEmpty()))
+				Expect(len(validFilm1.GetWork().Tropes)).To(Equal(137))
 			})
 
 			It("Shouldn't return an error", func() {
@@ -171,19 +172,46 @@ var _ = Describe("Scraper", func() {
 			})
 
 			It("Shouldn't have repeated tropes", func() {
-				visited := make(map[string]bool, 0)
-				repeated := false
-				for trope := range validFilm1.GetWork().Tropes {
-					if visited[trope.GetTitle()] == true {
-						repeated = true
-						break
-					} else {
-						visited[trope.GetTitle()] = true
-					}
-				}
+				unique := areTropesUnique(validFilm1.GetWork().Tropes)
 
-				Expect(repeated).To(BeFalse())
+				Expect(unique).To(BeTrue())
+			})
+		})
+
+		Context("Valid Film Page with tropes on folders", func() {
+			BeforeEach(func() {
+				validFilm3, errorFilm3 = serviceScraper.ScrapeWorkPage(tvTropesPage3)
+			})
+
+			It("Should have correct Work fields", func() {
+				Expect(validFilm3.GetWork().Title).To(Equal("A New Hope"))
+				Expect(validFilm3.GetMediaType()).To(Equal(media.Film))
+				Expect(validFilm3.GetWork().Tropes).To(Not(BeEmpty()))
+				Expect(len(validFilm3.GetWork().Tropes)).To(Equal(353))
+			})
+
+			It("Shouldn't return an error", func() {
+				Expect(errorFilm3).To(BeNil())
+			})
+
+			It("Shouldn't have repeated tropes", func() {
+				unique := areTropesUnique(validFilm3.GetWork().Tropes)
+
+				Expect(unique).To(BeTrue())
 			})
 		})
 	})
 })
+
+func areTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {
+	visited := make(map[string]bool, 0)
+	for trope := range tropes {
+		if visited[trope.GetTitle()] == true {
+			return false
+		} else {
+			visited[trope.GetTitle()] = true
+		}
+	}
+
+	return true
+}

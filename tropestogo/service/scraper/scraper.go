@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -21,22 +22,23 @@ var (
 )
 
 const (
-	TvTropesHostname        = "tvtropes.org"
-	TvTropesPmwiki          = "/pmwiki/pmwiki.php/"
-	TvTropesMainPath        = TvTropesPmwiki + "Main/"
-	WorkTitleSelector       = "h1.entry-title"
-	WorkIndexSelector       = WorkTitleSelector + " strong"
-	MainArticleSelector     = "#main-article"
-	TropeListSelector       = "#main-article ul"
-	TropeListHeaderSelector = "#main-article h2"
-	SubPagesNavSelector     = "nav.body-options"
-	SubPageListSelector     = "ul.subpage-links"
-	SubPageLinkSelector     = "a.subpage-link"
-	TropeTag                = "a.twikilink"
-	TropeLinkSelector       = "#main-article ul li " + TropeTag
-	TropeFolderSelector     = "#main-article div.folderlabel"
-	FolderToggleFunction    = "toggleAllFolders()"
-	MainTropesSelector      = TropeListSelector + " > li > " + TropeTag + ":first-child"
+	TvTropesHostname         = "tvtropes.org"
+	TvTropesPmwiki           = "/pmwiki/pmwiki.php/"
+	TvTropesMainPath         = TvTropesPmwiki + "Main/"
+	WorkTitleSelector        = "h1.entry-title"
+	WorkIndexSelector        = WorkTitleSelector + " strong"
+	MainArticleSelector      = "#main-article"
+	TropeListSelector        = "#main-article ul"
+	TropeListHeaderSelector  = "#main-article h2"
+	SubPagesNavSelector      = "nav.body-options"
+	SubPageListSelector      = "ul.subpage-links"
+	SubPageLinkSelector      = "a.subpage-link"
+	TropeTag                 = "a.twikilink"
+	TropeLinkSelector        = "#main-article ul li " + TropeTag
+	TropeFolderSelector      = "#main-article div.folderlabel"
+	FolderToggleFunction     = "toggleAllFolders();"
+	MainTropesSelector       = TropeListHeaderSelector + " ~ ul > li > " + TropeTag + ":first-child"
+	MainTropesFolderSelector = MainArticleSelector + " .folder > ul > li > " + TropeTag + ":first-child"
 )
 
 // ScraperConfig is an alias for a function that will accept a pointer to a ServiceScraper and modify its fields
@@ -170,15 +172,24 @@ func checkTropeSection(doc *goquery.Document) (bool, error) {
 		}
 
 		// Check if tropes are on folders
-		// If there's a close all folders button, then the tropes are on folders
-		folderFunctionName, existsFolderButton := doc.Find(TropeFolderSelector).Attr("onclick")
-		if existsFolderButton && folderFunctionName == FolderToggleFunction {
+		if checkTropesOnFolders(doc) {
 			return true, nil
 		}
 	}
 
 	// Tropes are presented in an unknown form, so data can't be extracted
 	return false, ErrUnknownPageStructure
+}
+
+// checkTropesOnFolders validates whether tropes are presented on folders
+func checkTropesOnFolders(doc *goquery.Document) bool {
+	// If there's a close all folders button, then the tropes are on folders
+	folderFunctionName, existsFolderButton := doc.Find(TropeFolderSelector).Attr("onclick")
+	if existsFolderButton && folderFunctionName == FolderToggleFunction {
+		return true
+	}
+
+	return false
 }
 
 // ScrapeWorkPage extracts all the relevant information from a TvTropes Work Page
@@ -216,10 +227,18 @@ func (scraper *ServiceScraper) ScrapeWorkTropes(doc *goquery.Document, title str
 	var newTrope tropestogo.Trope
 	var newTropeError error
 
+	// Use a different selector if it's a simple list or folders
+	var selector string
+	if checkTropesOnFolders(doc) {
+		selector = MainTropesFolderSelector
+	} else {
+		selector = MainTropesSelector
+	}
+
 	// Searches for all trope tags on the main list
 	// Extracts only the main tropes on the list, that is, the ones that start an element on the list
 	// Ignores referenced tropes on the description as those may not belong to the Work
-	doc.Find(MainTropesSelector).EachWithBreak(func(_ int, selection *goquery.Selection) bool {
+	doc.Find(selector).EachWithBreak(func(_ int, selection *goquery.Selection) bool {
 		// Get trope name from the last part of the URI
 		tropeUri, tropeUriExists := selection.Attr("href")
 		if tropeUriExists {
@@ -233,6 +252,8 @@ func (scraper *ServiceScraper) ScrapeWorkTropes(doc *goquery.Document, title str
 			if tropeUri == TvTropesMainPath+newTrope.GetTitle() {
 				// Add trope to the set. If the trope is already there then it's ignored
 				tropes[newTrope] = struct{}{}
+
+				fmt.Println(tropeUri)
 			}
 		}
 
