@@ -13,13 +13,15 @@ var _ = Describe("Media", func() {
 	var validMedia, mediaNoPage, mediaNoTitle, mediaNoType, mediaWrongYear media.Media
 	var errValidMedia, errMediaNoPage, errMediaNoTitle, errMediaNoType, errMediaWrongYear error
 	var tvTropesPage *tropestogo.Page
+	var lastUpdated time.Time
 
 	BeforeEach(func() {
-		tropes := make([]tropestogo.Trope, 0)
+		tropes := make(map[tropestogo.Trope]struct{})
 		trope1, _ := tropestogo.NewTrope("AccentUponTheWrongSyllable", tropestogo.TropeIndex(0))
 		trope2, _ := tropestogo.NewTrope("ChekhovsGun", tropestogo.TropeIndex(0))
-		tropes = append(tropes, trope1)
-		tropes = append(tropes, trope2)
+		tropes[trope1] = struct{}{}
+		tropes[trope2] = struct{}{}
+		lastUpdated = time.Now()
 
 		tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012")
 		tvTropesPage = &tropestogo.Page{
@@ -27,11 +29,11 @@ var _ = Describe("Media", func() {
 			LastUpdated: time.Now(),
 		}
 
-		validMedia, errValidMedia = media.NewMedia("TheAvengers", "2012", time.Now(), tropes, tvTropesPage, media.Film)
-		mediaNoPage, errMediaNoPage = media.NewMedia("TheAvengers", "2012", time.Now(), tropes, nil, media.Film)
-		mediaNoTitle, errMediaNoTitle = media.NewMedia("", "2012", time.Now(), tropes, nil, media.Film)
-		mediaNoType, errMediaNoType = media.NewMedia("TheAvengers", "2012", time.Now(), tropes, tvTropesPage, media.MediaType(100))
-		mediaWrongYear, errMediaWrongYear = media.NewMedia("TheAvengers", "2012aaaaa", time.Now(), tropes, tvTropesPage, media.Film)
+		validMedia, errValidMedia = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, tvTropesPage, media.Film)
+		mediaNoPage, errMediaNoPage = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, nil, media.Film)
+		mediaNoTitle, errMediaNoTitle = media.NewMedia("", "2012", lastUpdated, tropes, nil, media.Film)
+		mediaNoType, errMediaNoType = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, tvTropesPage, media.MediaType(100))
+		mediaWrongYear, errMediaWrongYear = media.NewMedia("TheAvengers", "2012aaaaa", lastUpdated, tropes, tvTropesPage, media.Film)
 	})
 
 	Describe("Create Media", func() {
@@ -40,6 +42,11 @@ var _ = Describe("Media", func() {
 				Expect(validMedia.GetWork()).To(Not(BeNil()))
 				Expect(validMedia.GetPage()).To(Not(BeNil()))
 				Expect(validMedia.GetMediaType()).To(Equal(media.Film))
+				Expect(len(validMedia.GetWork().Tropes)).To(Equal(2))
+				Expect(validMedia.GetWork().Title).To(Equal("TheAvengers"))
+				Expect(validMedia.GetWork().Year).To(Equal("2012"))
+				Expect(validMedia.GetWork().LastUpdated).To(Equal(lastUpdated))
+				Expect(validMedia.GetPage()).To(Equal(tvTropesPage))
 			})
 
 			It("Shouldn't raise an error", func() {
