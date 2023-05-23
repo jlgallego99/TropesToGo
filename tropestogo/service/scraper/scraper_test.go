@@ -1,6 +1,7 @@
 package scraper_test
 
 import (
+	"github.com/jlgallego99/TropesToGo/media"
 	"net/url"
 	"time"
 
@@ -75,7 +76,7 @@ var _ = Describe("Scraper", func() {
 		})
 	})
 
-	Describe("Check page URL", func() {
+	Describe("Check if page can be scraped", func() {
 		var validTvTropesPage, validTvTropesPage2, validTvTropesPage3, validDifferentPage, validNotWorkPage bool
 		var errTvTropes, errTvTropes2, errTvTropes3, errDifferent, errNotWorkPage error
 
@@ -134,6 +135,42 @@ var _ = Describe("Scraper", func() {
 
 			It("Should return an appropriate error", func() {
 				Expect(errDifferent).To(Equal(scraper.ErrNotTvTropes))
+			})
+		})
+	})
+
+	Describe("Scrape Film Page", func() {
+		var validFilm1 media.Media
+		var errorFilm1 error
+
+		BeforeEach(func() {
+			validFilm1, errorFilm1 = serviceScraper.ScrapeWorkPage(tvTropesPage)
+		})
+
+		Context("Valid Film Page with tropes on a simple list", func() {
+			It("Should have correct Work fields", func() {
+				Expect(validFilm1.GetWork().Title).To(Equal("Oldboy (2003)"))
+				Expect(validFilm1.GetMediaType()).To(Equal(media.Film))
+				Expect(validFilm1.GetWork().Tropes).To(Not(BeEmpty()))
+			})
+
+			It("Shouldn't return an error", func() {
+				Expect(errorFilm1).To(BeNil())
+			})
+
+			It("Shouldn't have repeated tropes", func() {
+				visited := make(map[string]bool, 0)
+				repeated := false
+				for trope := range validFilm1.GetWork().Tropes {
+					if visited[trope.GetTitle()] == true {
+						repeated = true
+						break
+					} else {
+						visited[trope.GetTitle()] = true
+					}
+				}
+
+				Expect(repeated).To(BeFalse())
 			})
 		})
 	})
