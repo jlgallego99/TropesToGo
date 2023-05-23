@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	tropestogo "github.com/jlgallego99/TropesToGo"
@@ -91,17 +92,17 @@ func (scraper *ServiceScraper) CheckValidWorkPage(page *tropestogo.Page) (bool, 
 	res, _ := http.Get(page.URL.String())
 	doc, _ := goquery.NewDocumentFromReader(res.Body)
 
-	validWorkPage, errWorkPage := CheckTvTropesWorkPage(page)
+	validWorkPage, errWorkPage := checkTvTropesWorkPage(page)
 	if !validWorkPage {
 		return false, errWorkPage
 	}
 
-	validMainArticle, errMainArticle := CheckMainArticle(doc)
+	validMainArticle, errMainArticle := checkMainArticle(doc)
 	if !validMainArticle {
 		return false, errMainArticle
 	}
 
-	validTropeSection, errTropeSection := CheckTropeSection(doc)
+	validTropeSection, errTropeSection := checkTropeSection(doc)
 	if !validTropeSection {
 		return false, errTropeSection
 	}
@@ -110,7 +111,7 @@ func (scraper *ServiceScraper) CheckValidWorkPage(page *tropestogo.Page) (bool, 
 }
 
 // CheckTvTropesWorkPage checks if the received page belongs to a tvtropes.org Work page
-func CheckTvTropesWorkPage(page *tropestogo.Page) (bool, error) {
+func checkTvTropesWorkPage(page *tropestogo.Page) (bool, error) {
 	// First check if the domain is TvTropes
 	if page.URL.Hostname() != TvTropesHostname {
 		return false, ErrNotTvTropes
@@ -126,7 +127,7 @@ func CheckTvTropesWorkPage(page *tropestogo.Page) (bool, error) {
 }
 
 // CheckMainArticle checks if the tvtropes work main article page has a known structure which can be extracted later
-func CheckMainArticle(doc *goquery.Document) (bool, error) {
+func checkMainArticle(doc *goquery.Document) (bool, error) {
 	// Check if the main article structure has all known ids and elements that comprise a TvTropes work page
 	if doc.Find(MainArticleSelector).Length() == 0 ||
 		doc.Find(SubPagesNavSelector).Find(SubPageListSelector).Find(SubPageLinkSelector).Length() == 0 {
@@ -142,7 +143,7 @@ func CheckMainArticle(doc *goquery.Document) (bool, error) {
 	return true, nil
 }
 
-func CheckTropeSection(doc *goquery.Document) (bool, error) {
+func checkTropeSection(doc *goquery.Document) (bool, error) {
 	// Look for the tropes section
 	if doc.Find(TropeListSelector).Length() != 0 {
 		// Check if the list is a simple trope list or a list of subpages with tropes
@@ -177,4 +178,64 @@ func CheckTropeSection(doc *goquery.Document) (bool, error) {
 
 	// Tropes are presented in an unknown form, so data can't be extracted
 	return false, ErrUnknownPageStructure
+}
+
+// ScrapeWorkPage extracts all the relevant information from a TvTropes Work Page
+func (scraper *ServiceScraper) ScrapeWorkPage(page *tropestogo.Page) (media.Media, error) {
+	res, _ := http.Get(page.URL.String())
+	doc, _ := goquery.NewDocumentFromReader(res.Body)
+
+	title, mediaIndex, errMediaIndex := scraper.ScrapeWorkTitle(doc)
+	if errMediaIndex != nil {
+		return media.Media{}, errMediaIndex
+	}
+
+	tropes, errTropes := scraper.ScrapeWorkTropes(doc)
+	if errTropes != nil {
+		return media.Media{}, errTropes
+	}
+
+	year := ""
+	media, error := media.NewMedia(title, year, time.Now(), tropes, page, mediaIndex)
+	return media, error
+}
+
+// ScrapeWorkTitle extracts the title and media index from the HTML document of a Work Page
+func (scraper *ServiceScraper) ScrapeWorkTitle(doc *goquery.Document) (string, media.MediaType, error) {
+	// Get Title of the Work page by extracting the title and discarding the index name
+	title := strings.TrimSpace(strings.Split(doc.Find(WorkTitleSelector).Text(), "/")[1])
+	mediaIndex, errMediaIndex := media.ToMediaType(strings.Trim(doc.Find(WorkIndexSelector).First().Text(), " /"))
+
+	return title, mediaIndex, errMediaIndex
+}
+
+// ScrapeWorkTropes extracts all the tropes from the HTML document of a Work Page
+func (scraper *ServiceScraper) ScrapeWorkTropes(doc *goquery.Document) (map[tropestogo.Trope]struct{}, error) {
+	tropes := make(map[tropestogo.Trope]struct{}, 0)
+	var newTrope tropestogo.Trope
+	var newTropeError error
+
+	// Search for all trope tags on the main list
+	doc.Find(TropeListSelector + " " + TropeTag).EachWithBreak(func(_ int, selection *goquery.Selection) bool {
+		// Get trope name from the last part of the URI
+		tropeUri, tropeUriExists := selection.Attr("href")
+		if tropeUriExists == true {
+			// Insert tropes without repeating
+			newTrope, newTropeError = tropestogo.NewTrope(strings.Split(tropeUri, "/")[4], tropestogo.TropeIndex(0))
+			if newTropeError != nil {
+				return false
+			}
+
+			// Add trope to the set. If the trope is already there then it's ignored
+			tropes[newTrope] = struct{}{}
+		}
+
+		return true
+	})
+
+	if newTropeError != nil {
+		return make(map[tropestogo.Trope]struct{}), newTropeError
+	}
+
+	return tropes, nil
 }
