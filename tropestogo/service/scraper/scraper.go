@@ -36,6 +36,7 @@ const (
 	TropeLinkSelector       = "#main-article ul li " + TropeTag
 	TropeFolderSelector     = "#main-article div.folderlabel"
 	FolderToggleFunction    = "toggleAllFolders()"
+	MainTropesSelector      = TropeListSelector + " > li > " + TropeTag + ":first-child"
 )
 
 // ScraperConfig is an alias for a function that will accept a pointer to a ServiceScraper and modify its fields
@@ -190,7 +191,7 @@ func (scraper *ServiceScraper) ScrapeWorkPage(page *tropestogo.Page) (media.Medi
 		return media.Media{}, errMediaIndex
 	}
 
-	tropes, errTropes := scraper.ScrapeWorkTropes(doc)
+	tropes, errTropes := scraper.ScrapeWorkTropes(doc, title)
 	if errTropes != nil {
 		return media.Media{}, errTropes
 	}
@@ -210,24 +211,29 @@ func (scraper *ServiceScraper) ScrapeWorkTitle(doc *goquery.Document) (string, m
 }
 
 // ScrapeWorkTropes extracts all the tropes from the HTML document of a Work Page
-func (scraper *ServiceScraper) ScrapeWorkTropes(doc *goquery.Document) (map[tropestogo.Trope]struct{}, error) {
+func (scraper *ServiceScraper) ScrapeWorkTropes(doc *goquery.Document, title string) (map[tropestogo.Trope]struct{}, error) {
 	tropes := make(map[tropestogo.Trope]struct{}, 0)
 	var newTrope tropestogo.Trope
 	var newTropeError error
 
-	// Search for all trope tags on the main list
-	doc.Find(TropeListSelector + " " + TropeTag).EachWithBreak(func(_ int, selection *goquery.Selection) bool {
+	// Searches for all trope tags on the main list
+	// Extracts only the main tropes on the list, that is, the ones that start an element on the list
+	// Ignores referenced tropes on the description as those may not belong to the Work
+	doc.Find(MainTropesSelector).EachWithBreak(func(_ int, selection *goquery.Selection) bool {
 		// Get trope name from the last part of the URI
 		tropeUri, tropeUriExists := selection.Attr("href")
-		if tropeUriExists == true {
+		if tropeUriExists {
 			// Insert tropes without repeating
 			newTrope, newTropeError = tropestogo.NewTrope(strings.Split(tropeUri, "/")[4], tropestogo.TropeIndex(0))
 			if newTropeError != nil {
 				return false
 			}
 
-			// Add trope to the set. If the trope is already there then it's ignored
-			tropes[newTrope] = struct{}{}
+			// Check if it's really a trope by checking its URI
+			if tropeUri == TvTropesMainPath+newTrope.GetTitle() {
+				// Add trope to the set. If the trope is already there then it's ignored
+				tropes[newTrope] = struct{}{}
+			}
 		}
 
 		return true
