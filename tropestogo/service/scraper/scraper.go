@@ -2,7 +2,6 @@ package scraper
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -202,7 +201,7 @@ func (scraper *ServiceScraper) ScrapeWorkPage(page *tropestogo.Page) (media.Medi
 		return media.Media{}, errMediaIndex
 	}
 
-	tropes, errTropes := scraper.ScrapeWorkTropes(doc, title)
+	tropes, errTropes := scraper.ScrapeWorkTropes(doc)
 	if errTropes != nil {
 		return media.Media{}, errTropes
 	}
@@ -222,7 +221,7 @@ func (scraper *ServiceScraper) ScrapeWorkTitle(doc *goquery.Document) (string, m
 }
 
 // ScrapeWorkTropes extracts all the tropes from the HTML document of a Work Page
-func (scraper *ServiceScraper) ScrapeWorkTropes(doc *goquery.Document, title string) (map[tropestogo.Trope]struct{}, error) {
+func (scraper *ServiceScraper) ScrapeWorkTropes(doc *goquery.Document) (map[tropestogo.Trope]struct{}, error) {
 	tropes := make(map[tropestogo.Trope]struct{}, 0)
 	var newTrope tropestogo.Trope
 	var newTropeError error
@@ -252,8 +251,6 @@ func (scraper *ServiceScraper) ScrapeWorkTropes(doc *goquery.Document, title str
 			if tropeUri == TvTropesMainPath+newTrope.GetTitle() {
 				// Add trope to the set. If the trope is already there then it's ignored
 				tropes[newTrope] = struct{}{}
-
-				fmt.Println(tropeUri)
 			}
 		}
 
