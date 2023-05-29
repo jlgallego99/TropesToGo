@@ -14,9 +14,6 @@ type RepositoryMedia interface {
 	// UpdateMedia updates a Media (Work with its Tropes) within the dataset
 	UpdateMedia(Media) error
 
-	// GetDataset returns all Media found in TvTropes
-	GetDataset() ([]Media, error)
-
 	// GetMedia returns a Work with its Tropes
 	GetMedia(tropestogo.Work) ([]Media, error)
 

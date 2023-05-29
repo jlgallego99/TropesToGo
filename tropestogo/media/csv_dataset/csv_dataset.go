@@ -53,11 +53,6 @@ func (repository *CSVRepository) UpdateMedia(media media.Media) error {
 	panic("implement me")
 }
 
-func (repository *CSVRepository) GetDataset() ([]media.Media, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (repository *CSVRepository) GetMedia(work tropestogo.Work) ([]media.Media, error) {
 	//TODO implement me
 	panic("implement me")
