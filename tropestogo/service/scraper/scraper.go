@@ -77,7 +77,7 @@ func ConfigIndexRepository(ir index.RepositoryIndex) ScraperConfig {
 	}
 }
 
-func ConfigRepository(mr media.RepositoryMedia) ScraperConfig {
+func ConfigMediaRepository(mr media.RepositoryMedia) ScraperConfig {
 	return func(ss *ServiceScraper) error {
 		if mr == nil {
 			return ErrInvalidField
