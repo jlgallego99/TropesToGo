@@ -1,6 +1,8 @@
 package media
 
-import tropestogo "github.com/jlgallego99/TropesToGo"
+import (
+	tropestogo "github.com/jlgallego99/TropesToGo"
+)
 
 // RepositoryMedia defines an interface for all kinds of repositories of media tropes in TvTropes
 // The interface allows us to implement multiple structs that handle different data formats like CSV or JSON
@@ -20,10 +22,4 @@ type RepositoryMedia interface {
 
 	// GetMedia returns all Media within a MediaType (for example, all films)
 	GetMediaType(MediaType) ([]Media, error)
-}
-
-type CSVRepository struct {
-}
-
-type JSONRepository struct {
 }
