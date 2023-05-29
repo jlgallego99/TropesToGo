@@ -16,8 +16,7 @@ import (
 var serviceScraper *scraper.ServiceScraper
 var newScraperErr, invalidScraperErr error
 
-// A valid TvTropes page and one page that is from other website
-var tvTropesPage, tvTropesPage2, tvTropesPage3, notTvTropesPage, notWorkPage *tropestogo.Page
+var tvTropesPage, tvTropesPage2, tvTropesPage3, notTvTropesPage, notWorkPage, unsupportedMediaPage *tropestogo.Page
 
 var _ = BeforeSuite(func() {
 	serviceScraper, newScraperErr = scraper.NewServiceScraper()
@@ -27,6 +26,8 @@ var _ = BeforeSuite(func() {
 	tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
 	tvTropesUrl2, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012")
 	tvTropesUrl3, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/ANewHope")
+
+	tvTropesUrlUnsupported, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Manga/AttackOnTitan")
 
 	differentUrl, _ := url.Parse("https://www.google.com/")
 	notWorkUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Main/Media")
@@ -53,6 +54,11 @@ var _ = BeforeSuite(func() {
 
 	notWorkPage = &tropestogo.Page{
 		URL:         notWorkUrl,
+		LastUpdated: time.Now(),
+	}
+
+	unsupportedMediaPage = &tropestogo.Page{
+		URL:         tvTropesUrlUnsupported,
 		LastUpdated: time.Now(),
 	}
 })
@@ -152,8 +158,8 @@ var _ = Describe("Scraper", func() {
 	})
 
 	Describe("Scrape Film Page", func() {
-		var validFilm1, validFilm3 media.Media
-		var errorFilm1, errorFilm3 error
+		var validFilm1, validFilm3, filmInvalidType media.Media
+		var errorFilm1, errorFilm3, errorFilmInvalidType error
 
 		Context("Valid Film Page with tropes on a simple list", func() {
 			BeforeEach(func() {
@@ -198,6 +204,22 @@ var _ = Describe("Scraper", func() {
 				unique := areTropesUnique(validFilm3.GetWork().Tropes)
 
 				Expect(unique).To(BeTrue())
+			})
+		})
+
+		Context("Invalid Film because the media type isn't supported", func() {
+			BeforeEach(func() {
+				filmInvalidType, errorFilmInvalidType = serviceScraper.ScrapeWorkPage(unsupportedMediaPage)
+			})
+
+			It("Should return an empty media object", func() {
+				Expect(filmInvalidType.GetWork()).To(BeNil())
+				Expect(filmInvalidType.GetPage()).To(BeNil())
+				Expect(filmInvalidType.GetMediaType()).To(Equal(media.UnknownMediaType))
+			})
+
+			It("Should return an appropriate error", func() {
+				Expect(errorFilmInvalidType).To(Equal(media.ErrUnsupportedMediaType))
 			})
 		})
 	})
