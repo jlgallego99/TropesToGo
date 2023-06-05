@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 )
 
 var (
@@ -36,6 +37,12 @@ func NewCSVRepository(name string, delimiter rune) (*CSVRepository, error) {
 		writer:    writer,
 	}
 
+	// Add headers to the CSV file
+	repository.Lock()
+	repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes"})
+	repository.writer.Flush()
+	repository.Unlock()
+
 	return repository, err
 }
 
@@ -49,8 +56,14 @@ func (repository *CSVRepository) AddMedia(media media.Media) error {
 		tropes = append(tropes, trope.GetTitle())
 	}
 
+	// Add record to the CSV file
+	// A record consists of the following fields: title,year,lastupdated,url,mediatype,tropes
+	record := []string{media.GetWork().Title, media.GetWork().Year, media.GetWork().LastUpdated.Format(time.DateTime),
+		media.GetPage().URL.String(), media.GetMediaType().String(), strings.Join(tropes, ";")}
+
+	// Mutual exclusion access to the repository
 	repository.Lock()
-	err := repository.writer.Write([]string{media.GetWork().Title, strings.Join(tropes, ";")})
+	err := repository.writer.Write(record)
 	repository.writer.Flush()
 	repository.Unlock()
 
@@ -74,7 +87,19 @@ func (repository *CSVRepository) GetMediaOfType(mediaType media.MediaType) ([]me
 
 func (repository *CSVRepository) RemoveAll() error {
 	if _, err := os.Stat("dataset.csv"); err == nil {
-		return os.Truncate(repository.name, 0)
+		csvFile, errRemove := os.Create(repository.name)
+		repository.reader = csv.NewReader(csvFile)
+		repository.writer = csv.NewWriter(csvFile)
+		repository.reader.Comma = repository.delimiter
+		repository.writer.Comma = repository.delimiter
+
+		// Add headers to the CSV file
+		repository.Lock()
+		repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes"})
+		repository.writer.Flush()
+		repository.Unlock()
+
+		return errRemove
 	} else {
 		return ErrFileNotExists
 	}
