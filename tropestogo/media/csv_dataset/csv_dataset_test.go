@@ -9,7 +9,6 @@ import (
 	. "github.com/onsi/gomega"
 	"net/url"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -22,30 +21,31 @@ var datasetFile *os.File
 var _ = BeforeSuite(func() {
 	repository, errorRepository = csv_dataset.NewCSVRepository("dataset", ',')
 
-	datasetFile, _ = os.Open("dataset.csv")
-	reader = csv.NewReader(datasetFile)
-
 	tropes := make(map[tropestogo.Trope]struct{})
-	trope1, _ := tropestogo.NewTrope("AccentUponTheWrongSyllable", tropestogo.TropeIndex(0))
-	trope2, _ := tropestogo.NewTrope("ChekhovsGun", tropestogo.TropeIndex(0))
+	trope1, _ := tropestogo.NewTrope("AdaptationalLocationChange", tropestogo.TropeIndex(0))
+	trope2, _ := tropestogo.NewTrope("AdaptationNameChange", tropestogo.TropeIndex(0))
+	trope3, _ := tropestogo.NewTrope("AgeGapRomance", tropestogo.TropeIndex(0))
 	tropes[trope1] = struct{}{}
 	tropes[trope2] = struct{}{}
+	tropes[trope3] = struct{}{}
 	tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
 	tvTropesPage := &tropestogo.Page{
 		URL:         tvTropesUrl,
 		LastUpdated: time.Now(),
 	}
-	mediaEntry, _ = media.NewMedia("TheAvengers", "2012", time.Now(), tropes, tvTropesPage, media.Film)
+	mediaEntry, _ = media.NewMedia("Oldboy", "2003", time.Now(), tropes, tvTropesPage, media.Film)
 })
 
 var _ = Describe("CsvDataset", func() {
 	BeforeEach(func() {
 		errAddMedia = repository.AddMedia(mediaEntry)
+		datasetFile, _ = os.Open("dataset.csv")
+		reader = csv.NewReader(datasetFile)
 	})
 
 	AfterEach(func() {
 		// Reset file
-		os.Create("dataset.csv")
+		repository.RemoveAll()
 	})
 
 	Context("Create CSV Repository", func() {
@@ -60,15 +60,27 @@ var _ = Describe("CsvDataset", func() {
 		It("Shouldn't return an error", func() {
 			Expect(errorRepository).To(BeNil())
 		})
+
+		It("Should only have the headers", func() {
+			records, err := reader.ReadAll()
+
+			Expect(err).To(BeNil())
+			Expect(len(records)).To(Equal(2))
+			Expect(records[0]).To(Equal([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes"}))
+		})
 	})
 
 	Context("Add a Media to the CSV file", func() {
 		It("Should have added the correct record to the CSV", func() {
-			record, err := reader.Read()
+			records, err := reader.ReadAll()
 
-			Expect(len(record)).To(Equal(2))
-			Expect(strings.Trim(record[0], "\x00")).To(Equal("TheAvengers"))
-			Expect(record[1]).To(Equal("AccentUponTheWrongSyllable;ChekhovsGun"))
+			Expect(len(records[0])).To(Equal(6))
+			Expect(len(records[1])).To(Equal(6))
+			Expect(records[1][0]).To(Equal("Oldboy"))
+			Expect(records[1][1]).To(Equal("2003"))
+			Expect(records[1][3]).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"))
+			Expect(records[1][4]).To(Equal("Film"))
+			Expect(records[1][5]).To(Equal("AdaptationalLocationChange;AdaptationNameChange;AgeGapRomance"))
 			Expect(err).To(BeNil())
 		})
 
@@ -83,13 +95,15 @@ var _ = Describe("CsvDataset", func() {
 		})
 
 		It("Should still exist a CSV file", func() {
-			_, err := os.Stat("dataset.csv")
-			Expect(err).To(BeNil())
+			Expect("dataset.csv").To(BeAnExistingFile())
 		})
 
-		It("Should be empty", func() {
-			file, _ := os.Stat("dataset.csv")
-			Expect(file.Size()).To(BeZero())
+		It("Should only have the headers", func() {
+			records, err := reader.ReadAll()
+
+			Expect(err).To(BeNil())
+			Expect(len(records)).To(Equal(1))
+			Expect(records[0]).To(Equal([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes"}))
 		})
 
 		It("Should have no errors", func() {
@@ -104,8 +118,7 @@ var _ = Describe("CsvDataset", func() {
 		})
 
 		It("Shouldn't exist a CSV file", func() {
-			_, err := os.Stat("dataset.csv")
-			Expect(err).To(Not(BeNil()))
+			Expect("dataset.csv").To(Not(BeAnExistingFile()))
 		})
 
 		It("Should return an error", func() {
