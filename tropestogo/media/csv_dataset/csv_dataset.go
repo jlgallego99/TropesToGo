@@ -71,3 +71,11 @@ func (repository *CSVRepository) GetMediaOfType(mediaType media.MediaType) ([]me
 	//TODO implement me
 	panic("implement me")
 }
+
+func (repository *CSVRepository) RemoveAll() error {
+	if _, err := os.Stat("dataset.csv"); err == nil {
+		return os.Truncate(repository.name, 0)
+	} else {
+		return ErrFileNotExists
+	}
+}

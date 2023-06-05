@@ -9,17 +9,18 @@ import (
 	. "github.com/onsi/gomega"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 )
 
 var repository *csv_dataset.CSVRepository
-var errorRepository error
+var errorRepository, errRemoveAll, errAddMedia error
 var mediaEntry media.Media
 var reader *csv.Reader
 var datasetFile *os.File
 
 var _ = BeforeSuite(func() {
-	repository, errorRepository = csv_dataset.NewCSVRepository(',')
+	repository, errorRepository = csv_dataset.NewCSVRepository("dataset", ',')
 
 	datasetFile, _ = os.Open("dataset.csv")
 	reader = csv.NewReader(datasetFile)
@@ -38,6 +39,15 @@ var _ = BeforeSuite(func() {
 })
 
 var _ = Describe("CsvDataset", func() {
+	BeforeEach(func() {
+		errAddMedia = repository.AddMedia(mediaEntry)
+	})
+
+	AfterEach(func() {
+		// Reset file
+		os.Create("dataset.csv")
+	})
+
 	Context("Create CSV Repository", func() {
 		It("Should have created a CSV file", func() {
 			Expect("dataset.csv").To(BeAnExistingFile())
@@ -53,17 +63,11 @@ var _ = Describe("CsvDataset", func() {
 	})
 
 	Context("Add a Media to the CSV file", func() {
-		var errAddMedia error
-
-		BeforeEach(func() {
-			errAddMedia = repository.AddMedia(mediaEntry)
-		})
-
 		It("Should have added the correct record to the CSV", func() {
 			record, err := reader.Read()
 
 			Expect(len(record)).To(Equal(2))
-			Expect(record[0]).To(Equal("TheAvengers"))
+			Expect(strings.Trim(record[0], "\x00")).To(Equal("TheAvengers"))
 			Expect(record[1]).To(Equal("AccentUponTheWrongSyllable;ChekhovsGun"))
 			Expect(err).To(BeNil())
 		})
@@ -71,14 +75,46 @@ var _ = Describe("CsvDataset", func() {
 		It("Shouldn't return an error", func() {
 			Expect(errAddMedia).To(BeNil())
 		})
+	})
 
-		AfterEach(func() {
-			// Delete file contents
-			os.Truncate("dataset.csv", 0)
+	Context("Remove CSV file contents", func() {
+		BeforeEach(func() {
+			errRemoveAll = repository.RemoveAll()
+		})
+
+		It("Should still exist a CSV file", func() {
+			_, err := os.Stat("dataset.csv")
+			Expect(err).To(BeNil())
+		})
+
+		It("Should be empty", func() {
+			file, _ := os.Stat("dataset.csv")
+			Expect(file.Size()).To(BeZero())
+		})
+
+		It("Should have no errors", func() {
+			Expect(errRemoveAll).To(BeNil())
+		})
+	})
+
+	Context("Remove contents of CSV file that doesn't exist", func() {
+		BeforeEach(func() {
+			os.Remove("dataset.csv")
+			errRemoveAll = repository.RemoveAll()
+		})
+
+		It("Shouldn't exist a CSV file", func() {
+			_, err := os.Stat("dataset.csv")
+			Expect(err).To(Not(BeNil()))
+		})
+
+		It("Should return an error", func() {
+			Expect(errRemoveAll).To(Equal(csv_dataset.ErrFileNotExists))
 		})
 	})
 })
 
 var _ = AfterSuite(func() {
 	datasetFile.Close()
+	os.Remove("dataset.csv")
 })
