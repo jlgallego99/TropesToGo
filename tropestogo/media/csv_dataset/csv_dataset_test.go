@@ -117,12 +117,56 @@ var _ = Describe("CsvDataset", func() {
 			errRemoveAll = repository.RemoveAll()
 		})
 
+		AfterEach(func() {
+			repository, errorRepository = csv_dataset.NewCSVRepository("dataset", ',')
+		})
+
 		It("Shouldn't exist a CSV file", func() {
 			Expect("dataset.csv").To(Not(BeAnExistingFile()))
 		})
 
 		It("Should return an error", func() {
 			Expect(errRemoveAll).To(Equal(csv_dataset.ErrFileNotExists))
+		})
+	})
+
+	Context("Update the Year, URL and tropes of a Film in the CSV file", func() {
+		var errUpdate error
+
+		BeforeEach(func() {
+			// Create the new Media to be updated
+			trope1, _ := tropestogo.NewTrope("AdaptationalComicRelief", tropestogo.TropeIndex(0))
+			trope2, _ := tropestogo.NewTrope("AdaptationalHeroism", tropestogo.TropeIndex(0))
+			tropes := make(map[tropestogo.Trope]struct{})
+			tropes[trope1] = struct{}{}
+			tropes[trope2] = struct{}{}
+
+			updatedUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2013")
+			tvTropesPage := &tropestogo.Page{
+				URL:         updatedUrl,
+				LastUpdated: time.Now(),
+			}
+
+			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), tropes, tvTropesPage, media.Film)
+
+			errUpdate = repository.UpdateMedia("Oldboy", "2003", updatedMediaEntry)
+		})
+
+		It("Should have the new record updated", func() {
+			records, err := reader.ReadAll()
+
+			Expect(err).To(BeNil())
+			Expect(len(records)).To(Equal(2))
+			Expect(records[0]).To(Equal([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes"}))
+			Expect(records[1][0]).To(Equal("Oldboy"))
+			Expect(records[1][1]).To(Equal("2013"))
+			Expect(records[1][3]).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2013"))
+			Expect(records[1][4]).To(Equal("Film"))
+			Expect(records[1][5]).To(Equal("AdaptationalComicRelief;AdaptationalHeroism"))
+		})
+
+		It("Shouldn't return an error", func() {
+			Expect(errUpdate).To(BeNil())
 		})
 	})
 })

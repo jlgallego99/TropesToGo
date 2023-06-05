@@ -12,7 +12,8 @@ type RepositoryMedia interface {
 	AddMedia(Media) error
 
 	// UpdateMedia updates a Media (Work with its Tropes) within the dataset
-	UpdateMedia(Media) error
+	// It distinguishes between works with the same name by both its title and year
+	UpdateMedia(string, string, Media) error
 
 	// GetMedia returns a Work with its Tropes
 	GetMedia(tropestogo.Work) ([]Media, error)
