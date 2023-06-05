@@ -19,4 +19,7 @@ type RepositoryMedia interface {
 
 	// GetMediaOfType returns all Media within a MediaType (for example, all films)
 	GetMediaOfType(MediaType) ([]Media, error)
+
+	// RemoveAll delete all Media entries on the repository
+	RemoveAll() error
 }
