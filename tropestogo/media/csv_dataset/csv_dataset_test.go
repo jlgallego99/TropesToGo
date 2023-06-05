@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -80,7 +81,10 @@ var _ = Describe("CsvDataset", func() {
 			Expect(records[1][1]).To(Equal("2003"))
 			Expect(records[1][3]).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"))
 			Expect(records[1][4]).To(Equal("Film"))
-			Expect(records[1][5]).To(Equal("AdaptationalLocationChange;AdaptationNameChange;AgeGapRomance"))
+			Expect(len(strings.Split(records[1][5], ";"))).To(Equal(3))
+			Expect(strings.Contains(records[1][5], "AdaptationalLocationChange")).To(BeTrue())
+			Expect(strings.Contains(records[1][5], "AdaptationNameChange")).To(BeTrue())
+			Expect(strings.Contains(records[1][5], "AgeGapRomance")).To(BeTrue())
 			Expect(err).To(BeNil())
 		})
 
@@ -162,7 +166,9 @@ var _ = Describe("CsvDataset", func() {
 			Expect(records[1][1]).To(Equal("2013"))
 			Expect(records[1][3]).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2013"))
 			Expect(records[1][4]).To(Equal("Film"))
-			Expect(records[1][5]).To(Equal("AdaptationalComicRelief;AdaptationalHeroism"))
+			Expect(len(strings.Split(records[1][5], ";"))).To(Equal(2))
+			Expect(strings.Contains(records[1][5], "AdaptationalComicRelief")).To(BeTrue())
+			Expect(strings.Contains(records[1][5], "AdaptationalHeroism")).To(BeTrue())
 		})
 
 		It("Shouldn't return an error", func() {
