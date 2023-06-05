@@ -40,7 +40,7 @@ var _ = Describe("CsvDataset", func() {
 	BeforeEach(func() {
 		errAddMedia = repository.AddMedia(mediaEntry)
 		datasetFile, _ = os.Open("dataset.csv")
-		reader = csv.NewReader(datasetFile)
+		reader, _ = repository.GetReader()
 	})
 
 	AfterEach(func() {
