@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
+	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
 	"github.com/jlgallego99/TropesToGo/media/json_dataset"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -13,7 +14,7 @@ import (
 )
 
 var repository *json_dataset.JSONRepository
-var errorRepository error
+var errorRepository, errRemoveAll error
 var mediaEntry media.Media
 var datasetFile *os.File
 
@@ -68,10 +69,59 @@ var _ = Describe("JsonDataset", func() {
 
 			Expect(err).To(BeNil())
 			Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy"))
+			Expect(dataset.Tropestogo[0].Year).To(Equal("2003"))
+			Expect(dataset.Tropestogo[0].URL).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"))
+			Expect(dataset.Tropestogo[0].MediaType).To(Equal("Film"))
+			Expect(len(dataset.Tropestogo[0].Tropes)).To(Equal(3))
+			Expect(dataset.Tropestogo[0].Tropes[0]).To(Equal("AdaptationNameChange"))
+			Expect(dataset.Tropestogo[0].Tropes[1]).To(Equal("AdaptationalLocationChange"))
+			Expect(dataset.Tropestogo[0].Tropes[2]).To(Equal("AgeGapRomance"))
 		})
 
 		It("Shouldn't return an error", func() {
 			Expect(errAddMedia).To(BeNil())
+		})
+	})
+
+	Context("Remove JSON file contents", func() {
+		BeforeEach(func() {
+			errRemoveAll = repository.RemoveAll()
+		})
+
+		It("Should still exist a JSON file", func() {
+			Expect("dataset.json").To(BeAnExistingFile())
+		})
+
+		It("Should have an empty key of the main array", func() {
+			var dataset json_dataset.JSONDataset
+			fileContents, _ := os.ReadFile("dataset.json")
+			err := json.Unmarshal(fileContents, &dataset)
+
+			Expect(err).To(BeNil())
+			Expect(dataset.Tropestogo).To(BeEmpty())
+		})
+
+		It("Should have no errors", func() {
+			Expect(errRemoveAll).To(BeNil())
+		})
+	})
+
+	Context("Remove contents of JSON file that doesn't exist", func() {
+		BeforeEach(func() {
+			os.Remove("dataset.json")
+			errRemoveAll = repository.RemoveAll()
+		})
+
+		AfterEach(func() {
+			repository, errorRepository = json_dataset.NewJSONRepository("dataset")
+		})
+
+		It("Shouldn't exist a JSON file", func() {
+			Expect("dataset.json").To(Not(BeAnExistingFile()))
+		})
+
+		It("Should return an error", func() {
+			Expect(errRemoveAll).To(Equal(csv_dataset.ErrFileNotExists))
 		})
 	})
 })
