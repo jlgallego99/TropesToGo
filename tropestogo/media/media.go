@@ -1,9 +1,11 @@
 package media
 
 import (
+	"encoding/json"
 	"errors"
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"regexp"
+	"sort"
 	"time"
 )
 
@@ -70,6 +72,32 @@ type Media struct {
 
 	// MediaType is the media index that this work belongs to
 	mediaType MediaType
+}
+
+type JsonResponse struct {
+	Title       string   `json:"title"`
+	Year        string   `json:"year"`
+	MediaType   string   `json:"media_type"`
+	LastUpdated string   `json:"last_updated"`
+	URL         string   `json:"url"`
+	Tropes      []string `json:"tropes"`
+}
+
+func (media Media) MarshalJSON() ([]byte, error) {
+	var tropes []string
+	for trope := range media.GetWork().Tropes {
+		tropes = append(tropes, trope.GetTitle())
+	}
+	sort.Strings(tropes)
+
+	return json.Marshal(&JsonResponse{
+		Title:       media.work.Title,
+		Year:        media.work.Year,
+		MediaType:   media.mediaType.String(),
+		LastUpdated: media.work.LastUpdated.Format(time.DateTime),
+		URL:         media.page.URL.String(),
+		Tropes:      tropes,
+	})
 }
 
 // NewMedia is a factory that creates a Media aggregate with validations
