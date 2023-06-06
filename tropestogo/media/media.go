@@ -5,7 +5,6 @@ import (
 	"errors"
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"regexp"
-	"sort"
 	"time"
 )
 
@@ -75,20 +74,27 @@ type Media struct {
 }
 
 type JsonResponse struct {
-	Title       string   `json:"title"`
-	Year        string   `json:"year"`
-	MediaType   string   `json:"media_type"`
-	LastUpdated string   `json:"last_updated"`
-	URL         string   `json:"url"`
-	Tropes      []string `json:"tropes"`
+	Title       string      `json:"title"`
+	Year        string      `json:"year"`
+	MediaType   string      `json:"media_type"`
+	LastUpdated string      `json:"last_updated"`
+	URL         string      `json:"url"`
+	Tropes      []JsonTrope `json:"tropes"`
+}
+
+type JsonTrope struct {
+	Title string `json:"title"`
+	Index string `json:"index"`
 }
 
 func (media Media) MarshalJSON() ([]byte, error) {
-	var tropes []string
+	var tropes []JsonTrope
 	for trope := range media.GetWork().Tropes {
-		tropes = append(tropes, trope.GetTitle())
+		tropes = append(tropes, JsonTrope{
+			Title: trope.GetTitle(),
+			Index: trope.GetIndex().String(),
+		})
 	}
-	sort.Strings(tropes)
 
 	return json.Marshal(&JsonResponse{
 		Title:       media.work.Title,

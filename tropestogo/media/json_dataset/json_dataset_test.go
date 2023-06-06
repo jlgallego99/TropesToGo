@@ -20,9 +20,9 @@ var datasetFile *os.File
 
 var _ = BeforeSuite(func() {
 	tropes := make(map[tropestogo.Trope]struct{})
-	trope1, _ := tropestogo.NewTrope("AdaptationalLocationChange", tropestogo.TropeIndex(0))
-	trope2, _ := tropestogo.NewTrope("AdaptationNameChange", tropestogo.TropeIndex(0))
-	trope3, _ := tropestogo.NewTrope("AgeGapRomance", tropestogo.TropeIndex(0))
+	trope1, _ := tropestogo.NewTrope("AdaptationalLocationChange", tropestogo.TropeIndex(1))
+	trope2, _ := tropestogo.NewTrope("AdaptationNameChange", tropestogo.TropeIndex(1))
+	trope3, _ := tropestogo.NewTrope("AgeGapRomance", tropestogo.TropeIndex(2))
 	tropes[trope1] = struct{}{}
 	tropes[trope2] = struct{}{}
 	tropes[trope3] = struct{}{}
@@ -73,9 +73,6 @@ var _ = Describe("JsonDataset", func() {
 			Expect(dataset.Tropestogo[0].URL).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"))
 			Expect(dataset.Tropestogo[0].MediaType).To(Equal("Film"))
 			Expect(len(dataset.Tropestogo[0].Tropes)).To(Equal(3))
-			Expect(dataset.Tropestogo[0].Tropes[0]).To(Equal("AdaptationNameChange"))
-			Expect(dataset.Tropestogo[0].Tropes[1]).To(Equal("AdaptationalLocationChange"))
-			Expect(dataset.Tropestogo[0].Tropes[2]).To(Equal("AgeGapRomance"))
 		})
 
 		It("Shouldn't return an error", func() {
