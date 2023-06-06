@@ -3,7 +3,6 @@ package csv_dataset
 import (
 	"encoding/csv"
 	"errors"
-	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
 	"os"
 	"strings"
@@ -110,16 +109,6 @@ func (repository *CSVRepository) UpdateMedia(title string, year string, media me
 	}
 
 	return nil
-}
-
-func (repository *CSVRepository) GetMedia(work tropestogo.Work) ([]media.Media, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (repository *CSVRepository) GetMediaOfType(mediaType media.MediaType) ([]media.Media, error) {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (repository *CSVRepository) RemoveAll() error {
