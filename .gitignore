@@ -317,3 +317,4 @@ tropestogo/.idea/*
 
 # Ignore all generated datasets
 *.csv
+*.json
