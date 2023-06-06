@@ -11,7 +11,8 @@ var (
 type TropeIndex int64
 
 const (
-	GenreTrope TropeIndex = iota
+	UnknownTropeIndex TropeIndex = iota
+	GenreTrope
 	MediaTrope
 	NarrativeTrope
 	TopicalTrope
@@ -24,6 +25,33 @@ func (index TropeIndex) IsValid() bool {
 	}
 
 	return false
+}
+
+// ToTropeIndex converts a string to a MediaType
+func ToTropeIndex(tropeIndexString string) (TropeIndex, error) {
+	for tropeindex := UnknownTropeIndex + 1; tropeindex <= GenreTrope; tropeindex++ {
+		if tropeIndexString == tropeindex.String() {
+			return tropeindex, nil
+		}
+	}
+
+	return UnknownTropeIndex, ErrUnknownIndex
+}
+
+// Implement Stringer interface for comparing string media types and avoid using literals
+func (index TropeIndex) String() string {
+	switch index {
+	case GenreTrope:
+		return "GenreTrope"
+	case MediaTrope:
+		return "MediaTrope"
+	case NarrativeTrope:
+		return "NarrativeTrope"
+	case TopicalTrope:
+		return "TopicalTrope"
+	default:
+		return "UnknownTropeIndex"
+	}
 }
 
 // Trope represents a reiterative resource that is collected in TvTropes

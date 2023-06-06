@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/jlgallego99/TropesToGo/media"
 	"os"
-	"sort"
 	"sync"
 	"time"
 )
@@ -37,11 +36,14 @@ func NewJSONRepository(name string) (*JSONRepository, error) {
 func (repository *JSONRepository) AddMedia(med media.Media) error {
 	var dataset JSONDataset
 
-	var tropes []string
+	var tropes []media.JsonTrope
 	for trope := range med.GetWork().Tropes {
-		tropes = append(tropes, trope.GetTitle())
+		tropes = append(tropes, media.JsonTrope{
+			Title: trope.GetTitle(),
+			Index: trope.GetIndex().String(),
+		})
 	}
-	sort.Strings(tropes)
+
 	record := media.JsonResponse{
 		Title:       med.GetWork().Title,
 		Year:        med.GetWork().Year,
