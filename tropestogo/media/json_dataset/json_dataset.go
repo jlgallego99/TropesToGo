@@ -24,7 +24,8 @@ type JSONRepository struct {
 }
 
 func NewJSONRepository(name string) (*JSONRepository, error) {
-	_, err := os.Create(name + ".json")
+	f, err := os.Create(name + ".json")
+	f.WriteString("{\"tropestogo\": []}")
 
 	repository := &JSONRepository{
 		name: name + ".json",
@@ -34,7 +35,7 @@ func NewJSONRepository(name string) (*JSONRepository, error) {
 }
 
 func (repository *JSONRepository) AddMedia(med media.Media) error {
-	var dataset []media.JsonResponse
+	var dataset JSONDataset
 
 	var tropes []string
 	for trope := range med.GetWork().Tropes {
@@ -56,8 +57,11 @@ func (repository *JSONRepository) AddMedia(med media.Media) error {
 	}
 
 	// Get the JSON array and append the new Media object
-	json.Unmarshal(fileContents, &dataset)
-	dataset = append(dataset, record)
+	errUnmarshal := json.Unmarshal(fileContents, &dataset)
+	if errUnmarshal != nil {
+		return errUnmarshal
+	}
+	dataset.Tropestogo = append(dataset.Tropestogo, record)
 
 	jsonBytes, err := json.Marshal(dataset)
 	if err != nil {
@@ -74,10 +78,15 @@ func (repository *JSONRepository) UpdateMedia(s string, s2 string, media media.M
 
 func (repository *JSONRepository) RemoveAll() error {
 	var err error
+	var f *os.File
 	if _, err = os.Stat(repository.name); err == nil {
-		_, err = os.Create(repository.name)
+		f, err = os.Create(repository.name)
+		if err != nil {
+			return err
+		}
 
-		return err
+		f.WriteString("{\"tropestogo\": []}")
+		return nil
 	} else {
 		return ErrFileNotExists
 	}

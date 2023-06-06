@@ -41,7 +41,7 @@ var _ = Describe("JsonDataset", func() {
 
 	AfterEach(func() {
 		// Reset file
-		repository.RemoveAll()
+		//repository.RemoveAll()
 	})
 
 	Context("Create JSON repository", func() {
@@ -59,16 +59,15 @@ var _ = Describe("JsonDataset", func() {
 
 		BeforeEach(func() {
 			errAddMedia = repository.AddMedia(mediaEntry)
-			errAddMedia = repository.AddMedia(mediaEntry)
 		})
 
 		It("Should have all the correct fields", func() {
-			var dataset []media.JsonResponse
+			var dataset json_dataset.JSONDataset
 			fileContents, _ := os.ReadFile("dataset.json")
 			err := json.Unmarshal(fileContents, &dataset)
 
 			Expect(err).To(BeNil())
-			Expect(dataset[0].Title).To(Equal("Oldboy"))
+			Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy"))
 		})
 
 		It("Shouldn't return an error", func() {
@@ -79,5 +78,5 @@ var _ = Describe("JsonDataset", func() {
 
 var _ = AfterSuite(func() {
 	datasetFile.Close()
-	os.Remove("dataset.json")
+	//os.Remove("dataset.json")
 })
