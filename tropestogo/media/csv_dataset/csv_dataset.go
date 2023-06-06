@@ -133,8 +133,13 @@ func CreateMediaRecord(media media.Media) []string {
 	var tropes []string
 	var indexes []string
 	for trope := range media.GetWork().Tropes {
-		tropes = append(tropes, trope.GetTitle())
-		indexes = append(indexes, trope.GetIndex().String())
+		title := trope.GetTitle()
+		index := trope.GetIndex().String()
+
+		if title != "" && index != "" && index != "UnknownTropeIndex" {
+			tropes = append(tropes, title)
+			indexes = append(indexes, index)
+		}
 	}
 
 	// A record consists of the following fields: title,year,lastupdated,url,mediatype,tropes

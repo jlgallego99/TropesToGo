@@ -88,13 +88,7 @@ type JsonTrope struct {
 }
 
 func (media Media) MarshalJSON() ([]byte, error) {
-	var tropes []JsonTrope
-	for trope := range media.GetWork().Tropes {
-		tropes = append(tropes, JsonTrope{
-			Title: trope.GetTitle(),
-			Index: trope.GetIndex().String(),
-		})
-	}
+	tropes := GetJsonTropes(media)
 
 	return json.Marshal(&JsonResponse{
 		Title:       media.work.Title,
@@ -104,6 +98,23 @@ func (media Media) MarshalJSON() ([]byte, error) {
 		URL:         media.page.URL.String(),
 		Tropes:      tropes,
 	})
+}
+
+func GetJsonTropes(media Media) []JsonTrope {
+	var tropes []JsonTrope
+	for trope := range media.GetWork().Tropes {
+		title := trope.GetTitle()
+		index := trope.GetIndex().String()
+
+		if title != "" && index != "" && index != "UnknownTropeIndex" {
+			tropes = append(tropes, JsonTrope{
+				Title: trope.GetTitle(),
+				Index: trope.GetIndex().String(),
+			})
+		}
+	}
+
+	return tropes
 }
 
 // NewMedia is a factory that creates a Media aggregate with validations

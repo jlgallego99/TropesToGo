@@ -36,14 +36,7 @@ func NewJSONRepository(name string) (*JSONRepository, error) {
 func (repository *JSONRepository) AddMedia(med media.Media) error {
 	var dataset JSONDataset
 
-	var tropes []media.JsonTrope
-	for trope := range med.GetWork().Tropes {
-		tropes = append(tropes, media.JsonTrope{
-			Title: trope.GetTitle(),
-			Index: trope.GetIndex().String(),
-		})
-	}
-
+	tropes := media.GetJsonTropes(med)
 	record := media.JsonResponse{
 		Title:       med.GetWork().Title,
 		Year:        med.GetWork().Year,
