@@ -11,8 +11,7 @@ import (
 )
 
 var (
-	ErrFileNotExists   = errors.New("CSV dataset file does not exist")
-	ErrRecordNotExists = errors.New("there isn't a record with that media title in the CSV dataset")
+	ErrFileNotExists = errors.New("CSV dataset file does not exist")
 )
 
 type CSVRepository struct {
@@ -112,7 +111,7 @@ func (repository *CSVRepository) UpdateMedia(title string, year string, media me
 }
 
 func (repository *CSVRepository) RemoveAll() error {
-	if _, err := os.Stat("dataset.csv"); err == nil {
+	if _, err := os.Stat(repository.name); err == nil {
 		csvFile, errRemove := os.Create(repository.name)
 		repository.writer = csv.NewWriter(csvFile)
 		repository.writer.Comma = repository.delimiter
