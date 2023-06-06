@@ -34,7 +34,7 @@ func NewCSVRepository(name string, delimiter rune) (*CSVRepository, error) {
 
 	// Add headers to the CSV file
 	repository.Lock()
-	repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes"})
+	repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"})
 	repository.writer.Flush()
 	repository.Unlock()
 
@@ -118,7 +118,7 @@ func (repository *CSVRepository) RemoveAll() error {
 
 		// Add headers to the CSV file
 		repository.Lock()
-		repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes"})
+		repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"})
 		repository.writer.Flush()
 		repository.Unlock()
 
@@ -131,13 +131,15 @@ func (repository *CSVRepository) RemoveAll() error {
 // CreateMediaRecord forms a string properly separated for inserting in a CSV file
 func CreateMediaRecord(media media.Media) []string {
 	var tropes []string
+	var indexes []string
 	for trope := range media.GetWork().Tropes {
 		tropes = append(tropes, trope.GetTitle())
+		indexes = append(indexes, trope.GetIndex().String())
 	}
 
 	// A record consists of the following fields: title,year,lastupdated,url,mediatype,tropes
 	record := []string{media.GetWork().Title, media.GetWork().Year, media.GetWork().LastUpdated.Format(time.DateTime),
-		media.GetPage().URL.String(), media.GetMediaType().String(), strings.Join(tropes, ";")}
+		media.GetPage().URL.String(), media.GetMediaType().String(), strings.Join(tropes, ";"), strings.Join(indexes, ";")}
 
 	return record
 }
