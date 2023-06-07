@@ -1,9 +1,10 @@
 package scraper_test
 
 import (
-	"github.com/jlgallego99/TropesToGo/media"
 	"net/url"
 	"time"
+
+	"github.com/jlgallego99/TropesToGo/media"
 
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/service/scraper"
