@@ -195,8 +195,9 @@ func checkTropesOnFolders(doc *goquery.Document) bool {
 func (scraper *ServiceScraper) ScrapeWorkPage(page *tropestogo.Page) (media.Media, error) {
 	res, _ := http.Get(page.URL.String())
 	doc, _ := goquery.NewDocumentFromReader(res.Body)
+	doc.Url = page.URL
 
-	title, mediaIndex, errMediaIndex := scraper.ScrapeWorkTitle(doc)
+	title, year, mediaIndex, errMediaIndex := scraper.ScrapeWorkTitleAndYear(doc)
 	if errMediaIndex != nil {
 		return media.Media{}, errMediaIndex
 	}
@@ -206,18 +207,26 @@ func (scraper *ServiceScraper) ScrapeWorkPage(page *tropestogo.Page) (media.Medi
 		return media.Media{}, errTropes
 	}
 
-	year := ""
 	media, error := media.NewMedia(title, year, time.Now(), tropes, page, mediaIndex)
 	return media, error
 }
 
-// ScrapeWorkTitle extracts the title and media index from the HTML document of a Work Page
-func (scraper *ServiceScraper) ScrapeWorkTitle(doc *goquery.Document) (string, media.MediaType, error) {
+// ScrapeWorkTitleAndYear extracts the title, the year on the title/URL if it's there and the media index from the HTML document of a Work Page
+func (scraper *ServiceScraper) ScrapeWorkTitleAndYear(doc *goquery.Document) (string, string, media.MediaType, error) {
+	var title, year string
+
 	// Get Title of the Work page by extracting the title and discarding the index name
-	title := strings.TrimSpace(strings.Split(doc.Find(WorkTitleSelector).Text(), "/")[1])
+	title = strings.TrimSpace(strings.Split(doc.Find(WorkTitleSelector).Text(), "/")[1])
 	mediaIndex, errMediaIndex := media.ToMediaType(strings.Trim(doc.Find(WorkIndexSelector).First().Text(), " /"))
 
-	return title, mediaIndex, errMediaIndex
+	// Search for the year of the Work in the URI
+	r, _ := regexp.Compile(`(19|20)\d{2}`)
+	matchedString := r.FindStringSubmatch(doc.Url.String())
+	if len(matchedString) > 0 {
+		year = matchedString[0]
+	}
+
+	return title, year, mediaIndex, errMediaIndex
 }
 
 // ScrapeWorkTropes extracts all the tropes from the HTML document of a Work Page
