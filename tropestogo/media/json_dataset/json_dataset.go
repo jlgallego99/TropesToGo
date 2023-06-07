@@ -3,9 +3,10 @@ package json_dataset
 import (
 	"encoding/json"
 	"errors"
-	"github.com/jlgallego99/TropesToGo/media"
 	"os"
 	"sync"
+
+	"github.com/jlgallego99/TropesToGo/media"
 )
 
 var (
