@@ -6,7 +6,6 @@ import (
 	"github.com/jlgallego99/TropesToGo/media"
 	"os"
 	"sync"
-	"time"
 )
 
 var (
@@ -41,7 +40,7 @@ func (repository *JSONRepository) AddMedia(med media.Media) error {
 		Title:       med.GetWork().Title,
 		Year:        med.GetWork().Year,
 		MediaType:   med.GetMediaType().String(),
-		LastUpdated: med.GetWork().LastUpdated.Format(time.DateTime),
+		LastUpdated: med.GetWork().LastUpdated.Format("2006-01-02 15:04:05"),
 		URL:         med.GetPage().URL.String(),
 		Tropes:      tropes,
 	}
@@ -91,7 +90,7 @@ func (repository *JSONRepository) UpdateMedia(title string, year string, med med
 			dataset.Tropestogo[pos].Title = med.GetWork().Title
 			dataset.Tropestogo[pos].Year = med.GetWork().Year
 			dataset.Tropestogo[pos].MediaType = med.GetMediaType().String()
-			dataset.Tropestogo[pos].LastUpdated = med.GetWork().LastUpdated.Format(time.DateTime)
+			dataset.Tropestogo[pos].LastUpdated = med.GetWork().LastUpdated.Format("2006-01-02 15:04:05")
 			dataset.Tropestogo[pos].URL = med.GetPage().URL.String()
 			dataset.Tropestogo[pos].Tropes = tropes
 

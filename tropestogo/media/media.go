@@ -94,7 +94,7 @@ func (media Media) MarshalJSON() ([]byte, error) {
 		Title:       media.work.Title,
 		Year:        media.work.Year,
 		MediaType:   media.mediaType.String(),
-		LastUpdated: media.work.LastUpdated.Format(time.DateTime),
+		LastUpdated: media.work.LastUpdated.Format("2006-01-02 15:04:05"),
 		URL:         media.page.URL.String(),
 		Tropes:      tropes,
 	})
