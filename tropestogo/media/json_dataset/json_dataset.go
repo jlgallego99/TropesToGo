@@ -58,12 +58,16 @@ func (repository *JSONRepository) AddMedia(med media.Media) error {
 	}
 	dataset.Tropestogo = append(dataset.Tropestogo, record)
 
+	repository.Lock()
 	jsonBytes, err := json.Marshal(dataset)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile("dataset.json", jsonBytes, 0644)
+	errWriteFile := os.WriteFile("dataset.json", jsonBytes, 0644)
+	repository.Unlock()
+
+	return errWriteFile
 }
 
 func (repository *JSONRepository) UpdateMedia(title string, year string, med media.Media) error {
@@ -96,12 +100,16 @@ func (repository *JSONRepository) UpdateMedia(title string, year string, med med
 	}
 
 	// Update the record and marshal to the file
+	repository.Lock()
 	jsonBytes, err := json.Marshal(dataset)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile("dataset.json", jsonBytes, 0644)
+	errWriteFile := os.WriteFile("dataset.json", jsonBytes, 0644)
+	repository.Unlock()
+
+	return errWriteFile
 }
 
 func (repository *JSONRepository) RemoveAll() error {
