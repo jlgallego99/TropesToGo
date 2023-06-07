@@ -14,7 +14,7 @@ import (
 )
 
 var repository *json_dataset.JSONRepository
-var errorRepository, errRemoveAll error
+var errorRepository, errRemoveAll, errAddMedia error
 var mediaEntry media.Media
 var datasetFile *os.File
 
@@ -37,12 +37,13 @@ var _ = BeforeSuite(func() {
 var _ = Describe("JsonDataset", func() {
 	BeforeEach(func() {
 		repository, errorRepository = json_dataset.NewJSONRepository("dataset")
+		errAddMedia = repository.AddMedia(mediaEntry)
 		datasetFile, _ = os.Open("dataset.json")
 	})
 
 	AfterEach(func() {
 		// Reset file
-		//repository.RemoveAll()
+		repository.RemoveAll()
 	})
 
 	Context("Create JSON repository", func() {
@@ -57,10 +58,6 @@ var _ = Describe("JsonDataset", func() {
 
 	Context("Add a Media to the JSON file", func() {
 		var errAddMedia error
-
-		BeforeEach(func() {
-			errAddMedia = repository.AddMedia(mediaEntry)
-		})
 
 		It("Should have all the correct fields", func() {
 			var dataset json_dataset.JSONDataset
@@ -121,9 +118,50 @@ var _ = Describe("JsonDataset", func() {
 			Expect(errRemoveAll).To(Equal(csv_dataset.ErrFileNotExists))
 		})
 	})
+
+	Context("Update the Year, URL and tropes of a Film in the JSON file", func() {
+		var errUpdate error
+
+		BeforeEach(func() {
+			// Create the new Media to be updated
+			trope1, _ := tropestogo.NewTrope("AdaptationalComicRelief", tropestogo.TropeIndex(1))
+			trope2, _ := tropestogo.NewTrope("AdaptationalHeroism", tropestogo.TropeIndex(3))
+			tropes := make(map[tropestogo.Trope]struct{})
+			tropes[trope1] = struct{}{}
+			tropes[trope2] = struct{}{}
+
+			updatedUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2013")
+			tvTropesPage := &tropestogo.Page{
+				URL:         updatedUrl,
+				LastUpdated: time.Now(),
+			}
+
+			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), tropes, tvTropesPage, media.Film)
+
+			errUpdate = repository.UpdateMedia("Oldboy", "2003", updatedMediaEntry)
+		})
+
+		It("Should have the new record updated", func() {
+			var dataset json_dataset.JSONDataset
+			fileContents, _ := os.ReadFile("dataset.json")
+			err := json.Unmarshal(fileContents, &dataset)
+
+			Expect(err).To(BeNil())
+			Expect(len(dataset.Tropestogo)).To(Equal(1))
+			Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy"))
+			Expect(dataset.Tropestogo[0].Year).To(Equal("2013"))
+			Expect(dataset.Tropestogo[0].URL).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2013"))
+			Expect(dataset.Tropestogo[0].MediaType).To(Equal("Film"))
+			Expect(len(dataset.Tropestogo[0].Tropes)).To(Equal(2))
+		})
+
+		It("Shouldn't return an error", func() {
+			Expect(errUpdate).To(BeNil())
+		})
+	})
 })
 
 var _ = AfterSuite(func() {
 	datasetFile.Close()
-	//os.Remove("dataset.json")
+	os.Remove("dataset.json")
 })
