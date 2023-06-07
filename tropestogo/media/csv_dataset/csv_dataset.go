@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"time"
 )
 
 var (
@@ -143,7 +142,7 @@ func CreateMediaRecord(media media.Media) []string {
 	}
 
 	// A record consists of the following fields: title,year,lastupdated,url,mediatype,tropes
-	record := []string{media.GetWork().Title, media.GetWork().Year, media.GetWork().LastUpdated.Format(time.DateTime),
+	record := []string{media.GetWork().Title, media.GetWork().Year, media.GetWork().LastUpdated.Format("2006-01-02 15:04:05"),
 		media.GetPage().URL.String(), media.GetMediaType().String(), strings.Join(tropes, ";"), strings.Join(indexes, ";")}
 
 	return record
