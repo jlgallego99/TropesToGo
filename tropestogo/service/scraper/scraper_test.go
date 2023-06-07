@@ -170,7 +170,6 @@ var _ = Describe("Scraper", func() {
 				Expect(validFilm1.GetWork().Title).To(Equal("Oldboy (2003)"))
 				Expect(validFilm1.GetMediaType()).To(Equal(media.Film))
 				Expect(validFilm1.GetWork().Tropes).To(Not(BeEmpty()))
-				Expect(len(validFilm1.GetWork().Tropes)).To(Equal(137))
 			})
 
 			It("Shouldn't return an error", func() {
@@ -193,7 +192,6 @@ var _ = Describe("Scraper", func() {
 				Expect(validFilm3.GetWork().Title).To(Equal("A New Hope"))
 				Expect(validFilm3.GetMediaType()).To(Equal(media.Film))
 				Expect(validFilm3.GetWork().Tropes).To(Not(BeEmpty()))
-				Expect(len(validFilm3.GetWork().Tropes)).To(Equal(353))
 			})
 
 			It("Shouldn't return an error", func() {

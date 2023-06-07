@@ -17,8 +17,8 @@ var _ = Describe("Media", func() {
 
 	BeforeEach(func() {
 		tropes := make(map[tropestogo.Trope]struct{})
-		trope1, _ := tropestogo.NewTrope("AccentUponTheWrongSyllable", tropestogo.TropeIndex(0))
-		trope2, _ := tropestogo.NewTrope("ChekhovsGun", tropestogo.TropeIndex(0))
+		trope1, _ := tropestogo.NewTrope("AccentUponTheWrongSyllable", tropestogo.TropeIndex(2))
+		trope2, _ := tropestogo.NewTrope("ChekhovsGun", tropestogo.TropeIndex(3))
 		tropes[trope1] = struct{}{}
 		tropes[trope2] = struct{}{}
 		lastUpdated = time.Now()
