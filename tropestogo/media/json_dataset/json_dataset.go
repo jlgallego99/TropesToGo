@@ -66,9 +66,42 @@ func (repository *JSONRepository) AddMedia(med media.Media) error {
 	return os.WriteFile("dataset.json", jsonBytes, 0644)
 }
 
-func (repository *JSONRepository) UpdateMedia(s string, s2 string, media media.Media) error {
-	//TODO implement me
-	panic("implement me")
+func (repository *JSONRepository) UpdateMedia(title string, year string, med media.Media) error {
+	var dataset JSONDataset
+
+	fileContents, errReadDataset := os.ReadFile("dataset.json")
+	if errReadDataset != nil {
+		return errReadDataset
+	}
+
+	// Get the dataset on structs
+	errUnmarshal := json.Unmarshal(fileContents, &dataset)
+	if errUnmarshal != nil {
+		return errUnmarshal
+	}
+
+	// Look for the record that needs to be updated
+	for pos, record := range dataset.Tropestogo {
+		if record.Title == title && record.Year == year {
+			tropes := media.GetJsonTropes(med)
+			dataset.Tropestogo[pos].Title = med.GetWork().Title
+			dataset.Tropestogo[pos].Year = med.GetWork().Year
+			dataset.Tropestogo[pos].MediaType = med.GetMediaType().String()
+			dataset.Tropestogo[pos].LastUpdated = med.GetWork().LastUpdated.Format(time.DateTime)
+			dataset.Tropestogo[pos].URL = med.GetPage().URL.String()
+			dataset.Tropestogo[pos].Tropes = tropes
+
+			break
+		}
+	}
+
+	// Update the record and marshal to the file
+	jsonBytes, err := json.Marshal(dataset)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile("dataset.json", jsonBytes, 0644)
 }
 
 func (repository *JSONRepository) RemoveAll() error {
