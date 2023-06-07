@@ -168,7 +168,7 @@ var _ = Describe("Scraper", func() {
 			})
 
 			It("Should have correct fields", func() {
-				testValidScrapedMedia(validFilm1, "Oldboy (2003)", media.Film)
+				testValidScrapedMedia(validFilm1, "Oldboy (2003)", "2003", media.Film)
 			})
 
 			It("Shouldn't return an error", func() {
@@ -188,7 +188,7 @@ var _ = Describe("Scraper", func() {
 			})
 
 			It("Should have correct fields", func() {
-				testValidScrapedMedia(validFilm3, "A New Hope", media.Film)
+				testValidScrapedMedia(validFilm3, "A New Hope", "", media.Film)
 			})
 
 			It("Shouldn't return an error", func() {
@@ -220,8 +220,9 @@ var _ = Describe("Scraper", func() {
 	})
 })
 
-func testValidScrapedMedia(validMedia media.Media, title string, mediaType media.MediaType) {
+func testValidScrapedMedia(validMedia media.Media, title, year string, mediaType media.MediaType) {
 	Expect(validMedia.GetWork().Title).To(Equal(title))
+	Expect(validMedia.GetWork().Year).To(Equal(year))
 	Expect(validMedia.GetMediaType()).To(Equal(mediaType))
 	Expect(validMedia.GetWork().Tropes).To(Not(BeEmpty()))
 }
