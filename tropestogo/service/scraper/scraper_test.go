@@ -168,6 +168,7 @@ var _ = Describe("Scraper", func() {
 
 			It("Should have correct Work fields", func() {
 				Expect(validFilm1.GetWork().Title).To(Equal("Oldboy (2003)"))
+				Expect(validFilm1.GetWork().Year).To(Equal("2003"))
 				Expect(validFilm1.GetMediaType()).To(Equal(media.Film))
 				Expect(validFilm1.GetWork().Tropes).To(Not(BeEmpty()))
 			})
@@ -190,6 +191,7 @@ var _ = Describe("Scraper", func() {
 
 			It("Should have correct Work fields", func() {
 				Expect(validFilm3.GetWork().Title).To(Equal("A New Hope"))
+				Expect(validFilm3.GetWork().Year).To(BeEmpty())
 				Expect(validFilm3.GetMediaType()).To(Equal(media.Film))
 				Expect(validFilm3.GetWork().Tropes).To(Not(BeEmpty()))
 			})
