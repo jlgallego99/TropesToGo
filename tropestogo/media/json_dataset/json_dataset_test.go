@@ -42,7 +42,7 @@ var _ = Describe("JsonDataset", func() {
 
 	AfterEach(func() {
 		// Reset file
-		repository.RemoveAll()
+		//repository.RemoveAll()
 	})
 
 	Context("Create JSON repository", func() {
@@ -125,5 +125,5 @@ var _ = Describe("JsonDataset", func() {
 
 var _ = AfterSuite(func() {
 	datasetFile.Close()
-	os.Remove("dataset.json")
+	//os.Remove("dataset.json")
 })

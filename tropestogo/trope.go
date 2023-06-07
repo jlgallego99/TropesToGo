@@ -20,7 +20,7 @@ const (
 
 func (index TropeIndex) IsValid() bool {
 	switch index {
-	case GenreTrope, MediaTrope, NarrativeTrope, TopicalTrope:
+	case UnknownTropeIndex, GenreTrope, MediaTrope, NarrativeTrope, TopicalTrope:
 		return true
 	}
 
