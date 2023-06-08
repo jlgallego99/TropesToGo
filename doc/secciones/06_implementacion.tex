@@ -113,7 +113,8 @@ TvTropes no ha cambiado y se puede extraer. Un servicio en DDD hace referencia a
 un paquete de código que ejecuta cierta lógica de negocio para un cliente y en
 este caso el cliente sería el usuario que necesita los datos. 
 
-El objetivo de este hito se alcanza implementando la función \texttt{CheckValidWorkPage} que encapsula la funcionalidad de revisar toda la
+El objetivo de este hito se alcanza implementando la función
+\texttt{CheckValidWorkPage} que encapsula la funcionalidad de revisar toda la
 estructura de una página de película de TvTropes y validar si el
 \textit{scraper} podrá extraerla. Recibe una entidad \textit{Page}, de la cual
 el \textit{scraper} extrae lo principal que necesita, que es el URL de la página
@@ -162,14 +163,14 @@ donde deberían estar contenidos los \textit{tropos}.
     pertenece a una página de obra y su HTML interno no ha cambiado, ya que es
     de donde luego el \textit{scraper} extraerá la información. Principalmente,
     se revisa en el árbol DOM si la página tiene las partes vistas en el
-    análisis de la Figura \ref{fig:tvtropes-work}: un artículo principal con sus
+    análisis de la \autoref{fig:tvtropes-work}: un artículo principal con sus
     identificadores y clases conocidas y si el índice, dentro del título del
     artículo, pertenece al de películas. Todas las páginas de obra,
     independientemente de si son películas o no, siguen esta misma estructura,
     por lo que esto basta para confirmar si este tipo de páginas siguen igual.
     \item Por último, se realizan las verificaciones más complejas relacionadas
     con la principal sección que se querrá analizar: la sección de
-    \textit{tropos}. Debido al estudio de la Figura \ref{fig:tropelist} del
+    \textit{tropos}. Debido al estudio de la \autoref{fig:tropelist} del
     \autoref{chapter:5} sabemos que existen tres formas comunes que toma la
     sección de \textit{tropos}, y esto es lo que el \textit{scraper} verifica,
     para asegurarnos de que podemos entender la sección. En este primer hito
@@ -217,7 +218,8 @@ código y evitando la repetición. De este modo, el \textit{scraper} pasará com
 parámetro estas constantes a las funciones de Goquery que encuentran los nodos
 del árbol DOM de la página que se está explorando. A estas constantes se les da
 un nombre lo más semántico posible de forma que el código sea legible y limpio.
-Por ejemplo, la constante \texttt{TropeTag} contiene el selector \texttt{a.twikilink} que hace referencia a todos los \textit{anchor} de HTML
+Por ejemplo, la constante \texttt{TropeTag} contiene el selector
+\texttt{a.twikilink} que hace referencia a todos los \textit{anchor} de HTML
 cuya clase es \textit{twikilink}, que sabemos debido al análisis del capítulo
 anterior que hacen referencia a enlaces hacia páginas de \textit{tropos}. El
 tener constantes con selectores importantes para lo que quiere buscar el
@@ -232,7 +234,63 @@ otro modo requeriría de un análisis más exhaustivo para entender qué signifi
 el selector utilizado, ya que pueden volverse muy complejos al unir varias
 reglas.
 
-\section{Extracción de información en la página de una película}
+\section{Extracción de información en la página principal de una película}
+Una vez desarrollada toda la funcionalidad necesaria para comprobar si una
+página es de TvTropes y es entendible por el \textit{scraper}, el siguiente paso
+lógico es comenzar con el propio proceso de \textit{scraping}, al ser la parte
+principal que necesita resolver TropesToGo. La estrategia a seguir en el proceso
+de desarrollo es la de centrarse primero en la construcción de uno o más
+productos mínimamente viables que culminen en un \textit{scraper} que pueda
+sacar toda la información que piden los usuarios según la
+\href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]} y
+representarlos en un conjunto de datos apto para su uso en procesos de ciencia
+de datos, según las historias de usuario
+\href{https://github.com/jlgallego99/TropesToGo/issues/30}{[HU05]} y
+\href{https://github.com/jlgallego99/TropesToGo/issues/46}{[HU07]}, que
+especifican que el usuario necesita acceder al resultado de la extracción en
+cualquier momento, de forma offline y en un formato estandarizado. Lo que
+produce el \textit{scraper} es el \textit{dataset}; el resultado final que
+ofrece TropesToGo al usuario para cumplir sus necesidades, el cual podrá estar
+representado en más de un formato ampliamente utilizado por investigadores. Una
+vez se tenga un \textit{scraper} totalmente funcional, se podrá avanzar en
+futuros \textit{milestones} en el desarrollo de la araña que generalice el
+proceso de \textit{scraping} a toda la web de TvTropes completa. 
+
+Por tanto, en este \textit{milestone}
+\href{https://github.com/jlgallego99/TropesToGo/milestone/3}{M2} se pretende
+ampliar el servicio \textit{scraper} para que pueda extraer los datos presentes
+en el artículo principal de varias páginas de prueba. En un principio se tenía
+pensado un único hito donde desarrollar el \textit{scraper} completo, capaz de
+extraer toda la información necesaria de cualquier película. Sin embargo, al
+observar la complejidad que tienen algunas páginas y a lo dispersos que están
+los \textit{tropos} de una obra, esa primera idea se dividió en dos productos
+mínimos, que son el desarrollado en este hito y en el siguiente. Por tanto, en
+este \textit{milestone} el principal objetivo es extraer la información
+contenida en la página principal de una película, es decir: su título, año de
+salida, índice al que pertenece (el tipo de \textit{media}, o medio audiovisual,
+que en este caso será \textit{Film} (película)) y su lista principal de
+\textit{tropos}. Existe más información que no se encuentra en el artículo
+principal y que se analizará en el siguiente hito, principalmente de
+\textit{tropos} adicionales, que está en otras sub páginas de la obra o en
+páginas de otros tipos.
+
+Como lista principal entendemos los \textit{tropos} que aparecen directamente
+listados al final del artículo, como se podía ver en la
+\autoref{fig:tvtropes-work}, que se consideran los más importantes de la obra al
+estar en primer plano. Puesto que este \textit{milestone} está centrado en
+extraer información del artículo principal únicamente, se extraerán solo los
+\textit{tropos} que están contenidos en listas o carpetas, tal y como se ve en
+los dos primeros tipos de la \autoref{fig:tropelist}, ignorando por lo pronto el
+tercer tipo que, aunque también tiene los \textit{tropos} principales de la
+obra, implicaría ahondar en sub páginas. En el próximo \textit{milestone} se
+navegará a estas sub páginas y se discutirán las dis´tintas fuentes donde se
+pueden encontrar otros \textit{tropos} que no sean los principales.
+
+\subsection{Ampliación del \textit{scraper}}
+
+
+\subsection{Implementación de repositorios para manejar los \textit{datasets}}
+
 
 \section{Desarrollo de la araña}
 
