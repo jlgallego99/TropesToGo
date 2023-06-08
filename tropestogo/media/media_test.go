@@ -1,24 +1,23 @@
 package media_test
 
 import (
+	"net/url"
+	"time"
+
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"net/url"
-	"time"
 )
 
 var _ = Describe("Media", func() {
-	var validMedia, mediaNoPage, mediaNoTitle, mediaNoType, mediaWrongYear media.Media
-	var errValidMedia, errMediaNoPage, errMediaNoTitle, errMediaNoType, errMediaWrongYear error
 	var tvTropesPage *tropestogo.Page
 	var lastUpdated time.Time
+	tropes := make(map[tropestogo.Trope]struct{})
 
 	BeforeEach(func() {
-		tropes := make(map[tropestogo.Trope]struct{})
-		trope1, _ := tropestogo.NewTrope("AccentUponTheWrongSyllable", tropestogo.TropeIndex(2))
-		trope2, _ := tropestogo.NewTrope("ChekhovsGun", tropestogo.TropeIndex(3))
+		trope1, _ := tropestogo.NewTrope("AccentUponTheWrongSyllable", tropestogo.TropeIndex(0))
+		trope2, _ := tropestogo.NewTrope("ChekhovsGun", tropestogo.TropeIndex(0))
 		tropes[trope1] = struct{}{}
 		tropes[trope2] = struct{}{}
 		lastUpdated = time.Now()
@@ -28,16 +27,17 @@ var _ = Describe("Media", func() {
 			URL:         tvTropesUrl,
 			LastUpdated: time.Now(),
 		}
-
-		validMedia, errValidMedia = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, tvTropesPage, media.Film)
-		mediaNoPage, errMediaNoPage = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, nil, media.Film)
-		mediaNoTitle, errMediaNoTitle = media.NewMedia("", "2012", lastUpdated, tropes, nil, media.Film)
-		mediaNoType, errMediaNoType = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, tvTropesPage, media.MediaType(100))
-		mediaWrongYear, errMediaWrongYear = media.NewMedia("TheAvengers", "2012aaaaa", lastUpdated, tropes, tvTropesPage, media.Film)
 	})
 
 	Describe("Create Media", func() {
 		Context("The Media is created correctly", func() {
+			var validMedia media.Media
+			var errValidMedia error
+
+			BeforeEach(func() {
+				validMedia, errValidMedia = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, tvTropesPage, media.Film)
+			})
+
 			It("Should return a valid object", func() {
 				Expect(validMedia.GetWork()).To(Not(BeNil()))
 				Expect(validMedia.GetPage()).To(Not(BeNil()))
@@ -55,6 +55,13 @@ var _ = Describe("Media", func() {
 		})
 
 		Context("The Media has no page", func() {
+			var mediaNoPage media.Media
+			var errMediaNoPage error
+
+			BeforeEach(func() {
+				mediaNoPage, errMediaNoPage = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, nil, media.Film)
+			})
+
 			It("Should return an empty object", func() {
 				Expect(mediaNoPage.GetWork()).To(BeNil())
 				Expect(mediaNoPage.GetPage()).To(BeNil())
@@ -67,6 +74,13 @@ var _ = Describe("Media", func() {
 		})
 
 		Context("The Media has no title", func() {
+			var mediaNoTitle media.Media
+			var errMediaNoTitle error
+
+			BeforeEach(func() {
+				mediaNoTitle, errMediaNoTitle = media.NewMedia("", "2012", lastUpdated, tropes, nil, media.Film)
+			})
+
 			It("Should return an empty object", func() {
 				Expect(mediaNoTitle.GetWork()).To(BeNil())
 				Expect(mediaNoTitle.GetPage()).To(BeNil())
@@ -79,6 +93,13 @@ var _ = Describe("Media", func() {
 		})
 
 		Context("The Media has no media type", func() {
+			var mediaNoType media.Media
+			var errMediaNoType error
+
+			BeforeEach(func() {
+				mediaNoType, errMediaNoType = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, tvTropesPage, media.MediaType(100))
+			})
+
 			It("Should return an empty object", func() {
 				Expect(mediaNoType.GetWork()).To(BeNil())
 				Expect(mediaNoType.GetPage()).To(BeNil())
@@ -86,11 +107,18 @@ var _ = Describe("Media", func() {
 			})
 
 			It("Should raise a proper error", func() {
-				Expect(errMediaNoType).To(Equal(media.ErrUnsupportedMediaType))
+				Expect(errMediaNoType).To(Equal(media.ErrUnknownMediaType))
 			})
 		})
 
 		Context("The Media year is not a valid year number", func() {
+			var mediaWrongYear media.Media
+			var errMediaWrongYear error
+
+			BeforeEach(func() {
+				mediaWrongYear, errMediaWrongYear = media.NewMedia("TheAvengers", "2012aaaaa", lastUpdated, tropes, tvTropesPage, media.Film)
+			})
+
 			It("Should return an empty object", func() {
 				Expect(mediaWrongYear.GetWork()).To(BeNil())
 				Expect(mediaWrongYear.GetPage()).To(BeNil())
