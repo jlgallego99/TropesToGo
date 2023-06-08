@@ -160,3 +160,6 @@ clean
 code
 string
 dataset
+datasets
+json
+strings

@@ -7,7 +7,7 @@ doc: $(DOC:.tex=.pdf)
 all: proyecto.pdf
 
 %.pdf: %.tex FORCE
-	pdflatex $< && bibtex $* && pdflatex $< && pdflatex $<
+	pdflatex --shell-escape $< && bibtex $* && pdflatex --shell-escape $< && pdflatex --shell-escape $<
 
 FORCE: 
 

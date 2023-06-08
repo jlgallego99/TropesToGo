@@ -113,8 +113,7 @@ TvTropes no ha cambiado y se puede extraer. Un servicio en DDD hace referencia a
 un paquete de código que ejecuta cierta lógica de negocio para un cliente y en
 este caso el cliente sería el usuario que necesita los datos. 
 
-El objetivo de este hito se alcanza implementando la función
-\texttt{CheckValidWorkPage} que encapsula la funcionalidad de revisar toda la
+El objetivo de este hito se alcanza implementando la función \texttt{CheckValidWorkPage} que encapsula la funcionalidad de revisar toda la
 estructura de una página de película de TvTropes y validar si el
 \textit{scraper} podrá extraerla. Recibe una entidad \textit{Page}, de la cual
 el \textit{scraper} extrae lo principal que necesita, que es el URL de la página
@@ -163,14 +162,14 @@ donde deberían estar contenidos los \textit{tropos}.
     pertenece a una página de obra y su HTML interno no ha cambiado, ya que es
     de donde luego el \textit{scraper} extraerá la información. Principalmente,
     se revisa en el árbol DOM si la página tiene las partes vistas en el
-    análisis de la \autoref{fig:tvtropes-work}: un artículo principal con sus
+    análisis de la figura \ref{fig:tvtropes-work}: un artículo principal con sus
     identificadores y clases conocidas y si el índice, dentro del título del
     artículo, pertenece al de películas. Todas las páginas de obra,
     independientemente de si son películas o no, siguen esta misma estructura,
     por lo que esto basta para confirmar si este tipo de páginas siguen igual.
     \item Por último, se realizan las verificaciones más complejas relacionadas
     con la principal sección que se querrá analizar: la sección de
-    \textit{tropos}. Debido al estudio de la \autoref{fig:tropelist} del
+    \textit{tropos}. Debido al estudio de la figura \ref{fig:tropelist} del
     \autoref{chapter:5} sabemos que existen tres formas comunes que toma la
     sección de \textit{tropos}, y esto es lo que el \textit{scraper} verifica,
     para asegurarnos de que podemos entender la sección. En este primer hito
@@ -218,8 +217,7 @@ código y evitando la repetición. De este modo, el \textit{scraper} pasará com
 parámetro estas constantes a las funciones de Goquery que encuentran los nodos
 del árbol DOM de la página que se está explorando. A estas constantes se les da
 un nombre lo más semántico posible de forma que el código sea legible y limpio.
-Por ejemplo, la constante \texttt{TropeTag} contiene el selector
-\texttt{a.twikilink} que hace referencia a todos los \textit{anchor} de HTML
+Por ejemplo, la constante \texttt{TropeTag} contiene el selector \texttt{a.twikilink} que hace referencia a todos los \textit{anchor} de HTML
 cuya clase es \textit{twikilink}, que sabemos debido al análisis del capítulo
 anterior que hacen referencia a enlaces hacia páginas de \textit{tropos}. El
 tener constantes con selectores importantes para lo que quiere buscar el
@@ -276,21 +274,176 @@ páginas de otros tipos.
 
 Como lista principal entendemos los \textit{tropos} que aparecen directamente
 listados al final del artículo, como se podía ver en la
-\autoref{fig:tvtropes-work}, que se consideran los más importantes de la obra al
+figura \ref{fig:tvtropes-work}, que se consideran los más importantes de la obra al
 estar en primer plano. Puesto que este \textit{milestone} está centrado en
 extraer información del artículo principal únicamente, se extraerán solo los
 \textit{tropos} que están contenidos en listas o carpetas, tal y como se ve en
-los dos primeros tipos de la \autoref{fig:tropelist}, ignorando por lo pronto el
+los dos primeros tipos de la figura \ref{fig:tropelist}, ignorando por lo pronto el
 tercer tipo que, aunque también tiene los \textit{tropos} principales de la
 obra, implicaría ahondar en sub páginas. En el próximo \textit{milestone} se
-navegará a estas sub páginas y se discutirán las dis´tintas fuentes donde se
+navegará a estas sub páginas y se discutirán las distintas fuentes donde se
 pueden encontrar otros \textit{tropos} que no sean los principales.
 
-\subsection{Ampliación del \textit{scraper}}
+\subsection{Ampliación del \textit{scraper} para la extracción en el artículo
+principal} 
 
+Antes de desarrollar la funcionalidad del \textit{scraper} ha sido necesario
+construir la factoría encargada de crear los objetos \textit{Media}, cada uno de
+los cuales representa toda la información de una obra de cualquier medio
+audiovisual de TvTropes, incluido sus \textit{tropos}. El patrón factoría es uno
+de los recomendados en \textit{Domain Driven Design} para la creación de
+agregados, y se encarga de formar correctamente el objeto para cumplir la
+propiedad de única responsabilidad. Es imprescindible poder generar este tipo de
+objetos correctamente, ya que los utilizará el \textit{scraper} para rellenarlos
+con los datos extraídos. Por supuesto, de la mano de la creación de la factoría
+de \textit{Media} vienen los tests necesarios, que prueban con varios
+objetos válidos e inválidos para comprobar que se cumplen todos los casos
+definidos y el manejo de errores es correcto. La factoría, como es común en Go,
+gestiona una serie de errores que devuelve como segundo argumento para asegurar
+siempre que se conoce el estado de lo que devuelve cualquier método.
+
+En cuanto a la implementación de los métodos que amplían el \textit{scraper}
+para darle la funcionalidad de extracción de datos sobre una página web de
+TvTropes, se ha seguido una estrategia muy parecida a la seguida en el
+\textit{milestone} anterior y según las guías de código limpio
+\cite{clean_code_rules}. Se tiene un método principal de \textit{scraping},
+encargado de extraer la información relevante de una página de TvTropes
+individual, con una separación clara entre la función de alto nivel y las sub
+funciones de más bajo nivel a las que llama, encargadas de analizar y extraer
+datos de distintas partes de la página. Esto, además, puede facilitar el
+utilizar técnicas de concurrencia en el futuro para ser más eficiente.
+
+Para extraer el título y el índice de la película se han empleado los mismos
+selectores que en la comprobación de la página y que se vieron en el
+análisis de la estructura de TvTropes. Sin embargo, el principal problema a la
+hora de extraer información en el artículo principal ha estado relacionado con
+los \textit{tropos}. En un principio se tenía ideado el extraer no solo los
+\textit{tropos} que figuran en la lista, como cabeza de cada uno de los
+elementos de ella, sino también aquellos a los que se hace referencia en las
+descripciones de ellos y en el resumen de la película. El problema de esto es
+que se han encontrado casos de \textit{tropos} que, cuando están referenciados
+en mitad de un texto y no como un elemento principal de la lista, no pertenecen
+necesariamente a la obra. En algunos casos se referencian como ejemplo de
+\textit{tropo} contrario o cualquier otra razón, lo que hace que no se pueda
+determinar si pertenecen como tal a la obra o no, así que se descartan. Por
+tanto, se hace un cambio de estrategia en el que se considera que, para este
+\textit{milestone}, los \textit{tropos} que se extraen son únicamente los que
+aparecen en cada elemento de la lista o carpetas, que se consideran
+``principales''.
+
+Ha sido necesario construir dos selectores CSS nuevos para seleccionar
+fácilmente y de manera exclusiva los \textit{tropos} principales, tras un
+proceso de análisis de la página mediante el inspector de elementos HTML del
+navegador. Cada uno de estos selectores condensan en una sola instrucción todo
+lo necesario para encontrar cada uno de los enlaces a \textit{tropos} que
+encabezan cada elemento de la lista, tanto para una lista simple como para el
+caso de que estén en carpetas. Como se vio en la figura \ref{fig:tvtropes-work},
+cuando TvTropes define los \textit{tropos} de una obra, siempre los muestra en
+una lista donde cada primer elemento es un hipervínculo con estructura conocida
+y fácilmente identificable. Por supuesto, al igual que en el hito anterior, se
+construyen los selectores como \textit{strings} constantes con un nombre
+legible, de forma que se eviten utilizar literales en el código y sea más
+legible.
+
+Por tanto, se obtienen inequívocamente los \textit{tropos} de una lista simple
+en el artículo principal de una obra de TvTropes mediante el selector CSS de
+la figura \ref{fig:selector-lista}.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{img/selector-tropes.png}
+    \caption{Selector CSS para extraer todos los \textit{tropos} principales de
+    la lista simple.}
+    \label{fig:selector-lista}
+\end{figure}
+
+La primera parte es común en otras funciones del \textit{scraper}, ya que busca
+el artículo principal, que es donde siempre va a estar toda la información que
+necesitamos, y luego busca el header que siempre precede a la sección de
+\textit{tropos} independientemente de la página. Una vez hecho esto, se hace uso
+del combinador general de hermanos \cite{mozilla_selectores_2022}
+\begin{otherlanguage}{english}(representado por el símbolo
+\textasciitilde)\end{otherlanguage} para seleccionar los elementos HTML que
+están al mismo nivel; en este caso, identifica todos los primeros elementos de
+lista \texttt{<ul>} que son hermanos de la cabecera que da inicio a la sección
+de \textit{tropos}. Se recuerda que, aunque visualmente en la página parezca una
+sola lista, internamente suele estar partida en distintos elementos \texttt{<ul>} al mismo nivel, por lo que esto nos permitiría seleccionar todos
+ellos. Con esto ya tenemos identificada sin lugar a equivocaciones la sección de
+\textit{tropos}. A continuación, se emplea dos veces el combinador de hijo
+\cite{mozilla_selectores_2022} \begin{otherlanguage}{english}(representado por
+el símbolo \textgreater)\end{otherlanguage}, que escoge aquellos elementos que
+sean hijos directos del primer elemento. Partiendo de que se tiene seleccionada
+la lista principal, en la primera combinación se buscan todos sus hijos
+directos, que son cada uno de los elementos \texttt{<li>} de la lista, y en la
+segunda se busca el siguiente hijo directo, que es la primera etiqueta que
+encabeza cada punto de la lista. Esta etiqueta es ya el hipervínculo al
+\textit{tropo} que queremos. Al final, se indica la pseudo clase \texttt{:first-child} para indicar que únicamente queremos el primer enlace de
+\textit{tropos} \texttt{a.twikilink} que aparezca. De esta manera se ignoran
+aquellos enlaces que no queremos, que son los que aparecen referenciados en la
+descripción de cada \textit{tropo} principal, y solo nos quedamos con el que
+encabeza cada punto de la lista.
+
+Este selector completo también resuelve uno de los principales problemas que se
+han encontrado al intentar extraer los \textit{tropos}. Existen muchos casos en
+los que un elemento de la lista de \textit{tropos} contiene sub listas con
+descripciones adicionales y \textit{tropos} que no queremos, al ser
+referenciados en la descripción y no principales. En primeras versiones del
+selector se llegaba a meter en esas sub listas, sin embargo, se pudo resolver
+gracias al combinador general de hermanos, que únicamente selecciona las listas
+que estén al mismo nivel, evitando meterse en sub listas. 
+
+En cuanto al selector para los \textit{tropos} que se encuentran en carpetas, en
+la \ref{fig:selector-folder}, es muy parecido al anterior pero con una
+ligera diferencia necesaria. Aunque dentro de las carpetas lo que se tenga es
+una estructura HTML idéntica al caso en el que no haya carpetas, distintos
+elementos \texttt{<ul>} separados arbitrariamente donde cada elemento es un
+\textit{tropo}, el que es hermano de la cabecera de la sección de
+\textit{tropos} en este caso no es un elemento \texttt{<ul>} sino la carpeta.
+Por eso, en este caso, el selector se simplifica, buscando únicamente los hijos
+directos de la carpeta, sin necesidad del selector de hermanos. Esto también
+evita las sub listas, porque no son hijos directos de la carpeta.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{img/selector-tropes-folders.png}
+    \caption{Selector CSS para extraer todos los \textit{tropos} principales en
+    carpetas de listas.}
+    \label{fig:selector-folder}
+\end{figure}
+
+El resultado final de ambos selectores es, por tanto, todas las etiquetas de
+hipervínculo que indican un \textit{tropo} principal. Estas tienen los dos datos
+necesarios para el \textit{scraper}: el nombre del \textit{tropo}, dentro de la
+propia etiqueta, y su URI en el elemento \texttt{href} para poder dirigirse a
+esa página si fuese necesario.
 
 \subsection{Implementación de repositorios para manejar los \textit{datasets}}
+Finalmente, la última parte que queda para completar el hito es ser capaz de
+almacenar uno o varios objetos Media, que recordamos que son un agregado que
+representan una obra con sus tropos, en un conjunto de datos con un formato
+estandarizado. 
 
+Como se vio en el modelado del problema del capítulo anterior, cada agregado
+tiene asociado un repositorio que persiste esos datos de alguna manera. En este
+caso, la persistencia es la generación de un fichero de texto donde almacenar
+los datos extraídos de TvTropes. Con el modelado previo del problema se definió
+una interfaz repositorio de \textit{Media}, que se encargaría de dar una
+definición de las operaciones imprescindibles para tratar con un
+\textit{dataset} de TvTropes. Por tanto, ahora se pueden definir
+\textit{structs} que implementen esos métodos, los cuales representarán cada uno
+un tipo de persistencia en el repositorio, o lo que es lo mismo, un formato de
+representación de datos. Se pone como objetivo el implementar al menos dos
+repositorios distintos, pertenecientes a los dos formatos de representación de
+datos más utilizados: CSV y JSON.
+
+Se puede ver a continuación un ejemplo de cómo estaría representada la
+información completa de una obra en el \textit{dataset} JSON
+(figura \ref{fig:json-dataset}):
+\begin{figure}[H]
+    \begin{minted}[bgcolor=LightGray, linenos]{json} 
+{"tropestogo": []}
+    \end{minted}
+    \caption{Ejemplo de representación de los datos de una película de TvTropes en JSON.}
+    \label{fig:json-dataset}
+\end{figure}
 
 \section{Desarrollo de la araña}
 

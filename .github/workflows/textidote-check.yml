@@ -21,7 +21,7 @@ jobs:
         uses: ChiefGokhlayeh/textidote-action@v5.1.0
         id: lintabstract
         env:
-          ignore: sh:seclen,sh:stacked,sh:nobreak,sh:nonp
+          ignore: sh:seclen,sh:stacked,sh:nobreak,sh:nonp,lt:es:DEL_LA
         with:
           root_file: english_abstract.tex
           working_directory: doc/prefacios
