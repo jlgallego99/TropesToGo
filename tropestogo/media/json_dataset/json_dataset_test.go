@@ -2,15 +2,16 @@ package json_dataset_test
 
 import (
 	"encoding/json"
+	"net/url"
+	"os"
+	"time"
+
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
 	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
 	"github.com/jlgallego99/TropesToGo/media/json_dataset"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"net/url"
-	"os"
-	"time"
 )
 
 var repository *json_dataset.JSONRepository
