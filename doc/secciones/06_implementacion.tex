@@ -11,13 +11,13 @@ desarrollo con agilidad.
 En este capítulo se irá describiendo el proceso de desarrollo ágil que se ha
 llevado a cabo para poder entender cómo se ha llegado a cada uno de los
 sucesivos productos mínimamente viables. A lo largo del proceso se justificarán
-una serie de buenas prácticas, recomendaciones y herramientas que permitirán ir
-refinando el producto hasta llegar a una solución final de calidad. Esto implica
-que todos los hitos se desarrollan con el principal objetivo de satisfacer al
-usuario y asegurar la calidad, por lo que conforme se justifiquen las decisiones
-tomadas para avanzar en cada uno de ellos, se relacionarán con las historias de
-usuario definidas, que son las que confirman qué se debe implementar para
-cumplir con las expectativas del usuario.
+una serie de decisiones tomadas, buenas prácticas, recomendaciones y
+herramientas que permitirán ir refinando el producto hasta llegar a una solución
+final de calidad. Esto implica que todos los hitos se desarrollan con el
+principal objetivo de satisfacer al usuario y asegurar la calidad, por lo que
+conforme se justifiquen las decisiones tomadas para avanzar en cada uno de
+ellos, se relacionarán con las historias de usuario definidas, que son las que
+confirman qué se debe implementar para cumplir con las expectativas del usuario.
 
 \section{Comienzo del desarrollo}
 Con el primer modelado del problema que se ha realizado en el
@@ -64,22 +64,25 @@ repositorio de GitHub.
 En cada uno de los hitos, cuando se desarrolla nueva funcionalidad, se abre un
 \textit{pull request} en GitHub con los cambios realizados en el proyecto para
 saber qué incremento en el producto se está haciendo y qué \textit{issues}
-pretende resolver para avanzar en completar el hito. Los nuevos flujos de CI que
-se añaden en este hito permiten automatizar la ejecución de las pruebas y
-compilar todo el proyecto, para cumplir que todo el código sea funcional y
-asegurar su calidad. Si cualquiera de estos flujos de CI fallan, no se podrá
-aceptar el \textit{pull request} y añadir los cambios a la rama principal. La
-integración continua en este proyecto se configura mediante \textit{GitHub
-Actions}, que automatizan los procesos apoyándose en nuevas tareas definidas
-mediante el gestor de tareas \textit{Mask}. Estas tareas ejecutan los tests para
-todo el proyecto, ambas usando por debajo la propia utilidad del lenguaje Go:
-\texttt{go test} para las pruebas y \texttt{go build} para comprobar que todos
-los paquetes del código compilan correctamente. Esto permite que no haga falta
-modificarlos en el futuro; servirán para todo el desarrollo de ahora en adelante
-y ejecutarán automáticamente todas las nuevas pruebas que se programen. En el
-caso de necesitar algún cambio en la ejecución de los tests o la compilación,
-bastará con cambiar las tareas del gestor de tareas, sin necesidad de tocar la
-configuración de la integración continua.
+pretende resolver para avanzar en completar el hito. Cada \textit{issue}
+representa cada uno de los problemas que surgen durante el desarrollo y que se
+intentan resolver para avanzar en completar una historia de usuario. Estos son
+los problemas que se justifican y resuelven a lo largo de este capítulo. Los
+nuevos flujos de CI que se añaden en este hito permiten automatizar la ejecución
+de las pruebas y compilar todo el proyecto, para cumplir que todo el código sea
+funcional y asegurar su calidad. Si cualquiera de estos flujos de CI fallan, no
+se podrá aceptar el \textit{pull request} y añadir los cambios a la rama
+principal. La integración continua en este proyecto se configura mediante
+\textit{GitHub Actions}, que automatizan los procesos apoyándose en nuevas
+tareas definidas mediante el gestor de tareas \textit{Mask}. Estas tareas
+ejecutan los tests para todo el proyecto, ambas usando por debajo la propia
+utilidad del lenguaje Go: \texttt{go test} para las pruebas y \texttt{go build}
+para comprobar que todos los paquetes del código compilan correctamente. Esto
+permite que no haga falta modificarlos en el futuro; servirán para todo el
+desarrollo de ahora en adelante y ejecutarán automáticamente todas las nuevas
+pruebas que se programen. En el caso de necesitar algún cambio en la ejecución
+de los tests o la compilación, bastará con cambiar las tareas del gestor de
+tareas, sin necesidad de tocar la configuración de la integración continua.
 
 Por tanto, para poder cumplir con la automatización de las pruebas y la
 compilación se configura un nuevo \textit{GitHub Action} en el que se prepara
@@ -110,8 +113,7 @@ TvTropes no ha cambiado y se puede extraer. Un servicio en DDD hace referencia a
 un paquete de código que ejecuta cierta lógica de negocio para un cliente y en
 este caso el cliente sería el usuario que necesita los datos. 
 
-El objetivo de este hito se alcanza implementando la función \texttt{CheckValidWorkPage}
-que encapsula la funcionalidad de revisar toda la
+El objetivo de este hito se alcanza implementando la función \texttt{CheckValidWorkPage} que encapsula la funcionalidad de revisar toda la
 estructura de una página de película de TvTropes y validar si el
 \textit{scraper} podrá extraerla. Recibe una entidad \textit{Page}, de la cual
 el \textit{scraper} extrae lo principal que necesita, que es el URL de la página
@@ -137,8 +139,8 @@ trata sus resultados para determinar finalmente si la información de la página
 es extraíble o no.
 
 Estas comprobaciones se efectúan en orden de menor a mayor complejidad y de
-mayor a menor nivel, intentando que el filtrado se lleve a cabo cuanto antes para
-evitar entrar en análisis complejos de páginas innecesarias. Se busca poder
+mayor a menor nivel, intentando que el filtrado se lleve a cabo cuanto antes
+para evitar entrar en análisis complejos de páginas innecesarias. Se busca poder
 validar la página lo antes posible, sin perder mucho tiempo en el proceso para
 cumplir la \href{https://github.com/jlgallego99/TropesToGo/issues/45}{[HU06]} lo
 mejor posible y que el usuario obtenga cuanto antes el resultado. Primero se
@@ -186,8 +188,8 @@ donde deberían estar contenidos los \textit{tropos}.
     tipos que se conocen. Para probar si los \textit{tropos} están contenidos en
     carpetas basta con buscar el botón de abrir carpetas, que sabemos su
     etiqueta, clase y función JavaScript que utiliza para abrirlas, al estar
-    generado siempre igual por el motor del wiki. En todos los casos se
-    valida si el primer elemento de la lista es un enlace a una página de
+    generado siempre igual por el motor del wiki. En todos los casos se valida
+    si el primer elemento de la lista es un enlace a una página de
     \textit{tropos} o a una sub página de ellos. Para este último caso, que
     pertenecería al tercer tipo, se ha hecho uso de una expresión regular que
     confirma si el URI al que redirigen sigue un patrón concreto. Si la última
@@ -215,8 +217,7 @@ código y evitando la repetición. De este modo, el \textit{scraper} pasará com
 parámetro estas constantes a las funciones de Goquery que encuentran los nodos
 del árbol DOM de la página que se está explorando. A estas constantes se les da
 un nombre lo más semántico posible de forma que el código sea legible y limpio.
-Por ejemplo, la constante \texttt{TropeTag} contiene el selector \texttt{a.twikilink} 
-que hace referencia a todos los \textit{anchor} de HTML
+Por ejemplo, la constante \texttt{TropeTag} contiene el selector \texttt{a.twikilink} que hace referencia a todos los \textit{anchor} de HTML
 cuya clase es \textit{twikilink}, que sabemos debido al análisis del capítulo
 anterior que hacen referencia a enlaces hacia páginas de \textit{tropos}. El
 tener constantes con selectores importantes para lo que quiere buscar el
