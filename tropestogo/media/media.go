@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	ErrMissingValues        = errors.New("one or more fields are missing")
-	ErrInvalidYear          = errors.New("year is invalid")
-	ErrUnsupportedMediaType = errors.New("unsupported media type")
+	ErrMissingValues    = errors.New("one or more fields are missing")
+	ErrInvalidYear      = errors.New("year is invalid")
+	ErrUnknownMediaType = errors.New("unknown media type")
 )
 
 // MediaType enumerates all supported Media types in TropesToGo
@@ -57,7 +57,7 @@ func ToMediaType(mediaTypeString string) (MediaType, error) {
 		}
 	}
 
-	return UnknownMediaType, ErrUnsupportedMediaType
+	return UnknownMediaType, ErrUnknownMediaType
 }
 
 // Media holds the logic of all Works with its tropes that exist within a particular medium in TvTropes
@@ -93,7 +93,7 @@ func NewMedia(title, year string, lastUpdated time.Time, tropes map[tropestogo.T
 	}
 
 	if !mediaType.IsValid() {
-		return Media{}, ErrUnsupportedMediaType
+		return Media{}, ErrUnknownMediaType
 	}
 
 	work := &tropestogo.Work{

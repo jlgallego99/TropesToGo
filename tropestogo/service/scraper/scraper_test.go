@@ -17,7 +17,7 @@ import (
 var serviceScraper *scraper.ServiceScraper
 var newScraperErr, invalidScraperErr error
 
-var tvTropesPage, tvTropesPage2, tvTropesPage3, notTvTropesPage, notWorkPage, unsupportedMediaPage *tropestogo.Page
+var tvTropesPage, tvTropesPage2, tvTropesPage3, notTvTropesPage, notWorkPage, unknownMediaPage *tropestogo.Page
 
 var _ = BeforeSuite(func() {
 	serviceScraper, newScraperErr = scraper.NewServiceScraper()
@@ -28,7 +28,7 @@ var _ = BeforeSuite(func() {
 	tvTropesUrl2, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012")
 	tvTropesUrl3, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/ANewHope")
 
-	tvTropesUrlUnsupported, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Manga/AttackOnTitan")
+	tvTropesUrlUnknown, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Manga/AttackOnTitan")
 
 	differentUrl, _ := url.Parse("https://www.google.com/")
 	notWorkUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Main/Media")
@@ -58,8 +58,8 @@ var _ = BeforeSuite(func() {
 		LastUpdated: time.Now(),
 	}
 
-	unsupportedMediaPage = &tropestogo.Page{
-		URL:         tvTropesUrlUnsupported,
+	unknownMediaPage = &tropestogo.Page{
+		URL:         tvTropesUrlUnknown,
 		LastUpdated: time.Now(),
 	}
 })
@@ -167,10 +167,8 @@ var _ = Describe("Scraper", func() {
 				validFilm1, errorFilm1 = serviceScraper.ScrapeWorkPage(tvTropesPage)
 			})
 
-			It("Should have correct Work fields", func() {
-				Expect(validFilm1.GetWork().Title).To(Equal("Oldboy (2003)"))
-				Expect(validFilm1.GetMediaType()).To(Equal(media.Film))
-				Expect(validFilm1.GetWork().Tropes).To(Not(BeEmpty()))
+			It("Should have correct fields", func() {
+				testValidScrapedMedia(validFilm1, "Oldboy (2003)", media.Film)
 			})
 
 			It("Shouldn't return an error", func() {
@@ -189,10 +187,8 @@ var _ = Describe("Scraper", func() {
 				validFilm3, errorFilm3 = serviceScraper.ScrapeWorkPage(tvTropesPage3)
 			})
 
-			It("Should have correct Work fields", func() {
-				Expect(validFilm3.GetWork().Title).To(Equal("A New Hope"))
-				Expect(validFilm3.GetMediaType()).To(Equal(media.Film))
-				Expect(validFilm3.GetWork().Tropes).To(Not(BeEmpty()))
+			It("Should have correct fields", func() {
+				testValidScrapedMedia(validFilm3, "A New Hope", media.Film)
 			})
 
 			It("Shouldn't return an error", func() {
@@ -208,7 +204,7 @@ var _ = Describe("Scraper", func() {
 
 		Context("Invalid Film because the media type isn't supported", func() {
 			BeforeEach(func() {
-				filmInvalidType, errorFilmInvalidType = serviceScraper.ScrapeWorkPage(unsupportedMediaPage)
+				filmInvalidType, errorFilmInvalidType = serviceScraper.ScrapeWorkPage(unknownMediaPage)
 			})
 
 			It("Should return an empty media object", func() {
@@ -218,11 +214,17 @@ var _ = Describe("Scraper", func() {
 			})
 
 			It("Should return an appropriate error", func() {
-				Expect(errorFilmInvalidType).To(Equal(media.ErrUnsupportedMediaType))
+				Expect(errorFilmInvalidType).To(Equal(media.ErrUnknownMediaType))
 			})
 		})
 	})
 })
+
+func testValidScrapedMedia(validMedia media.Media, title string, mediaType media.MediaType) {
+	Expect(validMedia.GetWork().Title).To(Equal(title))
+	Expect(validMedia.GetMediaType()).To(Equal(mediaType))
+	Expect(validMedia.GetWork().Tropes).To(Not(BeEmpty()))
+}
 
 func areTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {
 	visited := make(map[string]bool, 0)
