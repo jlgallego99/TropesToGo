@@ -168,7 +168,11 @@ var _ = Describe("Scraper", func() {
 			})
 
 			It("Should have correct fields", func() {
+<<<<<<< HEAD
 				testValidScrapedMedia(validFilm1, "Oldboy (2003)", "2003", media.Film)
+=======
+				testValidScrapedMedia(validFilm1, "Oldboy (2003)", media.Film)
+>>>>>>> milestone3-scraper
 			})
 
 			It("Shouldn't return an error", func() {
@@ -188,7 +192,11 @@ var _ = Describe("Scraper", func() {
 			})
 
 			It("Should have correct fields", func() {
+<<<<<<< HEAD
 				testValidScrapedMedia(validFilm3, "A New Hope", "", media.Film)
+=======
+				testValidScrapedMedia(validFilm3, "A New Hope", media.Film)
+>>>>>>> milestone3-scraper
 			})
 
 			It("Shouldn't return an error", func() {
