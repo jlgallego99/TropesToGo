@@ -163,3 +163,11 @@ dataset
 datasets
 json
 strings
+marshalling
+Marshaler
+CRUD
+HU
+REST
+tupla
+tropestogo
+array
