@@ -137,8 +137,8 @@ func checkMainArticle(doc *goquery.Document) (bool, error) {
 	}
 
 	// Check the index of the work
-	index := doc.Find(WorkIndexSelector)
-	if strings.Trim(index.Text(), " /") != media.Film.String() {
+	tropeIndex := doc.Find(WorkIndexSelector)
+	if strings.Trim(tropeIndex.Text(), " /") != media.Film.String() {
 		return false, ErrNotWorkPage
 	}
 
@@ -207,8 +207,8 @@ func (scraper *ServiceScraper) ScrapeWorkPage(page *tropestogo.Page) (media.Medi
 		return media.Media{}, errTropes
 	}
 
-	media, error := media.NewMedia(title, year, time.Now(), tropes, page, mediaIndex)
-	return media, error
+	newMedia, err := media.NewMedia(title, year, time.Now(), tropes, page, mediaIndex)
+	return newMedia, err
 }
 
 // ScrapeWorkTitleAndYear extracts the title, the year on the title/URL if it's there and the media index from the HTML document of a Work Page

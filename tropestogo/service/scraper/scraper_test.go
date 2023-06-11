@@ -1,6 +1,8 @@
 package scraper_test
 
 import (
+	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
+	"github.com/jlgallego99/TropesToGo/media/json_dataset"
 	"net/url"
 	"time"
 
@@ -14,15 +16,22 @@ import (
 )
 
 // A scraper service for test purposes
-var serviceScraper *scraper.ServiceScraper
-var newScraperErr, invalidScraperErr error
+var serviceScraperJson, serviceScraperCsv, invalidScraper *scraper.ServiceScraper
+var newScraperJsonErr, newScraperCsvErr, invalidScraperErr error
+var csvRepositoryErr, jsonRepositoryErr error
 
 var tvTropesPage, tvTropesPage2, tvTropesPage3, notTvTropesPage, notWorkPage, unknownMediaPage *tropestogo.Page
 
 var _ = BeforeSuite(func() {
-	serviceScraper, newScraperErr = scraper.NewServiceScraper()
+	// Create two scrapers, one for the JSON dataset and the other for the CSV dataset
+	var csvRepository, jsonRepository media.RepositoryMedia
+	csvRepository, csvRepositoryErr = csv_dataset.NewCSVRepository("dataset", ',')
+	jsonRepository, jsonRepositoryErr = json_dataset.NewJSONRepository("dataset")
+	serviceScraperJson, newScraperJsonErr = scraper.NewServiceScraper(scraper.ConfigMediaRepository(csvRepository))
+	serviceScraperCsv, newScraperCsvErr = scraper.NewServiceScraper(scraper.ConfigMediaRepository(jsonRepository))
+
 	// Create invalid scraper
-	_, invalidScraperErr = scraper.NewServiceScraper(scraper.ConfigIndexRepository(nil))
+	invalidScraper, invalidScraperErr = scraper.NewServiceScraper(scraper.ConfigIndexRepository(nil))
 
 	tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
 	tvTropesUrl2, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012")
@@ -65,16 +74,21 @@ var _ = BeforeSuite(func() {
 })
 
 var _ = Describe("Scraper", func() {
-	Describe("Create the scraper service", func() {
-		Context("The service is created correctly", func() {
+	Describe("Create the scraper services", func() {
+		Context("The services are created correctly", func() {
 			It("Shouldn't return an error", func() {
-				Expect(newScraperErr).To(BeNil())
+				Expect(newScraperJsonErr).To(BeNil())
+				Expect(newScraperCsvErr).To(BeNil())
+			})
+
+			It("Should have a correct media repository", func() {
+
 			})
 		})
 
 		Context("The service is created incorrectly", func() {
 			It("Should return an empty ServiceScraper", func() {
-				Expect(*serviceScraper).To(Equal(scraper.ServiceScraper{}))
+				Expect(invalidScraper).To(BeNil())
 			})
 
 			It("Should return an appropriate error", func() {
@@ -89,7 +103,8 @@ var _ = Describe("Scraper", func() {
 
 		Context("URL belongs to a TvTropes Work page with tropes on a list", func() {
 			BeforeEach(func() {
-				validTvTropesPage, errTvTropes = serviceScraper.CheckValidWorkPage(tvTropesPage)
+				validTvTropesPage, errTvTropes = serviceScraperJson.CheckValidWorkPage(tvTropesPage)
+				validTvTropesPage, errTvTropes = serviceScraperCsv.CheckValidWorkPage(tvTropesPage)
 			})
 
 			It("Should mark the page as valid", func() {
@@ -103,7 +118,8 @@ var _ = Describe("Scraper", func() {
 
 		Context("URL belongs to a TvTropes Work page with tropes on subpages", func() {
 			BeforeEach(func() {
-				validTvTropesPage2, errTvTropes2 = serviceScraper.CheckValidWorkPage(tvTropesPage2)
+				validTvTropesPage2, errTvTropes2 = serviceScraperJson.CheckValidWorkPage(tvTropesPage2)
+				validTvTropesPage2, errTvTropes2 = serviceScraperCsv.CheckValidWorkPage(tvTropesPage2)
 			})
 
 			It("Should mark the page as valid", func() {
@@ -117,7 +133,8 @@ var _ = Describe("Scraper", func() {
 
 		Context("URL belongs to a TvTropes Work page with tropes on folders", func() {
 			BeforeEach(func() {
-				validTvTropesPage3, errTvTropes3 = serviceScraper.CheckValidWorkPage(tvTropesPage3)
+				validTvTropesPage3, errTvTropes3 = serviceScraperJson.CheckValidWorkPage(tvTropesPage3)
+				validTvTropesPage3, errTvTropes3 = serviceScraperCsv.CheckValidWorkPage(tvTropesPage3)
 			})
 
 			It("Should mark the page as valid", func() {
@@ -131,7 +148,8 @@ var _ = Describe("Scraper", func() {
 
 		Context("URL belongs to TvTropes but isn't from a Work page", func() {
 			BeforeEach(func() {
-				validNotWorkPage, errNotWorkPage = serviceScraper.CheckValidWorkPage(notWorkPage)
+				validNotWorkPage, errNotWorkPage = serviceScraperJson.CheckValidWorkPage(notWorkPage)
+				validNotWorkPage, errNotWorkPage = serviceScraperCsv.CheckValidWorkPage(notWorkPage)
 			})
 
 			It("Should mark the page as invalid", func() {
@@ -145,7 +163,8 @@ var _ = Describe("Scraper", func() {
 
 		Context("URL isn't from TvTropes", func() {
 			BeforeEach(func() {
-				validDifferentPage, errDifferent = serviceScraper.CheckValidWorkPage(notTvTropesPage)
+				validDifferentPage, errDifferent = serviceScraperJson.CheckValidWorkPage(notTvTropesPage)
+				validDifferentPage, errDifferent = serviceScraperCsv.CheckValidWorkPage(notTvTropesPage)
 			})
 
 			It("Should mark the page as invalid", func() {
@@ -164,7 +183,8 @@ var _ = Describe("Scraper", func() {
 
 		Context("Valid Film Page with tropes on a simple list", func() {
 			BeforeEach(func() {
-				validFilm1, errorFilm1 = serviceScraper.ScrapeWorkPage(tvTropesPage)
+				validFilm1, errorFilm1 = serviceScraperJson.ScrapeWorkPage(tvTropesPage)
+				validFilm1, errorFilm1 = serviceScraperCsv.ScrapeWorkPage(tvTropesPage)
 			})
 
 			It("Should have correct fields", func() {
@@ -184,7 +204,8 @@ var _ = Describe("Scraper", func() {
 
 		Context("Valid Film Page with tropes on folders", func() {
 			BeforeEach(func() {
-				validFilm3, errorFilm3 = serviceScraper.ScrapeWorkPage(tvTropesPage3)
+				validFilm3, errorFilm3 = serviceScraperJson.ScrapeWorkPage(tvTropesPage3)
+				validFilm3, errorFilm3 = serviceScraperCsv.ScrapeWorkPage(tvTropesPage3)
 			})
 
 			It("Should have correct fields", func() {
@@ -204,7 +225,8 @@ var _ = Describe("Scraper", func() {
 
 		Context("Invalid Film because the media type isn't supported", func() {
 			BeforeEach(func() {
-				filmInvalidType, errorFilmInvalidType = serviceScraper.ScrapeWorkPage(unknownMediaPage)
+				filmInvalidType, errorFilmInvalidType = serviceScraperJson.ScrapeWorkPage(unknownMediaPage)
+				filmInvalidType, errorFilmInvalidType = serviceScraperCsv.ScrapeWorkPage(unknownMediaPage)
 			})
 
 			It("Should return an empty media object", func() {
