@@ -207,8 +207,13 @@ func (scraper *ServiceScraper) ScrapeWorkPage(page *tropestogo.Page) (media.Medi
 		return media.Media{}, errTropes
 	}
 
-	newMedia, err := media.NewMedia(title, year, time.Now(), tropes, page, mediaIndex)
-	return newMedia, err
+	newMedia, errNewMedia := media.NewMedia(title, year, time.Now(), tropes, page, mediaIndex)
+	if errNewMedia != nil {
+		return media.Media{}, errNewMedia
+	}
+
+	errAddMedia := scraper.data.AddMedia(newMedia)
+	return newMedia, errAddMedia
 }
 
 // ScrapeWorkTitleAndYear extracts the title, the year on the title/URL if it's there and the media index from the HTML document of a Work Page

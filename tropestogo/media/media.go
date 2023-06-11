@@ -106,7 +106,7 @@ func GetJsonTropes(media Media) []JsonTrope {
 		title := trope.GetTitle()
 		index := trope.GetIndex().String()
 
-		if title != "" && index != "" && index != "UnknownTropeIndex" {
+		if title != "" && index != "" /*&& index != "UnknownTropeIndex"*/ {
 			tropes = append(tropes, JsonTrope{
 				Title: trope.GetTitle(),
 				Index: trope.GetIndex().String(),

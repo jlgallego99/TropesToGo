@@ -153,7 +153,7 @@ func CreateMediaRecord(media media.Media) []string {
 		title := trope.GetTitle()
 		index := trope.GetIndex().String()
 
-		if title != "" && index != "" && index != "UnknownTropeIndex" {
+		if title != "" && index != "" /*&& index != "UnknownTropeIndex"*/ {
 			tropes = append(tropes, title)
 			indexes = append(indexes, index)
 		}

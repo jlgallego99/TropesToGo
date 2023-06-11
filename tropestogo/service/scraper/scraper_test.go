@@ -1,9 +1,13 @@
 package scraper_test
 
 import (
+	"encoding/csv"
+	"encoding/json"
 	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
 	"github.com/jlgallego99/TropesToGo/media/json_dataset"
 	"net/url"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/jlgallego99/TropesToGo/media"
@@ -19,12 +23,12 @@ import (
 var serviceScraperJson, serviceScraperCsv, invalidScraper *scraper.ServiceScraper
 var newScraperJsonErr, newScraperCsvErr, invalidScraperErr error
 var csvRepositoryErr, jsonRepositoryErr error
+var csvRepository, jsonRepository media.RepositoryMedia
 
 var tvTropesPage, tvTropesPage2, tvTropesPage3, notTvTropesPage, notWorkPage, unknownMediaPage *tropestogo.Page
 
 var _ = BeforeSuite(func() {
 	// Create two scrapers, one for the JSON dataset and the other for the CSV dataset
-	var csvRepository, jsonRepository media.RepositoryMedia
 	csvRepository, csvRepositoryErr = csv_dataset.NewCSVRepository("dataset", ',')
 	jsonRepository, jsonRepositoryErr = json_dataset.NewJSONRepository("dataset")
 	serviceScraperJson, newScraperJsonErr = scraper.NewServiceScraper(scraper.ConfigMediaRepository(csvRepository))
@@ -82,7 +86,8 @@ var _ = Describe("Scraper", func() {
 			})
 
 			It("Should have a correct media repository", func() {
-
+				Expect(csvRepositoryErr).To(BeNil())
+				Expect(jsonRepositoryErr).To(BeNil())
 			})
 		})
 
@@ -178,65 +183,126 @@ var _ = Describe("Scraper", func() {
 	})
 
 	Describe("Scrape Film Page", func() {
-		var validFilm1, validFilm3, filmInvalidType media.Media
-		var errorFilm1, errorFilm3, errorFilmInvalidType error
-
 		Context("Valid Film Page with tropes on a simple list", func() {
-			BeforeEach(func() {
-				validFilm1, errorFilm1 = serviceScraperJson.ScrapeWorkPage(tvTropesPage)
-				validFilm1, errorFilm1 = serviceScraperCsv.ScrapeWorkPage(tvTropesPage)
-			})
+			var validfilm1Csv, validfilm1Json media.Media
+			var errorfilm1Csv, errorfilm1Json error
 
-			It("Should have correct fields", func() {
-				testValidScrapedMedia(validFilm1, "Oldboy (2003)", "2003", media.Film)
+			BeforeEach(func() {
+				validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeWorkPage(tvTropesPage)
+				validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeWorkPage(tvTropesPage)
 			})
 
 			It("Shouldn't return an error", func() {
-				Expect(errorFilm1).To(BeNil())
+				Expect(errorfilm1Json).To(BeNil())
+				Expect(errorfilm1Csv).To(BeNil())
+			})
+
+			It("Should have correct fields", func() {
+				testValidScrapedMedia(validfilm1Csv, "Oldboy (2003)", "2003", media.Film)
+				testValidScrapedMedia(validfilm1Json, "Oldboy (2003)", "2003", media.Film)
+
+				Expect(errorfilm1Csv).To(Equal(csv_dataset.ErrDuplicatedMedia))
+				Expect(errorfilm1Json).To(Equal(json_dataset.ErrDuplicatedMedia))
 			})
 
 			It("Shouldn't have repeated tropes", func() {
-				unique := areTropesUnique(validFilm1.GetWork().Tropes)
+				uniqueCsv := areTropesUnique(validfilm1Csv.GetWork().Tropes)
+				uniqueJson := areTropesUnique(validfilm1Json.GetWork().Tropes)
 
-				Expect(unique).To(BeTrue())
+				Expect(uniqueCsv).To(BeTrue())
+				Expect(uniqueJson).To(BeTrue())
+
+				Expect(errorfilm1Csv).To(Equal(csv_dataset.ErrDuplicatedMedia))
+				Expect(errorfilm1Json).To(Equal(json_dataset.ErrDuplicatedMedia))
+			})
+
+			It("Should have added a correct record on the JSON repository", func() {
+				var dataset json_dataset.JSONDataset
+				fileContents, _ := os.ReadFile("dataset.json")
+				err := json.Unmarshal(fileContents, &dataset)
+
+				Expect(err).To(BeNil())
+				Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy (2003)"))
+				Expect(dataset.Tropestogo[0].Year).To(Equal("2003"))
+				Expect(dataset.Tropestogo[0].URL).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"))
+				Expect(dataset.Tropestogo[0].MediaType).To(Equal("Film"))
+				Expect(len(dataset.Tropestogo[0].Tropes) > 0).To(BeTrue())
+			})
+
+			It("Should have added a correct record on the CSV repository", func() {
+				f, errOpen := os.Open("dataset.csv")
+				reader := csv.NewReader(f)
+				records, errReadCSV := reader.ReadAll()
+
+				Expect(errOpen).To(BeNil())
+				Expect(errReadCSV).To(BeNil())
+
+				Expect(len(records[0])).To(Equal(7))
+				Expect(len(records[1])).To(Equal(7))
+				Expect(records[1][0]).To(Equal("Oldboy (2003)"))
+				Expect(records[1][1]).To(Equal("2003"))
+				Expect(records[1][3]).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"))
+				Expect(records[1][4]).To(Equal("Film"))
+				Expect(len(strings.Split(records[1][5], ";")) > 0).To(BeTrue())
 			})
 		})
 
 		Context("Valid Film Page with tropes on folders", func() {
-			BeforeEach(func() {
-				validFilm3, errorFilm3 = serviceScraperJson.ScrapeWorkPage(tvTropesPage3)
-				validFilm3, errorFilm3 = serviceScraperCsv.ScrapeWorkPage(tvTropesPage3)
-			})
+			var validfilm3Csv, validfilm3Json media.Media
+			var errorfilm3Csv, errorfilm3Json error
 
-			It("Should have correct fields", func() {
-				testValidScrapedMedia(validFilm3, "A New Hope", "", media.Film)
+			BeforeEach(func() {
+				validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeWorkPage(tvTropesPage3)
+				validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeWorkPage(tvTropesPage3)
 			})
 
 			It("Shouldn't return an error", func() {
-				Expect(errorFilm3).To(BeNil())
+				Expect(errorfilm3Csv).To(BeNil())
+				Expect(errorfilm3Json).To(BeNil())
+			})
+
+			It("Should have correct fields", func() {
+				testValidScrapedMedia(validfilm3Csv, "A New Hope", "", media.Film)
+				testValidScrapedMedia(validfilm3Json, "A New Hope", "", media.Film)
+
+				Expect(errorfilm3Csv).To(Equal(csv_dataset.ErrDuplicatedMedia))
+				Expect(errorfilm3Json).To(Equal(json_dataset.ErrDuplicatedMedia))
 			})
 
 			It("Shouldn't have repeated tropes", func() {
-				unique := areTropesUnique(validFilm3.GetWork().Tropes)
+				uniqueCsv := areTropesUnique(validfilm3Csv.GetWork().Tropes)
+				uniqueJson := areTropesUnique(validfilm3Json.GetWork().Tropes)
 
-				Expect(unique).To(BeTrue())
+				Expect(uniqueCsv).To(BeTrue())
+				Expect(uniqueJson).To(BeTrue())
+
+				Expect(errorfilm3Csv).To(Equal(csv_dataset.ErrDuplicatedMedia))
+				Expect(errorfilm3Json).To(Equal(json_dataset.ErrDuplicatedMedia))
 			})
 		})
 
 		Context("Invalid Film because the media type isn't supported", func() {
+			var filminvalidtypeJson, filminvalidtypeCsv media.Media
+			var errorfilminvalidtypeJson, errorfilminvalidtypeCsv error
+
 			BeforeEach(func() {
-				filmInvalidType, errorFilmInvalidType = serviceScraperJson.ScrapeWorkPage(unknownMediaPage)
-				filmInvalidType, errorFilmInvalidType = serviceScraperCsv.ScrapeWorkPage(unknownMediaPage)
+				filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeWorkPage(unknownMediaPage)
+				filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeWorkPage(unknownMediaPage)
 			})
 
 			It("Should return an empty media object", func() {
-				Expect(filmInvalidType.GetWork()).To(BeNil())
-				Expect(filmInvalidType.GetPage()).To(BeNil())
-				Expect(filmInvalidType.GetMediaType()).To(Equal(media.UnknownMediaType))
+				Expect(filminvalidtypeJson.GetWork()).To(BeNil())
+				Expect(filminvalidtypeJson.GetPage()).To(BeNil())
+				Expect(filminvalidtypeJson.GetMediaType()).To(Equal(media.UnknownMediaType))
+
+				Expect(filminvalidtypeCsv.GetWork()).To(BeNil())
+				Expect(filminvalidtypeCsv.GetPage()).To(BeNil())
+				Expect(filminvalidtypeCsv.GetMediaType()).To(Equal(media.UnknownMediaType))
 			})
 
 			It("Should return an appropriate error", func() {
-				Expect(errorFilmInvalidType).To(Equal(media.ErrUnknownMediaType))
+				Expect(errorfilminvalidtypeJson).To(Equal(media.ErrUnknownMediaType))
+				Expect(errorfilminvalidtypeCsv).To(Equal(media.ErrUnknownMediaType))
 			})
 		})
 	})
