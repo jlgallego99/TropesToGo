@@ -198,8 +198,8 @@ var _ = Describe("Scraper", func() {
 			})
 
 			It("Should have correct fields", func() {
-				testValidScrapedMedia(validfilm1Csv, "Oldboy (2003)", "2003", media.Film)
-				testValidScrapedMedia(validfilm1Json, "Oldboy (2003)", "2003", media.Film)
+				testValidScrapedMedia(validfilm1Csv, "Oldboy", "2003", media.Film)
+				testValidScrapedMedia(validfilm1Json, "Oldboy", "2003", media.Film)
 
 				Expect(errorfilm1Csv).To(Equal(csv_dataset.ErrDuplicatedMedia))
 				Expect(errorfilm1Json).To(Equal(json_dataset.ErrDuplicatedMedia))
@@ -222,7 +222,7 @@ var _ = Describe("Scraper", func() {
 				err := json.Unmarshal(fileContents, &dataset)
 
 				Expect(err).To(BeNil())
-				Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy (2003)"))
+				Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy"))
 				Expect(dataset.Tropestogo[0].Year).To(Equal("2003"))
 				Expect(dataset.Tropestogo[0].URL).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"))
 				Expect(dataset.Tropestogo[0].MediaType).To(Equal("Film"))
@@ -239,7 +239,7 @@ var _ = Describe("Scraper", func() {
 
 				Expect(len(records[0])).To(Equal(7))
 				Expect(len(records[1])).To(Equal(7))
-				Expect(records[1][0]).To(Equal("Oldboy (2003)"))
+				Expect(records[1][0]).To(Equal("Oldboy"))
 				Expect(records[1][1]).To(Equal("2003"))
 				Expect(records[1][3]).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"))
 				Expect(records[1][4]).To(Equal("Film"))

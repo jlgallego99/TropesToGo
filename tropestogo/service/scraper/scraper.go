@@ -218,18 +218,40 @@ func (scraper *ServiceScraper) ScrapeWorkPage(page *tropestogo.Page) (media.Medi
 
 // ScrapeWorkTitleAndYear extracts the title, the year on the title/URL if it's there and the media index from the HTML document of a Work Page
 func (scraper *ServiceScraper) ScrapeWorkTitleAndYear(doc *goquery.Document) (string, string, media.MediaType, error) {
+	// The article title holds the three main components we need: work title, work year and work index
 	var title, year string
+	var mediaIndex media.MediaType
+	var errMediaIndex error
 
-	// Get Title of the Work page by extracting the title and discarding the index name
-	title = strings.TrimSpace(strings.Split(doc.Find(WorkTitleSelector).Text(), "/")[1])
-	mediaIndex, errMediaIndex := media.ToMediaType(strings.Trim(doc.Find(WorkIndexSelector).First().Text(), " /"))
+	// The year is always between parentheses, so we are choosing that part with regex and leaving only the title name
+	r, _ := regexp.Compile(`\s\((19|20)\d{2}\)`)
+	fullTitle := strings.TrimSpace(strings.Split(doc.Find(WorkTitleSelector).Text(), "/")[1])
+	regexSubstringMatch := r.FindStringSubmatch(fullTitle)
+	if len(regexSubstringMatch) > 0 {
+		year = regexSubstringMatch[0]
+	}
 
-	// Search for the year of the Work in the URI
-	r, _ := regexp.Compile(`(19|20)\d{2}`)
+	// Discard the whole year with parentheses and we get the proper title
+	// Check before if the year wasn't present on the full title
+	if year != "" {
+		title = strings.ReplaceAll(fullTitle, year, "")
+	} else {
+		title = strings.TrimRight(fullTitle, " ")
+	}
+
+	// Discard parentheses and leading whitespace to get the proper year
+	year = strings.ReplaceAll(year, "(", "")
+	year = strings.ReplaceAll(year, ")", "")
+	year = strings.TrimLeft(year, " ")
+
+	// Get the MediaType from the other part of the title of the article, that is separated by a bar /
+	mediaIndex, errMediaIndex = media.ToMediaType(strings.Trim(doc.Find(WorkIndexSelector).First().Text(), " /"))
+
+	/*r, _ = regexp.Compile(`(19|20)\d{2}`)
 	matchedString := r.FindStringSubmatch(doc.Url.String())
 	if len(matchedString) > 0 {
 		year = matchedString[0]
-	}
+	}*/
 
 	return title, year, mediaIndex, errMediaIndex
 }
