@@ -78,6 +78,25 @@ var _ = Describe("JsonDataset", func() {
 		})
 	})
 
+	Context("Add duplicated Media to the JSON file", func() {
+		BeforeEach(func() {
+			errAddMedia = repository.AddMedia(mediaEntry)
+		})
+
+		It("Should only be one record on the JSON file", func() {
+			var dataset json_dataset.JSONDataset
+			fileContents, _ := os.ReadFile("dataset.json")
+			err := json.Unmarshal(fileContents, &dataset)
+
+			Expect(err).To(BeNil())
+			Expect(len(dataset.Tropestogo)).To(Equal(1))
+		})
+
+		It("Should return an error", func() {
+			Expect(errAddMedia).To(Equal(json_dataset.ErrDuplicatedMedia))
+		})
+	})
+
 	Context("Remove JSON file contents", func() {
 		BeforeEach(func() {
 			errRemoveAll = repository.RemoveAll()

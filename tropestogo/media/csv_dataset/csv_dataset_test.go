@@ -5,6 +5,7 @@ import (
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
 	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
+	"github.com/jlgallego99/TropesToGo/media/json_dataset"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"net/url"
@@ -92,6 +93,23 @@ var _ = Describe("CsvDataset", func() {
 
 		It("Shouldn't return an error", func() {
 			Expect(errAddMedia).To(BeNil())
+		})
+	})
+
+	Context("Add duplicated Media to the CSV file", func() {
+		BeforeEach(func() {
+			errAddMedia = repository.AddMedia(mediaEntry)
+		})
+
+		It("Should only be one record on the CSV file", func() {
+			records, err := reader.ReadAll()
+
+			Expect(err).To(BeNil())
+			Expect(len(records)).To(Equal(2))
+		})
+
+		It("Should return an error", func() {
+			Expect(errAddMedia).To(Equal(json_dataset.ErrDuplicatedMedia))
 		})
 	})
 

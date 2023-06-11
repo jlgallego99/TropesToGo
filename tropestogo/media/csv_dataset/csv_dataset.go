@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	ErrFileNotExists = errors.New("CSV dataset file does not exist")
+	ErrFileNotExists   = errors.New("CSV dataset file does not exist")
+	ErrDuplicatedMedia = errors.New("duplicated media: the record already exists on the dataset")
 )
 
 type CSVRepository struct {
@@ -55,10 +56,27 @@ func (repository *CSVRepository) GetReader() (*csv.Reader, error) {
 	return reader, nil
 }
 
-func (repository *CSVRepository) AddMedia(media media.Media) error {
-	record := CreateMediaRecord(media)
+func (repository *CSVRepository) AddMedia(med media.Media) error {
+	reader, errReader := repository.GetReader()
+	if errReader != nil {
+		return errReader
+	}
 
-	// Add record to the CSV file
+	records, errReadCSV := reader.ReadAll()
+	if errReadCSV != nil {
+		return errReadCSV
+	}
+
+	// Check if the new Media is a duplicate or not by checking its title and year
+	for _, record := range records {
+		if record[0] == med.GetWork().Title && record[1] == med.GetWork().Year {
+			return ErrDuplicatedMedia
+		}
+	}
+
+	record := CreateMediaRecord(med)
+
+	// Add record to the CSV file only if it doesn't exist yet on the dataset
 	// Mutual exclusion access to the repository
 	repository.Lock()
 	err := repository.writer.Write(record)
@@ -92,7 +110,7 @@ func (repository *CSVRepository) UpdateMedia(title string, year string, media me
 	// Update record
 	input, _ := os.ReadFile(repository.name)
 	lines := strings.Split(string(input), "\n")
-	for linePos, _ := range lines {
+	for linePos := range lines {
 		if linePos == updateLine {
 			updatedRecord := CreateMediaRecord(media)
 			lines[linePos] = strings.Join(updatedRecord, ",")

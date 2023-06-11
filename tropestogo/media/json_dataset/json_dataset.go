@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	ErrFileNotExists = errors.New("CSV dataset file does not exist")
+	ErrFileNotExists   = errors.New("CSV dataset file does not exist")
+	ErrDuplicatedMedia = errors.New("duplicated media: the record already exists on the dataset")
 )
 
 type JSONDataset struct {
@@ -56,14 +57,21 @@ func (repository *JSONRepository) AddMedia(med media.Media) error {
 	if errUnmarshal != nil {
 		return errUnmarshal
 	}
-	dataset.Tropestogo = append(dataset.Tropestogo, record)
 
-	repository.Lock()
+	// Append the Media only if it doesn't exist yet on the dataset
+	for _, datasetMedia := range dataset.Tropestogo {
+		if datasetMedia.Title == med.GetWork().Title && datasetMedia.Year == med.GetWork().Year {
+			return ErrDuplicatedMedia
+		}
+	}
+
+	dataset.Tropestogo = append(dataset.Tropestogo, record)
 	jsonBytes, err := json.Marshal(dataset)
 	if err != nil {
 		return err
 	}
 
+	repository.Lock()
 	errWriteFile := os.WriteFile("dataset.json", jsonBytes, 0644)
 	repository.Unlock()
 
