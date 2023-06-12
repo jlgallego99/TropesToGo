@@ -13,4 +13,7 @@ type RepositoryMedia interface {
 
 	// RemoveAll delete all Media entries on the repository
 	RemoveAll() error
+
+	// Persist adds all repository Media objects to the proper dataset
+	Persist() error
 }

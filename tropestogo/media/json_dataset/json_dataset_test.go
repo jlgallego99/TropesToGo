@@ -15,7 +15,7 @@ import (
 )
 
 var repository *json_dataset.JSONRepository
-var errorRepository, errRemoveAll, errAddMedia error
+var errorRepository, errRemoveAll, errAddMedia, errPersist error
 var mediaEntry media.Media
 var datasetFile *os.File
 
@@ -38,7 +38,6 @@ var _ = BeforeSuite(func() {
 var _ = Describe("JsonDataset", func() {
 	BeforeEach(func() {
 		repository, errorRepository = json_dataset.NewJSONRepository("dataset")
-		errAddMedia = repository.AddMedia(mediaEntry)
 		datasetFile, _ = os.Open("dataset.json")
 	})
 
@@ -48,6 +47,10 @@ var _ = Describe("JsonDataset", func() {
 	})
 
 	Context("Create JSON repository", func() {
+		BeforeEach(func() {
+			errPersist = repository.Persist()
+		})
+
 		It("Should have created a JSON file", func() {
 			Expect("dataset.json").To(BeAnExistingFile())
 		})
@@ -55,10 +58,17 @@ var _ = Describe("JsonDataset", func() {
 		It("Shouldn't return an error", func() {
 			Expect(errorRepository).To(BeNil())
 		})
+
+		It("Shouldn't be able to persist anything", func() {
+			Expect(errors.Is(errPersist, json_dataset.ErrPersist)).To(BeTrue())
+		})
 	})
 
 	Context("Add a Media to the JSON file", func() {
-		var errAddMedia error
+		BeforeEach(func() {
+			errAddMedia = repository.AddMedia(mediaEntry)
+			errPersist = repository.Persist()
+		})
 
 		It("Should have all the correct fields", func() {
 			var dataset json_dataset.JSONDataset
@@ -75,12 +85,15 @@ var _ = Describe("JsonDataset", func() {
 
 		It("Shouldn't return an error", func() {
 			Expect(errAddMedia).To(BeNil())
+			Expect(errPersist).To(BeNil())
 		})
 	})
 
 	Context("Add duplicated Media to the JSON file", func() {
 		BeforeEach(func() {
 			errAddMedia = repository.AddMedia(mediaEntry)
+			errAddMedia = repository.AddMedia(mediaEntry)
+			errPersist = repository.Persist()
 		})
 
 		It("Should only be one record on the JSON file", func() {
@@ -94,6 +107,7 @@ var _ = Describe("JsonDataset", func() {
 
 		It("Should return an error", func() {
 			Expect(errors.Is(errAddMedia, json_dataset.ErrDuplicatedMedia)).To(BeTrue())
+			Expect(errPersist).To(BeNil())
 		})
 	})
 
@@ -143,6 +157,9 @@ var _ = Describe("JsonDataset", func() {
 		var errUpdate error
 
 		BeforeEach(func() {
+			errAddMedia = repository.AddMedia(mediaEntry)
+			errPersist = repository.Persist()
+
 			// Create the new Media to be updated
 			trope1, _ := tropestogo.NewTrope("AdaptationalComicRelief", tropestogo.TropeIndex(1))
 			trope2, _ := tropestogo.NewTrope("AdaptationalHeroism", tropestogo.TropeIndex(3))
@@ -167,6 +184,7 @@ var _ = Describe("JsonDataset", func() {
 			err := json.Unmarshal(fileContents, &dataset)
 
 			Expect(err).To(BeNil())
+			Expect(errPersist).To(BeNil())
 			Expect(len(dataset.Tropestogo)).To(Equal(1))
 			Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy"))
 			Expect(dataset.Tropestogo[0].Year).To(Equal("2013"))
@@ -177,6 +195,7 @@ var _ = Describe("JsonDataset", func() {
 
 		It("Shouldn't return an error", func() {
 			Expect(errUpdate).To(BeNil())
+			Expect(errPersist).To(BeNil())
 		})
 	})
 })

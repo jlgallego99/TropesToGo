@@ -15,7 +15,7 @@ import (
 )
 
 var repository *csv_dataset.CSVRepository
-var errorRepository, errRemoveAll, errAddMedia error
+var errorRepository, errRemoveAll, errAddMedia, errPersist error
 var mediaEntry media.Media
 var reader *csv.Reader
 var datasetFile *os.File
@@ -40,8 +40,6 @@ var _ = BeforeSuite(func() {
 
 var _ = Describe("CsvDataset", func() {
 	BeforeEach(func() {
-		errAddMedia = repository.AddMedia(mediaEntry)
-		datasetFile, _ = os.Open("dataset.csv")
 		reader, _ = repository.GetReader()
 	})
 
@@ -51,6 +49,10 @@ var _ = Describe("CsvDataset", func() {
 	})
 
 	Context("Create CSV Repository", func() {
+		BeforeEach(func() {
+			errPersist = repository.Persist()
+		})
+
 		It("Should have created a CSV file", func() {
 			Expect("dataset.csv").To(BeAnExistingFile())
 		})
@@ -63,12 +65,21 @@ var _ = Describe("CsvDataset", func() {
 			records, err := reader.ReadAll()
 
 			Expect(err).To(BeNil())
-			Expect(len(records)).To(Equal(2))
+			Expect(len(records)).To(Equal(1))
 			Expect(records[0]).To(Equal([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"}))
+		})
+
+		It("Shouldn't be able to persist anything", func() {
+			Expect(errors.Is(errPersist, csv_dataset.ErrPersist)).To(BeTrue())
 		})
 	})
 
 	Context("Add a Media to the CSV file", func() {
+		BeforeEach(func() {
+			errAddMedia = repository.AddMedia(mediaEntry)
+			errPersist = repository.Persist()
+		})
+
 		It("Should have added the correct record to the CSV", func() {
 			records, err := reader.ReadAll()
 
@@ -89,12 +100,15 @@ var _ = Describe("CsvDataset", func() {
 
 		It("Shouldn't return an error", func() {
 			Expect(errAddMedia).To(BeNil())
+			Expect(errPersist).To(BeNil())
 		})
 	})
 
 	Context("Add duplicated Media to the CSV file", func() {
 		BeforeEach(func() {
 			errAddMedia = repository.AddMedia(mediaEntry)
+			errAddMedia = repository.AddMedia(mediaEntry)
+			errPersist = repository.Persist()
 		})
 
 		It("Should only be one record on the CSV file", func() {
@@ -106,6 +120,7 @@ var _ = Describe("CsvDataset", func() {
 
 		It("Should return an error", func() {
 			Expect(errors.Is(errAddMedia, csv_dataset.ErrDuplicatedMedia)).To(BeTrue())
+			Expect(errPersist).To(BeNil())
 		})
 	})
 
@@ -154,6 +169,9 @@ var _ = Describe("CsvDataset", func() {
 		var errUpdate error
 
 		BeforeEach(func() {
+			errAddMedia = repository.AddMedia(mediaEntry)
+			errPersist = repository.Persist()
+
 			// Create the new Media to be updated
 			trope1, _ := tropestogo.NewTrope("AdaptationalComicRelief", tropestogo.TropeIndex(1))
 			trope2, _ := tropestogo.NewTrope("AdaptationalHeroism", tropestogo.TropeIndex(1))
@@ -176,6 +194,7 @@ var _ = Describe("CsvDataset", func() {
 			records, err := reader.ReadAll()
 
 			Expect(err).To(BeNil())
+			Expect(errPersist).To(BeNil())
 			Expect(len(records)).To(Equal(2))
 			Expect(records[0]).To(Equal([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"}))
 			Expect(records[1][0]).To(Equal("Oldboy"))
@@ -190,6 +209,7 @@ var _ = Describe("CsvDataset", func() {
 
 		It("Shouldn't return an error", func() {
 			Expect(errUpdate).To(BeNil())
+			Expect(errPersist).To(BeNil())
 		})
 	})
 })

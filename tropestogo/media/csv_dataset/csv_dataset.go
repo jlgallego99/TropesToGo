@@ -15,11 +15,14 @@ var (
 	ErrReadCsv         = errors.New("error reading CSV file")
 	ErrCreateCsv       = errors.New("error creating CSV file")
 	ErrOpenCsv         = errors.New("error opening CSV file")
+	ErrWriteCsv        = errors.New("error writing on the CSV file")
+	ErrPersist         = errors.New("can't persist data on the CSV file because there's none")
 )
 
 type CSVRepository struct {
 	name   string
 	writer *csv.Writer
+	data   []media.Media
 }
 
 // Error formats a generic error
@@ -62,31 +65,17 @@ func (repository *CSVRepository) GetReader() (*csv.Reader, error) {
 }
 
 func (repository *CSVRepository) AddMedia(med media.Media) error {
-	reader, errReader := repository.GetReader()
-	if errReader != nil {
-		return Error(repository.name, ErrReadCsv, errReader)
-	}
-
-	records, errReadAll := reader.ReadAll()
-	if errReadAll != nil {
-		return Error(repository.name, ErrReadCsv, errReadAll)
-	}
-
 	// Check if the new Media is a duplicate or not by checking its title and year
-	for _, record := range records {
-		if record[0] == med.GetWork().Title && record[1] == med.GetWork().Year {
+	for _, mediaData := range repository.data {
+		if mediaData.GetWork().Title == med.GetWork().Title && mediaData.GetWork().Year == med.GetWork().Year {
 			return Error("Title: "+med.GetWork().Title, ErrDuplicatedMedia, nil)
 		}
 	}
 
-	record := CreateMediaRecord(med)
+	// Add Media to the repository in memory
+	repository.data = append(repository.data, med)
 
-	// Add record to the CSV file only if it doesn't exist yet on the dataset
-	// Mutual exclusion access to the repository
-	err := repository.writer.Write(record)
-	repository.writer.Flush()
-
-	return err
+	return nil
 }
 
 // UpdateMedia updates a record in the CSV files by searching the title and year
@@ -131,6 +120,10 @@ func (repository *CSVRepository) UpdateMedia(title string, year string, media me
 }
 
 func (repository *CSVRepository) RemoveAll() error {
+	// Empty the in-memory data
+	repository.data = []media.Media{}
+
+	// Empty the in-file data
 	if _, err := os.Stat(repository.name); err == nil {
 		csvFile, errRemove := os.Create(repository.name)
 		if errRemove != nil {
@@ -149,6 +142,29 @@ func (repository *CSVRepository) RemoveAll() error {
 
 		return Error("at "+pwd+"/"+repository.name, ErrFileNotExists, nil)
 	}
+}
+
+func (repository *CSVRepository) Persist() error {
+	if len(repository.data) == 0 {
+		return Error(repository.name, ErrPersist, nil)
+	}
+
+	for _, mediaData := range repository.data {
+		record := CreateMediaRecord(mediaData)
+
+		// Add all records to the CSV file
+		err := repository.writer.Write(record)
+		if err != nil {
+			return Error(repository.name, ErrWriteCsv, err)
+		}
+
+		repository.writer.Flush()
+	}
+
+	// Empty in-memory data, because it has been persisted on the dataset file
+	repository.data = []media.Media{}
+
+	return nil
 }
 
 // CreateMediaRecord forms a string properly separated for inserting in a CSV file
