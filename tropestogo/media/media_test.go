@@ -1,6 +1,7 @@
 package media_test
 
 import (
+	"errors"
 	"net/url"
 	"time"
 
@@ -107,7 +108,7 @@ var _ = Describe("Media", func() {
 			})
 
 			It("Should raise a proper error", func() {
-				Expect(errMediaNoType).To(Equal(media.ErrUnknownMediaType))
+				Expect(errors.Is(errMediaNoType, media.ErrUnknownMediaType)).To(BeTrue())
 			})
 		})
 
@@ -126,7 +127,7 @@ var _ = Describe("Media", func() {
 			})
 
 			It("Should raise a proper error", func() {
-				Expect(errMediaWrongYear).To(Equal(media.ErrInvalidYear))
+				Expect(errors.Is(errMediaWrongYear, media.ErrInvalidYear)).To(BeTrue())
 			})
 		})
 	})

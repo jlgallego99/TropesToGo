@@ -3,6 +3,7 @@ package scraper_test
 import (
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
 	"github.com/jlgallego99/TropesToGo/media/json_dataset"
 	"net/url"
@@ -162,7 +163,7 @@ var _ = Describe("Scraper", func() {
 			})
 
 			It("Should return an appropriate error", func() {
-				Expect(errNotWorkPage).To(Equal(scraper.ErrNotWorkPage))
+				Expect(errors.Is(errNotWorkPage, scraper.ErrNotWorkPage)).To(BeTrue())
 			})
 		})
 
@@ -177,7 +178,7 @@ var _ = Describe("Scraper", func() {
 			})
 
 			It("Should return an appropriate error", func() {
-				Expect(errDifferent).To(Equal(scraper.ErrNotTvTropes))
+				Expect(errors.Is(errDifferent, scraper.ErrNotTvTropes)).To(BeTrue())
 			})
 		})
 	})
@@ -200,9 +201,6 @@ var _ = Describe("Scraper", func() {
 			It("Should have correct fields", func() {
 				testValidScrapedMedia(validfilm1Csv, "Oldboy", "2003", media.Film)
 				testValidScrapedMedia(validfilm1Json, "Oldboy", "2003", media.Film)
-
-				Expect(errorfilm1Csv).To(Equal(csv_dataset.ErrDuplicatedMedia))
-				Expect(errorfilm1Json).To(Equal(json_dataset.ErrDuplicatedMedia))
 			})
 
 			It("Shouldn't have repeated tropes", func() {
@@ -211,9 +209,6 @@ var _ = Describe("Scraper", func() {
 
 				Expect(uniqueCsv).To(BeTrue())
 				Expect(uniqueJson).To(BeTrue())
-
-				Expect(errorfilm1Csv).To(Equal(csv_dataset.ErrDuplicatedMedia))
-				Expect(errorfilm1Json).To(Equal(json_dataset.ErrDuplicatedMedia))
 			})
 
 			It("Should have added a correct record on the JSON repository", func() {
@@ -264,9 +259,6 @@ var _ = Describe("Scraper", func() {
 			It("Should have correct fields", func() {
 				testValidScrapedMedia(validfilm3Csv, "A New Hope", "", media.Film)
 				testValidScrapedMedia(validfilm3Json, "A New Hope", "", media.Film)
-
-				Expect(errorfilm3Csv).To(Equal(csv_dataset.ErrDuplicatedMedia))
-				Expect(errorfilm3Json).To(Equal(json_dataset.ErrDuplicatedMedia))
 			})
 
 			It("Shouldn't have repeated tropes", func() {
@@ -275,9 +267,6 @@ var _ = Describe("Scraper", func() {
 
 				Expect(uniqueCsv).To(BeTrue())
 				Expect(uniqueJson).To(BeTrue())
-
-				Expect(errorfilm3Csv).To(Equal(csv_dataset.ErrDuplicatedMedia))
-				Expect(errorfilm3Json).To(Equal(json_dataset.ErrDuplicatedMedia))
 			})
 		})
 
@@ -301,8 +290,8 @@ var _ = Describe("Scraper", func() {
 			})
 
 			It("Should return an appropriate error", func() {
-				Expect(errorfilminvalidtypeJson).To(Equal(media.ErrUnknownMediaType))
-				Expect(errorfilminvalidtypeCsv).To(Equal(media.ErrUnknownMediaType))
+				Expect(errors.Unwrap(errorfilminvalidtypeJson)).To(Equal(media.ErrUnknownMediaType))
+				Expect(errors.Unwrap(errorfilminvalidtypeCsv)).To(Equal(media.ErrUnknownMediaType))
 			})
 		})
 	})

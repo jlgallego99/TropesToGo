@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -93,6 +94,7 @@ func ConfigMediaRepository(mr media.RepositoryMedia) ScraperConfig {
 func (scraper *ServiceScraper) CheckValidWorkPage(page *tropestogo.Page) (bool, error) {
 	res, _ := http.Get(page.URL.String())
 	doc, _ := goquery.NewDocumentFromReader(res.Body)
+	doc.Url = page.URL
 
 	validWorkPage, errWorkPage := checkTvTropesWorkPage(page)
 	if !validWorkPage {
@@ -116,13 +118,13 @@ func (scraper *ServiceScraper) CheckValidWorkPage(page *tropestogo.Page) (bool, 
 func checkTvTropesWorkPage(page *tropestogo.Page) (bool, error) {
 	// First check if the domain is TvTropes
 	if page.URL.Hostname() != TvTropesHostname {
-		return false, ErrNotTvTropes
+		return false, fmt.Errorf("%w: "+page.URL.String(), ErrNotTvTropes)
 	}
 
 	// Check if it's a Film Work page
 	splitPath := strings.Split(page.URL.Path, "/")
 	if !strings.HasPrefix(page.URL.Path, TvTropesPmwiki) || splitPath[3] != media.Film.String() {
-		return false, ErrNotWorkPage
+		return false, fmt.Errorf("%w: "+page.URL.String(), ErrNotWorkPage)
 	}
 
 	return true, nil
@@ -139,7 +141,7 @@ func checkMainArticle(doc *goquery.Document) (bool, error) {
 	// Check the index of the work
 	tropeIndex := doc.Find(WorkIndexSelector)
 	if strings.Trim(tropeIndex.Text(), " /") != media.Film.String() {
-		return false, ErrNotWorkPage
+		return false, fmt.Errorf("%w: "+doc.Url.String(), ErrNotWorkPage)
 	}
 
 	return true, nil

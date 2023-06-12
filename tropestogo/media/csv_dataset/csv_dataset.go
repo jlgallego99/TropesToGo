@@ -3,6 +3,7 @@ package csv_dataset
 import (
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"github.com/jlgallego99/TropesToGo/media"
 	"os"
 	"strings"
@@ -10,7 +11,7 @@ import (
 
 var (
 	ErrFileNotExists   = errors.New("CSV dataset file does not exist")
-	ErrDuplicatedMedia = errors.New("duplicated media: the record already exists on the dataset")
+	ErrDuplicatedMedia = errors.New("duplicated media, the record already exists on the dataset")
 )
 
 type CSVRepository struct {
@@ -66,7 +67,7 @@ func (repository *CSVRepository) AddMedia(med media.Media) error {
 	// Check if the new Media is a duplicate or not by checking its title and year
 	for _, record := range records {
 		if record[0] == med.GetWork().Title && record[1] == med.GetWork().Year {
-			return ErrDuplicatedMedia
+			return fmt.Errorf("%w (Title: "+med.GetWork().Title+")", ErrDuplicatedMedia)
 		}
 	}
 
@@ -133,7 +134,9 @@ func (repository *CSVRepository) RemoveAll() error {
 
 		return errRemove
 	} else {
-		return ErrFileNotExists
+		pwd, _ := os.Getwd()
+
+		return fmt.Errorf("%w at "+pwd+"/"+repository.name, ErrFileNotExists)
 	}
 }
 

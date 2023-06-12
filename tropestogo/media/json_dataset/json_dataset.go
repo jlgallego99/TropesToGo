@@ -3,13 +3,14 @@ package json_dataset
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/jlgallego99/TropesToGo/media"
 	"os"
 )
 
 var (
 	ErrFileNotExists   = errors.New("CSV dataset file does not exist")
-	ErrDuplicatedMedia = errors.New("duplicated media: the record already exists on the dataset")
+	ErrDuplicatedMedia = errors.New("duplicated media, the record already exists on the dataset")
 )
 
 type JSONDataset struct {
@@ -58,7 +59,7 @@ func (repository *JSONRepository) AddMedia(med media.Media) error {
 	// Append the Media only if it doesn't exist yet on the dataset
 	for _, datasetMedia := range dataset.Tropestogo {
 		if datasetMedia.Title == med.GetWork().Title && datasetMedia.Year == med.GetWork().Year {
-			return ErrDuplicatedMedia
+			return fmt.Errorf("%w (Title: "+med.GetWork().Title+")", ErrDuplicatedMedia)
 		}
 	}
 
@@ -125,6 +126,8 @@ func (repository *JSONRepository) RemoveAll() error {
 		f.WriteString("{\"tropestogo\": []}")
 		return nil
 	} else {
-		return ErrFileNotExists
+		pwd, _ := os.Getwd()
+
+		return fmt.Errorf("%w at "+pwd+"/"+repository.name, ErrFileNotExists)
 	}
 }

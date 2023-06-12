@@ -3,6 +3,7 @@ package media
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"regexp"
 	"time"
@@ -58,7 +59,7 @@ func ToMediaType(mediaTypeString string) (MediaType, error) {
 		}
 	}
 
-	return UnknownMediaType, ErrUnknownMediaType
+	return UnknownMediaType, fmt.Errorf("%w: "+mediaTypeString, ErrUnknownMediaType)
 }
 
 // Media holds the logic of all Works with its tropes that exist within a particular medium in TvTropes
@@ -133,12 +134,12 @@ func NewMedia(title, year string, lastUpdated time.Time, tropes map[tropestogo.T
 		r, _ := regexp.Compile("^[0-9]{4}$")
 
 		if !r.MatchString(year) {
-			return Media{}, ErrInvalidYear
+			return Media{}, fmt.Errorf("%w: "+year, ErrInvalidYear)
 		}
 	}
 
 	if !mediaType.IsValid() {
-		return Media{}, ErrUnknownMediaType
+		return Media{}, fmt.Errorf("%w: "+mediaType.String(), ErrUnknownMediaType)
 	}
 
 	work := &tropestogo.Work{
