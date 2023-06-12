@@ -11,6 +11,12 @@ import (
 var (
 	ErrFileNotExists   = errors.New("CSV dataset file does not exist")
 	ErrDuplicatedMedia = errors.New("duplicated media, the record already exists on the dataset")
+	ErrReadJson        = errors.New("error reading JSON file")
+	ErrCreateJson      = errors.New("error creating JSON file")
+	ErrOpenJson        = errors.New("error opening JSON file")
+	ErrWriteJson       = errors.New("error writing on the JSON file")
+	ErrUnmarshalJson   = errors.New("error unmarshalling JSON file")
+	ErrMarshalJson     = errors.New("error marshalling JSON")
 )
 
 type JSONDataset struct {
@@ -21,15 +27,28 @@ type JSONRepository struct {
 	name string
 }
 
+// Error formats a generic error
+func Error(message string, err error, subErr error) error {
+	if subErr != nil {
+		return fmt.Errorf("%w: "+message+"\n%w", err, subErr)
+	} else {
+		return fmt.Errorf("%w: "+message+"", err)
+	}
+}
+
 func NewJSONRepository(name string) (*JSONRepository, error) {
 	f, err := os.Create(name + ".json")
+	if err != nil {
+		return nil, Error(name, ErrCreateJson, err)
+	}
+
 	f.WriteString("{\"tropestogo\": []}")
 
 	repository := &JSONRepository{
 		name: name + ".json",
 	}
 
-	return repository, err
+	return repository, nil
 }
 
 func (repository *JSONRepository) AddMedia(med media.Media) error {
@@ -45,47 +64,50 @@ func (repository *JSONRepository) AddMedia(med media.Media) error {
 		Tropes:      tropes,
 	}
 
-	fileContents, errReadDataset := os.ReadFile("dataset.json")
+	fileContents, errReadDataset := os.ReadFile(repository.name)
 	if errReadDataset != nil {
-		return errReadDataset
+		return Error(repository.name, ErrReadJson, errReadDataset)
 	}
 
 	// Get the JSON array and append the new Media object
 	errUnmarshal := json.Unmarshal(fileContents, &dataset)
 	if errUnmarshal != nil {
-		return errUnmarshal
+		return Error(repository.name, ErrUnmarshalJson, errUnmarshal)
 	}
 
 	// Append the Media only if it doesn't exist yet on the dataset
 	for _, datasetMedia := range dataset.Tropestogo {
 		if datasetMedia.Title == med.GetWork().Title && datasetMedia.Year == med.GetWork().Year {
-			return fmt.Errorf("%w (Title: "+med.GetWork().Title+")", ErrDuplicatedMedia)
+			return Error("%w Title: "+med.GetWork().Title, ErrDuplicatedMedia, nil)
 		}
 	}
 
 	dataset.Tropestogo = append(dataset.Tropestogo, record)
 	jsonBytes, err := json.Marshal(dataset)
 	if err != nil {
-		return err
+		return Error("", ErrMarshalJson, err)
 	}
 
-	errWriteFile := os.WriteFile("dataset.json", jsonBytes, 0644)
+	errWriteFile := os.WriteFile(repository.name, jsonBytes, 0644)
+	if errWriteFile != nil {
+		return Error(repository.name, ErrWriteJson, errWriteFile)
+	}
 
-	return errWriteFile
+	return nil
 }
 
 func (repository *JSONRepository) UpdateMedia(title string, year string, med media.Media) error {
 	var dataset JSONDataset
 
-	fileContents, errReadDataset := os.ReadFile("dataset.json")
+	fileContents, errReadDataset := os.ReadFile(repository.name)
 	if errReadDataset != nil {
-		return errReadDataset
+		return Error(repository.name, ErrReadJson, errReadDataset)
 	}
 
 	// Get the dataset on structs
 	errUnmarshal := json.Unmarshal(fileContents, &dataset)
 	if errUnmarshal != nil {
-		return errUnmarshal
+		return Error(repository.name, ErrUnmarshalJson, errUnmarshal)
 	}
 
 	// Look for the record that needs to be updated
@@ -106,12 +128,15 @@ func (repository *JSONRepository) UpdateMedia(title string, year string, med med
 	// Update the record and marshal to the file
 	jsonBytes, err := json.Marshal(dataset)
 	if err != nil {
-		return err
+		return Error("", ErrMarshalJson, err)
 	}
 
-	errWriteFile := os.WriteFile("dataset.json", jsonBytes, 0644)
+	errWriteFile := os.WriteFile(repository.name, jsonBytes, 0644)
+	if errWriteFile != nil {
+		return Error(repository.name, ErrWriteJson, errWriteFile)
+	}
 
-	return errWriteFile
+	return nil
 }
 
 func (repository *JSONRepository) RemoveAll() error {
@@ -120,7 +145,7 @@ func (repository *JSONRepository) RemoveAll() error {
 	if _, err = os.Stat(repository.name); err == nil {
 		f, err = os.Create(repository.name)
 		if err != nil {
-			return err
+			return Error(repository.name, ErrCreateJson, err)
 		}
 
 		f.WriteString("{\"tropestogo\": []}")
@@ -128,6 +153,6 @@ func (repository *JSONRepository) RemoveAll() error {
 	} else {
 		pwd, _ := os.Getwd()
 
-		return fmt.Errorf("%w at "+pwd+"/"+repository.name, ErrFileNotExists)
+		return Error("at "+pwd+"/"+repository.name, ErrFileNotExists, nil)
 	}
 }

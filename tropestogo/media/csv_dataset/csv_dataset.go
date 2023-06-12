@@ -12,6 +12,9 @@ import (
 var (
 	ErrFileNotExists   = errors.New("CSV dataset file does not exist")
 	ErrDuplicatedMedia = errors.New("duplicated media, the record already exists on the dataset")
+	ErrReadCsv         = errors.New("error reading CSV file")
+	ErrCreateCsv       = errors.New("error creating CSV file")
+	ErrOpenCsv         = errors.New("error opening CSV file")
 )
 
 type CSVRepository struct {
@@ -19,8 +22,21 @@ type CSVRepository struct {
 	writer *csv.Writer
 }
 
+// Error formats a generic error
+func Error(message string, err error, subErr error) error {
+	if subErr != nil {
+		return fmt.Errorf("%w: "+message+"\n%w", err, subErr)
+	} else {
+		return fmt.Errorf("%w: "+message+"", err)
+	}
+}
+
 func NewCSVRepository(name string) (*CSVRepository, error) {
 	csvFile, err := os.Create(name + ".csv")
+	if err != nil {
+		return nil, Error(name, ErrCreateCsv, err)
+	}
+
 	writer := csv.NewWriter(csvFile)
 
 	repository := &CSVRepository{
@@ -32,13 +48,13 @@ func NewCSVRepository(name string) (*CSVRepository, error) {
 	repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"})
 	repository.writer.Flush()
 
-	return repository, err
+	return repository, nil
 }
 
 func (repository *CSVRepository) GetReader() (*csv.Reader, error) {
 	dataset, err := os.Open(repository.name)
 	if err != nil {
-		return nil, err
+		return nil, Error(repository.name, ErrOpenCsv, err)
 	}
 
 	reader := csv.NewReader(dataset)
@@ -48,18 +64,18 @@ func (repository *CSVRepository) GetReader() (*csv.Reader, error) {
 func (repository *CSVRepository) AddMedia(med media.Media) error {
 	reader, errReader := repository.GetReader()
 	if errReader != nil {
-		return errReader
+		return Error(repository.name, ErrReadCsv, errReader)
 	}
 
-	records, errReadCSV := reader.ReadAll()
-	if errReadCSV != nil {
-		return errReadCSV
+	records, errReadAll := reader.ReadAll()
+	if errReadAll != nil {
+		return Error(repository.name, ErrReadCsv, errReadAll)
 	}
 
 	// Check if the new Media is a duplicate or not by checking its title and year
 	for _, record := range records {
 		if record[0] == med.GetWork().Title && record[1] == med.GetWork().Year {
-			return fmt.Errorf("%w (Title: "+med.GetWork().Title+")", ErrDuplicatedMedia)
+			return Error("Title: "+med.GetWork().Title, ErrDuplicatedMedia, nil)
 		}
 	}
 
@@ -77,12 +93,12 @@ func (repository *CSVRepository) AddMedia(med media.Media) error {
 func (repository *CSVRepository) UpdateMedia(title string, year string, media media.Media) error {
 	reader, errReader := repository.GetReader()
 	if errReader != nil {
-		return errReader
+		return Error(repository.name, ErrReadCsv, errReader)
 	}
 
-	records, errReadCSV := reader.ReadAll()
-	if errReadCSV != nil {
-		return errReadCSV
+	records, errReadAll := reader.ReadAll()
+	if errReadAll != nil {
+		return Error(repository.name, ErrReadCsv, errReadAll)
 	}
 
 	// Look for the line that holds the record that needs to be updated
@@ -106,9 +122,9 @@ func (repository *CSVRepository) UpdateMedia(title string, year string, media me
 		}
 	}
 	output := strings.Join(lines, "\n")
-	errWrite := os.WriteFile("dataset.csv", []byte(output), 0644)
+	errWrite := os.WriteFile(repository.name, []byte(output), 0644)
 	if errWrite != nil {
-		return errWrite
+		return Error(repository.name, errWrite, nil)
 	}
 
 	return nil
@@ -117,17 +133,21 @@ func (repository *CSVRepository) UpdateMedia(title string, year string, media me
 func (repository *CSVRepository) RemoveAll() error {
 	if _, err := os.Stat(repository.name); err == nil {
 		csvFile, errRemove := os.Create(repository.name)
+		if errRemove != nil {
+			return Error(repository.name, errRemove, nil)
+		}
+
 		repository.writer = csv.NewWriter(csvFile)
 
 		// Add headers to the CSV file
 		repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"})
 		repository.writer.Flush()
 
-		return errRemove
+		return nil
 	} else {
 		pwd, _ := os.Getwd()
 
-		return fmt.Errorf("%w at "+pwd+"/"+repository.name, ErrFileNotExists)
+		return Error("at "+pwd+"/"+repository.name, ErrFileNotExists, nil)
 	}
 }
 
