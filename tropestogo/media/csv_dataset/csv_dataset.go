@@ -6,7 +6,6 @@ import (
 	"github.com/jlgallego99/TropesToGo/media"
 	"os"
 	"strings"
-	"sync"
 )
 
 var (
@@ -15,7 +14,6 @@ var (
 )
 
 type CSVRepository struct {
-	sync.Mutex
 	name      string
 	delimiter rune
 	writer    *csv.Writer
@@ -33,10 +31,8 @@ func NewCSVRepository(name string, delimiter rune) (*CSVRepository, error) {
 	}
 
 	// Add headers to the CSV file
-	repository.Lock()
 	repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"})
 	repository.writer.Flush()
-	repository.Unlock()
 
 	return repository, err
 }
@@ -78,10 +74,8 @@ func (repository *CSVRepository) AddMedia(med media.Media) error {
 
 	// Add record to the CSV file only if it doesn't exist yet on the dataset
 	// Mutual exclusion access to the repository
-	repository.Lock()
 	err := repository.writer.Write(record)
 	repository.writer.Flush()
-	repository.Unlock()
 
 	return err
 }
@@ -134,10 +128,8 @@ func (repository *CSVRepository) RemoveAll() error {
 		repository.writer.Comma = repository.delimiter
 
 		// Add headers to the CSV file
-		repository.Lock()
 		repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"})
 		repository.writer.Flush()
-		repository.Unlock()
 
 		return errRemove
 	} else {

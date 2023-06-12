@@ -3,10 +3,8 @@ package json_dataset
 import (
 	"encoding/json"
 	"errors"
-	"os"
-	"sync"
-
 	"github.com/jlgallego99/TropesToGo/media"
+	"os"
 )
 
 var (
@@ -19,7 +17,6 @@ type JSONDataset struct {
 }
 
 type JSONRepository struct {
-	sync.Mutex
 	name string
 }
 
@@ -71,9 +68,7 @@ func (repository *JSONRepository) AddMedia(med media.Media) error {
 		return err
 	}
 
-	repository.Lock()
 	errWriteFile := os.WriteFile("dataset.json", jsonBytes, 0644)
-	repository.Unlock()
 
 	return errWriteFile
 }
@@ -108,14 +103,12 @@ func (repository *JSONRepository) UpdateMedia(title string, year string, med med
 	}
 
 	// Update the record and marshal to the file
-	repository.Lock()
 	jsonBytes, err := json.Marshal(dataset)
 	if err != nil {
 		return err
 	}
 
 	errWriteFile := os.WriteFile("dataset.json", jsonBytes, 0644)
-	repository.Unlock()
 
 	return errWriteFile
 }
