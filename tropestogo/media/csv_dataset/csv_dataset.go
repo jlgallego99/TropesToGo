@@ -15,20 +15,17 @@ var (
 )
 
 type CSVRepository struct {
-	name      string
-	delimiter rune
-	writer    *csv.Writer
+	name   string
+	writer *csv.Writer
 }
 
-func NewCSVRepository(name string, delimiter rune) (*CSVRepository, error) {
+func NewCSVRepository(name string) (*CSVRepository, error) {
 	csvFile, err := os.Create(name + ".csv")
 	writer := csv.NewWriter(csvFile)
-	writer.Comma = delimiter
 
 	repository := &CSVRepository{
-		name:      name + ".csv",
-		delimiter: delimiter,
-		writer:    writer,
+		name:   name + ".csv",
+		writer: writer,
 	}
 
 	// Add headers to the CSV file
@@ -38,10 +35,6 @@ func NewCSVRepository(name string, delimiter rune) (*CSVRepository, error) {
 	return repository, err
 }
 
-func (repository *CSVRepository) GetDelimiter() rune {
-	return repository.delimiter
-}
-
 func (repository *CSVRepository) GetReader() (*csv.Reader, error) {
 	dataset, err := os.Open(repository.name)
 	if err != nil {
@@ -49,7 +42,6 @@ func (repository *CSVRepository) GetReader() (*csv.Reader, error) {
 	}
 
 	reader := csv.NewReader(dataset)
-	reader.Comma = repository.delimiter
 	return reader, nil
 }
 
@@ -126,7 +118,6 @@ func (repository *CSVRepository) RemoveAll() error {
 	if _, err := os.Stat(repository.name); err == nil {
 		csvFile, errRemove := os.Create(repository.name)
 		repository.writer = csv.NewWriter(csvFile)
-		repository.writer.Comma = repository.delimiter
 
 		// Add headers to the CSV file
 		repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"})

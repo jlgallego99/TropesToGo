@@ -21,7 +21,7 @@ var reader *csv.Reader
 var datasetFile *os.File
 
 var _ = BeforeSuite(func() {
-	repository, errorRepository = csv_dataset.NewCSVRepository("dataset", ',')
+	repository, errorRepository = csv_dataset.NewCSVRepository("dataset")
 
 	tropes := make(map[tropestogo.Trope]struct{})
 	trope1, _ := tropestogo.NewTrope("AdaptationalLocationChange", tropestogo.TropeIndex(1))
@@ -53,10 +53,6 @@ var _ = Describe("CsvDataset", func() {
 	Context("Create CSV Repository", func() {
 		It("Should have created a CSV file", func() {
 			Expect("dataset.csv").To(BeAnExistingFile())
-		})
-
-		It("Should have a delimiter", func() {
-			Expect(repository.GetDelimiter()).To(Equal(','))
 		})
 
 		It("Shouldn't return an error", func() {
@@ -142,7 +138,7 @@ var _ = Describe("CsvDataset", func() {
 		})
 
 		AfterEach(func() {
-			repository, errorRepository = csv_dataset.NewCSVRepository("dataset", ',')
+			repository, errorRepository = csv_dataset.NewCSVRepository("dataset")
 		})
 
 		It("Shouldn't exist a CSV file", func() {

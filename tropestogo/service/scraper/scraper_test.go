@@ -30,7 +30,7 @@ var tvTropesPage, tvTropesPage2, tvTropesPage3, notTvTropesPage, notWorkPage, un
 
 var _ = BeforeSuite(func() {
 	// Create two scrapers, one for the JSON dataset and the other for the CSV dataset
-	csvRepository, csvRepositoryErr = csv_dataset.NewCSVRepository("dataset", ',')
+	csvRepository, csvRepositoryErr = csv_dataset.NewCSVRepository("dataset")
 	jsonRepository, jsonRepositoryErr = json_dataset.NewJSONRepository("dataset")
 	serviceScraperJson, newScraperJsonErr = scraper.NewServiceScraper(scraper.ConfigMediaRepository(csvRepository))
 	serviceScraperCsv, newScraperCsvErr = scraper.NewServiceScraper(scraper.ConfigMediaRepository(jsonRepository))
