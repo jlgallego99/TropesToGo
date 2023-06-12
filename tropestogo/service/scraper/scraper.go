@@ -249,12 +249,6 @@ func (scraper *ServiceScraper) ScrapeWorkTitleAndYear(doc *goquery.Document) (st
 	// Get the MediaType from the other part of the title of the article, that is separated by a bar /
 	mediaIndex, errMediaIndex = media.ToMediaType(strings.Trim(doc.Find(WorkIndexSelector).First().Text(), " /"))
 
-	/*r, _ = regexp.Compile(`(19|20)\d{2}`)
-	matchedString := r.FindStringSubmatch(doc.Url.String())
-	if len(matchedString) > 0 {
-		year = matchedString[0]
-	}*/
-
 	return title, year, mediaIndex, errMediaIndex
 }
 
@@ -300,4 +294,9 @@ func (scraper *ServiceScraper) ScrapeWorkTropes(doc *goquery.Document) (map[trop
 	}
 
 	return tropes, nil
+}
+
+// Persist writes all scraped data in the repository
+func (scraper *ServiceScraper) Persist() error {
+	return scraper.data.Persist()
 }

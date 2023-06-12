@@ -22,7 +22,7 @@ import (
 
 // A scraper service for test purposes
 var serviceScraperJson, serviceScraperCsv, invalidScraper *scraper.ServiceScraper
-var newScraperJsonErr, newScraperCsvErr, invalidScraperErr error
+var newScraperJsonErr, newScraperCsvErr, invalidScraperErr, errPersistJson, errPersistCsv error
 var csvRepositoryErr, jsonRepositoryErr error
 var csvRepository, jsonRepository media.RepositoryMedia
 
@@ -32,8 +32,8 @@ var _ = BeforeSuite(func() {
 	// Create two scrapers, one for the JSON dataset and the other for the CSV dataset
 	csvRepository, csvRepositoryErr = csv_dataset.NewCSVRepository("dataset")
 	jsonRepository, jsonRepositoryErr = json_dataset.NewJSONRepository("dataset")
-	serviceScraperJson, newScraperJsonErr = scraper.NewServiceScraper(scraper.ConfigMediaRepository(csvRepository))
-	serviceScraperCsv, newScraperCsvErr = scraper.NewServiceScraper(scraper.ConfigMediaRepository(jsonRepository))
+	serviceScraperJson, newScraperJsonErr = scraper.NewServiceScraper(scraper.ConfigMediaRepository(jsonRepository))
+	serviceScraperCsv, newScraperCsvErr = scraper.NewServiceScraper(scraper.ConfigMediaRepository(csvRepository))
 
 	// Create invalid scraper
 	invalidScraper, invalidScraperErr = scraper.NewServiceScraper(scraper.ConfigIndexRepository(nil))
@@ -191,11 +191,15 @@ var _ = Describe("Scraper", func() {
 			BeforeEach(func() {
 				validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeWorkPage(tvTropesPage)
 				validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeWorkPage(tvTropesPage)
+				errPersistJson = serviceScraperJson.Persist()
+				errPersistCsv = serviceScraperCsv.Persist()
 			})
 
 			It("Shouldn't return an error", func() {
 				Expect(errorfilm1Json).To(BeNil())
 				Expect(errorfilm1Csv).To(BeNil())
+				Expect(errPersistJson).To(BeNil())
+				Expect(errPersistCsv).To(BeNil())
 			})
 
 			It("Should have correct fields", func() {
@@ -249,11 +253,15 @@ var _ = Describe("Scraper", func() {
 			BeforeEach(func() {
 				validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeWorkPage(tvTropesPage3)
 				validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeWorkPage(tvTropesPage3)
+				errPersistJson = serviceScraperJson.Persist()
+				errPersistCsv = serviceScraperCsv.Persist()
 			})
 
 			It("Shouldn't return an error", func() {
 				Expect(errorfilm3Csv).To(BeNil())
 				Expect(errorfilm3Json).To(BeNil())
+				Expect(errPersistCsv).To(BeNil())
+				Expect(errPersistJson).To(BeNil())
 			})
 
 			It("Should have correct fields", func() {
@@ -277,6 +285,8 @@ var _ = Describe("Scraper", func() {
 			BeforeEach(func() {
 				filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeWorkPage(unknownMediaPage)
 				filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeWorkPage(unknownMediaPage)
+				errPersistCsv = serviceScraperCsv.Persist()
+				errPersistJson = serviceScraperJson.Persist()
 			})
 
 			It("Should return an empty media object", func() {
@@ -292,6 +302,8 @@ var _ = Describe("Scraper", func() {
 			It("Should return an appropriate error", func() {
 				Expect(errors.Unwrap(errorfilminvalidtypeJson)).To(Equal(media.ErrUnknownMediaType))
 				Expect(errors.Unwrap(errorfilminvalidtypeCsv)).To(Equal(media.ErrUnknownMediaType))
+				Expect(errors.Unwrap(errPersistCsv)).To(Equal(csv_dataset.ErrPersist))
+				Expect(errors.Unwrap(errPersistJson)).To(Equal(json_dataset.ErrPersist))
 			})
 		})
 	})
