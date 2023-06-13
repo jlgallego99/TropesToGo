@@ -311,8 +311,7 @@ TvTropes, se ha seguido una estrategia muy parecida a la seguida en el
 encargado de extraer la información relevante de una página de TvTropes
 individual, con una separación clara entre la función de alto nivel y las sub
 funciones de más bajo nivel a las que llama, encargadas de analizar y extraer
-datos de distintas partes de la página. Esto, además, puede facilitar el
-utilizar técnicas de concurrencia en el futuro para ser más eficiente.
+datos de distintas partes de la página.
 
 Para extraer el título y el índice de la película se han empleado los mismos
 selectores que en la comprobación de la página y que se vieron en el análisis de
@@ -571,28 +570,38 @@ tratar, puesto que es un formato muy sencillo que consta únicamente de líneas 
 detrás de otra, más fáciles de tratar con los métodos convencionales de
 escritura y lectura de ficheros. 
 
+Se sigue una misma estrategia en ambos repositorios para facilitar la gestión de
+los datos y para reducir lo máximo posible el número de lecturas y escritas en
+ficheros, que pueden comprometer bastante la eficiencia (en relación con la
+\href{https://github.com/jlgallego99/TropesToGo/issues/45}{[HU06]}). El flujo
+general de funcionamiento de los repositorios consiste en que, al añadir un
+nuevo objeto Media, no se persiste directamente, sino que se almacena en un
+vector de objetos Media como parte del objeto \textit{scraper}. Este vector se
+va rellenando con las sucesivas llamadas de añadir Media, hasta que finalmente
+se decida llamar a un método que se encarga de volcar (persistir) todos los
+datos de la variable en memoria al fichero, vaciando la memoria y construyendo
+todo el \textit{dataset} en una sola vez.
+
 Los métodos de borrado y actualización siguen una filosofía muy parecida en
 ambas implementaciones. El borrado se ha implementado como una limpieza completa
 del dataset, para ayudar en la regeneración de conjuntos de datos al testear,
-eliminando todo registro y dejando únicamente la cabecera de las columnas en el
-CSV o la clave principal con un array vacío en el JSON. La actualización por su
-parte consiste en un proceso de carga de todo el \textit{dataset} del fichero en
-una variable, lo cual permite tratar más fácilmente los datos en términos
-propios del lenguaje. Para esto, en el caso de JSON basta con realizar una
+eliminando todo registro, tanto en memoria como en el \textit{dataset}, y
+dejando únicamente la cabecera de las columnas en el CSV o la clave principal
+con un array vacío en el JSON. La actualización por su parte consiste en un
+proceso de carga de todo el \textit{dataset} del fichero en una variable
+temporal, lo cual permite tratar más fácilmente los datos en términos propios
+del lenguaje. Para esto, en el caso de JSON basta con realizar una
 decodificación del JSON a las estructuras de datos de Go que contienen los
 datos, haciendo la actualización como una búsqueda simple en el array de objetos
 Media y modificando lo necesario. Al llevar a cabo las modificaciones sobre los
 objetos internos, se vuelve a escribir todo el conjunto de datos, terminando la
-actualización. Este es un proceso rápido que está pensado solamente en el
-caso de que el \textit{scraper} encuentre datos más actualizados, para no tener
-que volver a generar todo el conjunto, sino únicamente actualizar el objeto que
-se quiere.
+actualización. Este es un proceso que está pensado solamente en el caso de que
+el \textit{scraper} encuentre datos más actualizados, para no tener que volver a
+generar todo el conjunto, sino únicamente actualizar el objeto que se quiere.
 
-En el caso de la operación de añadir un nuevo registro al \textit{dataset} JSON
-se sigue la misma estrategia que al actualizar, simplemente volcando el fichero
-a un array con todas las estructuras de datos, adjuntando al final de este array
-de Media el nuevo objeto, y volviendo a codificarlo en JSON gracias a la función
-de \textit{marshalling}.
+Por su parte, el añadir datos nuevos consiste únicamente en añadir de forma
+intermedia el objeto Media al vector en memoria, comprobando previamente que no
+es repetido, quedándose ahí hasta que se decida persistirlo.
 
 Por último, a lo largo del desarrollo de este \textit{milestone} se detecta un
 problema importante que es necesario resolver para terminar este PMV: los tests
@@ -601,8 +610,8 @@ directamente a TvTropes. Esto interfiere directamente con cómo deberían ser la
 pruebas unitarias, que deberían únicamente confiar y utilizar los recursos
 propios del proyecto. Que los tests dependan de si TvTropes está funcionando, de
 la velocidad de la red, o incluso de arriesgarse a ser vetado de la página o con
-peticiones limitadas por tiempo, puede dificultar el comprobar la lógica interna
-del \textit{scraper}, que debe poder comprobarse y funcionar independientemente
+peticiones limitadas por tiempo, puede dificultar los tests de la lógica interna
+del \textit{scraper}, que deben poder ejecutarse y funcionar independientemente
 de si TvTropes está disponible en ese momento o no.
 
 Para resolver esto, se realizan pequeños cambios en el planteamiento del
@@ -616,10 +625,10 @@ contenidos de TvTropes están bajo una licencia
 Attribution-NonCommercial-ShareAlike 3.0
 Unported}\end{otherlanguage}\footnote{\url{https://CreativeCommons.org/licenses/by-nc-sa/3.0/}},
 la cual permite redistribuir sus contenidos siempre que sea de forma no
-comercial, con la misma licencia y dando crédito al autor original.
-Puesto que descargar y trabajar directamente con el HTML de algunas páginas TvTropes
-entra dentro del uso de esta licencia, se añade al repositorio de GitHub, se
-informa de su uso y se da crédito a TvTropes como los autores de ese contenido.
+comercial, con la misma licencia y dando crédito al autor original. Puesto que
+descargar y trabajar directamente con el HTML de algunas páginas TvTropes entra
+dentro del uso de esta licencia, se añade al repositorio de GitHub, se informa
+de su uso y se da crédito a TvTropes como los autores de ese contenido.
  
 Ahora el análisis de una página de TvTropes trabaja directamente sobre cualquier
 objeto genérico que contenga el HTML de la página, siendo el cómo se obtiene ese
