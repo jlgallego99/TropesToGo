@@ -594,6 +594,43 @@ a un array con todas las estructuras de datos, adjuntando al final de este array
 de Media el nuevo objeto, y volviendo a codificarlo en JSON gracias a la función
 de \textit{marshalling}.
 
+Por último, a lo largo del desarrollo de este \textit{milestone} se detecta un
+problema importante que es necesario resolver para terminar este PMV: los tests
+del \textit{scraper} del hito anterior funcionaban haciendo peticiones HTTP
+directamente a TvTropes. Esto interfiere directamente con cómo deberían ser las
+pruebas unitarias, que deberían únicamente confiar y utilizar los recursos
+propios del proyecto. Que los tests dependan de si TvTropes está funcionando, de
+la velocidad de la red, o incluso de arriesgarse a ser vetado de la página o con
+peticiones limitadas por tiempo, puede dificultar el comprobar la lógica interna
+del \textit{scraper}, que debe poder comprobarse y funcionar independientemente
+de si TvTropes está disponible en ese momento o no.
+
+Para resolver esto, se realizan pequeños cambios en el planteamiento del
+\textit{scraper}, dejando el análisis de la página como una sub función de la
+que recibe una entidad página y realiza una petición HTTP a TvTropes. A partir
+de ahora se emplearán, únicamente para los tests, ficheros HTML descargados
+directamente de TvTropes y guardados en el repositorio. Esto supone una
+consideración adicional que ya se discutió en el \autoref{chapter:3}; los
+contenidos de TvTropes están bajo una licencia
+\begin{otherlanguage}{english}\textit{Creative Commons
+Attribution-NonCommercial-ShareAlike 3.0
+Unported}\end{otherlanguage}\footnote{\url{https://CreativeCommons.org/licenses/by-nc-sa/3.0/}},
+la cual permite redistribuir sus contenidos siempre que sea de forma no
+comercial, con la misma licencia y dando crédito al autor original.
+Puesto que descargar y trabajar directamente con el HTML de algunas páginas TvTropes
+entra dentro del uso de esta licencia, se añade al repositorio de GitHub, se
+informa de su uso y se da crédito a TvTropes como los autores de ese contenido.
+ 
+Ahora el análisis de una página de TvTropes trabaja directamente sobre cualquier
+objeto genérico que contenga el HTML de la página, siendo el cómo se obtiene ese
+objeto un paso previo que se queda encapsulado en una función previa que realiza
+peticiones HTTP y llama a esta función de análisis. Por tanto, los tests pueden
+directamente llamar a esta función de análisis cargando desde el test el fichero
+HTML que se tiene en disco. Esta nueva manera de enfocar los tests nos permite
+no solo evitar problemas de red, sino también poder testear más en profundidad
+los contenidos de una página, ya que al estar persistida en disco sabemos que no
+va a cambiar, y confirmar así que la lógica del \textit{scraper} es correcta.
+
 \section{Desarrollo de la araña}
 
 \subsection{Estrategia general para la extracción de información de TvTropes}
