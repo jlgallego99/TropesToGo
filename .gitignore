@@ -309,8 +309,9 @@ typings/
 # emacs
 *~
 
-# Textodite reports
+# Ignore all HTMLs (textodite reports) except the TvTropes resources
 *.html
+!tropestogo/service/scraper/resources/*.html
 
 # ignore .idea folder
 tropestogo/.idea/*
