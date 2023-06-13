@@ -3,7 +3,9 @@ package scraper
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -19,6 +21,7 @@ var (
 	ErrNotTvTropes          = errors.New("the URL does not belong to a TvTropes page")
 	ErrNotWorkPage          = errors.New("the page isn't a TvTropes Work page")
 	ErrUnknownPageStructure = errors.New("the scraper doesn't recognize the page structure")
+	ErrNotFound             = errors.New("couldn't request the URL")
 )
 
 const (
@@ -89,24 +92,35 @@ func ConfigMediaRepository(mr media.RepositoryMedia) ScraperConfig {
 	}
 }
 
-// CheckValidWorkPage checks if a TvTropes Work page has a valid structure in which the scraper can extract data
-// This allows the scraper to check if TvTropes template has somewhat changed
-func (scraper *ServiceScraper) CheckValidWorkPage(page *tropestogo.Page) (bool, error) {
-	res, _ := http.Get(page.URL.String())
-	doc, _ := goquery.NewDocumentFromReader(res.Body)
-	doc.Url = page.URL
+// CheckTvTropesPage makes an HTTP request to a TvTropes page and checks if it's valid for scraping
+func (scraper *ServiceScraper) CheckTvTropesPage(page *tropestogo.Page) (bool, error) {
+	res, err := http.Get(page.URL.String())
+	if err != nil {
+		return false, fmt.Errorf("%w: "+page.URL.String(), ErrNotFound)
+	}
 
-	validWorkPage, errWorkPage := checkTvTropesWorkPage(page)
+	return scraper.CheckValidWorkPage(res.Body, page.URL)
+}
+
+// CheckValidWorkPage accepts a reader with a webpage contents and checks if it's a valid TvTropes Work page
+// This allows the scraper to check if TvTropes template has somewhat changed and if the scraper can extract its data
+func (scraper *ServiceScraper) CheckValidWorkPage(reader io.Reader, tvtropesUrl *url.URL) (bool, error) {
+	doc, err := goquery.NewDocumentFromReader(reader)
+	if err != nil {
+		return false, ErrNotTvTropes
+	}
+
+	validWorkPage, errWorkPage := scraper.CheckIsWorkPage(tvtropesUrl)
 	if !validWorkPage {
 		return false, errWorkPage
 	}
 
-	validMainArticle, errMainArticle := checkMainArticle(doc)
+	validMainArticle, errMainArticle := scraper.CheckMainArticle(doc)
 	if !validMainArticle {
 		return false, errMainArticle
 	}
 
-	validTropeSection, errTropeSection := checkTropeSection(doc)
+	validTropeSection, errTropeSection := scraper.CheckTropeSection(doc)
 	if !validTropeSection {
 		return false, errTropeSection
 	}
@@ -114,24 +128,24 @@ func (scraper *ServiceScraper) CheckValidWorkPage(page *tropestogo.Page) (bool, 
 	return true, nil
 }
 
-// CheckTvTropesWorkPage checks if the received page belongs to a tvtropes.org Work page
-func checkTvTropesWorkPage(page *tropestogo.Page) (bool, error) {
+// CheckIsWorkPage checks if the received page belongs to a tvtropes.org Work page
+func (scraper *ServiceScraper) CheckIsWorkPage(tvtropesUrl *url.URL) (bool, error) {
 	// First check if the domain is TvTropes
-	if page.URL.Hostname() != TvTropesHostname {
-		return false, fmt.Errorf("%w: "+page.URL.String(), ErrNotTvTropes)
+	if tvtropesUrl.Hostname() != TvTropesHostname {
+		return false, fmt.Errorf("%w: "+tvtropesUrl.String(), ErrNotTvTropes)
 	}
 
 	// Check if it's a Film Work page
-	splitPath := strings.Split(page.URL.Path, "/")
-	if !strings.HasPrefix(page.URL.Path, TvTropesPmwiki) || splitPath[3] != media.Film.String() {
-		return false, fmt.Errorf("%w: "+page.URL.String(), ErrNotWorkPage)
+	splitPath := strings.Split(tvtropesUrl.Path, "/")
+	if !strings.HasPrefix(tvtropesUrl.Path, TvTropesPmwiki) || splitPath[3] != media.Film.String() {
+		return false, fmt.Errorf("%w: "+tvtropesUrl.String(), ErrNotWorkPage)
 	}
 
 	return true, nil
 }
 
 // CheckMainArticle checks if the tvtropes work main article page has a known structure which can be extracted later
-func checkMainArticle(doc *goquery.Document) (bool, error) {
+func (scraper *ServiceScraper) CheckMainArticle(doc *goquery.Document) (bool, error) {
 	// Check if the main article structure has all known ids and elements that comprise a TvTropes work page
 	if doc.Find(MainArticleSelector).Length() == 0 ||
 		doc.Find(SubPagesNavSelector).Find(SubPageListSelector).Find(SubPageLinkSelector).Length() == 0 {
@@ -147,7 +161,8 @@ func checkMainArticle(doc *goquery.Document) (bool, error) {
 	return true, nil
 }
 
-func checkTropeSection(doc *goquery.Document) (bool, error) {
+// CheckTropeSection check if the tropes on the TvTropes Work Page are arranged in a known way that can be scraped
+func (scraper *ServiceScraper) CheckTropeSection(doc *goquery.Document) (bool, error) {
 	// Look for the tropes section
 	if doc.Find(TropeListSelector).Length() != 0 {
 		// Check if the list is a simple trope list or a list of subpages with tropes
@@ -173,7 +188,7 @@ func checkTropeSection(doc *goquery.Document) (bool, error) {
 		}
 
 		// Check if tropes are on folders
-		if checkTropesOnFolders(doc) {
+		if scraper.CheckTropesOnFolders(doc) {
 			return true, nil
 		}
 	}
@@ -182,8 +197,8 @@ func checkTropeSection(doc *goquery.Document) (bool, error) {
 	return false, ErrUnknownPageStructure
 }
 
-// checkTropesOnFolders validates whether tropes are presented on folders
-func checkTropesOnFolders(doc *goquery.Document) bool {
+// CheckTropesOnFolders validates whether tropes are presented on folders
+func (scraper *ServiceScraper) CheckTropesOnFolders(doc *goquery.Document) bool {
 	// If there's a close all folders button, then the tropes are on folders
 	folderFunctionName, existsFolderButton := doc.Find(TropeFolderSelector).Attr("onclick")
 	if existsFolderButton && folderFunctionName == FolderToggleFunction {
@@ -193,11 +208,19 @@ func checkTropesOnFolders(doc *goquery.Document) bool {
 	return false
 }
 
-// ScrapeWorkPage extracts all the relevant information from a TvTropes Work Page
-func (scraper *ServiceScraper) ScrapeWorkPage(page *tropestogo.Page) (media.Media, error) {
-	res, _ := http.Get(page.URL.String())
-	doc, _ := goquery.NewDocumentFromReader(res.Body)
-	doc.Url = page.URL
+// ScrapeTvTropesPage makes an HTTP request to a TvTropes page and scrapes its contents
+func (scraper *ServiceScraper) ScrapeTvTropesPage(page *tropestogo.Page) (media.Media, error) {
+	res, err := http.Get(page.URL.String())
+	if err != nil {
+		return media.Media{}, fmt.Errorf("%w: "+page.URL.String(), ErrNotFound)
+	}
+
+	return scraper.ScrapeWorkPage(res.Body, page.URL)
+}
+
+// ScrapeWorkPage accepts a reader with a TvTropes Work Page contens and extracts all the relevant information from it
+func (scraper *ServiceScraper) ScrapeWorkPage(reader io.Reader, tvtropesUrl *url.URL) (media.Media, error) {
+	doc, _ := goquery.NewDocumentFromReader(reader)
 
 	title, year, mediaIndex, errMediaIndex := scraper.ScrapeWorkTitleAndYear(doc)
 	if errMediaIndex != nil {
@@ -209,6 +232,10 @@ func (scraper *ServiceScraper) ScrapeWorkPage(page *tropestogo.Page) (media.Medi
 		return media.Media{}, errTropes
 	}
 
+	page := &tropestogo.Page{
+		URL:         tvtropesUrl,
+		LastUpdated: time.Now(),
+	}
 	newMedia, errNewMedia := media.NewMedia(title, year, time.Now(), tropes, page, mediaIndex)
 	if errNewMedia != nil {
 		return media.Media{}, errNewMedia
@@ -260,7 +287,7 @@ func (scraper *ServiceScraper) ScrapeWorkTropes(doc *goquery.Document) (map[trop
 
 	// Use a different selector if it's a simple list or folders
 	var selector string
-	if checkTropesOnFolders(doc) {
+	if scraper.CheckTropesOnFolders(doc) {
 		selector = MainTropesFolderSelector
 	} else {
 		selector = MainTropesSelector

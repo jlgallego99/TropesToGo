@@ -4,14 +4,12 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"github.com/jlgallego99/TropesToGo/media"
 	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
 	"github.com/jlgallego99/TropesToGo/media/json_dataset"
 	"net/url"
 	"os"
 	"strings"
-	"time"
-
-	"github.com/jlgallego99/TropesToGo/media"
 
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/service/scraper"
@@ -25,8 +23,7 @@ var serviceScraperJson, serviceScraperCsv, invalidScraper *scraper.ServiceScrape
 var newScraperJsonErr, newScraperCsvErr, invalidScraperErr, errPersistJson, errPersistCsv error
 var csvRepositoryErr, jsonRepositoryErr error
 var csvRepository, jsonRepository media.RepositoryMedia
-
-var tvTropesPage, tvTropesPage2, tvTropesPage3, notTvTropesPage, notWorkPage, unknownMediaPage *tropestogo.Page
+var pageReaderJson, pageReaderCsv *os.File
 
 var _ = BeforeSuite(func() {
 	// Create two scrapers, one for the JSON dataset and the other for the CSV dataset
@@ -37,45 +34,6 @@ var _ = BeforeSuite(func() {
 
 	// Create invalid scraper
 	invalidScraper, invalidScraperErr = scraper.NewServiceScraper(scraper.ConfigIndexRepository(nil))
-
-	tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
-	tvTropesUrl2, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012")
-	tvTropesUrl3, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/ANewHope")
-
-	tvTropesUrlUnknown, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Manga/AttackOnTitan")
-
-	differentUrl, _ := url.Parse("https://www.google.com/")
-	notWorkUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Main/Media")
-
-	tvTropesPage = &tropestogo.Page{
-		URL:         tvTropesUrl,
-		LastUpdated: time.Now(),
-	}
-
-	tvTropesPage2 = &tropestogo.Page{
-		URL:         tvTropesUrl2,
-		LastUpdated: time.Now(),
-	}
-
-	tvTropesPage3 = &tropestogo.Page{
-		URL:         tvTropesUrl3,
-		LastUpdated: time.Now(),
-	}
-
-	notTvTropesPage = &tropestogo.Page{
-		URL:         differentUrl,
-		LastUpdated: time.Now(),
-	}
-
-	notWorkPage = &tropestogo.Page{
-		URL:         notWorkUrl,
-		LastUpdated: time.Now(),
-	}
-
-	unknownMediaPage = &tropestogo.Page{
-		URL:         tvTropesUrlUnknown,
-		LastUpdated: time.Now(),
-	}
 })
 
 var _ = Describe("Scraper", func() {
@@ -104,81 +62,133 @@ var _ = Describe("Scraper", func() {
 	})
 
 	Describe("Check if page can be scraped", func() {
-		var validTvTropesPage, validTvTropesPage2, validTvTropesPage3, validDifferentPage, validNotWorkPage bool
-		var errTvTropes, errTvTropes2, errTvTropes3, errDifferent, errNotWorkPage error
-
 		Context("URL belongs to a TvTropes Work page with tropes on a list", func() {
+			var validTvTropesPageCsv, validTvTropesPageJson bool
+			var errTvTropesCsv, errTvTropesJson error
+
 			BeforeEach(func() {
-				validTvTropesPage, errTvTropes = serviceScraperJson.CheckValidWorkPage(tvTropesPage)
-				validTvTropesPage, errTvTropes = serviceScraperCsv.CheckValidWorkPage(tvTropesPage)
+				tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
+				pageReaderJson, _ = os.Open("resources/oldboy2003.html")
+				pageReaderCsv, _ = os.Open("resources/oldboy2003.html")
+
+				validTvTropesPageJson, errTvTropesJson = serviceScraperJson.CheckValidWorkPage(pageReaderJson, tvTropesUrl)
+				validTvTropesPageCsv, errTvTropesCsv = serviceScraperCsv.CheckValidWorkPage(pageReaderCsv, tvTropesUrl)
+			})
+
+			AfterEach(func() {
+				pageReaderCsv.Close()
+				pageReaderJson.Close()
 			})
 
 			It("Should mark the page as valid", func() {
-				Expect(validTvTropesPage).To(BeTrue())
+				Expect(validTvTropesPageJson).To(BeTrue())
+				Expect(validTvTropesPageCsv).To(BeTrue())
 			})
 
 			It("Shouldn't return an error", func() {
-				Expect(errTvTropes).To(BeNil())
+				Expect(errTvTropesJson).To(BeNil())
+				Expect(errTvTropesCsv).To(BeNil())
 			})
 		})
 
 		Context("URL belongs to a TvTropes Work page with tropes on subpages", func() {
+			var validTvTropesPage2Csv, validTvTropesPage2Json bool
+			var errTvTropes2Csv, errTvTropes2Json error
+
 			BeforeEach(func() {
-				validTvTropesPage2, errTvTropes2 = serviceScraperJson.CheckValidWorkPage(tvTropesPage2)
-				validTvTropesPage2, errTvTropes2 = serviceScraperCsv.CheckValidWorkPage(tvTropesPage2)
+				tvTropesUrl2, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012")
+				pageReaderJson, _ = os.Open("resources/theavengers2012.html")
+				pageReaderCsv, _ = os.Open("resources/theavengers2012.html")
+
+				validTvTropesPage2Json, errTvTropes2Json = serviceScraperJson.CheckValidWorkPage(pageReaderJson, tvTropesUrl2)
+				validTvTropesPage2Csv, errTvTropes2Csv = serviceScraperCsv.CheckValidWorkPage(pageReaderCsv, tvTropesUrl2)
+			})
+
+			AfterEach(func() {
+				pageReaderJson.Close()
+				pageReaderCsv.Close()
 			})
 
 			It("Should mark the page as valid", func() {
-				Expect(validTvTropesPage2).To(BeTrue())
+				Expect(validTvTropesPage2Json).To(BeTrue())
+				Expect(validTvTropesPage2Csv).To(BeTrue())
 			})
 
 			It("Shouldn't return an error", func() {
-				Expect(errTvTropes2).To(BeNil())
+				Expect(errTvTropes2Json).To(BeNil())
+				Expect(errTvTropes2Csv).To(BeNil())
 			})
 		})
 
 		Context("URL belongs to a TvTropes Work page with tropes on folders", func() {
+			var validTvTropesPage3Csv, validTvTropesPage3Json bool
+			var errTvTropes3Csv, errTvTropes3Json error
+
 			BeforeEach(func() {
-				validTvTropesPage3, errTvTropes3 = serviceScraperJson.CheckValidWorkPage(tvTropesPage3)
-				validTvTropesPage3, errTvTropes3 = serviceScraperCsv.CheckValidWorkPage(tvTropesPage3)
+				tvTropesUrl3, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/ANewHope")
+				pageReaderCsv, _ = os.Open("resources/anewhope.html")
+				pageReaderJson, _ = os.Open("resources/anewhope.html")
+
+				validTvTropesPage3Json, errTvTropes3Json = serviceScraperJson.CheckValidWorkPage(pageReaderJson, tvTropesUrl3)
+				validTvTropesPage3Csv, errTvTropes3Json = serviceScraperCsv.CheckValidWorkPage(pageReaderCsv, tvTropesUrl3)
+			})
+
+			AfterEach(func() {
+				pageReaderCsv.Close()
+				pageReaderJson.Close()
 			})
 
 			It("Should mark the page as valid", func() {
-				Expect(validTvTropesPage3).To(BeTrue())
+				Expect(validTvTropesPage3Json).To(BeTrue())
+				Expect(validTvTropesPage3Csv).To(BeTrue())
 			})
 
 			It("Shouldn't return an error", func() {
-				Expect(errTvTropes3).To(BeNil())
+				Expect(errTvTropes3Json).To(BeNil())
+				Expect(errTvTropes3Csv).To(BeNil())
 			})
 		})
 
 		Context("URL belongs to TvTropes but isn't from a Work page", func() {
+			var validNotWorkPageCsv, validNotWorkPageJson bool
+			var errNotWorkPageCsv, errNotWorkPageJson error
+
 			BeforeEach(func() {
-				validNotWorkPage, errNotWorkPage = serviceScraperJson.CheckValidWorkPage(notWorkPage)
-				validNotWorkPage, errNotWorkPage = serviceScraperCsv.CheckValidWorkPage(notWorkPage)
+				notWorkUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Main/Media")
+
+				validNotWorkPageJson, errNotWorkPageJson = serviceScraperJson.CheckIsWorkPage(notWorkUrl)
+				validNotWorkPageCsv, errNotWorkPageCsv = serviceScraperCsv.CheckIsWorkPage(notWorkUrl)
 			})
 
 			It("Should mark the page as invalid", func() {
-				Expect(validNotWorkPage).To(BeFalse())
+				Expect(validNotWorkPageJson).To(BeFalse())
+				Expect(validNotWorkPageCsv).To(BeFalse())
 			})
 
 			It("Should return an appropriate error", func() {
-				Expect(errors.Is(errNotWorkPage, scraper.ErrNotWorkPage)).To(BeTrue())
+				Expect(errors.Is(errNotWorkPageJson, scraper.ErrNotWorkPage)).To(BeTrue())
+				Expect(errors.Is(errNotWorkPageCsv, scraper.ErrNotWorkPage)).To(BeTrue())
 			})
 		})
 
 		Context("URL isn't from TvTropes", func() {
+			var validDifferentPageCsv, validDifferentPageJson bool
+			var errDifferentCsv, errDifferentJson error
+
 			BeforeEach(func() {
-				validDifferentPage, errDifferent = serviceScraperJson.CheckValidWorkPage(notTvTropesPage)
-				validDifferentPage, errDifferent = serviceScraperCsv.CheckValidWorkPage(notTvTropesPage)
+				differentUrl, _ := url.Parse("https://www.google.com/")
+				validDifferentPageJson, errDifferentJson = serviceScraperJson.CheckIsWorkPage(differentUrl)
+				validDifferentPageCsv, errDifferentCsv = serviceScraperCsv.CheckIsWorkPage(differentUrl)
 			})
 
 			It("Should mark the page as invalid", func() {
-				Expect(validDifferentPage).To(BeFalse())
+				Expect(validDifferentPageJson).To(BeFalse())
+				Expect(validDifferentPageCsv).To(BeFalse())
 			})
 
 			It("Should return an appropriate error", func() {
-				Expect(errors.Is(errDifferent, scraper.ErrNotTvTropes)).To(BeTrue())
+				Expect(errors.Is(errDifferentJson, scraper.ErrNotTvTropes)).To(BeTrue())
+				Expect(errors.Is(errDifferentCsv, scraper.ErrNotTvTropes)).To(BeTrue())
 			})
 		})
 	})
@@ -189,10 +199,19 @@ var _ = Describe("Scraper", func() {
 			var errorfilm1Csv, errorfilm1Json error
 
 			BeforeEach(func() {
-				validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeWorkPage(tvTropesPage)
-				validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeWorkPage(tvTropesPage)
+				tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
+				pageReaderCsv, _ = os.Open("resources/oldboy2003.html")
+				pageReaderJson, _ = os.Open("resources/oldboy2003.html")
+
+				validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, tvTropesUrl)
+				validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, tvTropesUrl)
 				errPersistJson = serviceScraperJson.Persist()
 				errPersistCsv = serviceScraperCsv.Persist()
+			})
+
+			AfterEach(func() {
+				pageReaderCsv.Close()
+				pageReaderJson.Close()
 			})
 
 			It("Shouldn't return an error", func() {
@@ -251,10 +270,19 @@ var _ = Describe("Scraper", func() {
 			var errorfilm3Csv, errorfilm3Json error
 
 			BeforeEach(func() {
-				validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeWorkPage(tvTropesPage3)
-				validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeWorkPage(tvTropesPage3)
+				tvTropesUrl3, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/ANewHope")
+				pageReaderCsv, _ = os.Open("resources/anewhope.html")
+				pageReaderJson, _ = os.Open("resources/anewhope.html")
+
+				validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, tvTropesUrl3)
+				validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, tvTropesUrl3)
 				errPersistJson = serviceScraperJson.Persist()
 				errPersistCsv = serviceScraperCsv.Persist()
+			})
+
+			AfterEach(func() {
+				pageReaderCsv.Close()
+				pageReaderJson.Close()
 			})
 
 			It("Shouldn't return an error", func() {
@@ -283,10 +311,19 @@ var _ = Describe("Scraper", func() {
 			var errorfilminvalidtypeJson, errorfilminvalidtypeCsv error
 
 			BeforeEach(func() {
-				filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeWorkPage(unknownMediaPage)
-				filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeWorkPage(unknownMediaPage)
+				tvTropesUrlUnknown, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Manga/AttackOnTitan")
+				pageReaderCsv, _ = os.Open("resources/attackontitan.html")
+				pageReaderJson, _ = os.Open("resources/attackontitan.html")
+
+				filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeWorkPage(pageReaderCsv, tvTropesUrlUnknown)
+				filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeWorkPage(pageReaderJson, tvTropesUrlUnknown)
 				errPersistCsv = serviceScraperCsv.Persist()
 				errPersistJson = serviceScraperJson.Persist()
+			})
+
+			AfterEach(func() {
+				pageReaderCsv.Close()
+				pageReaderJson.Close()
 			})
 
 			It("Should return an empty media object", func() {
