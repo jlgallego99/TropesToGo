@@ -337,11 +337,13 @@ var _ = Describe("Scraper", func() {
 
 			It("Should return an empty media object", func() {
 				Expect(filminvalidtypeJson.GetWork()).To(BeNil())
-				Expect(filminvalidtypeJson.GetPage()).To(BeNil())
+				Expect(filminvalidtypeJson.GetPage().GetUrl()).To(BeNil())
+				Expect(filminvalidtypeJson.GetPage().GetPageType()).To(BeZero())
 				Expect(filminvalidtypeJson.GetMediaType()).To(Equal(media.UnknownMediaType))
 
 				Expect(filminvalidtypeCsv.GetWork()).To(BeNil())
-				Expect(filminvalidtypeCsv.GetPage()).To(BeNil())
+				Expect(filminvalidtypeCsv.GetPage().GetUrl()).To(BeNil())
+				Expect(filminvalidtypeCsv.GetPage().GetPageType()).To(BeZero())
 				Expect(filminvalidtypeCsv.GetMediaType()).To(Equal(media.UnknownMediaType))
 			})
 

@@ -93,13 +93,13 @@ func ConfigMediaRepository(mr media.RepositoryMedia) ScraperConfig {
 }
 
 // CheckTvTropesPage makes an HTTP request to a TvTropes page and checks if it's valid for scraping
-func (scraper *ServiceScraper) CheckTvTropesPage(page *tropestogo.Page) (bool, error) {
-	res, err := http.Get(page.URL.String())
+func (scraper *ServiceScraper) CheckTvTropesPage(page tropestogo.Page) (bool, error) {
+	res, err := http.Get(page.GetUrl().String())
 	if err != nil {
-		return false, fmt.Errorf("%w: "+page.URL.String(), ErrNotFound)
+		return false, fmt.Errorf("%w: "+page.GetUrl().String(), ErrNotFound)
 	}
 
-	return scraper.CheckValidWorkPage(res.Body, page.URL)
+	return scraper.CheckValidWorkPage(res.Body, page.GetUrl())
 }
 
 // CheckValidWorkPage accepts a reader with a webpage contents and checks if it's a valid TvTropes Work page
@@ -209,13 +209,13 @@ func (scraper *ServiceScraper) CheckTropesOnFolders(doc *goquery.Document) bool 
 }
 
 // ScrapeTvTropesPage makes an HTTP request to a TvTropes page and scrapes its contents
-func (scraper *ServiceScraper) ScrapeTvTropesPage(page *tropestogo.Page) (media.Media, error) {
-	res, err := http.Get(page.URL.String())
+func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page) (media.Media, error) {
+	res, err := http.Get(page.GetUrl().String())
 	if err != nil {
-		return media.Media{}, fmt.Errorf("%w: "+page.URL.String(), ErrNotFound)
+		return media.Media{}, fmt.Errorf("%w: "+page.GetUrl().String(), ErrNotFound)
 	}
 
-	return scraper.ScrapeWorkPage(res.Body, page.URL)
+	return scraper.ScrapeWorkPage(res.Body, page.GetUrl())
 }
 
 // ScrapeWorkPage accepts a reader with a TvTropes Work Page contens and extracts all the relevant information from it
