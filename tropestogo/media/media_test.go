@@ -24,10 +24,7 @@ var _ = Describe("Media", func() {
 		lastUpdated = time.Now()
 
 		tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012")
-		tvTropesPage = &tropestogo.Page{
-			URL:         tvTropesUrl,
-			LastUpdated: time.Now(),
-		}
+		tvTropesPage, _ = tropestogo.NewPage(tvTropesUrl)
 	})
 
 	Describe("Create Media", func() {

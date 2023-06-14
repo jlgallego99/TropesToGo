@@ -221,6 +221,10 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page *tropestogo.Page) (media.
 // ScrapeWorkPage accepts a reader with a TvTropes Work Page contens and extracts all the relevant information from it
 func (scraper *ServiceScraper) ScrapeWorkPage(reader io.Reader, tvtropesUrl *url.URL) (media.Media, error) {
 	doc, _ := goquery.NewDocumentFromReader(reader)
+	page, errNewPage := tropestogo.NewPage(tvtropesUrl)
+	if errNewPage != nil {
+		return media.Media{}, fmt.Errorf("Error creating Page object \n%w", errNewPage)
+	}
 
 	title, year, mediaIndex, errMediaIndex := scraper.ScrapeWorkTitleAndYear(doc)
 	if errMediaIndex != nil {
@@ -232,10 +236,6 @@ func (scraper *ServiceScraper) ScrapeWorkPage(reader io.Reader, tvtropesUrl *url
 		return media.Media{}, errTropes
 	}
 
-	page := &tropestogo.Page{
-		URL:         tvtropesUrl,
-		LastUpdated: time.Now(),
-	}
 	newMedia, errNewMedia := media.NewMedia(title, year, time.Now(), tropes, page, mediaIndex)
 	if errNewMedia != nil {
 		return media.Media{}, errNewMedia

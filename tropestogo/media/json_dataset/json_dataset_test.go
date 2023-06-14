@@ -28,10 +28,7 @@ var _ = BeforeSuite(func() {
 	tropes[trope2] = struct{}{}
 	tropes[trope3] = struct{}{}
 	tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
-	tvTropesPage := &tropestogo.Page{
-		URL:         tvTropesUrl,
-		LastUpdated: time.Now(),
-	}
+	tvTropesPage, _ := tropestogo.NewPage(tvTropesUrl)
 	mediaEntry, _ = media.NewMedia("Oldboy", "2003", time.Now(), tropes, tvTropesPage, media.Film)
 })
 
@@ -168,10 +165,7 @@ var _ = Describe("JsonDataset", func() {
 			tropes[trope2] = struct{}{}
 
 			updatedUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2013")
-			tvTropesPage := &tropestogo.Page{
-				URL:         updatedUrl,
-				LastUpdated: time.Now(),
-			}
+			tvTropesPage, _ := tropestogo.NewPage(updatedUrl)
 
 			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), tropes, tvTropesPage, media.Film)
 
