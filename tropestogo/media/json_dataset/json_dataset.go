@@ -20,10 +20,13 @@ var (
 	ErrPersist         = errors.New("can't persist data on the JSON file because there's none")
 )
 
+// JSONDataset is an intermediate structure for marshaling/unmarshalling data from the JSON dataset
 type JSONDataset struct {
 	Tropestogo []media.JsonResponse `json:"tropestogo"`
 }
 
+// JSONRepository implements the RepositoryMedia for creating and handling JSON datasets of all the scraped data on TvTropes
+// It has an internal data structure of Media objects for better performance that can be persisted into a file all in one go
 type JSONRepository struct {
 	name string
 	data []media.Media
@@ -38,6 +41,9 @@ func Error(message string, err error, subErr error) error {
 	}
 }
 
+// NewJSONRepository is the constructor for JSONRepository objects that handle JSON datasets
+// It receives the name that the JSON dataset file will have and creates the file with a "tropestogo" key with an empty array
+// It will return an ErrCreateJson error if the file couldn't be created
 func NewJSONRepository(name string) (*JSONRepository, error) {
 	f, err := os.Create(name + ".json")
 	if err != nil {
@@ -53,6 +59,8 @@ func NewJSONRepository(name string) (*JSONRepository, error) {
 	return repository, nil
 }
 
+// AddMedia adds a newMedia Media object to the in-memory dataset, so it can be later persisted
+// There can only be unique objects on the dataset, so it will return an ErrDuplicatedMedia error if the Media object already exists
 func (repository *JSONRepository) AddMedia(newMedia media.Media) error {
 	for _, mediaData := range repository.data {
 		if mediaData.GetWork().Title == newMedia.GetWork().Title && mediaData.GetWork().Year == newMedia.GetWork().Year {
@@ -65,6 +73,8 @@ func (repository *JSONRepository) AddMedia(newMedia media.Media) error {
 	return nil
 }
 
+// UpdateMedia updates a record already written on the dataset by checking if it has the same title and year, because that differentiates a record
+// It returns an ErrReadJson, ErrWriteJson or an ErrUnmarshalJson error if the dataset couldn't be read, written or unmarshalled into a internal structure
 func (repository *JSONRepository) UpdateMedia(title string, year string, updateMedia media.Media) error {
 	var dataset JSONDataset
 
@@ -105,6 +115,9 @@ func (repository *JSONRepository) UpdateMedia(title string, year string, updateM
 	return nil
 }
 
+// RemoveAll deletes all data on both the in-memory intermediate data and on the dataset file
+// It tries to recreate the dataset, so it will return an ErrCreateJson error if that wasn't possible
+// If the dataset file doesn't exist, it returns an ErrFileNotExists error
 func (repository *JSONRepository) RemoveAll() error {
 	var err error
 	var f *os.File
@@ -126,6 +139,10 @@ func (repository *JSONRepository) RemoveAll() error {
 	}
 }
 
+// Persist writes all intermediate Media data into the proper dataset file and empties the structure, because it has already been persisted
+// It checks whether the new records are already on the dataset file, but doesn't return an error, but simply skips it
+// If the internal data structure is empty, it will do nothing and return an ErrPersist error
+// It returns an ErrReadJson, ErrWriteJson or an ErrUnmarshalJson error if the dataset couldn't be read, written or unmarshalled into a internal structure
 func (repository *JSONRepository) Persist() error {
 	if len(repository.data) == 0 {
 		return Error(repository.name, ErrPersist, nil)
@@ -168,7 +185,7 @@ func (repository *JSONRepository) Persist() error {
 	}
 
 	repository.data = []media.Media{}
-	
+
 	jsonBytes, err := json.Marshal(dataset)
 	if err != nil {
 		return Error("", ErrMarshalJson, err)

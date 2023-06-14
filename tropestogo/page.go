@@ -19,6 +19,7 @@ var (
 	ErrBadUrl      = errors.New("invalid URL")
 )
 
+// PageType represents all the relevant types a TvTropes Page can be, so the scraper can know what it is traversing
 type PageType int64
 
 const (
@@ -66,10 +67,12 @@ func NewPage(URL *url.URL) (Page, error) {
 	}, nil
 }
 
+// GetUrl returns the inmutable URL object that defines the Page
 func (page Page) GetUrl() *url.URL {
 	return page.url
 }
 
+// GetPageType returns the PageType enum that represents the type of the Page
 func (page Page) GetPageType() PageType {
 	return page.pageType
 }

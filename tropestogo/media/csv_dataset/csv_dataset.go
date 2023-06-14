@@ -19,6 +19,7 @@ var (
 	ErrPersist         = errors.New("can't persist data on the CSV file because there's none")
 )
 
+// CSVRepository implements the RepositoryMedia for creating and handling CSV datasets of all the scraped data on TvTropes
 type CSVRepository struct {
 	name   string
 	writer *csv.Writer
@@ -34,6 +35,9 @@ func Error(message string, err error, subErr error) error {
 	}
 }
 
+// NewCSVRepository is the constructor for CSVRepository objects that handle CSV datasets
+// It receives the name that the CSV dataset file will have and creates and empty file with only the column headers
+// It will return an ErrCreateCsv error if the file couldn't be created
 func NewCSVRepository(name string) (*CSVRepository, error) {
 	csvFile, err := os.Create(name + ".csv")
 	if err != nil {
@@ -53,6 +57,8 @@ func NewCSVRepository(name string) (*CSVRepository, error) {
 	return repository, nil
 }
 
+// GetReader returns a new CSV reader object starting from the top of the file
+// If the dataset file doesn't exist, it returns an ErrOpenCsv error
 func (repository *CSVRepository) GetReader() (*csv.Reader, error) {
 	dataset, err := os.Open(repository.name)
 	if err != nil {
@@ -63,6 +69,8 @@ func (repository *CSVRepository) GetReader() (*csv.Reader, error) {
 	return reader, nil
 }
 
+// AddMedia adds a newMedia Media object to the in-memory dataset, so it can be later persisted
+// There can only be unique objects on the dataset, so it will return an ErrDuplicatedMedia error if the Media object already exists
 func (repository *CSVRepository) AddMedia(newMedia media.Media) error {
 	for _, mediaData := range repository.data {
 		if mediaData.GetWork().Title == newMedia.GetWork().Title && mediaData.GetWork().Year == newMedia.GetWork().Year {
@@ -75,7 +83,8 @@ func (repository *CSVRepository) AddMedia(newMedia media.Media) error {
 	return nil
 }
 
-// UpdateMedia updates a record in the CSV files by searching the title and year
+// UpdateMedia updates a media record already written on the dataset by checking if it has the same title and year, because that differentiates a record
+// It returns an ErrReadCsv or ErrWriteCsv error if the dataset file couldn't be read or written
 func (repository *CSVRepository) UpdateMedia(title string, year string, media media.Media) error {
 	reader, errReader := repository.GetReader()
 	if errReader != nil {
@@ -114,6 +123,9 @@ func (repository *CSVRepository) UpdateMedia(title string, year string, media me
 	return nil
 }
 
+// RemoveAll deletes all data on both the in-memory intermediate data and on the dataset file
+// It tries to recreate the dataset, so it will return an ErrCreateCsv error if that wasn't possible
+// If the dataset file doesn't exist, it returns an ErrFileNotExists error
 func (repository *CSVRepository) RemoveAll() error {
 	repository.data = []media.Media{}
 
@@ -136,6 +148,10 @@ func (repository *CSVRepository) RemoveAll() error {
 	}
 }
 
+// Persist writes all intermediate Media data into the proper dataset file and empties the structure, because it has already been persisted
+// It checks whether the new records are already on the dataset file, but doesn't return an error, but simply skips it
+// If the internal data structure is empty, it will do nothing and return an ErrPersist error
+// It returns an ErrReadCsv or ErrWriteCsv error if the dataset file couldn't be read or written
 func (repository *CSVRepository) Persist() error {
 	if len(repository.data) == 0 {
 		return Error(repository.name, ErrPersist, nil)
@@ -176,7 +192,8 @@ func (repository *CSVRepository) Persist() error {
 	return nil
 }
 
-// CreateMediaRecord forms a string properly separated for inserting in a CSV file
+// CreateMediaRecord forms a proper string record from a Media object for inserting in a CSV file
+// Each value on the returned array is a column value for the CSV file
 func CreateMediaRecord(media media.Media) []string {
 	var tropes []string
 	var indexes []string
