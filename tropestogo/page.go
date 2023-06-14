@@ -10,7 +10,7 @@ import (
 const (
 	TvTropesHostname  = "tvtropes.org"
 	TvTropesPmwiki    = "/pmwiki/pmwiki.php/"
-	TvTropesMainPath  = TvTropesPmwiki + "/Main/"
+	TvTropesMainPath  = TvTropesPmwiki + "Main/"
 	TvTropesIndexPath = "/pmwiki/pagelist_having_pagetype_in_namespace.php"
 )
 
