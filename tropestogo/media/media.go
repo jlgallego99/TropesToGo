@@ -124,12 +124,10 @@ func NewMedia(title, year string, lastUpdated time.Time, tropes map[tropestogo.T
 		return Media{}, ErrMissingValues
 	}
 
-	// Check if there's a title. A year can be empty, because not all media will have it extracted
 	if len(title) == 0 {
 		return Media{}, ErrMissingValues
 	}
 
-	// Check if the Year string represents a valid year number (4 digits between 0 and 9)
 	if len(year) > 0 {
 		r, _ := regexp.Compile("^[0-9]{4}$")
 

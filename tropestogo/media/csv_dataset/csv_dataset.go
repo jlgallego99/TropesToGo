@@ -47,7 +47,6 @@ func NewCSVRepository(name string) (*CSVRepository, error) {
 		writer: writer,
 	}
 
-	// Add headers to the CSV file
 	repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"})
 	repository.writer.Flush()
 
@@ -65,14 +64,12 @@ func (repository *CSVRepository) GetReader() (*csv.Reader, error) {
 }
 
 func (repository *CSVRepository) AddMedia(newMedia media.Media) error {
-	// Check if the new Media is a duplicate or not by checking its title and year
 	for _, mediaData := range repository.data {
 		if mediaData.GetWork().Title == newMedia.GetWork().Title && mediaData.GetWork().Year == newMedia.GetWork().Year {
 			return Error("Title: "+newMedia.GetWork().Title, ErrDuplicatedMedia, nil)
 		}
 	}
 
-	// Add Media to the repository in memory
 	repository.data = append(repository.data, newMedia)
 
 	return nil
@@ -90,7 +87,6 @@ func (repository *CSVRepository) UpdateMedia(title string, year string, media me
 		return Error(repository.name, ErrReadCsv, errReadAll)
 	}
 
-	// Look for the line that holds the record that needs to be updated
 	updateLine := -1
 	for pos, record := range records {
 		if record[0] == title && record[1] == year {
@@ -99,7 +95,6 @@ func (repository *CSVRepository) UpdateMedia(title string, year string, media me
 		}
 	}
 
-	// Update record
 	input, _ := os.ReadFile(repository.name)
 	lines := strings.Split(string(input), "\n")
 	for linePos := range lines {
@@ -120,10 +115,8 @@ func (repository *CSVRepository) UpdateMedia(title string, year string, media me
 }
 
 func (repository *CSVRepository) RemoveAll() error {
-	// Empty the in-memory data
 	repository.data = []media.Media{}
 
-	// Empty the in-file data
 	if _, err := os.Stat(repository.name); err == nil {
 		csvFile, errRemove := os.Create(repository.name)
 		if errRemove != nil {
@@ -132,7 +125,6 @@ func (repository *CSVRepository) RemoveAll() error {
 
 		repository.writer = csv.NewWriter(csvFile)
 
-		// Add headers to the CSV file
 		repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"})
 		repository.writer.Flush()
 
@@ -160,7 +152,6 @@ func (repository *CSVRepository) Persist() error {
 	}
 
 	for _, mediaData := range repository.data {
-		// Search if the value already exists on the dataset
 		exists := false
 		for _, record := range records {
 			if record[0] == mediaData.GetWork().Title && record[1] == mediaData.GetWork().Year {
@@ -169,7 +160,6 @@ func (repository *CSVRepository) Persist() error {
 			}
 		}
 
-		// Add record to the CSV file without repeating
 		if !exists {
 			record := CreateMediaRecord(mediaData)
 
@@ -181,7 +171,6 @@ func (repository *CSVRepository) Persist() error {
 		}
 	}
 
-	// Empty in-memory data, because it has been persisted on the dataset file
 	repository.data = []media.Media{}
 
 	return nil
@@ -201,7 +190,6 @@ func CreateMediaRecord(media media.Media) []string {
 		}
 	}
 
-	// A record consists of the following fields: title,year,lastupdated,url,mediatype,tropes
 	record := []string{media.GetWork().Title, media.GetWork().Year, media.GetWork().LastUpdated.Format("2006-01-02 15:04:05"),
 		media.GetPage().GetUrl().String(), media.GetMediaType().String(), strings.Join(tropes, ";"), strings.Join(indexes, ";")}
 
