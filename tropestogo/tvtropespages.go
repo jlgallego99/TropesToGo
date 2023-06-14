@@ -9,6 +9,7 @@ import (
 
 var (
 	ErrDuplicatedPage = errors.New("the page already exists")
+	ErrEmptyUrl       = errors.New("the provided URL string is empty")
 )
 
 // TvTropesPages is an entity that manages all relevant pages in TvTropes for its extraction
@@ -29,6 +30,10 @@ func NewTvTropesPages() *TvTropesPages {
 // If the url is empty or has an invalid format, it will return an ErrBadUrl error
 // If the url does not belong to a TvTropes page, it will return an ErrNotTvTropes error
 func (tvtropespages *TvTropesPages) AddTvTropesPage(pageUrl string) error {
+	if pageUrl == "" {
+		return ErrEmptyUrl
+	}
+
 	newUrl, errParse := url.Parse(pageUrl)
 	if errParse != nil {
 		return fmt.Errorf("%w: "+pageUrl+"\n%w", ErrBadUrl, errParse)
@@ -40,7 +45,7 @@ func (tvtropespages *TvTropesPages) AddTvTropesPage(pageUrl string) error {
 	}
 
 	for tvtropesPage := range tvtropespages.Pages {
-		if tvtropesPage.GetUrl() == newUrl {
+		if tvtropesPage.GetUrl().String() == pageUrl {
 			return fmt.Errorf("%w: "+pageUrl, ErrDuplicatedPage)
 		}
 	}
