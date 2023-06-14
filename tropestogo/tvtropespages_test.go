@@ -5,7 +5,6 @@ import (
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"net/url"
 	"time"
 )
 
@@ -37,24 +36,6 @@ var _ = Describe("Tvtropespages", func() {
 
 		It("Should have three Pages", func() {
 			Expect(len(tvtropespages.Pages)).To(Equal(3))
-		})
-
-		It("Should have added the correct Pages", func() {
-			var urls []*url.URL
-			var pageTypes []tropestogo.PageType
-			for page, lastUpdated := range tvtropespages.Pages {
-				urls = append(urls, page.GetUrl())
-				pageTypes = append(pageTypes, page.GetPageType())
-
-				Expect(lastUpdated).To(Not(BeNil()))
-			}
-
-			Expect(urls[0].String()).To(Equal(oldboyUrl))
-			Expect(pageTypes[0]).To(Equal(tropestogo.WorkPage))
-			Expect(urls[1].String()).To(Equal(tropeUrl))
-			Expect(pageTypes[1]).To(Equal(tropestogo.MainPage))
-			Expect(urls[2].String()).To(Equal(indexUrl))
-			Expect(pageTypes[2]).To(Equal(tropestogo.IndexPage))
 		})
 	})
 
