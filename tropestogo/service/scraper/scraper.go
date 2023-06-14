@@ -104,13 +104,13 @@ func (scraper *ServiceScraper) CheckTvTropesPage(page *tropestogo.Page) (bool, e
 
 // CheckValidWorkPage accepts a reader with a webpage contents and checks if it's a valid TvTropes Work page
 // This allows the scraper to check if TvTropes template has somewhat changed and if the scraper can extract its data
-func (scraper *ServiceScraper) CheckValidWorkPage(reader io.Reader, tvtropesUrl *url.URL) (bool, error) {
+func (scraper *ServiceScraper) CheckValidWorkPage(reader io.Reader, url *url.URL) (bool, error) {
 	doc, err := goquery.NewDocumentFromReader(reader)
 	if err != nil {
 		return false, ErrNotTvTropes
 	}
 
-	validWorkPage, errWorkPage := scraper.CheckIsWorkPage(tvtropesUrl)
+	validWorkPage, errWorkPage := scraper.CheckIsWorkPage(url)
 	if !validWorkPage {
 		return false, errWorkPage
 	}
@@ -129,16 +129,16 @@ func (scraper *ServiceScraper) CheckValidWorkPage(reader io.Reader, tvtropesUrl 
 }
 
 // CheckIsWorkPage checks if the received page belongs to a tvtropes.org Work page
-func (scraper *ServiceScraper) CheckIsWorkPage(tvtropesUrl *url.URL) (bool, error) {
+func (scraper *ServiceScraper) CheckIsWorkPage(url *url.URL) (bool, error) {
 	// First check if the domain is TvTropes
-	if tvtropesUrl.Hostname() != TvTropesHostname {
-		return false, fmt.Errorf("%w: "+tvtropesUrl.String(), ErrNotTvTropes)
+	if url.Hostname() != TvTropesHostname {
+		return false, fmt.Errorf("%w: "+url.String(), ErrNotTvTropes)
 	}
 
 	// Check if it's a Film Work page
-	splitPath := strings.Split(tvtropesUrl.Path, "/")
-	if !strings.HasPrefix(tvtropesUrl.Path, TvTropesPmwiki) || splitPath[3] != media.Film.String() {
-		return false, fmt.Errorf("%w: "+tvtropesUrl.String(), ErrNotWorkPage)
+	splitPath := strings.Split(url.Path, "/")
+	if !strings.HasPrefix(url.Path, TvTropesPmwiki) || splitPath[3] != media.Film.String() {
+		return false, fmt.Errorf("%w: "+url.String(), ErrNotWorkPage)
 	}
 
 	return true, nil
@@ -219,9 +219,9 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page *tropestogo.Page) (media.
 }
 
 // ScrapeWorkPage accepts a reader with a TvTropes Work Page contens and extracts all the relevant information from it
-func (scraper *ServiceScraper) ScrapeWorkPage(reader io.Reader, tvtropesUrl *url.URL) (media.Media, error) {
+func (scraper *ServiceScraper) ScrapeWorkPage(reader io.Reader, url *url.URL) (media.Media, error) {
 	doc, _ := goquery.NewDocumentFromReader(reader)
-	page, errNewPage := tropestogo.NewPage(tvtropesUrl)
+	page, errNewPage := tropestogo.NewPage(url)
 	if errNewPage != nil {
 		return media.Media{}, fmt.Errorf("Error creating Page object \n%w", errNewPage)
 	}
