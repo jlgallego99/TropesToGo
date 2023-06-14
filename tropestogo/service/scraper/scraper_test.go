@@ -18,6 +18,15 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+const (
+	oldboyUrl        = "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"
+	anewhopeUrl      = "https://tvtropes.org/pmwiki/pmwiki.php/Film/ANewHope"
+	avengersUrl      = "https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012"
+	mediaUrl         = "https://tvtropes.org/pmwiki/pmwiki.php/Main/Media"
+	googleUrl        = "https://www.google.com/"
+	attackontitanUrl = "https://tvtropes.org/pmwiki/pmwiki.php/Manga/AttackOnTitan"
+)
+
 // A scraper service for test purposes
 var serviceScraperJson, serviceScraperCsv, invalidScraper *scraper.ServiceScraper
 var newScraperJsonErr, newScraperCsvErr, invalidScraperErr, errPersistJson, errPersistCsv error
@@ -67,7 +76,7 @@ var _ = Describe("Scraper", func() {
 			var errTvTropesCsv, errTvTropesJson error
 
 			BeforeEach(func() {
-				tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
+				tvTropesUrl, _ := url.Parse(oldboyUrl)
 				pageReaderJson, _ = os.Open("resources/oldboy2003.html")
 				pageReaderCsv, _ = os.Open("resources/oldboy2003.html")
 
@@ -96,7 +105,7 @@ var _ = Describe("Scraper", func() {
 			var errTvTropes2Csv, errTvTropes2Json error
 
 			BeforeEach(func() {
-				tvTropesUrl2, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012")
+				tvTropesUrl2, _ := url.Parse(avengersUrl)
 				pageReaderJson, _ = os.Open("resources/theavengers2012.html")
 				pageReaderCsv, _ = os.Open("resources/theavengers2012.html")
 
@@ -125,7 +134,7 @@ var _ = Describe("Scraper", func() {
 			var errTvTropes3Csv, errTvTropes3Json error
 
 			BeforeEach(func() {
-				tvTropesUrl3, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/ANewHope")
+				tvTropesUrl3, _ := url.Parse(anewhopeUrl)
 				pageReaderCsv, _ = os.Open("resources/anewhope.html")
 				pageReaderJson, _ = os.Open("resources/anewhope.html")
 
@@ -154,7 +163,7 @@ var _ = Describe("Scraper", func() {
 			var errNotWorkPageCsv, errNotWorkPageJson error
 
 			BeforeEach(func() {
-				notWorkUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Main/Media")
+				notWorkUrl, _ := url.Parse(mediaUrl)
 
 				validNotWorkPageJson, errNotWorkPageJson = serviceScraperJson.CheckIsWorkPage(notWorkUrl)
 				validNotWorkPageCsv, errNotWorkPageCsv = serviceScraperCsv.CheckIsWorkPage(notWorkUrl)
@@ -176,7 +185,7 @@ var _ = Describe("Scraper", func() {
 			var errDifferentCsv, errDifferentJson error
 
 			BeforeEach(func() {
-				differentUrl, _ := url.Parse("https://www.google.com/")
+				differentUrl, _ := url.Parse(googleUrl)
 				validDifferentPageJson, errDifferentJson = serviceScraperJson.CheckIsWorkPage(differentUrl)
 				validDifferentPageCsv, errDifferentCsv = serviceScraperCsv.CheckIsWorkPage(differentUrl)
 			})
@@ -199,7 +208,7 @@ var _ = Describe("Scraper", func() {
 			var errorfilm1Csv, errorfilm1Json error
 
 			BeforeEach(func() {
-				tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
+				tvTropesUrl, _ := url.Parse(oldboyUrl)
 				pageReaderCsv, _ = os.Open("resources/oldboy2003.html")
 				pageReaderJson, _ = os.Open("resources/oldboy2003.html")
 
@@ -242,7 +251,7 @@ var _ = Describe("Scraper", func() {
 				Expect(err).To(BeNil())
 				Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy"))
 				Expect(dataset.Tropestogo[0].Year).To(Equal("2003"))
-				Expect(dataset.Tropestogo[0].URL).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"))
+				Expect(dataset.Tropestogo[0].URL).To(Equal(oldboyUrl))
 				Expect(dataset.Tropestogo[0].MediaType).To(Equal("Film"))
 				Expect(len(dataset.Tropestogo[0].Tropes) > 0).To(BeTrue())
 			})
@@ -259,7 +268,7 @@ var _ = Describe("Scraper", func() {
 				Expect(len(records[1])).To(Equal(7))
 				Expect(records[1][0]).To(Equal("Oldboy"))
 				Expect(records[1][1]).To(Equal("2003"))
-				Expect(records[1][3]).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"))
+				Expect(records[1][3]).To(Equal(oldboyUrl))
 				Expect(records[1][4]).To(Equal("Film"))
 				Expect(len(strings.Split(records[1][5], ";")) > 0).To(BeTrue())
 			})
@@ -270,7 +279,7 @@ var _ = Describe("Scraper", func() {
 			var errorfilm3Csv, errorfilm3Json error
 
 			BeforeEach(func() {
-				tvTropesUrl3, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/ANewHope")
+				tvTropesUrl3, _ := url.Parse(anewhopeUrl)
 				pageReaderCsv, _ = os.Open("resources/anewhope.html")
 				pageReaderJson, _ = os.Open("resources/anewhope.html")
 
@@ -311,7 +320,7 @@ var _ = Describe("Scraper", func() {
 			var errorfilminvalidtypeJson, errorfilminvalidtypeCsv error
 
 			BeforeEach(func() {
-				tvTropesUrlUnknown, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Manga/AttackOnTitan")
+				tvTropesUrlUnknown, _ := url.Parse(attackontitanUrl)
 				pageReaderCsv, _ = os.Open("resources/attackontitan.html")
 				pageReaderJson, _ = os.Open("resources/attackontitan.html")
 

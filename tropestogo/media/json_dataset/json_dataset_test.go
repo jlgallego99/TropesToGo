@@ -14,6 +14,10 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+const (
+	oldboyUrl = "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"
+)
+
 var repository *json_dataset.JSONRepository
 var errorRepository, errRemoveAll, errAddMedia, errPersist error
 var mediaEntry media.Media
@@ -27,7 +31,7 @@ var _ = BeforeSuite(func() {
 	tropes[trope1] = struct{}{}
 	tropes[trope2] = struct{}{}
 	tropes[trope3] = struct{}{}
-	tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
+	tvTropesUrl, _ := url.Parse(oldboyUrl)
 	tvTropesPage, _ := tropestogo.NewPage(tvTropesUrl)
 	mediaEntry, _ = media.NewMedia("Oldboy", "2003", time.Now(), tropes, tvTropesPage, media.Film)
 })
@@ -75,7 +79,7 @@ var _ = Describe("JsonDataset", func() {
 			Expect(err).To(BeNil())
 			Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy"))
 			Expect(dataset.Tropestogo[0].Year).To(Equal("2003"))
-			Expect(dataset.Tropestogo[0].URL).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"))
+			Expect(dataset.Tropestogo[0].URL).To(Equal(oldboyUrl))
 			Expect(dataset.Tropestogo[0].MediaType).To(Equal("Film"))
 			Expect(len(dataset.Tropestogo[0].Tropes)).To(Equal(3))
 		})
@@ -164,7 +168,7 @@ var _ = Describe("JsonDataset", func() {
 			tropes[trope1] = struct{}{}
 			tropes[trope2] = struct{}{}
 
-			updatedUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2013")
+			updatedUrl, _ := url.Parse(oldboyUrl)
 			tvTropesPage, _ := tropestogo.NewPage(updatedUrl)
 
 			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), tropes, tvTropesPage, media.Film)
@@ -182,7 +186,7 @@ var _ = Describe("JsonDataset", func() {
 			Expect(len(dataset.Tropestogo)).To(Equal(1))
 			Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy"))
 			Expect(dataset.Tropestogo[0].Year).To(Equal("2013"))
-			Expect(dataset.Tropestogo[0].URL).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2013"))
+			Expect(dataset.Tropestogo[0].URL).To(Equal(oldboyUrl))
 			Expect(dataset.Tropestogo[0].MediaType).To(Equal("Film"))
 			Expect(len(dataset.Tropestogo[0].Tropes)).To(Equal(2))
 		})

@@ -8,6 +8,10 @@ import (
 	"net/url"
 )
 
+const (
+	oldboyUrl = "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"
+)
+
 var _ = Describe("Page", func() {
 	var validPage, invalidPage, nullPage *tropestogo.Page
 	var validUrl, invalidUrl *url.URL
@@ -15,7 +19,7 @@ var _ = Describe("Page", func() {
 
 	Context("Create a TvTropes Page object", func() {
 		BeforeEach(func() {
-			validUrl, _ = url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
+			validUrl, _ = url.Parse(oldboyUrl)
 			validPage, errValidPage = tropestogo.NewPage(validUrl)
 		})
 

@@ -14,6 +14,10 @@ import (
 	"time"
 )
 
+const (
+	oldboyUrl = "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"
+)
+
 var repository *csv_dataset.CSVRepository
 var errorRepository, errRemoveAll, errAddMedia, errPersist error
 var mediaEntry media.Media
@@ -30,7 +34,7 @@ var _ = BeforeSuite(func() {
 	tropes[trope1] = struct{}{}
 	tropes[trope2] = struct{}{}
 	tropes[trope3] = struct{}{}
-	tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003")
+	tvTropesUrl, _ := url.Parse(oldboyUrl)
 	tvTropesPage, _ := tropestogo.NewPage(tvTropesUrl)
 	mediaEntry, _ = media.NewMedia("Oldboy", "2003", time.Now(), tropes, tvTropesPage, media.Film)
 })
@@ -84,7 +88,7 @@ var _ = Describe("CsvDataset", func() {
 			Expect(len(records[1])).To(Equal(7))
 			Expect(records[1][0]).To(Equal("Oldboy"))
 			Expect(records[1][1]).To(Equal("2003"))
-			Expect(records[1][3]).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"))
+			Expect(records[1][3]).To(Equal(oldboyUrl))
 			Expect(records[1][4]).To(Equal("Film"))
 			Expect(len(strings.Split(records[1][5], ";"))).To(Equal(3))
 			Expect(strings.Contains(records[1][5], "AdaptationalLocationChange")).To(BeTrue())
@@ -176,7 +180,7 @@ var _ = Describe("CsvDataset", func() {
 			tropes[trope1] = struct{}{}
 			tropes[trope2] = struct{}{}
 
-			updatedUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2013")
+			updatedUrl, _ := url.Parse(oldboyUrl)
 			tvTropesPage, _ := tropestogo.NewPage(updatedUrl)
 
 			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), tropes, tvTropesPage, media.Film)
@@ -193,7 +197,7 @@ var _ = Describe("CsvDataset", func() {
 			Expect(records[0]).To(Equal([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"}))
 			Expect(records[1][0]).To(Equal("Oldboy"))
 			Expect(records[1][1]).To(Equal("2013"))
-			Expect(records[1][3]).To(Equal("https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2013"))
+			Expect(records[1][3]).To(Equal(oldboyUrl))
 			Expect(records[1][4]).To(Equal("Film"))
 			Expect(len(strings.Split(records[1][5], ";"))).To(Equal(2))
 			Expect(strings.Contains(records[1][5], "AdaptationalComicRelief")).To(BeTrue())

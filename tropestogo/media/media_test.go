@@ -11,6 +11,10 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+const (
+	avengersUrl = "https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012"
+)
+
 var _ = Describe("Media", func() {
 	var tvTropesPage *tropestogo.Page
 	var lastUpdated time.Time
@@ -23,7 +27,7 @@ var _ = Describe("Media", func() {
 		tropes[trope2] = struct{}{}
 		lastUpdated = time.Now()
 
-		tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012")
+		tvTropesUrl, _ := url.Parse(avengersUrl)
 		tvTropesPage, _ = tropestogo.NewPage(tvTropesUrl)
 	})
 
