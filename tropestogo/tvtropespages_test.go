@@ -2,7 +2,6 @@ package tropestogo_test
 
 import (
 	"errors"
-	"fmt"
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -100,7 +99,6 @@ var _ = Describe("Tvtropespages", func() {
 		})
 
 		It("Should return an error", func() {
-			fmt.Println(errAddEmpty)
 			Expect(errors.Is(errAddEmpty, tropestogo.ErrBadUrl)).To(BeTrue())
 		})
 

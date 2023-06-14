@@ -89,7 +89,7 @@ func (repository *JSONRepository) UpdateMedia(title string, year string, updateM
 			dataset.Tropestogo[pos].Year = updateMedia.GetWork().Year
 			dataset.Tropestogo[pos].MediaType = updateMedia.GetMediaType().String()
 			dataset.Tropestogo[pos].LastUpdated = updateMedia.GetWork().LastUpdated.Format("2006-01-02 15:04:05")
-			dataset.Tropestogo[pos].URL = updateMedia.GetPage().URL.String()
+			dataset.Tropestogo[pos].URL = updateMedia.GetPage().GetUrl().String()
 			dataset.Tropestogo[pos].Tropes = tropes
 
 			break
@@ -168,7 +168,7 @@ func (repository *JSONRepository) Persist() error {
 				Year:        mediaData.GetWork().Year,
 				MediaType:   mediaData.GetMediaType().String(),
 				LastUpdated: mediaData.GetWork().LastUpdated.Format("2006-01-02 15:04:05"),
-				URL:         mediaData.GetPage().URL.String(),
+				URL:         mediaData.GetPage().GetUrl().String(),
 				Tropes:      tropes,
 			}
 
