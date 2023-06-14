@@ -4,36 +4,72 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"time"
+	"strings"
 )
 
-const TvTropesHostname = "tvtropes.org"
+const (
+	TvTropesHostname  = "tvtropes.org"
+	TvTropesPmwiki    = "/pmwiki/pmwiki.php/"
+	TvTropesMainPath  = TvTropesPmwiki + "/Main/"
+	TvTropesIndexPath = "/pmwiki/pagelist_having_pagetype_in_namespace.php"
+)
 
 var (
 	ErrNotTvTropes = errors.New("the URL does not belong to a TvTropes web page")
 	ErrBadUrl      = errors.New("invalid URL")
 )
 
-// Page is a TvTropes Work page for later scraping
-type Page struct {
-	// URL defines the identity of the Page entity
-	URL *url.URL
+type PageType int64
 
-	// LastUpdated is the last time the page was updated, for helping with maintaining information updated
-	LastUpdated time.Time
+const (
+	UnknownPageType PageType = iota
+	WorkPage
+	MainPage
+	IndexPage
+)
+
+// Page is a value-object that represents a generic TvTropes web page
+type Page struct {
+	// A Page can be accessed only by its URL, which doesn't change
+	url *url.URL
+
+	// A Page in TvTropes can be, mainly, a main page, a work page or an index page
+	pageType PageType
 }
 
-func NewPage(URL *url.URL) (*Page, error) {
+// NewPage creates a valid Page value-object that represents a generic and immutable TvTropes web page
+// It accepts a URL object and checks if it belongs to TvTropes and extracts the type of the page from it
+// (main page, work page, index page, etc.)
+func NewPage(URL *url.URL) (Page, error) {
 	if URL == nil {
-		return nil, fmt.Errorf("%w: URL object is null", ErrBadUrl)
+		return Page{}, fmt.Errorf("%w: URL object is null", ErrBadUrl)
 	}
 
 	if URL.Hostname() != TvTropesHostname {
-		return nil, ErrNotTvTropes
+		return Page{}, ErrNotTvTropes
 	}
 
-	return &Page{
-		URL:         URL,
-		LastUpdated: time.Now(),
+	var pageType PageType
+	if strings.HasPrefix(URL.Path, TvTropesMainPath) {
+		pageType = MainPage
+	} else if strings.HasPrefix(URL.Path, TvTropesPmwiki) {
+		pageType = WorkPage
+	} else if strings.HasPrefix(URL.Path, TvTropesIndexPath) {
+		pageType = IndexPage
+	} else {
+		pageType = UnknownPageType
+	}
+
+	return Page{
+		url:      URL,
+		pageType: pageType,
 	}, nil
+}
+
+func (page Page) GetUrl() *url.URL {
+	return page.url
+}
+
+func (page Page) GetPageType() PageType {
+	return page.pageType
 }
