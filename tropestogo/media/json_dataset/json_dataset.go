@@ -53,21 +53,21 @@ func NewJSONRepository(name string) (*JSONRepository, error) {
 	return repository, nil
 }
 
-func (repository *JSONRepository) AddMedia(med media.Media) error {
+func (repository *JSONRepository) AddMedia(newMedia media.Media) error {
 	// Check if the new Media is a duplicate or not by checking its title and year
 	for _, mediaData := range repository.data {
-		if mediaData.GetWork().Title == med.GetWork().Title && mediaData.GetWork().Year == med.GetWork().Year {
-			return Error("Title: "+med.GetWork().Title, ErrDuplicatedMedia, nil)
+		if mediaData.GetWork().Title == newMedia.GetWork().Title && mediaData.GetWork().Year == newMedia.GetWork().Year {
+			return Error("Title: "+newMedia.GetWork().Title, ErrDuplicatedMedia, nil)
 		}
 	}
 
 	// Add Media to the repository in memory
-	repository.data = append(repository.data, med)
+	repository.data = append(repository.data, newMedia)
 
 	return nil
 }
 
-func (repository *JSONRepository) UpdateMedia(title string, year string, med media.Media) error {
+func (repository *JSONRepository) UpdateMedia(title string, year string, updateMedia media.Media) error {
 	var dataset JSONDataset
 
 	fileContents, errReadDataset := os.ReadFile(repository.name)
@@ -84,12 +84,12 @@ func (repository *JSONRepository) UpdateMedia(title string, year string, med med
 	// Look for the record that needs to be updated
 	for pos, record := range dataset.Tropestogo {
 		if record.Title == title && record.Year == year {
-			tropes := media.GetJsonTropes(med)
-			dataset.Tropestogo[pos].Title = med.GetWork().Title
-			dataset.Tropestogo[pos].Year = med.GetWork().Year
-			dataset.Tropestogo[pos].MediaType = med.GetMediaType().String()
-			dataset.Tropestogo[pos].LastUpdated = med.GetWork().LastUpdated.Format("2006-01-02 15:04:05")
-			dataset.Tropestogo[pos].URL = med.GetPage().URL.String()
+			tropes := media.GetJsonTropes(updateMedia)
+			dataset.Tropestogo[pos].Title = updateMedia.GetWork().Title
+			dataset.Tropestogo[pos].Year = updateMedia.GetWork().Year
+			dataset.Tropestogo[pos].MediaType = updateMedia.GetMediaType().String()
+			dataset.Tropestogo[pos].LastUpdated = updateMedia.GetWork().LastUpdated.Format("2006-01-02 15:04:05")
+			dataset.Tropestogo[pos].URL = updateMedia.GetPage().URL.String()
 			dataset.Tropestogo[pos].Tropes = tropes
 
 			break

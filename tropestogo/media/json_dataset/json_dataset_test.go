@@ -144,7 +144,7 @@ var _ = Describe("JsonDataset", func() {
 			repository, errorRepository = json_dataset.NewJSONRepository("dataset")
 		})
 
-		It("Shouldn't exist a JSON file", func() {
+		It("A JSON file shouldn't exist", func() {
 			Expect("dataset.json").To(Not(BeAnExistingFile()))
 		})
 

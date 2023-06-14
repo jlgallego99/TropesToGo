@@ -156,7 +156,7 @@ var _ = Describe("CsvDataset", func() {
 			repository, errorRepository = csv_dataset.NewCSVRepository("dataset")
 		})
 
-		It("Shouldn't exist a CSV file", func() {
+		It("A CSV file shouldn't exist", func() {
 			Expect("dataset.csv").To(Not(BeAnExistingFile()))
 		})
 

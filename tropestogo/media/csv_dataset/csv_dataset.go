@@ -64,16 +64,16 @@ func (repository *CSVRepository) GetReader() (*csv.Reader, error) {
 	return reader, nil
 }
 
-func (repository *CSVRepository) AddMedia(med media.Media) error {
+func (repository *CSVRepository) AddMedia(newMedia media.Media) error {
 	// Check if the new Media is a duplicate or not by checking its title and year
 	for _, mediaData := range repository.data {
-		if mediaData.GetWork().Title == med.GetWork().Title && mediaData.GetWork().Year == med.GetWork().Year {
-			return Error("Title: "+med.GetWork().Title, ErrDuplicatedMedia, nil)
+		if mediaData.GetWork().Title == newMedia.GetWork().Title && mediaData.GetWork().Year == newMedia.GetWork().Year {
+			return Error("Title: "+newMedia.GetWork().Title, ErrDuplicatedMedia, nil)
 		}
 	}
 
 	// Add Media to the repository in memory
-	repository.data = append(repository.data, med)
+	repository.data = append(repository.data, newMedia)
 
 	return nil
 }
