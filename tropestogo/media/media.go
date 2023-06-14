@@ -68,7 +68,7 @@ type Media struct {
 	work *tropestogo.Work
 
 	// page is the TvTropes webpage from where the Work information is extracted
-	page *tropestogo.Page
+	page tropestogo.Page
 
 	// MediaType is the media index that this work belongs to
 	mediaType MediaType
@@ -96,7 +96,7 @@ func (media Media) MarshalJSON() ([]byte, error) {
 		Year:        media.work.Year,
 		MediaType:   media.mediaType.String(),
 		LastUpdated: media.work.LastUpdated.Format("2006-01-02 15:04:05"),
-		URL:         media.page.URL.String(),
+		URL:         media.page.GetUrl().String(),
 		Tropes:      tropes,
 	})
 }
@@ -119,8 +119,8 @@ func GetJsonTropes(media Media) []JsonTrope {
 }
 
 // NewMedia is a factory that creates a Media aggregate with validations
-func NewMedia(title, year string, lastUpdated time.Time, tropes map[tropestogo.Trope]struct{}, page *tropestogo.Page, mediaType MediaType) (Media, error) {
-	if page == nil {
+func NewMedia(title, year string, lastUpdated time.Time, tropes map[tropestogo.Trope]struct{}, page tropestogo.Page, mediaType MediaType) (Media, error) {
+	if page.GetUrl() == nil {
 		return Media{}, ErrMissingValues
 	}
 
@@ -160,7 +160,7 @@ func (media Media) GetWork() *tropestogo.Work {
 	return media.work
 }
 
-func (media Media) GetPage() *tropestogo.Page {
+func (media Media) GetPage() tropestogo.Page {
 	return media.page
 }
 

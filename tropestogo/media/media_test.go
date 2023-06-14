@@ -16,7 +16,7 @@ const (
 )
 
 var _ = Describe("Media", func() {
-	var tvTropesPage *tropestogo.Page
+	var tvTropesPage tropestogo.Page
 	var lastUpdated time.Time
 	tropes := make(map[tropestogo.Trope]struct{})
 
@@ -61,12 +61,13 @@ var _ = Describe("Media", func() {
 			var errMediaNoPage error
 
 			BeforeEach(func() {
-				mediaNoPage, errMediaNoPage = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, nil, media.Film)
+				mediaNoPage, errMediaNoPage = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, tropestogo.Page{}, media.Film)
 			})
 
 			It("Should return an empty object", func() {
 				Expect(mediaNoPage.GetWork()).To(BeNil())
-				Expect(mediaNoPage.GetPage()).To(BeNil())
+				Expect(mediaNoPage.GetPage().GetUrl()).To(BeNil())
+				Expect(mediaNoPage.GetPage().GetPageType()).To(BeZero())
 				Expect(mediaNoPage.GetMediaType()).To(Equal(media.MediaType(0)))
 			})
 
@@ -80,12 +81,13 @@ var _ = Describe("Media", func() {
 			var errMediaNoTitle error
 
 			BeforeEach(func() {
-				mediaNoTitle, errMediaNoTitle = media.NewMedia("", "2012", lastUpdated, tropes, nil, media.Film)
+				mediaNoTitle, errMediaNoTitle = media.NewMedia("", "2012", lastUpdated, tropes, tropestogo.Page{}, media.Film)
 			})
 
 			It("Should return an empty object", func() {
 				Expect(mediaNoTitle.GetWork()).To(BeNil())
-				Expect(mediaNoTitle.GetPage()).To(BeNil())
+				Expect(mediaNoTitle.GetPage().GetUrl()).To(BeNil())
+				Expect(mediaNoTitle.GetPage().GetPageType()).To(BeZero())
 				Expect(mediaNoTitle.GetMediaType()).To(Equal(media.MediaType(0)))
 			})
 
@@ -104,7 +106,8 @@ var _ = Describe("Media", func() {
 
 			It("Should return an empty object", func() {
 				Expect(mediaNoType.GetWork()).To(BeNil())
-				Expect(mediaNoType.GetPage()).To(BeNil())
+				Expect(mediaNoType.GetPage().GetUrl()).To(BeNil())
+				Expect(mediaNoType.GetPage().GetPageType()).To(BeZero())
 				Expect(mediaNoType.GetMediaType()).To(Equal(media.MediaType(0)))
 			})
 
@@ -123,7 +126,8 @@ var _ = Describe("Media", func() {
 
 			It("Should return an empty object", func() {
 				Expect(mediaWrongYear.GetWork()).To(BeNil())
-				Expect(mediaWrongYear.GetPage()).To(BeNil())
+				Expect(mediaWrongYear.GetPage().GetUrl()).To(BeNil())
+				Expect(mediaWrongYear.GetPage().GetPageType()).To(BeZero())
 				Expect(mediaWrongYear.GetMediaType()).To(Equal(media.MediaType(0)))
 			})
 
