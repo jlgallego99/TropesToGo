@@ -151,17 +151,29 @@ func (repository *JSONRepository) Persist() error {
 	}
 
 	for _, mediaData := range repository.data {
-		tropes := media.GetJsonTropes(mediaData)
-		record := media.JsonResponse{
-			Title:       mediaData.GetWork().Title,
-			Year:        mediaData.GetWork().Year,
-			MediaType:   mediaData.GetMediaType().String(),
-			LastUpdated: mediaData.GetWork().LastUpdated.Format("2006-01-02 15:04:05"),
-			URL:         mediaData.GetPage().URL.String(),
-			Tropes:      tropes,
+		// Search if the value already exists on the dataset
+		exists := false
+		for _, datasetMedia := range dataset.Tropestogo {
+			if datasetMedia.Title == mediaData.GetWork().Title && datasetMedia.Year == mediaData.GetWork().Year {
+				exists = true
+				break
+			}
 		}
 
-		dataset.Tropestogo = append(dataset.Tropestogo, record)
+		// Append without repeating
+		if !exists {
+			tropes := media.GetJsonTropes(mediaData)
+			record := media.JsonResponse{
+				Title:       mediaData.GetWork().Title,
+				Year:        mediaData.GetWork().Year,
+				MediaType:   mediaData.GetMediaType().String(),
+				LastUpdated: mediaData.GetWork().LastUpdated.Format("2006-01-02 15:04:05"),
+				URL:         mediaData.GetPage().URL.String(),
+				Tropes:      tropes,
+			}
+
+			dataset.Tropestogo = append(dataset.Tropestogo, record)
+		}
 	}
 
 	// Empty in-memory data, because it has been persisted on the dataset file

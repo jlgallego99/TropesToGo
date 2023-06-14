@@ -149,16 +149,36 @@ func (repository *CSVRepository) Persist() error {
 		return Error(repository.name, ErrPersist, nil)
 	}
 
-	for _, mediaData := range repository.data {
-		record := CreateMediaRecord(mediaData)
+	reader, errReader := repository.GetReader()
+	if errReader != nil {
+		return Error(repository.name, ErrReadCsv, errReader)
+	}
 
-		// Add all records to the CSV file
-		err := repository.writer.Write(record)
-		if err != nil {
-			return Error(repository.name, ErrWriteCsv, err)
+	records, errReadAll := reader.ReadAll()
+	if errReadAll != nil {
+		return Error(repository.name, ErrReadCsv, errReadAll)
+	}
+
+	for _, mediaData := range repository.data {
+		// Search if the value already exists on the dataset
+		exists := false
+		for _, record := range records {
+			if record[0] == mediaData.GetWork().Title && record[1] == mediaData.GetWork().Year {
+				exists = true
+				break
+			}
 		}
 
-		repository.writer.Flush()
+		// Add record to the CSV file without repeating
+		if !exists {
+			record := CreateMediaRecord(mediaData)
+
+			err := repository.writer.Write(record)
+			if err != nil {
+				return Error(repository.name, ErrWriteCsv, err)
+			}
+			repository.writer.Flush()
+		}
 	}
 
 	// Empty in-memory data, because it has been persisted on the dataset file

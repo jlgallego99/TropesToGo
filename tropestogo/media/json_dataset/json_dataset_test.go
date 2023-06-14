@@ -198,6 +198,27 @@ var _ = Describe("JsonDataset", func() {
 			Expect(errPersist).To(BeNil())
 		})
 	})
+
+	Context("Persist an already persisted before record", func() {
+		BeforeEach(func() {
+			// Persist first
+			errAddMedia = repository.AddMedia(mediaEntry)
+			errPersist = repository.Persist()
+
+			// Try to persist again the same Media
+			errAddMedia = repository.AddMedia(mediaEntry)
+			errPersist = repository.Persist()
+		})
+
+		It("Should only be one Media record on the JSON file", func() {
+			var dataset json_dataset.JSONDataset
+			fileContents, _ := os.ReadFile("dataset.json")
+			err := json.Unmarshal(fileContents, &dataset)
+
+			Expect(err).To(BeNil())
+			Expect(len(dataset.Tropestogo)).To(Equal(1))
+		})
+	})
 })
 
 var _ = AfterSuite(func() {

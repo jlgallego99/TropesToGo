@@ -212,6 +212,25 @@ var _ = Describe("CsvDataset", func() {
 			Expect(errPersist).To(BeNil())
 		})
 	})
+
+	Context("Persist an already persisted before record", func() {
+		BeforeEach(func() {
+			// Persist first
+			errAddMedia = repository.AddMedia(mediaEntry)
+			errPersist = repository.Persist()
+
+			// Try to persist again the same Media
+			errAddMedia = repository.AddMedia(mediaEntry)
+			errPersist = repository.Persist()
+		})
+
+		It("Should only be one Media record on the CSV file", func() {
+			records, err := reader.ReadAll()
+
+			Expect(err).To(BeNil())
+			Expect(len(records)).To(Equal(2))
+		})
+	})
 })
 
 var _ = AfterSuite(func() {
