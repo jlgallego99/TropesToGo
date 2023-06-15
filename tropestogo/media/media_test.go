@@ -2,7 +2,6 @@ package media_test
 
 import (
 	"errors"
-	"net/url"
 	"time"
 
 	tropestogo "github.com/jlgallego99/TropesToGo"
@@ -27,8 +26,7 @@ var _ = Describe("Media", func() {
 		tropes[trope2] = struct{}{}
 		lastUpdated = time.Now()
 
-		tvTropesUrl, _ := url.Parse(avengersUrl)
-		tvTropesPage, _ = tropestogo.NewPage(tvTropesUrl)
+		tvTropesPage, _ = tropestogo.NewPage(avengersUrl)
 	})
 
 	Describe("Create Media", func() {

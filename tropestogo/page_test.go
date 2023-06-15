@@ -5,7 +5,6 @@ import (
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"net/url"
 )
 
 const (
@@ -17,13 +16,11 @@ const (
 
 var _ = Describe("Page", func() {
 	var validPage, invalidPage, nullPage tropestogo.Page
-	var validUrl, invalidUrl *url.URL
 	var errValidPage, errInvalidPage, errNullPage error
 
 	Context("Create a TvTropes Page object of a Film page", func() {
 		BeforeEach(func() {
-			validUrl, _ = url.Parse(oldboyUrl)
-			validPage, errValidPage = tropestogo.NewPage(validUrl)
+			validPage, errValidPage = tropestogo.NewPage(oldboyUrl)
 		})
 
 		It("Shouldn't return an error", func() {
@@ -33,7 +30,7 @@ var _ = Describe("Page", func() {
 		It("Should return a correct Page object", func() {
 			Expect(validPage.GetUrl()).To(Not(BeNil()))
 			Expect(validPage.GetPageType()).To(Not(BeZero()))
-			Expect(validPage.GetUrl()).To(Equal(validUrl))
+			Expect(validPage.GetUrl().String()).To(Equal(oldboyUrl))
 		})
 
 		It("Should be of type WorkPage", func() {
@@ -43,8 +40,7 @@ var _ = Describe("Page", func() {
 
 	Context("Create a TvTropes Page object of a Trope page", func() {
 		BeforeEach(func() {
-			validUrl, _ = url.Parse(tropeUrl)
-			validPage, errValidPage = tropestogo.NewPage(validUrl)
+			validPage, errValidPage = tropestogo.NewPage(tropeUrl)
 		})
 
 		It("Shouldn't return an error", func() {
@@ -54,7 +50,7 @@ var _ = Describe("Page", func() {
 		It("Should return a correct Page object", func() {
 			Expect(validPage.GetUrl()).To(Not(BeNil()))
 			Expect(validPage.GetPageType()).To(Not(BeZero()))
-			Expect(validPage.GetUrl()).To(Equal(validUrl))
+			Expect(validPage.GetUrl().String()).To(Equal(tropeUrl))
 		})
 
 		It("Should be of type MainPage", func() {
@@ -64,8 +60,7 @@ var _ = Describe("Page", func() {
 
 	Context("Create a TvTropes Page object of a Index page", func() {
 		BeforeEach(func() {
-			validUrl, _ = url.Parse(indexUrl)
-			validPage, errValidPage = tropestogo.NewPage(validUrl)
+			validPage, errValidPage = tropestogo.NewPage(indexUrl)
 		})
 
 		It("Shouldn't return an error", func() {
@@ -75,7 +70,7 @@ var _ = Describe("Page", func() {
 		It("Should return a correct Page object", func() {
 			Expect(validPage.GetUrl()).To(Not(BeNil()))
 			Expect(validPage.GetPageType()).To(Not(BeZero()))
-			Expect(validPage.GetUrl()).To(Equal(validUrl))
+			Expect(validPage.GetUrl().String()).To(Equal(indexUrl))
 		})
 
 		It("Should be of type MainPage", func() {
@@ -85,8 +80,7 @@ var _ = Describe("Page", func() {
 
 	Context("Create a Page object of a web that isn't TvTropes", func() {
 		BeforeEach(func() {
-			invalidUrl, _ = url.Parse(googleUrl)
-			invalidPage, errInvalidPage = tropestogo.NewPage(invalidUrl)
+			invalidPage, errInvalidPage = tropestogo.NewPage(googleUrl)
 		})
 
 		It("Should return an error", func() {
@@ -99,13 +93,13 @@ var _ = Describe("Page", func() {
 		})
 	})
 
-	Context("Create a Page with a null URL", func() {
+	Context("Create a Page with an empty URL", func() {
 		BeforeEach(func() {
-			nullPage, errNullPage = tropestogo.NewPage(nil)
+			nullPage, errNullPage = tropestogo.NewPage("")
 		})
 
 		It("Should return an error", func() {
-			Expect(errors.Is(errNullPage, tropestogo.ErrBadUrl)).To(BeTrue())
+			Expect(errors.Is(errNullPage, tropestogo.ErrEmptyUrl)).To(BeTrue())
 		})
 
 		It("Should return an empty Page object", func() {

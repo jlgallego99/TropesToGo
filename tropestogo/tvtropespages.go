@@ -3,13 +3,11 @@ package tropestogo
 import (
 	"errors"
 	"fmt"
-	"net/url"
 	"time"
 )
 
 var (
 	ErrDuplicatedPage = errors.New("the page already exists")
-	ErrEmptyUrl       = errors.New("the provided URL string is empty")
 )
 
 // TvTropesPages is an entity that manages all relevant pages in TvTropes for its extraction
@@ -27,19 +25,10 @@ func NewTvTropesPages() *TvTropesPages {
 
 // AddTvTropesPage creates a valid TvTropes Page from a string pageUrl and adds it to the internal structure of all pages
 // except if the page has already been added before, then it will return an ErrDuplicatedPage error
-// If the url is empty or has an invalid format, it will return an ErrBadUrl error
+// If the url is empty or has an invalid format, it will return either an ErrEmptyUrl or ErrBadUrl error
 // If the url does not belong to a TvTropes page, it will return an ErrNotTvTropes error
 func (tvtropespages *TvTropesPages) AddTvTropesPage(pageUrl string) error {
-	if pageUrl == "" {
-		return ErrEmptyUrl
-	}
-
-	newUrl, errParse := url.Parse(pageUrl)
-	if errParse != nil {
-		return fmt.Errorf("%w: "+pageUrl+"\n%w", ErrBadUrl, errParse)
-	}
-
-	newPage, errNewPage := NewPage(newUrl)
+	newPage, errNewPage := NewPage(pageUrl)
 	if errNewPage != nil {
 		return errNewPage
 	}

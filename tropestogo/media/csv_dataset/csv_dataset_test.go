@@ -8,7 +8,6 @@ import (
 	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -34,8 +33,7 @@ var _ = BeforeSuite(func() {
 	tropes[trope1] = struct{}{}
 	tropes[trope2] = struct{}{}
 	tropes[trope3] = struct{}{}
-	tvTropesUrl, _ := url.Parse(oldboyUrl)
-	tvTropesPage, _ := tropestogo.NewPage(tvTropesUrl)
+	tvTropesPage, _ := tropestogo.NewPage(oldboyUrl)
 	mediaEntry, _ = media.NewMedia("Oldboy", "2003", time.Now(), tropes, tvTropesPage, media.Film)
 })
 
@@ -180,8 +178,7 @@ var _ = Describe("CsvDataset", func() {
 			tropes[trope1] = struct{}{}
 			tropes[trope2] = struct{}{}
 
-			updatedUrl, _ := url.Parse(oldboyUrl)
-			tvTropesPage, _ := tropestogo.NewPage(updatedUrl)
+			tvTropesPage, _ := tropestogo.NewPage(oldboyUrl)
 
 			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), tropes, tvTropesPage, media.Film)
 

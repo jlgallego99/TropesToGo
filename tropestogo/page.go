@@ -17,6 +17,7 @@ const (
 var (
 	ErrNotTvTropes = errors.New("the URL does not belong to a TvTropes web page")
 	ErrBadUrl      = errors.New("invalid URL")
+	ErrEmptyUrl    = errors.New("the provided URL string is empty")
 )
 
 // PageType represents all the relevant types a TvTropes Page can be, so the scraper can know what it is traversing
@@ -39,30 +40,36 @@ type Page struct {
 }
 
 // NewPage creates a valid Page value-object that represents a generic and immutable TvTropes web page
-// It accepts a URL object and checks if it belongs to TvTropes and extracts the type of the page from it
+// It accepts a pageUrl string and checks if it belongs to TvTropes and extracts the type of the page from it
 // (main page, work page, index page, etc.)
-func NewPage(URL *url.URL) (Page, error) {
-	if URL == nil {
-		return Page{}, fmt.Errorf("%w: URL object is null", ErrBadUrl)
+// It returns an ErrEmptyUrl error if it's empty or an ErrBadUrl error if it's not properly represented
+func NewPage(pageUrl string) (Page, error) {
+	if pageUrl == "" {
+		return Page{}, ErrEmptyUrl
 	}
 
-	if URL.Hostname() != TvTropesHostname {
+	newUrl, errParse := url.Parse(pageUrl)
+	if errParse != nil {
+		return Page{}, fmt.Errorf("%w: "+pageUrl+"\n%w", ErrBadUrl, errParse)
+	}
+
+	if newUrl.Hostname() != TvTropesHostname {
 		return Page{}, ErrNotTvTropes
 	}
 
 	var pageType PageType
-	if strings.HasPrefix(URL.Path, TvTropesMainPath) {
+	if strings.HasPrefix(newUrl.Path, TvTropesMainPath) {
 		pageType = MainPage
-	} else if strings.HasPrefix(URL.Path, TvTropesPmwiki) {
+	} else if strings.HasPrefix(newUrl.Path, TvTropesPmwiki) {
 		pageType = WorkPage
-	} else if strings.HasPrefix(URL.Path, TvTropesIndexPath) {
+	} else if strings.HasPrefix(newUrl.Path, TvTropesIndexPath) {
 		pageType = IndexPage
 	} else {
 		pageType = UnknownPageType
 	}
 
 	return Page{
-		url:      URL,
+		url:      newUrl,
 		pageType: pageType,
 	}, nil
 }

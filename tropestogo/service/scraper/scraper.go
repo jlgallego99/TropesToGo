@@ -230,7 +230,7 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page) (media.M
 // It calls sub functions for scraping the multiple parts and returns an error if some scraping has failed
 func (scraper *ServiceScraper) ScrapeWorkPage(reader io.Reader, url *url.URL) (media.Media, error) {
 	doc, _ := goquery.NewDocumentFromReader(reader)
-	page, errNewPage := tropestogo.NewPage(url)
+	page, errNewPage := tropestogo.NewPage(url.String())
 	if errNewPage != nil {
 		return media.Media{}, fmt.Errorf("Error creating Page object \n%w", errNewPage)
 	}
