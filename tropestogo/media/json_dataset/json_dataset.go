@@ -20,10 +20,13 @@ var (
 	ErrPersist         = errors.New("can't persist data on the JSON file because there's none")
 )
 
+// JSONDataset is an intermediate structure for marshaling/unmarshalling data from the JSON dataset
 type JSONDataset struct {
 	Tropestogo []media.JsonResponse `json:"tropestogo"`
 }
 
+// JSONRepository implements the RepositoryMedia for creating and handling JSON datasets of all the scraped data on TvTropes
+// It has an internal data structure of Media objects for better performance that can be persisted into a file all in one go
 type JSONRepository struct {
 	name string
 	data []media.Media
@@ -38,6 +41,9 @@ func Error(message string, err error, subErr error) error {
 	}
 }
 
+// NewJSONRepository is the constructor for JSONRepository objects that handle JSON datasets
+// It receives the name that the JSON dataset file will have and creates the file with a "tropestogo" key with an empty array
+// It will return an ErrCreateJson error if the file couldn't be created
 func NewJSONRepository(name string) (*JSONRepository, error) {
 	f, err := os.Create(name + ".json")
 	if err != nil {
@@ -53,21 +59,23 @@ func NewJSONRepository(name string) (*JSONRepository, error) {
 	return repository, nil
 }
 
-func (repository *JSONRepository) AddMedia(med media.Media) error {
-	// Check if the new Media is a duplicate or not by checking its title and year
+// AddMedia adds a newMedia Media object to the in-memory dataset, so it can be later persisted
+// There can only be unique objects on the dataset, so it will return an ErrDuplicatedMedia error if the Media object already exists
+func (repository *JSONRepository) AddMedia(newMedia media.Media) error {
 	for _, mediaData := range repository.data {
-		if mediaData.GetWork().Title == med.GetWork().Title && mediaData.GetWork().Year == med.GetWork().Year {
-			return Error("Title: "+med.GetWork().Title, ErrDuplicatedMedia, nil)
+		if mediaData.GetWork().Title == newMedia.GetWork().Title && mediaData.GetWork().Year == newMedia.GetWork().Year {
+			return Error("Title: "+newMedia.GetWork().Title, ErrDuplicatedMedia, nil)
 		}
 	}
 
-	// Add Media to the repository in memory
-	repository.data = append(repository.data, med)
+	repository.data = append(repository.data, newMedia)
 
 	return nil
 }
 
-func (repository *JSONRepository) UpdateMedia(title string, year string, med media.Media) error {
+// UpdateMedia updates a record already written on the dataset by checking if it has the same title and year, because that differentiates a record
+// It returns an ErrReadJson, ErrWriteJson or an ErrUnmarshalJson error if the dataset couldn't be read, written or unmarshalled into a internal structure
+func (repository *JSONRepository) UpdateMedia(title string, year string, updateMedia media.Media) error {
 	var dataset JSONDataset
 
 	fileContents, errReadDataset := os.ReadFile(repository.name)
@@ -75,28 +83,25 @@ func (repository *JSONRepository) UpdateMedia(title string, year string, med med
 		return Error(repository.name, ErrReadJson, errReadDataset)
 	}
 
-	// Get the dataset on structs
 	errUnmarshal := json.Unmarshal(fileContents, &dataset)
 	if errUnmarshal != nil {
 		return Error(repository.name, ErrUnmarshalJson, errUnmarshal)
 	}
 
-	// Look for the record that needs to be updated
 	for pos, record := range dataset.Tropestogo {
 		if record.Title == title && record.Year == year {
-			tropes := media.GetJsonTropes(med)
-			dataset.Tropestogo[pos].Title = med.GetWork().Title
-			dataset.Tropestogo[pos].Year = med.GetWork().Year
-			dataset.Tropestogo[pos].MediaType = med.GetMediaType().String()
-			dataset.Tropestogo[pos].LastUpdated = med.GetWork().LastUpdated.Format("2006-01-02 15:04:05")
-			dataset.Tropestogo[pos].URL = med.GetPage().URL.String()
+			tropes := media.GetJsonTropes(updateMedia)
+			dataset.Tropestogo[pos].Title = updateMedia.GetWork().Title
+			dataset.Tropestogo[pos].Year = updateMedia.GetWork().Year
+			dataset.Tropestogo[pos].MediaType = updateMedia.GetMediaType().String()
+			dataset.Tropestogo[pos].LastUpdated = updateMedia.GetWork().LastUpdated.Format("2006-01-02 15:04:05")
+			dataset.Tropestogo[pos].URL = updateMedia.GetPage().GetUrl().String()
 			dataset.Tropestogo[pos].Tropes = tropes
 
 			break
 		}
 	}
 
-	// Update the record and marshal to the file
 	jsonBytes, err := json.Marshal(dataset)
 	if err != nil {
 		return Error("", ErrMarshalJson, err)
@@ -110,11 +115,13 @@ func (repository *JSONRepository) UpdateMedia(title string, year string, med med
 	return nil
 }
 
+// RemoveAll deletes all data on both the in-memory intermediate data and on the dataset file
+// It tries to recreate the dataset, so it will return an ErrCreateJson error if that wasn't possible
+// If the dataset file doesn't exist, it returns an ErrFileNotExists error
 func (repository *JSONRepository) RemoveAll() error {
 	var err error
 	var f *os.File
 
-	// Empty the in-memory data
 	repository.data = []media.Media{}
 
 	if _, err = os.Stat(repository.name); err == nil {
@@ -132,6 +139,10 @@ func (repository *JSONRepository) RemoveAll() error {
 	}
 }
 
+// Persist writes all intermediate Media data into the proper dataset file and empties the structure, because it has already been persisted
+// It checks whether the new records are already on the dataset file, but doesn't return an error, but simply skips it
+// If the internal data structure is empty, it will do nothing and return an ErrPersist error
+// It returns an ErrReadJson, ErrWriteJson or an ErrUnmarshalJson error if the dataset couldn't be read, written or unmarshalled into a internal structure
 func (repository *JSONRepository) Persist() error {
 	if len(repository.data) == 0 {
 		return Error(repository.name, ErrPersist, nil)
@@ -144,14 +155,12 @@ func (repository *JSONRepository) Persist() error {
 		return Error(repository.name, ErrReadJson, errReadDataset)
 	}
 
-	// Get the JSON array and append the new Media object
 	errUnmarshal := json.Unmarshal(fileContents, &dataset)
 	if errUnmarshal != nil {
 		return Error(repository.name, ErrUnmarshalJson, errUnmarshal)
 	}
 
 	for _, mediaData := range repository.data {
-		// Search if the value already exists on the dataset
 		exists := false
 		for _, datasetMedia := range dataset.Tropestogo {
 			if datasetMedia.Title == mediaData.GetWork().Title && datasetMedia.Year == mediaData.GetWork().Year {
@@ -160,7 +169,6 @@ func (repository *JSONRepository) Persist() error {
 			}
 		}
 
-		// Append without repeating
 		if !exists {
 			tropes := media.GetJsonTropes(mediaData)
 			record := media.JsonResponse{
@@ -168,7 +176,7 @@ func (repository *JSONRepository) Persist() error {
 				Year:        mediaData.GetWork().Year,
 				MediaType:   mediaData.GetMediaType().String(),
 				LastUpdated: mediaData.GetWork().LastUpdated.Format("2006-01-02 15:04:05"),
-				URL:         mediaData.GetPage().URL.String(),
+				URL:         mediaData.GetPage().GetUrl().String(),
 				Tropes:      tropes,
 			}
 
@@ -176,10 +184,8 @@ func (repository *JSONRepository) Persist() error {
 		}
 	}
 
-	// Empty in-memory data, because it has been persisted on the dataset file
 	repository.data = []media.Media{}
 
-	// Persist the old data + the new data in the JSON file
 	jsonBytes, err := json.Marshal(dataset)
 	if err != nil {
 		return Error("", ErrMarshalJson, err)

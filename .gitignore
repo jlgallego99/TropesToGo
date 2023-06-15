@@ -314,7 +314,7 @@ typings/
 !tropestogo/service/scraper/resources/*.html
 
 # ignore .idea folder
-tropestogo/.idea/*
+.idea/
 
 # Ignore all generated datasets
 *.csv
