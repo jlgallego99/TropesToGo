@@ -11,7 +11,8 @@ var (
 type TropeIndex int64
 
 const (
-	GenreTrope TropeIndex = iota
+	UnknownTropeIndex TropeIndex = iota
+	GenreTrope
 	MediaTrope
 	NarrativeTrope
 	TopicalTrope
@@ -19,11 +20,38 @@ const (
 
 func (index TropeIndex) IsValid() bool {
 	switch index {
-	case GenreTrope, MediaTrope, NarrativeTrope, TopicalTrope:
+	case UnknownTropeIndex, GenreTrope, MediaTrope, NarrativeTrope, TopicalTrope:
 		return true
 	}
 
 	return false
+}
+
+// ToTropeIndex converts a string to a MediaType
+func ToTropeIndex(tropeIndexString string) (TropeIndex, error) {
+	for tropeindex := UnknownTropeIndex + 1; tropeindex <= GenreTrope; tropeindex++ {
+		if tropeIndexString == tropeindex.String() {
+			return tropeindex, nil
+		}
+	}
+
+	return UnknownTropeIndex, ErrUnknownIndex
+}
+
+// Implement Stringer interface for comparing string media types and avoid using literals
+func (index TropeIndex) String() string {
+	switch index {
+	case GenreTrope:
+		return "GenreTrope"
+	case MediaTrope:
+		return "MediaTrope"
+	case NarrativeTrope:
+		return "NarrativeTrope"
+	case TopicalTrope:
+		return "TopicalTrope"
+	default:
+		return "UnknownTropeIndex"
+	}
 }
 
 // Trope represents a reiterative resource that is collected in TvTropes
@@ -34,7 +62,8 @@ type Trope struct {
 	index TropeIndex
 }
 
-// NewTrope is a factory that creates a valid Trope value object
+// NewTrope is a factory that creates a valid Trope value object by receiving its name and the index to which it belongs
+// It checks if the index is valid and returns an ErrUnknownIndex if it's not
 func NewTrope(title string, index TropeIndex) (Trope, error) {
 	if len(title) == 0 {
 		return Trope{}, ErrMissingValues
@@ -50,10 +79,12 @@ func NewTrope(title string, index TropeIndex) (Trope, error) {
 	}, nil
 }
 
+// GetTitle returns the main identifier of the trope: its title
 func (trope Trope) GetTitle() string {
 	return trope.title
 }
 
+// GetIndex returns the main category this trope belongs to in narratives
 func (trope Trope) GetIndex() TropeIndex {
 	return trope.index
 }

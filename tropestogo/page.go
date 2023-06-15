@@ -1,15 +1,85 @@
 package tropestogo
 
 import (
+	"errors"
+	"fmt"
 	"net/url"
-	"time"
+	"strings"
 )
 
-// Page is a TvTropes Work page for later scraping
-type Page struct {
-	// URL defines the identity of the Page entity
-	URL *url.URL
+const (
+	TvTropesHostname  = "tvtropes.org"
+	TvTropesPmwiki    = "/pmwiki/pmwiki.php/"
+	TvTropesMainPath  = TvTropesPmwiki + "Main/"
+	TvTropesIndexPath = "/pmwiki/pagelist_having_pagetype_in_namespace.php"
+)
 
-	// LastUpdated is the last time the page was updated, for helping with maintaining information updated
-	LastUpdated time.Time
+var (
+	ErrNotTvTropes = errors.New("the URL does not belong to a TvTropes web page")
+	ErrBadUrl      = errors.New("invalid URL")
+	ErrEmptyUrl    = errors.New("the provided URL string is empty")
+)
+
+// PageType represents all the relevant types a TvTropes Page can be, so the scraper can know what it is traversing
+type PageType int64
+
+const (
+	UnknownPageType PageType = iota
+	WorkPage
+	MainPage
+	IndexPage
+)
+
+// Page is a value-object that represents a generic TvTropes web page
+type Page struct {
+	// A Page can be accessed only by its URL, which doesn't change
+	url *url.URL
+
+	// A Page in TvTropes can be, mainly, a main page, a work page or an index page
+	pageType PageType
+}
+
+// NewPage creates a valid Page value-object that represents a generic and immutable TvTropes web page
+// It accepts a pageUrl string and checks if it belongs to TvTropes and extracts the type of the page from it
+// (main page, work page, index page, etc.)
+// It returns an ErrEmptyUrl error if it's empty or an ErrBadUrl error if it's not properly represented
+func NewPage(pageUrl string) (Page, error) {
+	if pageUrl == "" {
+		return Page{}, ErrEmptyUrl
+	}
+
+	newUrl, errParse := url.Parse(pageUrl)
+	if errParse != nil {
+		return Page{}, fmt.Errorf("%w: "+pageUrl+"\n%w", ErrBadUrl, errParse)
+	}
+
+	if newUrl.Hostname() != TvTropesHostname {
+		return Page{}, ErrNotTvTropes
+	}
+
+	var pageType PageType
+	if strings.HasPrefix(newUrl.Path, TvTropesMainPath) {
+		pageType = MainPage
+	} else if strings.HasPrefix(newUrl.Path, TvTropesPmwiki) {
+		pageType = WorkPage
+	} else if strings.HasPrefix(newUrl.Path, TvTropesIndexPath) {
+		pageType = IndexPage
+	} else {
+		pageType = UnknownPageType
+	}
+
+	return Page{
+		url:      newUrl,
+		pageType: pageType,
+	}, nil
+}
+
+// GetUrl returns the inmutable URL object that defines the Page
+func (page Page) GetUrl() *url.URL {
+	return page.url
+}
+
+// GetPageType returns the PageType enum that represents the type of the Page
+func (page Page) GetPageType() PageType {
+	return page.pageType
 }
