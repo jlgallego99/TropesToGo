@@ -1,16 +1,21 @@
 package media_test
 
 import (
+	"errors"
+	"time"
+
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"net/url"
-	"time"
+)
+
+const (
+	avengersUrl = "https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012"
 )
 
 var _ = Describe("Media", func() {
-	var tvTropesPage *tropestogo.Page
+	var tvTropesPage tropestogo.Page
 	var lastUpdated time.Time
 	tropes := make(map[tropestogo.Trope]struct{})
 
@@ -21,11 +26,7 @@ var _ = Describe("Media", func() {
 		tropes[trope2] = struct{}{}
 		lastUpdated = time.Now()
 
-		tvTropesUrl, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012")
-		tvTropesPage = &tropestogo.Page{
-			URL:         tvTropesUrl,
-			LastUpdated: time.Now(),
-		}
+		tvTropesPage, _ = tropestogo.NewPage(avengersUrl)
 	})
 
 	Describe("Create Media", func() {
@@ -58,12 +59,13 @@ var _ = Describe("Media", func() {
 			var errMediaNoPage error
 
 			BeforeEach(func() {
-				mediaNoPage, errMediaNoPage = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, nil, media.Film)
+				mediaNoPage, errMediaNoPage = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, tropestogo.Page{}, media.Film)
 			})
 
 			It("Should return an empty object", func() {
 				Expect(mediaNoPage.GetWork()).To(BeNil())
-				Expect(mediaNoPage.GetPage()).To(BeNil())
+				Expect(mediaNoPage.GetPage().GetUrl()).To(BeNil())
+				Expect(mediaNoPage.GetPage().GetPageType()).To(BeZero())
 				Expect(mediaNoPage.GetMediaType()).To(Equal(media.MediaType(0)))
 			})
 
@@ -77,12 +79,13 @@ var _ = Describe("Media", func() {
 			var errMediaNoTitle error
 
 			BeforeEach(func() {
-				mediaNoTitle, errMediaNoTitle = media.NewMedia("", "2012", lastUpdated, tropes, nil, media.Film)
+				mediaNoTitle, errMediaNoTitle = media.NewMedia("", "2012", lastUpdated, tropes, tropestogo.Page{}, media.Film)
 			})
 
 			It("Should return an empty object", func() {
 				Expect(mediaNoTitle.GetWork()).To(BeNil())
-				Expect(mediaNoTitle.GetPage()).To(BeNil())
+				Expect(mediaNoTitle.GetPage().GetUrl()).To(BeNil())
+				Expect(mediaNoTitle.GetPage().GetPageType()).To(BeZero())
 				Expect(mediaNoTitle.GetMediaType()).To(Equal(media.MediaType(0)))
 			})
 
@@ -101,12 +104,13 @@ var _ = Describe("Media", func() {
 
 			It("Should return an empty object", func() {
 				Expect(mediaNoType.GetWork()).To(BeNil())
-				Expect(mediaNoType.GetPage()).To(BeNil())
+				Expect(mediaNoType.GetPage().GetUrl()).To(BeNil())
+				Expect(mediaNoType.GetPage().GetPageType()).To(BeZero())
 				Expect(mediaNoType.GetMediaType()).To(Equal(media.MediaType(0)))
 			})
 
 			It("Should raise a proper error", func() {
-				Expect(errMediaNoType).To(Equal(media.ErrUnknownMediaType))
+				Expect(errors.Is(errMediaNoType, media.ErrUnknownMediaType)).To(BeTrue())
 			})
 		})
 
@@ -120,12 +124,13 @@ var _ = Describe("Media", func() {
 
 			It("Should return an empty object", func() {
 				Expect(mediaWrongYear.GetWork()).To(BeNil())
-				Expect(mediaWrongYear.GetPage()).To(BeNil())
+				Expect(mediaWrongYear.GetPage().GetUrl()).To(BeNil())
+				Expect(mediaWrongYear.GetPage().GetPageType()).To(BeZero())
 				Expect(mediaWrongYear.GetMediaType()).To(Equal(media.MediaType(0)))
 			})
 
 			It("Should raise a proper error", func() {
-				Expect(errMediaWrongYear).To(Equal(media.ErrInvalidYear))
+				Expect(errors.Is(errMediaWrongYear, media.ErrInvalidYear)).To(BeTrue())
 			})
 		})
 	})

@@ -4,6 +4,12 @@
 ### Tutor: Juan Julián Merelo Guervós
 ___
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![License: CC BY-NC-SA 3.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%203.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
+All [HTML files](/tropestogo/service/scraper/resources/) and all data on the generated datasets belong to [TvTropes](https://tvtropes.org/) and are under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+
+---
+
 La documentación de este proyecto está realizada con `LaTeX`, por lo
 tanto para generar el archivo PDF necesitaremos instalar `TeXLive` en
 nuestra distribución.
