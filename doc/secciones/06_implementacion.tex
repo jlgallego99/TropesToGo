@@ -296,8 +296,8 @@ de los recomendados en \textit{Domain Driven Design} para la creación de
 agregados, y se encarga de formar correctamente el objeto para cumplir la
 propiedad de única responsabilidad. Es imprescindible poder generar este tipo de
 objetos correctamente, ya que los utilizará el \textit{scraper} para rellenarlos
-con los datos extraídos. Por supuesto, de la mano de la creación de la factoría
-de \texttt{Media} vienen los tests necesarios, que prueban con varios objetos
+con los datos extraídos. Por supuesto, de la mano de la creación de la factoría \texttt{Media} 
+vienen los tests necesarios, que prueban con varios objetos
 válidos e inválidos para comprobar que se cumplen todos los casos definidos y el
 manejo de errores es correcto. La factoría, como es común en Go, gestiona una
 serie de errores que devuelve como segundo argumento para asegurar siempre que
@@ -313,13 +313,28 @@ individual, con una separación clara entre la función de alto nivel y las sub
 funciones de más bajo nivel a las que llama, encargadas de analizar y extraer
 datos de distintas partes de la página.
 
-Para extraer el título y el índice de la película se han empleado los mismos
+En general, en el ámbito del \textit{scraping} las tres herramientas más
+imprescindibles son: los selectores CSS, que dan operaciones y reglas para
+encontrar rápidamente elementos en el HTML de una
+página\footnote{\url{https://developer.mozilla.org/es/docs/Web/CSS/CSS_Selectors}};
+las expresiones regulares, para identificar patrones y poder tratar mejor las
+cadenas de texto fruto de aplicar un selector CSS; y, por último, las
+herramientas de desarrollo del navegador web, para analizar el HTML interno de
+una página, encontrar las partes fundamentales que se quieren extraer y probar los
+selectores CSS en ella para comprobar que apuntan justo a los recursos deseados.
+
+Para extraer el título, el índice y el tipo de medio audiovisual de la página de
+una obra (en este caso, solo obras que son películas) se han empleado los mismos
 selectores que en la comprobación de la página y que se vieron en el análisis de
-la estructura de TvTropes. Sin embargo, el principal problema a la hora de
-extraer información en el artículo principal ha estado relacionado con los
-\textit{tropos}. En un principio se tenía ideado el extraer no solo los
+la estructura de TvTropes, que apuntan directamente al \textit{header} del
+artículo que tiene toda esta información. En este caso, puesto que queremos la
+información y no basta con verificar, se ha hecho uso de una expresión regular
+que separa las tres partes que queremos, que es capaz de identificar cualquier
+año en mitad de una cadena de texto. Sin embargo, el principal problema a la
+hora de extraer información en el artículo principal ha estado relacionado con
+los \textit{tropos}. En un principio se tenía ideado el extraer solamente los
 \textit{tropos} que figuran en la lista, como cabeza de cada uno de los
-elementos de ella, sino también aquellos a los que se hace referencia en las
+elementos de ella, y también aquellos a los que se hace referencia en las
 descripciones de ellos y en el resumen de la película. El problema de esto es
 que se han encontrado casos de \textit{tropos} que, cuando están referenciados
 en mitad de un texto y no como un elemento principal de la lista, no pertenecen
@@ -332,20 +347,18 @@ aparecen en cada elemento de la lista o carpetas, que se consideran
 ``principales''.
 
 Ha sido necesario construir dos selectores CSS nuevos, apoyándose en las guías
-de Mozilla para selectores
-\footnote{\url{https://developer.mozilla.org/es/docs/Web/CSS/CSS_Selectors}},
-que permitan seleccionar fácilmente y de manera exclusiva los \textit{tropos}
-principales, tras un proceso de análisis de la página mediante el inspector de
-elementos HTML del navegador. Cada uno de estos selectores condensan en una sola
-instrucción todo lo necesario para encontrar cada uno de los enlaces a
-\textit{tropos} que encabezan cada elemento de la lista, tanto para una lista
-simple como para el caso de que estén en carpetas. Como se vio en la figura
-\ref{fig:tvtropes-work}, cuando TvTropes define los \textit{tropos} de una obra,
-siempre los muestra en una lista donde cada primer elemento es un hipervínculo
-con estructura conocida y fácilmente identificable. Por supuesto, al igual que
-en el hito anterior, se construyen los selectores como \textit{strings}
-constantes con un nombre legible, de forma que se eviten utilizar literales en
-el código y sea más legible.
+de Mozilla para selectores, que permitan seleccionar fácilmente y de manera
+exclusiva los \textit{tropos} principales, tras un proceso de análisis de la
+página mediante el inspector de elementos HTML del navegador. Cada uno de estos
+selectores condensan en una sola instrucción todo lo necesario para encontrar
+cada uno de los enlaces a \textit{tropos} que encabezan cada elemento de la
+lista, tanto para una lista simple como para el caso de que estén en carpetas.
+Como se vio en la figura \ref{fig:tvtropes-work}, cuando TvTropes define los
+\textit{tropos} de una obra, siempre los muestra en una lista donde cada primer
+elemento es un hipervínculo con estructura conocida y fácilmente identificable.
+Por supuesto, al igual que en el hito anterior, se construyen los selectores
+como \textit{strings} constantes con un nombre legible, de forma que se eviten
+utilizar literales en el código y sea más legible.
 
 Por tanto, se obtienen inequívocamente los \textit{tropos} de una lista simple
 en el artículo principal de una obra de TvTropes mediante el selector CSS de la
@@ -368,8 +381,8 @@ del combinador general de hermanos
 están al mismo nivel; en este caso, identifica todos los primeros elementos de
 lista \texttt{<ul>} que son hermanos de la cabecera que da inicio a la sección
 de \textit{tropos}. Se recuerda que, aunque visualmente en la página parezca una
-sola lista, internamente suele estar partida en distintos elementos
-\texttt{<ul>} al mismo nivel, por lo que esto nos permitiría seleccionar todos
+sola lista, internamente suele estar partida en distintos elementos \texttt{<ul>} 
+al mismo nivel, por lo que esto nos permitiría seleccionar todos
 ellos. Con esto ya tenemos identificada sin lugar a equivocaciones la sección de
 \textit{tropos}. A continuación, se emplea dos veces el combinador de hijo
 \begin{otherlanguage}{english}(representado por el símbolo
@@ -420,25 +433,26 @@ esa página si fuese necesario.
 
 Con esto ya estaría desarrollada la parte del \textit{scraper} correspondiente a
 este hito, que se encarga de extraer toda la información de una página y
-construir el objeto \texttt{Media}. Cabe destacar que para implementar la estructura de
-datos que maneja los \textit{tropos} de una obra se ha utilizado un set, ya que
-es una estructura de datos en la que todos sus elementos son únicos, y en una
-obra no tiene sentido que existan \textit{tropos} repetidos. Finalmente, se
-desarrollan sin problema los tests que comprueban que el resultado de la
-extracción es correcto, comprobando si el título, año y URL son los esperados y
-si en el set todos los objetos hacen referencia a \textit{tropos} reales y no
-están repetidos. Estos tests se realizan con varias páginas de TvTropes de
-prueba que tienen los \textit{tropos} en listas y en carpetas. Una vez hecho
-esto, el próximo paso para completar este hito es poder trasladar esta
-información a un \textit{dataset}.
+construir el objeto con la información de la página con sus \textit{tropos}.
+Cabe destacar que para implementar la estructura de datos que maneja los
+\textit{tropos} de una obra se ha utilizado un set, ya que es una estructura de
+datos en la que todos sus elementos son únicos, y en una obra no tiene sentido
+que existan \textit{tropos} repetidos. Finalmente, se desarrollan sin problema
+los tests que comprueban que el resultado de la extracción es correcto,
+comprobando si el título, año y URL son los esperados y si en el set todos los
+objetos hacen referencia a \textit{tropos} reales y no están repetidos. Estos
+tests se realizan con varias páginas de TvTropes de prueba que tienen los
+\textit{tropos} en listas y en carpetas. Una vez hecho esto, el próximo paso
+para completar este hito es poder trasladar esta información a un
+\textit{dataset}.
 
 \subsection{Implementación de repositorios para manejar los \textit{datasets}}
 Finalmente, la última parte que resta para completar este hito es el
-almacenamiento de uno o varios objetos \texttt{Media}, que recordamos que son un agregado
-que representan una obra con sus tropos, en un conjunto de datos con un formato
-estandarizado. Los repositorios son los encargados en DDD de persistir los
-agregados y, como se vio en el modelado inicial del problema, se modela un
-repositorio para objetos \texttt{Media}.
+almacenamiento de uno o varios objetos \texttt{Media} en un conjunto de datos
+con un formato estandarizado. Recordamos que estos objetos son agregados que
+representan una obra con sus \textit{tropos}. Los repositorios son los
+encargados en DDD de persistir los agregados y, como se vio en el modelado
+inicial del problema, se modela un repositorio para este tipo de objetos.
 
 En la interfaz repositorio de \texttt{Media} se describen únicamente aquellos métodos
 genéricos que cumplan las necesidades del usuario. La principal funcionalidad es
@@ -460,32 +474,31 @@ que le genere un conjunto con ellos que ya utilizará en la manera que crea
 necesario y, por tanto, solo son necesarias funcionalidades de creación, borrado
 y actualización.
 
-Esta definición genérica de la interfaz repositorio de \texttt{Media} nos permite poder
-implementar en cualquier momento \textit{structs} que, implementando
-todos los métodos de la interfaz, definan una nueva forma de persistencia de los
-datos extraídos. Esto garantiza la propiedad de extensibilidad del código y está
-en consonancia con la
+Esta definición genérica de la interfaz repositorio permite poder implementar en
+cualquier momento \textit{structs} que, implementando todos los métodos de la
+interfaz, definan una nueva forma de persistencia de los datos extraídos. Esto
+garantiza la propiedad de extensibilidad del código y está en consonancia con la
 \href{https://github.com/jlgallego99/TropesToGo/issues/30}{[HU05]}, donde se
 especifica que el usuario quiere poder elegir el formato en el que se represente
 el conjunto de datos de entre los más comunes en ciencia de datos. El
 representar los repositorios del conjunto de datos como algo genérico, con una
 misma definición, permite tener en cuenta en todo momento esta historia de
 usuario para añadir nuevos formatos soportados por TropesToGo en caso de
-necesitarlos y luego poder utilizarlos fácilmente. Para seguir esta HU y cumplir
-este hito, se implementan dos repositorios de \texttt{Media} para \textit{datasets} en
-formato CSV y JSON. El formato CSV es el más frecuente en cualquier tarea de ciencia
-de datos y tiene la ventaja de que es independiente del lenguaje. Por su parte,
-el JSON tiene las mismas ventajas, estando presente en multitud de ámbitos como
-formato para representación de datos, como por ejemplo en API REST, y es el
-formato de los datos de Tropescraper.
+necesitarlos y luego poder reutilizarlos fácilmente. Para seguir esta HU y
+cumplir este hito, se implementan dos repositorios de \texttt{Media} para
+\textit{datasets} en formato CSV y JSON. El formato CSV es el más frecuente en
+cualquier tarea de ciencia de datos y tiene la ventaja de que es independiente
+del lenguaje. Por su parte, el JSON tiene las mismas ventajas, estando presente
+en multitud de ámbitos como formato para representación de datos, como por
+ejemplo en API REST, y es el formato de los datos de Tropescraper.
 
 En cuanto a la información que tiene que contener el \textit{dataset}, ya la
-conocemos, puesto que son todos los campos que contiene cada objeto \texttt{Media}, sin
-embargo, la forma de representación varía entre los formatos de datos. En
-general, en el fichero de datos tienen que figurar una serie de entradas, una
-detrás de otra, que representen una obra y toda su información relevante. Esta
-información es: tanto el título como el año de la obra, para identificarla
-inequívocamente
+conocemos, puesto que son todos los campos que contiene cada objeto \texttt{Media} 
+en los que, sin embargo, la forma de representación varía entre
+los formatos de datos. En general, en el fichero de datos tienen que figurar una
+serie de entradas, una detrás de otra, que representen una obra y toda su
+información relevante. Esta información es: tanto el título como el año de la
+obra, para identificarla inequívocamente
 (\href{https://github.com/jlgallego99/TropesToGo/issues/8}{[HU03]}), su URL de
 TvTropes, la fecha en la que se actualizaron sus datos por última vez, el tipo
 de medio audiovisual al que pertenece (para este hito, de momento solo
@@ -507,20 +520,20 @@ principio.
 Los repositorios para JSON y CSV se implementan en paquetes separados, para
 preservar el principio de única responsabilidad, y definen únicamente las
 funciones necesarias. Por tanto, se tienen módulos de repositorio completamente
-desacoplados, que únicamente reciben un objeto \texttt{Media} con el cual efectuar sus
-operaciones. Se puede ver un ejemplo de cómo estaría representada la información
-completa de una obra en la Figura \ref{fig:json-dataset} para el
+desacoplados, que únicamente reciben un objeto \texttt{Media} con el cual
+efectuar sus operaciones. Se puede ver un ejemplo de cómo estaría representada
+la información completa de una obra en la Figura \ref{fig:json-dataset} para el
 \textit{dataset} JSON y en la Figura \ref{fig:csv-dataset} para el conjunto de
 datos CSV. En el caso de JSON se tiene una clave principal ``tropestogo'', que
-contiene un array de objetos \texttt{Media}. Cada objeto contiene toda la información
-principal en el mismo nivel, y los \textit{tropos} son un array cuya información
-anidada contiene su título y su índice. En el fichero CSV cada dato es una
-columna, sin embargo, para representar los tropos y sus índices se ha tenido que
-separar en dos columnas distintas. Dentro de esas columnas se tiene de igual
-manera un array, donde cada elemento está separado por punto y coma (un
-delimitador distinto que el que separa entre columnas, que es la coma), y la
-posición en un array se corresponde con la del otro, para relacionar el nombre
-del \textit{tropo} con su índice.
+contiene un array con todos los resultados del \textit{scraping}. Cada uno de
+los objetos contiene toda la información principal en el mismo nivel, y los
+\textit{tropos} son un array cuya información anidada contiene su título y su
+índice. En el fichero CSV cada dato es una columna, sin embargo, para
+representar los tropos y sus índices se ha tenido que separar en dos columnas
+distintas. Dentro de esas columnas se tiene de igual manera un array, donde cada
+elemento está separado por punto y coma (un delimitador distinto que el que
+separa entre columnas, que es la coma), y la posición en un array se corresponde
+con la del otro, para relacionar el nombre del \textit{tropo} con su índice.
 
 \begin{figure}[ht]
     \includegraphics[width=\textwidth]{img/dataset-json.png}
@@ -563,26 +576,27 @@ del \textit{tropo} con su índice.
 
 Para tratar con los ficheros en JSON ha sido necesario implementar la interfaz
 \textit{Marshaler} de la biblioteca estándar de Go, ya que es obligatorio si se
-quieren codificar y descodificar objetos complejos a JSON, en este caso los
-objetos \texttt{Media}. Con esto ya se tiene una forma sencilla de transformar objetos
-entre el fichero JSON y las estructuras internas del código. En el caso de CSV
-es más sencillo debido a que la biblioteca estándar de CSV de Go contiene una función
-para escribir sobre este tipo de ficheros. En general, el CSV es más fácil de
-tratar, puesto que es un formato muy sencillo que consta únicamente de líneas una
-detrás de otra, más fáciles de tratar con los métodos convencionales de
-escritura y lectura de ficheros. 
+quieren codificar y descodificar objetos complejos a JSON. Con esto ya se tiene
+una forma sencilla de transformar objetos entre el fichero JSON y las
+estructuras internas del código. En el caso de CSV es más sencillo debido a que
+la biblioteca estándar de CSV de Go contiene una función para escribir sobre
+este tipo de ficheros. En general, el CSV es más fácil de tratar, puesto que es
+un formato muy sencillo que consta únicamente de líneas una detrás de otra, más
+fáciles de tratar con los métodos convencionales de escritura y lectura de
+ficheros. 
 
 Se sigue una misma estrategia en ambos repositorios para facilitar la gestión de
 los datos y para reducir lo máximo posible el número de lecturas y escritas en
 ficheros, que pueden comprometer bastante la eficiencia (en relación con la
 \href{https://github.com/jlgallego99/TropesToGo/issues/45}{[HU06]}). El flujo
 general de funcionamiento de los repositorios consiste en que, al añadir un
-nuevo objeto \texttt{Media}, no se persiste directamente, sino que se almacena en un
-vector de objetos \texttt{Media} como parte del objeto \textit{scraper}. Este vector se
-va rellenando con las sucesivas llamadas de añadir \texttt{Media}, hasta que finalmente
-se decida llamar a un método que se encarga de volcar (persistir) todos los
-datos de la variable en memoria al fichero, vaciando la memoria y construyendo
-todo el \textit{dataset} en una sola vez.
+nuevo objeto \texttt{Media} correctamente formado, no se persiste directamente,
+sino que se almacena en un vector de objetos \texttt{Media} como parte del
+objeto \textit{scraper}. Este vector se va rellenando con las sucesivas llamadas
+de añadir objetos \texttt{Media} hasta que finalmente se decida llamar a un
+método que se encarga de volcar (persistir) todos los datos de la variable en
+memoria al fichero, vaciando la memoria y construyendo todo el \textit{dataset}
+en una sola vez.
 
 Los métodos de borrado y actualización siguen una filosofía muy parecida en
 ambas implementaciones. El borrado se ha implementado como una limpieza completa
@@ -594,8 +608,8 @@ proceso de carga de todo el \textit{dataset} del fichero en una variable
 temporal, lo cual permite tratar más fácilmente los datos en términos propios
 del lenguaje. Para esto, en el caso de JSON basta con realizar una
 decodificación del JSON a las estructuras de datos de Go que contienen los
-datos, haciendo la actualización como una búsqueda simple en el array de objetos
-\texttt{Media} y modificando lo necesario. Al llevar a cabo las modificaciones sobre los
+datos, haciendo la actualización como una búsqueda simple en el array de objetos \texttt{Media} 
+y modificando lo necesario. Al llevar a cabo las modificaciones sobre los
 objetos internos, se vuelve a escribir todo el conjunto de datos, terminando la
 actualización. Este es un proceso que está pensado solamente en el caso de que
 el \textit{scraper} encuentre datos más actualizados, para no tener que volver a
@@ -638,9 +652,9 @@ objeto un paso previo que se queda encapsulado en una función previa que realiz
 peticiones HTTP y llama a esta función de análisis. Por tanto, los tests pueden
 directamente llamar a esta función de análisis cargando desde el test el fichero
 HTML que se tiene en disco. Esta nueva manera de enfocar los tests nos permite
-no solo evitar problemas de red, sino también poder testear más en profundidad
-los contenidos de una página, ya que al estar persistida en disco sabemos que no
-va a cambiar, y confirmar así que la lógica del \textit{scraper} es correcta.
+evitar los problemas de red poder testear más en profundidad los contenidos de
+una página, ya que al estar persistida en disco sabemos que no va a cambiar, y
+confirmar así que la lógica del \textit{scraper} es correcta.
 
 \section{Desarrollo de la araña}
 
