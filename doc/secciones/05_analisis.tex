@@ -483,7 +483,7 @@ concreto este trabajo está interesado únicamente en las páginas de obras y
 \href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]} y
 \href{https://github.com/jlgallego99/TropesToGo/issues/7}{[HU02]}.
 
-En la figura \ref{fig:sitemap} se representa un mapa del sitio de TvTropes como
+En la Figura \ref{fig:sitemap} se representa un mapa del sitio de TvTropes como
 un multi grafo dirigido, donde se pueden ver principalmente las páginas que
 necesita la araña, aunque también aparecen otras en gris que, aunque no son
 necesarias para cumplir con las necesidades del usuario, se representan con el
@@ -648,7 +648,7 @@ completamente distinta, esta vez requiere de una mayor exploración a fondo,
 puesto que, se dan una serie de géneros con un hipervínculo a sub páginas que
 cuelgan de la principal del \textit{tropo} y que ya sí que listan las obras.
 
-En la figura \ref{fig:tvtropes-work} se representan las partes de una página de
+En la Figura \ref{fig:tvtropes-work} se representan las partes de una página de
 una obra en TvTropes que el \textit{scraper} debe saber identificar, ya que
 contienen la información que necesitamos. En color azul se muestran las
 secciones donde se encuentra información relevante, en verde se muestran las
@@ -735,7 +735,7 @@ cualquier otro método de diferenciarlas. También puede haber información de
 \textit{tropos} anidada dentro de otros, referenciados en la descripción de la
 obra, o incluidos en sub páginas de distinta índole.
 
-En la figura \ref{fig:tropelist} se pueden ver los tres tipos más comunes para
+En la Figura \ref{fig:tropelist} se pueden ver los tres tipos más comunes para
 presentar la lista de \textit{tropos} de una obra que se pueden encontrar en
 TvTropes. En el primero de la figura \ref{fig:tropelist1} se tiene simplemente
 una lista en la cual el primer elemento de cada ítem de la lista es una etiqueta
@@ -743,7 +743,7 @@ llamada \texttt{<a class=``twikilink''>} con el nombre del \textit{tropo}, la
 clase que ya se ha identificado anteriormente y un enlace a la página de ese
 \textit{tropo}. También se puede observar como en la descripción aparecen
 enlaces a otros \textit{tropos} que no salen en la lista. El segundo tipo, en la
-figura \ref{fig:tropelist2}, es muy parecido al primero solamente que esta vez
+Figura \ref{fig:tropelist2}, es muy parecido al primero solamente que esta vez
 están separados en distintas listas, que suelen cambiar el rango alfabético
 según la página. Estas carpetas se abren haciendo clic sobre ellas y, mediante
 un \textit{script} de JavaScript, aparece la lista de \textit{tropos}, sin
@@ -751,7 +751,7 @@ embargo, lo único que hace ese \textit{script} es mostrar la lista modificando
 el parámetro CSS de visibilidad. La lista no se inserta dinámicamente, sino que
 se pone visible o invisible, por lo que el código HTML base tiene todas las
 listas ya definidas independientemente de si están visibles o no. Por último, la
-figura \ref{fig:tropelist3} muestra el tipo más complejo y que no es tan común.
+Figura \ref{fig:tropelist3} muestra el tipo más complejo y que no es tan común.
 Suele aparecer en las obras más famosas, que por lo general tienen un gran
 número de \textit{tropos} que hacen que la lista esté contenida en una sub
 página y se acceda mediante un enlace en la principal. La dificultad en este
@@ -833,7 +833,7 @@ separadas generalmente por elementos de \textit{header} que cambian según la
 obra, pero donde el \textit{tropo} está incluido en el propio texto y no al
 principio de él. Se pueden ignorar los \textit{headers} y simplemente buscar los
 elementos de lista. Se puede ver, de forma general, un esquema de cómo son las
-sub páginas de una obra en la figura \ref{fig:subpage}.
+sub páginas de una obra en la Figura \ref{fig:subpage}.
 
 \begin{figure}[!h]
   \centering
@@ -872,7 +872,7 @@ TvTropes:
     índice al que pertenece permitirá distinguir obras con mismo nombre que son
     de distinto tipo.
     \item La información a extraer en una página de una obra se encuentra
-    contenida en el cuerpo principal (figura \ref{fig:tvtropes-work}), punto de
+    contenida en el cuerpo principal (Figura \ref{fig:tvtropes-work}), punto de
     partida del \textit{scraper}, que contiene varias etiquetas, clases e
     identificadores fácilmente identificables al ser siempre los mismos
     independientemente de la página. De la página de una obra se puede sacar, en
