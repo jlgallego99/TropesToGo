@@ -219,9 +219,14 @@ todos sus \textit{issues} asociados. Al terminarlo y subir sus cambios a la rama
 principal (tras un \textit{pull request} que haya sido aprobado por los flujos
 de CI y el tutor) se lanzará un nuevo \textit{release}, es decir, el propio
 incremento del producto que tendrá un número de versión asociado siguiendo la
-nomenclatura del versionado semántico\footnote{\url{https://semver.org/}}.
+nomenclatura del versionado semántico\footnote{\url{https://semver.org/}}. En el
+\autoref{chapter:6} se justificarán en orden todos los productos mínimos que
+forman cada \textit{milestone}, por qué son necesarios y las decisiones tomadas
+en cada uno para completarlo y poder avanzar en completar las historias de
+usuario.
 
-Los hitos planificados para el desarrollo son los siguientes:
+Los hitos que han ido surgiendo y completando a lo largo de todo el desarrollo
+son los siguientes:
 
 \subsubsection{M0. Configuración inicial - Objetivos, metodología e infraestructura de control de calidad}
 En este primer hito se pretende abordar toda la planificación inicial y
@@ -251,38 +256,33 @@ confirmar que se pueda extraer información.
 
 \subsubsection{M3. Scraper que extrae la información de una página de tropos de películas}
 Se producirá un producto mínimamente viable con una primera versión del scraper
-que extraiga la información de una página de tropos de películas que ha sido
-previamente testeada y de la cual se entiende su estructura. El scraper
+que extraiga la información de la página principal de tropos de películas, que
+ha sido previamente testeada y de la cual se entiende su estructura. El scraper
 almacenará esta información en un fichero de datos estándar.
 
-\subsubsection{M4. Araña que recorre el sitio}
+\subsubsection{M4. Scraper que extrae tropos de las sub páginas de una película}
+Con este hito se expande la extracción de \textit{tropos} anterior, con un
+\textit{scraper} que pueda obtener todos los \textit{tropos} que tiene una
+película en cualquiera de sus sub páginas. Estas sub páginas contienen
+\textit{tropos} adicionales según distintas temáticas o, en algunos casos, son
+parte de los \textit{tropos} principales de la película, que han sido divididos
+en sub páginas debido a su gran volumen.
+
+\subsubsection{M5. Araña que recorre el sitio}
 Se tendrá desarrollada una araña que recorra todas las páginas de películas de
 TvTropes y extraiga la información de sus tropos.
 
-\subsubsection{M5. Actualizador de información}
+\subsubsection{M6. Actualizador de información}
 El objetivo de este hito es poder actualizar la información ya extraída. Se
 tendrá como producto mínimamente viable una araña que, al recorrer todas las
 páginas, añada la información de las páginas nuevas que existen y actualice la
 información de las antiguas.
 
-\subsubsection{M6. Extracción de tropos de videojuegos, libros y series}
+\subsubsection{M7. Extracción de tropos de videojuegos, libros y series}
 Como producto de este hito el scraper podrá encontrar páginas de tropos de
 videojuegos, libros y series. Podrá entender y testar su estructura, así como
 extraer la información de la página, almacenándola en un fichero de datos
 estándar.
-
-\subsubsection{M7. Aplicación de línea de comandos}
-Este hito está enfocado en que el usuario final pueda usar el scraper. El
-objetivo es obtener una aplicación de línea de comandos (CMD) que un usuario
-pueda instalar y le facilite la interacción con el scraper, pudiendo obtener la
-información de tropos completa o parcial según varias opciones y elegir entre
-diferentes formatos de representación en los que obtener los datos.
-
-\subsubsection{M8. Integración con fuentes de datos externas y extracción de metadatos}
-Como producto de este hito el scraper será capaz de identificar qué medio
-audiovisual de cualquier otra fuente de datos externa corresponde al que se ha
-detectado en TvTropes, pudiendo sacar más información como el año de
-lanzamiento, añadiendo a los datos obtenidos nuevos campos de metadatos.
 
 \subsection{Desarrollo dirigido por pruebas}
 El desarrollo dirigido por pruebas (TDD, de sus siglas en inglés \textit{Test
@@ -634,6 +634,11 @@ analizarlos para mi trabajo.
 Como investigador necesito poder publicar el conjunto de datos obtenido, acceder
 a él y recuperarlo en cualquier momento, incluso de forma offline.
 
+\subsection{[HU08] Investigador - Relación entre tropos}
+Como investigador necesito conocer información adicional de los \textit{tropos}
+que los definan mejor y me permitan relacionarlos entre ellos para poder crear
+ontologías.
+
 %\section{Temporización} Una vez vistos los hitos que se esperan alcanzar en el
 %desarrollo, los cuales conformarían cada uno un sprint con una fecha de inicio
 %y de fin, podemos representar la temporización de todo el desarrollo en un
@@ -820,11 +825,11 @@ lector de \textit{markdown}, centralizando todo aún más en el repositorio.
 
 \subsection{\textit{Framework} de testing} En un entorno de desarrollo ágil hay
 que asegurarse de que todo código esté completamente testado para garantizar su
-calidad código que no está testeado es código que se considera que no
-funciona. Para ello se deben escribir una serie de tests en el propio lenguaje
-de programación que el resto del código y que sean legibles y correctos,
-escritos antes que la propia funcionalidad, para que automáticamente pase unas
-pruebas que garanticen qué partes del código funcionan y cuáles no, poder cerrar
+calidad código que no está testeado es código que se considera que no funciona.
+Para ello se deben escribir una serie de tests en el propio lenguaje de
+programación que el resto del código y que sean legibles y correctos, escritos
+antes que la propia funcionalidad, para que automáticamente pase unas pruebas
+que garanticen qué partes del código funcionan y cuáles no, poder cerrar
 \textit{issues} y saber qué construir a continuación.
 
 Se busca un marco de trabajo para pruebas en Go en el que las aserciones sigan
@@ -923,19 +928,18 @@ nos ayuden con los retos concretos que presenta TvTropes.
 
 La web de TvTropes está formateada en HTML y eso hace que necesitemos una manera
 de entenderlo y extraer su información. Los \textit{scrapers} exploran multitud
-de páginas buscando información concreta, ya que no queremos toda sino
-solamente la que necesitamos y descartar el resto, para ahorrar recursos y tener
-un programa que cumpla el objetivo que se propone. Esta información está
-contenida en una vorágine de texto de muchos tipos, entre etiquetas de HTML y
-clases CSS, e incluso a veces escondidas por una capa de JavaScript que
-dinámicamente cambia la información. Sin embargo, existen multitud de
-bibliotecas que nos facilitan este proceso de análisis (o \textit{parsing} en
-inglés) del código HTML, para extraer lo que queremos. En
-\cite{apress2018scraping} se recomienda no analizar el HTML manualmente, sino
-apoyarse de bibliotecas externas que lo hagan, ya que es algo que puede ser muy
-complejo y se sale del ámbito del trabajo. No buscamos reinventar la rueda sino
-tener una herramienta de apoyo para que el programa entienda la web y se pueda
-desarrollar un buen \textit{scraper}.
+de páginas buscando información concreta, ya que no queremos toda sino solamente
+la que necesitamos y descartar el resto, para ahorrar recursos y tener un
+programa que cumpla el objetivo que se propone. Esta información está contenida
+en una vorágine de texto de muchos tipos, entre etiquetas de HTML y clases CSS,
+e incluso a veces escondidas por una capa de JavaScript que dinámicamente cambia
+la información. Sin embargo, existen multitud de bibliotecas que nos facilitan
+este proceso de análisis (o \textit{parsing} en inglés) del código HTML, para
+extraer lo que queremos. En \cite{apress2018scraping} se recomienda no analizar
+el HTML manualmente, sino apoyarse de bibliotecas externas que lo hagan, ya que
+es algo que puede ser muy complejo y se sale del ámbito del trabajo. No buscamos
+reinventar la rueda sino tener una herramienta de apoyo para que el programa
+entienda la web y se pueda desarrollar un buen \textit{scraper}.
 
 Al igual que con el resto de herramientas se usa como criterio de elección
 imprescindible el que tenga buena documentación y sea un proyecto libre con
