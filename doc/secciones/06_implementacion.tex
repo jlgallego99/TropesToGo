@@ -616,14 +616,29 @@ el \textit{scraper} encuentre datos más actualizados, para no tener que volver 
 generar todo el conjunto, sino únicamente actualizar el objeto que se quiere.
 
 Por su parte, el añadir datos nuevos consiste únicamente en añadir de forma
-intermedia el objeto \texttt{Media} al vector en memoria, comprobando previamente que no
-es repetido, quedándose ahí hasta que se decida persistirlo.
+intermedia el objeto \texttt{Media} al vector en memoria, comprobando
+previamente que no es repetido, quedándose ahí hasta que se decida persistirlo.
+
+Adicionalmente, en este hito se ha tomado la decisión de replantear un poco el
+modelado DDD de las páginas de TvTropes. Modelar una única página como una
+entidad es insuficiente para hacer relaciones correctas y tiene más sentido como
+un objeto valor que, además de su URL, que es lo principal, describa también qué
+tipo de página de TvTropes es. Saber si la página es de una obra, \textit{tropo}
+o índice permitirá al \textit{scraper} y al \textit{crawler} en el futuro
+trabajar de una manera más rápida y sencilla. Ahora, para representar todas las
+páginas de TvTropes, se utiliza una entidad \texttt{TvTropesPages} que se
+encarga de gestionar la creación y mantenimiento del conjunto de todas las
+páginas encontradas en TvTropes, donde el objeto valor \texttt{Page} es el
+identificador de cada página, que están relacionados directamente por hash (en
+una estructura \textit{map}) con su fecha de última actualización. Esta entidad
+controla la creación de las páginas y da la posibilidad de modificar su fecha de
+actualización. 
 
 Por último, a lo largo del desarrollo de este \textit{milestone} se detecta un
 problema importante que es necesario resolver para terminar este PMV: los tests
 del \textit{scraper} del hito anterior funcionaban haciendo peticiones HTTP
 directamente a TvTropes. Esto interfiere directamente con cómo deberían ser las
-pruebas unitarias, que deberían únicamente confiar y utilizar los recursos
+pruebas unitarias, que deberían únicamente confiar y usar los recursos
 propios del proyecto. Que los tests dependan de si TvTropes está funcionando, de
 la velocidad de la red, o incluso de arriesgarse a ser vetado de la página o con
 peticiones limitadas por tiempo, puede dificultar los tests de la lógica interna
