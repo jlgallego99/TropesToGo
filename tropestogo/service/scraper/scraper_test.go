@@ -244,33 +244,57 @@ var _ = Describe("Scraper", func() {
 			})
 
 			It("Should have added a correct record on the JSON repository", func() {
-				var dataset json_dataset.JSONDataset
-				fileContents, _ := os.ReadFile("dataset.json")
-				err := json.Unmarshal(fileContents, &dataset)
-
-				Expect(err).To(BeNil())
-				Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy"))
-				Expect(dataset.Tropestogo[0].Year).To(Equal("2003"))
-				Expect(dataset.Tropestogo[0].URL).To(Equal(oldboyUrl))
-				Expect(dataset.Tropestogo[0].MediaType).To(Equal("Film"))
-				Expect(len(dataset.Tropestogo[0].Tropes) > 0).To(BeTrue())
+				testJsonRepository("Oldboy", "2003", "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003", "Film")
 			})
 
 			It("Should have added a correct record on the CSV repository", func() {
-				f, errOpen := os.Open("dataset.csv")
-				reader := csv.NewReader(f)
-				records, errReadCSV := reader.ReadAll()
+				testCsvRepository("Oldboy", "2003", "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003", "Film")
+			})
+		})
 
-				Expect(errOpen).To(BeNil())
-				Expect(errReadCSV).To(BeNil())
+		Context("Valid Film Page with tropes distributed on main sub pages", func() {
+			var validfilm2Csv, validfilm2Json media.Media
+			var errorfilm2Csv, errorfilm2Json error
 
-				Expect(len(records[0])).To(Equal(7))
-				Expect(len(records[1])).To(Equal(7))
-				Expect(records[1][0]).To(Equal("Oldboy"))
-				Expect(records[1][1]).To(Equal("2003"))
-				Expect(records[1][3]).To(Equal(oldboyUrl))
-				Expect(records[1][4]).To(Equal("Film"))
-				Expect(len(strings.Split(records[1][5], ";")) > 0).To(BeTrue())
+			BeforeEach(func() {
+				tvTropesUrl2, _ := url.Parse("https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012")
+				pageReaderCsv, _ = os.Open("resources/theavengers2012.html")
+				pageReaderJson, _ = os.Open("resources/theavengers2012.html")
+
+				validfilm2Csv, errorfilm2Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, tvTropesUrl2)
+				validfilm2Json, errorfilm2Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, tvTropesUrl2)
+			})
+
+			It("Shouldn't return an error", func() {
+				Expect(errorfilm2Csv).To(BeNil())
+				Expect(errorfilm2Json).To(BeNil())
+			})
+
+			It("Should have correct fields", func() {
+				testValidScrapedMedia(validfilm2Csv, "The Avengers", "2012", media.Film)
+				testValidScrapedMedia(validfilm2Json, "The Avengers", "2012", media.Film)
+
+				Expect(errors.Is(errorfilm2Csv, csv_dataset.ErrDuplicatedMedia)).To(BeTrue())
+				Expect(errors.Is(errorfilm2Json, json_dataset.ErrDuplicatedMedia)).To(BeTrue())
+			})
+
+			It("Shouldn't have repeated tropes", func() {
+				uniqueCsv := areTropesUnique(validfilm2Csv.GetWork().Tropes)
+				uniqueJson := areTropesUnique(validfilm2Json.GetWork().Tropes)
+
+				Expect(uniqueCsv).To(BeTrue())
+				Expect(uniqueJson).To(BeTrue())
+
+				Expect(errors.Is(errorfilm2Csv, csv_dataset.ErrDuplicatedMedia)).To(BeTrue())
+				Expect(errors.Is(errorfilm2Json, json_dataset.ErrDuplicatedMedia)).To(BeTrue())
+			})
+
+			It("Should have added a correct record on the JSON repository", func() {
+				testJsonRepository("Oldboy", "2003", "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003", "Film")
+			})
+
+			It("Should have added a correct record on the CSV repository", func() {
+				testCsvRepository("Oldboy", "2003", "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003", "Film")
 			})
 		})
 
@@ -312,6 +336,14 @@ var _ = Describe("Scraper", func() {
 
 				Expect(uniqueCsv).To(BeTrue())
 				Expect(uniqueJson).To(BeTrue())
+			})
+
+			It("Should have added a correct record on the JSON repository", func() {
+				testJsonRepository("Oldboy", "2003", "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003", "Film")
+			})
+
+			It("Should have added a correct record on the CSV repository", func() {
+				testCsvRepository("Oldboy", "2003", "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003", "Film")
 			})
 		})
 
@@ -362,6 +394,36 @@ func testValidScrapedMedia(validMedia media.Media, title, year string, mediaType
 	Expect(validMedia.GetWork().Year).To(Equal(year))
 	Expect(validMedia.GetMediaType()).To(Equal(mediaType))
 	Expect(validMedia.GetWork().Tropes).To(Not(BeEmpty()))
+}
+
+func testCsvRepository(title, year, URL, mediaType string) {
+	f, errOpen := os.Open("dataset.csv")
+	reader := csv.NewReader(f)
+	records, errReadCSV := reader.ReadAll()
+
+	Expect(errOpen).To(BeNil())
+	Expect(errReadCSV).To(BeNil())
+
+	Expect(len(records[0])).To(Equal(7))
+	Expect(len(records[1])).To(Equal(7))
+	Expect(records[1][0]).To(Equal(title))
+	Expect(records[1][1]).To(Equal(year))
+	Expect(records[1][3]).To(Equal(URL))
+	Expect(records[1][4]).To(Equal(mediaType))
+	Expect(len(strings.Split(records[1][5], ";")) > 0).To(BeTrue())
+}
+
+func testJsonRepository(title, year, URL, mediaType string) {
+	var dataset json_dataset.JSONDataset
+	fileContents, _ := os.ReadFile("dataset.json")
+	err := json.Unmarshal(fileContents, &dataset)
+
+	Expect(err).To(BeNil())
+	Expect(dataset.Tropestogo[0].Title).To(Equal(title))
+	Expect(dataset.Tropestogo[0].Year).To(Equal(year))
+	Expect(dataset.Tropestogo[0].URL).To(Equal(URL))
+	Expect(dataset.Tropestogo[0].MediaType).To(Equal(mediaType))
+	Expect(len(dataset.Tropestogo[0].Tropes) > 0).To(BeTrue())
 }
 
 func areTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {

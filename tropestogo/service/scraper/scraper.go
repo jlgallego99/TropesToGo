@@ -262,6 +262,8 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page) (media.M
 // It scrapes the title, year, media type and all tropes, finally returning a correctly formed media object with all the data
 // It calls sub functions for scraping the multiple parts and returns an error if some scraping has failed
 func (scraper *ServiceScraper) ScrapeWorkPage(reader io.Reader, url *url.URL) (media.Media, error) {
+	var tropes map[tropestogo.Trope]struct{}
+	var errTropes error
 	doc, _ := goquery.NewDocumentFromReader(reader)
 	page, errNewPage := tropestogo.NewPage(url.String())
 	if errNewPage != nil {
@@ -273,7 +275,12 @@ func (scraper *ServiceScraper) ScrapeWorkPage(reader io.Reader, url *url.URL) (m
 		return media.Media{}, errMediaIndex
 	}
 
-	tropes, errTropes := scraper.ScrapeWorkTropes(doc)
+	if scraper.CheckTropesOnSubpages(doc, title) {
+		tropes, errTropes = scraper.ScrapeMainSubpageTropes(doc, title)
+	} else {
+		tropes, errTropes = scraper.ScrapeTropes(doc)
+	}
+
 	if errTropes != nil {
 		return media.Media{}, errTropes
 	}
@@ -317,9 +324,9 @@ func (scraper *ServiceScraper) ScrapeWorkTitleAndYear(doc *goquery.Document) (st
 	return title, year, mediaIndex, errMediaIndex
 }
 
-// ScrapeWorkTropes traverses the received goquery Document DOM Tree and extracts all the tropes that are in a list or in folders
+// ScrapeTropes traverses the received goquery Document DOM Tree and extracts all the tropes that are in a list or in folders
 // It returns a set (map of trope keys and empty values) of all the unique tropes found on the web page
-func (scraper *ServiceScraper) ScrapeWorkTropes(doc *goquery.Document) (map[tropestogo.Trope]struct{}, error) {
+func (scraper *ServiceScraper) ScrapeTropes(doc *goquery.Document) (map[tropestogo.Trope]struct{}, error) {
 	tropes := make(map[tropestogo.Trope]struct{}, 0)
 	var newTrope tropestogo.Trope
 	var newTropeError error
@@ -350,6 +357,32 @@ func (scraper *ServiceScraper) ScrapeWorkTropes(doc *goquery.Document) (map[trop
 	if newTropeError != nil {
 		return make(map[tropestogo.Trope]struct{}), newTropeError
 	}
+
+	return tropes, nil
+}
+
+// ScrapeMainSubpageTropes extracts the main tropes (the ones that are on the main article) that are divided into subpages because they are many
+// It traverses the DOM tree document and searches for subpages whose URI has a known structure and have the Work title string
+// It performs various ScrapeTropes calls for each of the subpages, adding its tropes to the main trope list
+// Returns a trope list of all tropes found on the different main trope subpages
+func (scraper *ServiceScraper) ScrapeMainSubpageTropes(doc *goquery.Document, title string) (map[tropestogo.Trope]struct{}, error) {
+	tropes := make(map[tropestogo.Trope]struct{})
+
+	doc.Find(MainTropesSelector).Each(func(_ int, selection *goquery.Selection) {
+		subpageUri, subpageUriExists := selection.Attr("href")
+
+		if subpageUriExists && scraper.CheckSubpageUri(subpageUri, title) {
+			res, _ := http.Get(TvTropesWeb + subpageUri)
+			subpageDoc, _ := goquery.NewDocumentFromReader(res.Body)
+
+			subpageTropes, err := scraper.ScrapeTropes(subpageDoc)
+			if err == nil {
+				for subpageTrope := range subpageTropes {
+					tropes[subpageTrope] = struct{}{}
+				}
+			}
+		}
+	})
 
 	return tropes, nil
 }
