@@ -341,7 +341,7 @@ func (scraper *ServiceScraper) ScrapeTropes(doc *goquery.Document) (map[tropesto
 	doc.Find(selector).EachWithBreak(func(_ int, selection *goquery.Selection) bool {
 		tropeUri, tropeUriExists := selection.Attr("href")
 		if tropeUriExists {
-			newTrope, newTropeError = tropestogo.NewTrope(strings.Split(tropeUri, "/")[4], tropestogo.TropeIndex(0))
+			newTrope, newTropeError = tropestogo.NewTrope(strings.Split(tropeUri, "/")[4], tropestogo.TropeIndex(0), "")
 			if newTropeError != nil {
 				return false
 			}

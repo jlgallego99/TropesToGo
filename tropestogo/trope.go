@@ -56,15 +56,19 @@ func (index TropeIndex) String() string {
 
 // Trope represents a reiterative resource that is collected in TvTropes
 type Trope struct {
-	// A trope has an immutable name and is recognised by it
+	// title is the trope immutable name and is recognised by it
 	title string
 	// index is the conceptual group of tropes to which this trope belongs
 	index TropeIndex
+	// isMain represents if the trope is on the main Work page
+	isMain bool
+	// subpage refers to the subpage within a Work this trope belongs
+	subpage string
 }
 
 // NewTrope is a factory that creates a valid Trope value object by receiving its name and the index to which it belongs
 // It checks if the index is valid and returns an ErrUnknownIndex if it's not
-func NewTrope(title string, index TropeIndex) (Trope, error) {
+func NewTrope(title string, index TropeIndex, subpage string) (Trope, error) {
 	if len(title) == 0 {
 		return Trope{}, ErrMissingValues
 	}
@@ -74,8 +78,10 @@ func NewTrope(title string, index TropeIndex) (Trope, error) {
 	}
 
 	return Trope{
-		title: title,
-		index: index,
+		title:   title,
+		index:   index,
+		isMain:  subpage == "",
+		subpage: subpage,
 	}, nil
 }
 
@@ -87,4 +93,14 @@ func (trope Trope) GetTitle() string {
 // GetIndex returns the main category this trope belongs to in narratives
 func (trope Trope) GetIndex() TropeIndex {
 	return trope.index
+}
+
+// GetIsMain returns a boolean indicating whether it's a trope on the main Work page
+func (trope Trope) GetIsMain() bool {
+	return trope.isMain
+}
+
+// GetSubpage returns the Work subpage this trope belongs to
+func (trope Trope) GetSubpage() string {
+	return trope.subpage
 }

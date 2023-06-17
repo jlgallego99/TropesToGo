@@ -27,9 +27,9 @@ var _ = BeforeSuite(func() {
 	repository, errorRepository = csv_dataset.NewCSVRepository("dataset")
 
 	tropes := make(map[tropestogo.Trope]struct{})
-	trope1, _ := tropestogo.NewTrope("AdaptationalLocationChange", tropestogo.TropeIndex(1))
-	trope2, _ := tropestogo.NewTrope("AdaptationNameChange", tropestogo.TropeIndex(1))
-	trope3, _ := tropestogo.NewTrope("AgeGapRomance", tropestogo.TropeIndex(2))
+	trope1, _ := tropestogo.NewTrope("AdaptationalLocationChange", tropestogo.TropeIndex(1), "")
+	trope2, _ := tropestogo.NewTrope("AdaptationNameChange", tropestogo.TropeIndex(1), "")
+	trope3, _ := tropestogo.NewTrope("AgeGapRomance", tropestogo.TropeIndex(2), "")
 	tropes[trope1] = struct{}{}
 	tropes[trope2] = struct{}{}
 	tropes[trope3] = struct{}{}
@@ -172,8 +172,8 @@ var _ = Describe("CsvDataset", func() {
 			errPersist = repository.Persist()
 
 			// Create the new Media to be updated
-			trope1, _ := tropestogo.NewTrope("AdaptationalComicRelief", tropestogo.TropeIndex(1))
-			trope2, _ := tropestogo.NewTrope("AdaptationalHeroism", tropestogo.TropeIndex(1))
+			trope1, _ := tropestogo.NewTrope("AdaptationalComicRelief", tropestogo.TropeIndex(1), "")
+			trope2, _ := tropestogo.NewTrope("AdaptationalHeroism", tropestogo.TropeIndex(1), "")
 			tropes := make(map[tropestogo.Trope]struct{})
 			tropes[trope1] = struct{}{}
 			tropes[trope2] = struct{}{}

@@ -11,9 +11,9 @@ var _ = Describe("Trope", func() {
 	var errValidTrope, errNoTitle, errNoIndex error
 
 	BeforeEach(func() {
-		validTrope, errValidTrope = tropestogo.NewTrope("ChekhovsGun", tropestogo.NarrativeTrope)
-		tropeNoTitle, errNoTitle = tropestogo.NewTrope("", tropestogo.TopicalTrope)
-		tropeNoIndex, errNoIndex = tropestogo.NewTrope("ChekhovsGun", tropestogo.TropeIndex(100))
+		validTrope, errValidTrope = tropestogo.NewTrope("ChekhovsGun", tropestogo.NarrativeTrope, "")
+		tropeNoTitle, errNoTitle = tropestogo.NewTrope("", tropestogo.TopicalTrope, "")
+		tropeNoIndex, errNoIndex = tropestogo.NewTrope("ChekhovsGun", tropestogo.TropeIndex(100), "")
 	})
 
 	Describe("Create a Trope", func() {
@@ -21,6 +21,8 @@ var _ = Describe("Trope", func() {
 			It("Shouldn't return an empty object", func() {
 				Expect(validTrope.GetTitle()).To(Equal("ChekhovsGun"))
 				Expect(validTrope.GetIndex()).To(Equal(tropestogo.NarrativeTrope))
+				Expect(validTrope.GetSubpage()).To(BeEmpty())
+				Expect(validTrope.GetIsMain()).To(BeTrue())
 			})
 
 			It("Shouldn't raise an error", func() {
