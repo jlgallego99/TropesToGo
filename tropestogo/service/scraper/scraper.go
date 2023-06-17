@@ -22,6 +22,7 @@ var (
 	ErrNotWorkPage          = errors.New("the page isn't a TvTropes Work page")
 	ErrUnknownPageStructure = errors.New("the scraper doesn't recognize the page structure")
 	ErrNotFound             = errors.New("couldn't request the URL")
+	ErrInvalidSubpage       = errors.New("couldn't scrape tropes in subpage")
 )
 
 const (
@@ -239,32 +240,45 @@ func (scraper *ServiceScraper) CheckTropesOnSubpages(doc *goquery.Document, work
 // Checks if the elements of the list are anchors to a subpage inside the work
 // A regex matches if the last part of the URL is of the type TropesXtoY and is preceded by the work title name, returning true or false
 func (scraper *ServiceScraper) CheckSubpageUri(URI, title string) bool {
-	title = strings.ReplaceAll(title, " ", "")
-	r, _ := regexp.Compile(`\/` + title + `\/Tropes[A-Z]To[A-Z]`)
-	match := r.MatchString(URI)
+	title = strings.ToLower(strings.ReplaceAll(title, " ", ""))
+	r, _ := regexp.Compile(`\/` + title + `\/tropes[a-z]to[a-z]`)
+	match := r.MatchString(strings.ToLower(URI))
 
 	return match
 }
 
-// ScrapeTvTropesPage makes an HTTP request to a TvTropes page and fully scrapes its contents, calling all sub functions and returning a valid Media object
+// ScrapeTvTropesPage makes an HTTP request to a TvTropes page and its subpages and fully scrapes its contents
+// calling all sub functions and returning a valid Media object
 // If the url of the page isn't found, it returns an ErrNotFound error
-func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page) (media.Media, error) {
+func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages []tropestogo.Page) (media.Media, error) {
 	res, err := http.Get(page.GetUrl().String())
 	if err != nil {
 		return media.Media{}, fmt.Errorf("%w: "+page.GetUrl().String(), ErrNotFound)
 	}
 
-	return scraper.ScrapeWorkPage(res.Body, page.GetUrl())
+	var subReaders []io.Reader
+	for _, subPage := range subPages {
+		subPageRes, subPageErr := http.Get(subPage.GetUrl().String())
+		if subPageErr != nil {
+			return media.Media{}, fmt.Errorf("%w: "+page.GetUrl().String(), ErrNotFound)
+		}
+
+		subReaders = append(subReaders, subPageRes.Body)
+	}
+
+	return scraper.ScrapeWorkPage(res.Body, subReaders, page.GetUrl())
 }
 
-// ScrapeWorkPage accepts a reader with a TvTropes Work Page contents and extracts all the relevant information from it
-// and the url from the second parameter
+// ScrapeWorkPage accepts a reader with a TvTropes Work Page contents and an array of readers with all its subpages contents
+// Extracts all the relevant information from it and the url from the last parameter
 // It scrapes the title, year, media type and all tropes, finally returning a correctly formed media object with all the data
 // It calls sub functions for scraping the multiple parts and returns an error if some scraping has failed
-func (scraper *ServiceScraper) ScrapeWorkPage(reader io.Reader, url *url.URL) (media.Media, error) {
+func (scraper *ServiceScraper) ScrapeWorkPage(reader io.Reader, subReaders []io.Reader, url *url.URL) (media.Media, error) {
 	var tropes map[tropestogo.Trope]struct{}
 	var errTropes error
+	var subDocs []*goquery.Document
 	doc, _ := goquery.NewDocumentFromReader(reader)
+
 	page, errNewPage := tropestogo.NewPage(url.String())
 	if errNewPage != nil {
 		return media.Media{}, fmt.Errorf("Error creating Page object \n%w", errNewPage)
@@ -276,7 +290,12 @@ func (scraper *ServiceScraper) ScrapeWorkPage(reader io.Reader, url *url.URL) (m
 	}
 
 	if scraper.CheckTropesOnSubpages(doc, title) {
-		tropes, errTropes = scraper.ScrapeMainSubpageTropes(doc, title)
+		for _, subReader := range subReaders {
+			subDoc, _ := goquery.NewDocumentFromReader(subReader)
+			subDocs = append(subDocs, subDoc)
+		}
+
+		tropes, errTropes = scraper.ScrapeMainSubpageTropes(doc, subDocs, title)
 	} else {
 		tropes, errTropes = scraper.ScrapeTropes(doc)
 	}
@@ -365,24 +384,34 @@ func (scraper *ServiceScraper) ScrapeTropes(doc *goquery.Document) (map[tropesto
 // It traverses the DOM tree document and searches for subpages whose URI has a known structure and have the Work title string
 // It performs various ScrapeTropes calls for each of the subpages, adding its tropes to the main trope list
 // Returns a trope list of all tropes found on the different main trope subpages
-func (scraper *ServiceScraper) ScrapeMainSubpageTropes(doc *goquery.Document, title string) (map[tropestogo.Trope]struct{}, error) {
+func (scraper *ServiceScraper) ScrapeMainSubpageTropes(doc *goquery.Document, subDocs []*goquery.Document, title string) (map[tropestogo.Trope]struct{}, error) {
+	var errSubpage error
 	tropes := make(map[tropestogo.Trope]struct{})
 
-	doc.Find(MainTropesSelector).Each(func(_ int, selection *goquery.Selection) {
+	doc.Find(MainTropesSelector).EachWithBreak(func(i int, selection *goquery.Selection) bool {
 		subpageUri, subpageUriExists := selection.Attr("href")
 
 		if subpageUriExists && scraper.CheckSubpageUri(subpageUri, title) {
-			res, _ := http.Get(TvTropesWeb + subpageUri)
-			subpageDoc, _ := goquery.NewDocumentFromReader(res.Body)
+			subPageTitle := "/" + strings.ReplaceAll(strings.ReplaceAll(subDocs[i].Find(WorkTitleSelector).Text(), "\n", ""), " ", "")
+			if !scraper.CheckSubpageUri(subPageTitle, title) {
+				errSubpage = fmt.Errorf("%w: "+subPageTitle, ErrInvalidSubpage)
+				return false
+			}
 
-			subpageTropes, err := scraper.ScrapeTropes(subpageDoc)
+			subpageTropes, err := scraper.ScrapeTropes(subDocs[i])
 			if err == nil {
 				for subpageTrope := range subpageTropes {
 					tropes[subpageTrope] = struct{}{}
 				}
 			}
 		}
+
+		return true
 	})
+
+	if errSubpage != nil {
+		return make(map[tropestogo.Trope]struct{}), errSubpage
+	}
 
 	return tropes, nil
 }

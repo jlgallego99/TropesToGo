@@ -7,6 +7,7 @@ import (
 	"github.com/jlgallego99/TropesToGo/media"
 	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
 	"github.com/jlgallego99/TropesToGo/media/json_dataset"
+	"io"
 	"net/url"
 	"os"
 	"strings"
@@ -25,6 +26,13 @@ const (
 	mediaUrl         = "https://tvtropes.org/pmwiki/pmwiki.php/Main/Media"
 	googleUrl        = "https://www.google.com/"
 	attackontitanUrl = "https://tvtropes.org/pmwiki/pmwiki.php/Manga/AttackOnTitan"
+)
+
+var (
+	avengersSubpageFiles = []string{"resources/theavengers_tropesAtoD.html",
+		"resources/theavengers_tropesEtoL.html",
+		"resources/theavengers_tropesMtoP.html",
+		"resources/theavengers_tropesQtoZ.html"}
 )
 
 // A scraper service for test purposes
@@ -212,8 +220,8 @@ var _ = Describe("Scraper", func() {
 				pageReaderCsv, _ = os.Open("resources/oldboy2003.html")
 				pageReaderJson, _ = os.Open("resources/oldboy2003.html")
 
-				validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, tvTropesUrl)
-				validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, tvTropesUrl)
+				validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, []io.Reader{}, tvTropesUrl)
+				validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, []io.Reader{}, tvTropesUrl)
 				errPersistJson = serviceScraperJson.Persist()
 				errPersistCsv = serviceScraperCsv.Persist()
 			})
@@ -261,8 +269,20 @@ var _ = Describe("Scraper", func() {
 				pageReaderCsv, _ = os.Open("resources/theavengers2012.html")
 				pageReaderJson, _ = os.Open("resources/theavengers2012.html")
 
-				validfilm2Csv, errorfilm2Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, tvTropesUrl2)
-				validfilm2Json, errorfilm2Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, tvTropesUrl2)
+				var subpageReadersCsv []io.Reader
+				var subpageReadersJson []io.Reader
+				for _, subpageFile := range avengersSubpageFiles {
+					subpageReaderCsv, _ := os.Open(subpageFile)
+					subpageReaderJson, _ := os.Open(subpageFile)
+
+					subpageReadersCsv = append(subpageReadersCsv, subpageReaderCsv)
+					subpageReadersJson = append(subpageReadersJson, subpageReaderJson)
+				}
+
+				validfilm2Csv, errorfilm2Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, subpageReadersCsv, tvTropesUrl2)
+				validfilm2Json, errorfilm2Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, subpageReadersJson, tvTropesUrl2)
+				errPersistJson = serviceScraperJson.Persist()
+				errPersistCsv = serviceScraperCsv.Persist()
 			})
 
 			It("Shouldn't return an error", func() {
@@ -273,9 +293,6 @@ var _ = Describe("Scraper", func() {
 			It("Should have correct fields", func() {
 				testValidScrapedMedia(validfilm2Csv, "The Avengers", "2012", media.Film)
 				testValidScrapedMedia(validfilm2Json, "The Avengers", "2012", media.Film)
-
-				Expect(errors.Is(errorfilm2Csv, csv_dataset.ErrDuplicatedMedia)).To(BeTrue())
-				Expect(errors.Is(errorfilm2Json, json_dataset.ErrDuplicatedMedia)).To(BeTrue())
 			})
 
 			It("Shouldn't have repeated tropes", func() {
@@ -284,9 +301,6 @@ var _ = Describe("Scraper", func() {
 
 				Expect(uniqueCsv).To(BeTrue())
 				Expect(uniqueJson).To(BeTrue())
-
-				Expect(errors.Is(errorfilm2Csv, csv_dataset.ErrDuplicatedMedia)).To(BeTrue())
-				Expect(errors.Is(errorfilm2Json, json_dataset.ErrDuplicatedMedia)).To(BeTrue())
 			})
 
 			It("Should have added a correct record on the JSON repository", func() {
@@ -307,8 +321,8 @@ var _ = Describe("Scraper", func() {
 				pageReaderCsv, _ = os.Open("resources/anewhope.html")
 				pageReaderJson, _ = os.Open("resources/anewhope.html")
 
-				validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, tvTropesUrl3)
-				validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, tvTropesUrl3)
+				validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, []io.Reader{}, tvTropesUrl3)
+				validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, []io.Reader{}, tvTropesUrl3)
 				errPersistJson = serviceScraperJson.Persist()
 				errPersistCsv = serviceScraperCsv.Persist()
 			})
@@ -356,8 +370,8 @@ var _ = Describe("Scraper", func() {
 				pageReaderCsv, _ = os.Open("resources/attackontitan.html")
 				pageReaderJson, _ = os.Open("resources/attackontitan.html")
 
-				filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeWorkPage(pageReaderCsv, tvTropesUrlUnknown)
-				filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeWorkPage(pageReaderJson, tvTropesUrlUnknown)
+				filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeWorkPage(pageReaderCsv, []io.Reader{}, tvTropesUrlUnknown)
+				filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeWorkPage(pageReaderJson, []io.Reader{}, tvTropesUrlUnknown)
 				errPersistCsv = serviceScraperCsv.Persist()
 				errPersistJson = serviceScraperJson.Persist()
 			})
