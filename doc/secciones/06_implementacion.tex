@@ -684,6 +684,30 @@ semántico\footnote{\url{https://semver.org/}}, hace referencia a que se añade
 nueva funcionalidad sin romper lo anteriormente establecido. En general, lo que
 se hace es aumentar y mejorar la funcionalidad del \textit{scraper}.
 
+\section{Extracción de información en las sub wikis de una película}
+En TvTropes las páginas se organizan en espacios de nombres, y uno de esos
+espacios de nombres son las sub
+wikis\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Main/SubWiki}}, o sub
+páginas de una obra, que presentan información más centrada en un tema concreto.
+Cada obra tiene una serie de sub páginas temáticas muy variadas; no todas tienen
+las mismas, pero siempre se hacen referencia en ellas a \textit{tropos} que, en
+muchos casos, no están en la parte principal. Por esta razón, podemos hacer una
+distinción entre los \textit{tropos} de una obra que son principales, al estar
+listados en el artículo principal, y secundarios, al pertencer a una o más sub
+páginas dentro de una obra. A continuación, se resuelve el segundo producto
+mínimamente viable relacionado con la extracción de \textit{tropos} de una obra,
+que tendrá ya el desarrollo mínimo de un \textit{scraper} para TvTropes con el
+que poder pasar a trabajar en la araña. Por tanto, en este hito se abordará el
+proceso de desarrollo y ampliación del \textit{software} para la extracción de
+\textit{tropos} en sub páginas. Esto aumentará el número de \textit{tropos} que
+TropesToGo es capaz de identificar y organizando cada vez más la información tan
+distribuida que tiene TvTropes. Todo este desarrollo sigue motivado
+principalmente por la
+\href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]}, que nos pide
+obtener todos los \textit{tropos} de todas las obras de la forma, y se tendrá
+una solución que mejore la extracción que realizaba Tropescraper, que se
+centraba únicamente en los \textit{tropos} principales.
+
 \section{Desarrollo de la araña}
 
 \subsection{Estrategia general para la extracción de información de TvTropes}
@@ -692,4 +716,6 @@ El \textit{crawler} primero indexa todas las páginas relevantes, el
 
 \subsection{Arquitectura del \textit{crawler}}
 
-\section{Aplicación de línea de comandos}
+\section{Actualizador de información}
+\section{Extracción de otros medios audiovisuales}
+\section{Resultado final}
