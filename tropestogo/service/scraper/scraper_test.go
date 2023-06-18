@@ -54,6 +54,11 @@ var _ = BeforeSuite(func() {
 })
 
 var _ = Describe("Scraper", func() {
+	AfterEach(func() {
+		pageReaderCsv.Close()
+		pageReaderJson.Close()
+	})
+
 	Describe("Create the scraper services", func() {
 		Context("The services are created correctly", func() {
 			It("Shouldn't return an error", func() {
@@ -92,11 +97,6 @@ var _ = Describe("Scraper", func() {
 				validTvTropesPageCsv, errTvTropesCsv = serviceScraperCsv.CheckValidWorkPage(pageReaderCsv, tvTropesUrl)
 			})
 
-			AfterEach(func() {
-				pageReaderCsv.Close()
-				pageReaderJson.Close()
-			})
-
 			It("Should mark the page as valid", func() {
 				Expect(validTvTropesPageJson).To(BeTrue())
 				Expect(validTvTropesPageCsv).To(BeTrue())
@@ -121,11 +121,6 @@ var _ = Describe("Scraper", func() {
 				validTvTropesPage2Csv, errTvTropes2Csv = serviceScraperCsv.CheckValidWorkPage(pageReaderCsv, tvTropesUrl2)
 			})
 
-			AfterEach(func() {
-				pageReaderJson.Close()
-				pageReaderCsv.Close()
-			})
-
 			It("Should mark the page as valid", func() {
 				Expect(validTvTropesPage2Json).To(BeTrue())
 				Expect(validTvTropesPage2Csv).To(BeTrue())
@@ -148,11 +143,6 @@ var _ = Describe("Scraper", func() {
 
 				validTvTropesPage3Json, errTvTropes3Json = serviceScraperJson.CheckValidWorkPage(pageReaderJson, tvTropesUrl3)
 				validTvTropesPage3Csv, errTvTropes3Json = serviceScraperCsv.CheckValidWorkPage(pageReaderCsv, tvTropesUrl3)
-			})
-
-			AfterEach(func() {
-				pageReaderCsv.Close()
-				pageReaderJson.Close()
 			})
 
 			It("Should mark the page as valid", func() {
@@ -224,11 +214,6 @@ var _ = Describe("Scraper", func() {
 				validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, []io.Reader{}, tvTropesUrl)
 				errPersistJson = serviceScraperJson.Persist()
 				errPersistCsv = serviceScraperCsv.Persist()
-			})
-
-			AfterEach(func() {
-				pageReaderCsv.Close()
-				pageReaderJson.Close()
 			})
 
 			It("Shouldn't return an error", func() {
@@ -327,11 +312,6 @@ var _ = Describe("Scraper", func() {
 				errPersistCsv = serviceScraperCsv.Persist()
 			})
 
-			AfterEach(func() {
-				pageReaderCsv.Close()
-				pageReaderJson.Close()
-			})
-
 			It("Shouldn't return an error", func() {
 				Expect(errorfilm3Csv).To(BeNil())
 				Expect(errorfilm3Json).To(BeNil())
@@ -374,11 +354,6 @@ var _ = Describe("Scraper", func() {
 				filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeWorkPage(pageReaderJson, []io.Reader{}, tvTropesUrlUnknown)
 				errPersistCsv = serviceScraperCsv.Persist()
 				errPersistJson = serviceScraperJson.Persist()
-			})
-
-			AfterEach(func() {
-				pageReaderCsv.Close()
-				pageReaderJson.Close()
 			})
 
 			It("Should return an empty media object", func() {

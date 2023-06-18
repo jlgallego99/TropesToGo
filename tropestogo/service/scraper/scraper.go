@@ -247,6 +247,26 @@ func (scraper *ServiceScraper) CheckSubpageUri(URI, title string) bool {
 	return match
 }
 
+// ScrapeTvTropes tries to scrape all pages and its subpages that are TvTropesPages by making HTTP requests to TvTropes
+// It only returns an error if it can't write or read the dataset, if the page can't be scraped it skips to the next
+func (scraper *ServiceScraper) ScrapeTvTropes(tvtropespages *tropestogo.TvTropesPages) error {
+	for page, tvtropessubpages := range tvtropespages.Pages {
+		var subPages []tropestogo.Page
+		for subPage := range tvtropessubpages.Subpages {
+			subPages = append(subPages, subPage)
+		}
+
+		scraper.ScrapeTvTropesPage(page, subPages)
+	}
+
+	errPersist := scraper.Persist()
+	if errPersist != nil {
+		return errPersist
+	}
+
+	return nil
+}
+
 // ScrapeTvTropesPage makes an HTTP request to a TvTropes page and its subpages and fully scrapes its contents
 // calling all sub functions and returning a valid Media object
 // If the url of the page isn't found, it returns an ErrNotFound error
