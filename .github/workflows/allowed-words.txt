@@ -172,3 +172,7 @@ tupla
 tropestogo
 array
 map
+reader
+readers
+instancian
+instanciado
