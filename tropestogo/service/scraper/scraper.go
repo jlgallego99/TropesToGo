@@ -228,13 +228,14 @@ func (scraper *ServiceScraper) CheckSubpageUri(URI, title string) bool {
 	return match
 }
 
-// CheckIsSubpage checks both the URI and the title for validating if the given subpage is a correct subpage that holds main tropes within a Work
-// It extracts the whole title + namespace of the title from the Goquery document and checks if its valid
-// Returns a true boolean if it's a subpage, a false if it's not
-func (scraper *ServiceScraper) CheckIsSubpage(title string, subDoc *goquery.Document) bool {
-	subPageTitle := "/" + strings.ReplaceAll(strings.ReplaceAll(subDoc.Find(WorkTitleSelector).Text(), "\n", ""), " ", "")
+// CheckSubwikiUri checks both the URI and the title for validating if the given subpage is a sub wiki of the Work that holds secondary tropes
+// Returns a true boolean if it's a subwiki, a false if it's not
+func (scraper *ServiceScraper) CheckSubwikiUri(URI, title string) bool {
+	title = strings.ToLower(strings.ReplaceAll(title, " ", ""))
+	r, _ := regexp.Compile(`\/\w*\/` + title)
+	match := r.MatchString(strings.ToLower(URI))
 
-	return scraper.CheckSubpageUri(subPageTitle, title)
+	return match
 }
 
 // ScrapeTvTropes tries to scrape all pages and its subpages that are TvTropesPages by making HTTP requests to TvTropes
@@ -390,10 +391,20 @@ func (scraper *ServiceScraper) ScrapeTropes(doc *goquery.Document) (map[tropesto
 	return tropes, nil
 }
 
+// ScrapeSubpageFullTitle scrapes the full title of any Work subpage from a Goquery document
+// (<Title>/<TropesXtoY> for main tropes subpages and <Namespace>/<Title>) for subwikis)
+// Returns a correctly formated string without blanks for comparing with URIs
+func (scraper *ServiceScraper) ScrapeSubpageFullTitle(subDoc *goquery.Document) string {
+	subPageTitle := "/" + strings.ReplaceAll(strings.ReplaceAll(subDoc.Find(WorkTitleSelector).Text(), "\n", ""), " ", "")
+
+	return subPageTitle
+}
+
 // ScrapeMainSubpageTropes extracts the main tropes (the ones that are on the main article) that are divided into subpages because they are many
 // It traverses the DOM tree document and searches for subpages whose URI has a known structure and have the Work title string
 // It performs various ScrapeTropes calls for each of the subpages, adding its tropes to the main trope list
 // Returns a trope list of all tropes found on the different main trope subpages
+// If the subpage can't be scraped, it returns an ErrInvalidSubpage error
 func (scraper *ServiceScraper) ScrapeMainSubpageTropes(doc *goquery.Document, subDocs []*goquery.Document, title string) (map[tropestogo.Trope]struct{}, error) {
 	var errSubpage error
 	tropes := make(map[tropestogo.Trope]struct{})
@@ -404,7 +415,9 @@ func (scraper *ServiceScraper) ScrapeMainSubpageTropes(doc *goquery.Document, su
 			return false
 		}
 
-		if subpageUriExists && scraper.CheckSubpageUri(subpageUri, title) && scraper.CheckIsSubpage(title, subDocs[i]) {
+		if subpageUriExists && scraper.CheckSubpageUri(subpageUri, title) &&
+			scraper.CheckSubpageUri(scraper.ScrapeSubpageFullTitle(subDocs[i]), title) {
+
 			subpageTropes, err := scraper.ScrapeTropes(subDocs[i])
 			if err == nil {
 				for subpageTrope := range subpageTropes {
