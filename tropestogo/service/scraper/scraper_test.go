@@ -162,9 +162,11 @@ var _ = Describe("Scraper", func() {
 
 			BeforeEach(func() {
 				notWorkUrl, _ := url.Parse(mediaUrl)
+				pageReaderJson, _ = os.Open("resources/empty.html")
+				pageReaderCsv, _ = os.Open("resources/empty.html")
 
-				validNotWorkPageJson, errNotWorkPageJson = serviceScraperJson.CheckIsWorkPage(notWorkUrl)
-				validNotWorkPageCsv, errNotWorkPageCsv = serviceScraperCsv.CheckIsWorkPage(notWorkUrl)
+				validNotWorkPageJson, errNotWorkPageJson = serviceScraperJson.CheckValidWorkPage(pageReaderJson, notWorkUrl)
+				validNotWorkPageCsv, errNotWorkPageCsv = serviceScraperCsv.CheckValidWorkPage(pageReaderCsv, notWorkUrl)
 			})
 
 			It("Should mark the page as invalid", func() {
@@ -184,8 +186,11 @@ var _ = Describe("Scraper", func() {
 
 			BeforeEach(func() {
 				differentUrl, _ := url.Parse(googleUrl)
-				validDifferentPageJson, errDifferentJson = serviceScraperJson.CheckIsWorkPage(differentUrl)
-				validDifferentPageCsv, errDifferentCsv = serviceScraperCsv.CheckIsWorkPage(differentUrl)
+				pageReaderJson, _ = os.Open("resources/empty.html")
+				pageReaderCsv, _ = os.Open("resources/empty.html")
+
+				validDifferentPageJson, errDifferentJson = serviceScraperJson.CheckValidWorkPage(pageReaderJson, differentUrl)
+				validDifferentPageCsv, errDifferentCsv = serviceScraperCsv.CheckValidWorkPage(pageReaderCsv, differentUrl)
 			})
 
 			It("Should mark the page as invalid", func() {

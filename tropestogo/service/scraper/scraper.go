@@ -121,17 +121,12 @@ func (scraper *ServiceScraper) CheckValidWorkPage(reader io.Reader, checkUrl *ur
 		return false, ErrNotTvTropes
 	}
 
-	validWorkPage, errWorkPage := scraper.CheckIsWorkPage(checkUrl)
+	validWorkPage, errWorkPage := scraper.CheckIsWorkPage(doc, checkUrl)
 	if !validWorkPage {
 		return false, errWorkPage
 	}
 
-	validMainArticle, errMainArticle := scraper.CheckMainArticle(doc, checkUrl)
-	if !validMainArticle {
-		return false, errMainArticle
-	}
-
-	validTropeSection, errTropeSection := scraper.CheckTropeSection(doc, checkUrl)
+	validTropeSection, errTropeSection := scraper.CheckTropeSection(doc)
 	if !validTropeSection {
 		return false, errTropeSection
 	}
@@ -139,10 +134,15 @@ func (scraper *ServiceScraper) CheckValidWorkPage(reader io.Reader, checkUrl *ur
 	return true, nil
 }
 
-// CheckIsWorkPage checks if the received url belongs to a tvtropes.org Work Page
-// It returns an ErrNotTvTropes error if it doesn't belong to TvTropes or a ErrNotWorkPage if it's from TvTropes but of any other type
-// It returns true if all checks passes
-func (scraper *ServiceScraper) CheckIsWorkPage(url *url.URL) (bool, error) {
+// CheckIsWorkPage checks if the received url belongs to a correct tvtropes.org Work Page
+// It returns an ErrNotTvTropes error if it doesn't belong to TvTropes, an ErrNotWorkPage if it's from TvTropes but of any other type
+// or an ErrUnknownPageStructure if there are strange elements on it
+// Returns true if all checks passes
+func (scraper *ServiceScraper) CheckIsWorkPage(doc *goquery.Document, url *url.URL) (bool, error) {
+	if doc == nil || url == nil {
+		return false, ErrInvalidField
+	}
+
 	if url.Hostname() != TvTropesHostname {
 		return false, fmt.Errorf("%w: "+url.String(), ErrNotTvTropes)
 	}
@@ -152,22 +152,16 @@ func (scraper *ServiceScraper) CheckIsWorkPage(url *url.URL) (bool, error) {
 		return false, fmt.Errorf("%w: "+url.String(), ErrNotWorkPage)
 	}
 
-	return true, nil
-}
-
-// CheckMainArticle checks the received goquery Document DOM Tree
-// and validates if the work main article page has a known structure which can be extracted later
-// If it doesn't recognize something in it, it returns an ErrUnknownPageStructure or an ErrNotWorkPage, so it can't be scraped
-// It returns true if all checks passes
-func (scraper *ServiceScraper) CheckMainArticle(doc *goquery.Document, checkUrl *url.URL) (bool, error) {
 	if doc.Find(MainArticleSelector).Length() == 0 ||
-		doc.Find(SubPagesNavSelector).Find(SubPageListSelector).Find(SubPageLinkSelector).Length() == 0 {
+		doc.Find(SubPagesNavSelector).Find(SubPageListSelector).Find(SubPageLinkSelector).Length() == 0 ||
+		doc.Find(TropeListSelector).Length() == 0 ||
+		doc.Find(TropeLinkSelector).Length() == 0 {
 		return false, ErrUnknownPageStructure
 	}
 
-	tropeIndex := doc.Find(WorkIndexSelector)
-	if strings.Trim(tropeIndex.Text(), " /") != media.Film.String() {
-		return false, fmt.Errorf("%w: "+checkUrl.String(), ErrNotWorkPage)
+	tropeIndex := strings.Trim(doc.Find(WorkIndexSelector).Text(), " /")
+	if tropeIndex != media.Film.String() {
+		return false, fmt.Errorf("%w: the index is"+tropeIndex, ErrNotWorkPage)
 	}
 
 	return true, nil
@@ -178,32 +172,19 @@ func (scraper *ServiceScraper) CheckMainArticle(doc *goquery.Document, checkUrl 
 // First it checks if there are folders, then if the list redirects to trope subpages and last if there's a list with only tropes
 // If the trope section isn't of the recognized types, it returns an ErrUnknownPageStructure, so it can't be scraped
 // It returns true if all checks passes
-func (scraper *ServiceScraper) CheckTropeSection(doc *goquery.Document, checkUrl *url.URL) (bool, error) {
-	// Look for the tropes section
-	if doc.Find(TropeListSelector).Length() != 0 {
-		// Check if tropes are on folders
-		if scraper.CheckTropesOnFolders(doc) {
-			return true, nil
-		}
+func (scraper *ServiceScraper) CheckTropeSection(doc *goquery.Document) (bool, error) {
+	if scraper.CheckTropesOnFolders(doc) {
+		return true, nil
+	}
 
-		// Check if the list is a simple trope list or a list of subpages with tropes
-		if doc.Find(TropeLinkSelector).Length() != 0 {
-			// Get the title of the work from the URI and remove its year for checking subpages
-			splitPath := strings.Split(checkUrl.Path, "/")
-			re := regexp.MustCompile(`\d`)
-			title := re.ReplaceAllString(splitPath[4], "")
+	title, _, _, _ := scraper.ScrapeWorkTitleAndYear(doc)
+	if scraper.CheckTropesOnSubpages(doc, title) {
+		return true, nil
+	}
 
-			if scraper.CheckTropesOnSubpages(doc, title) {
-				return true, nil
-			}
-
-			// If not, then tropes must be on a simple list because the links refer to a trope page
-			// Get the first word of the first element of the list and check if is an anchor to a trope page
-			tropeHref, exists := doc.Find(TropeLinkSelector).First().Attr("href")
-			if exists && strings.HasPrefix(tropeHref, TvTropesMainPath) {
-				return true, nil
-			}
-		}
+	tropeHref, exists := doc.Find(TropeLinkSelector).First().Attr("href")
+	if exists && strings.HasPrefix(tropeHref, TvTropesMainPath) {
+		return true, nil
 	}
 
 	// Tropes are presented in an unknown form, so data can't be extracted
@@ -245,6 +226,15 @@ func (scraper *ServiceScraper) CheckSubpageUri(URI, title string) bool {
 	match := r.MatchString(strings.ToLower(URI))
 
 	return match
+}
+
+// CheckIsSubpage checks both the URI and the title for validating if the given subpage is a correct subpage that holds main tropes within a Work
+// It extracts the whole title + namespace of the title from the Goquery document and checks if its valid
+// Returns a true boolean if it's a subpage, a false if it's not
+func (scraper *ServiceScraper) CheckIsSubpage(title string, subDoc *goquery.Document) bool {
+	subPageTitle := "/" + strings.ReplaceAll(strings.ReplaceAll(subDoc.Find(WorkTitleSelector).Text(), "\n", ""), " ", "")
+
+	return scraper.CheckSubpageUri(subPageTitle, title)
 }
 
 // ScrapeTvTropes tries to scrape all pages and its subpages that are TvTropesPages by making HTTP requests to TvTropes
@@ -410,23 +400,23 @@ func (scraper *ServiceScraper) ScrapeMainSubpageTropes(doc *goquery.Document, su
 
 	doc.Find(MainTropesSelector).EachWithBreak(func(i int, selection *goquery.Selection) bool {
 		subpageUri, subpageUriExists := selection.Attr("href")
+		if i >= len(subDocs) {
+			return false
+		}
 
-		if subpageUriExists && scraper.CheckSubpageUri(subpageUri, title) {
-			subPageTitle := "/" + strings.ReplaceAll(strings.ReplaceAll(subDocs[i].Find(WorkTitleSelector).Text(), "\n", ""), " ", "")
-			if !scraper.CheckSubpageUri(subPageTitle, title) {
-				errSubpage = fmt.Errorf("%w: "+subPageTitle, ErrInvalidSubpage)
-				return false
-			}
-
+		if subpageUriExists && scraper.CheckSubpageUri(subpageUri, title) && scraper.CheckIsSubpage(title, subDocs[i]) {
 			subpageTropes, err := scraper.ScrapeTropes(subDocs[i])
 			if err == nil {
 				for subpageTrope := range subpageTropes {
 					tropes[subpageTrope] = struct{}{}
 				}
+
+				return true
 			}
 		}
 
-		return true
+		errSubpage = fmt.Errorf("%w: "+subpageUri, ErrInvalidSubpage)
+		return false
 	})
 
 	if errSubpage != nil {
