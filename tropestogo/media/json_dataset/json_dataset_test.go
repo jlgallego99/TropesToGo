@@ -3,6 +3,7 @@ package json_dataset_test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -21,15 +22,10 @@ var repository *json_dataset.JSONRepository
 var errorRepository, errRemoveAll, errAddMedia, errPersist error
 var mediaEntry media.Media
 var datasetFile *os.File
+var tropes map[tropestogo.Trope]struct{}
 
 var _ = BeforeSuite(func() {
-	tropes := make(map[tropestogo.Trope]struct{})
-	trope1, _ := tropestogo.NewTrope("AdaptationalLocationChange", tropestogo.TropeIndex(1))
-	trope2, _ := tropestogo.NewTrope("AdaptationNameChange", tropestogo.TropeIndex(1))
-	trope3, _ := tropestogo.NewTrope("AgeGapRomance", tropestogo.TropeIndex(2))
-	tropes[trope1] = struct{}{}
-	tropes[trope2] = struct{}{}
-	tropes[trope3] = struct{}{}
+	tropes = createTropeSet(3)
 	tvTropesPage, _ := tropestogo.NewPage(oldboyUrl)
 	mediaEntry, _ = media.NewMedia("Oldboy", "2003", time.Now(), tropes, tvTropesPage, media.Film)
 })
@@ -160,15 +156,9 @@ var _ = Describe("JsonDataset", func() {
 			errPersist = repository.Persist()
 
 			// Create the new Media to be updated
-			trope1, _ := tropestogo.NewTrope("AdaptationalComicRelief", tropestogo.TropeIndex(1))
-			trope2, _ := tropestogo.NewTrope("AdaptationalHeroism", tropestogo.TropeIndex(3))
-			tropes := make(map[tropestogo.Trope]struct{})
-			tropes[trope1] = struct{}{}
-			tropes[trope2] = struct{}{}
-
+			newTropes := createTropeSet(2)
 			tvTropesPage, _ := tropestogo.NewPage(oldboyUrl)
-
-			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), tropes, tvTropesPage, media.Film)
+			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), newTropes, tvTropesPage, media.Film)
 
 			errUpdate = repository.UpdateMedia("Oldboy", "2003", updatedMediaEntry)
 		})
@@ -220,3 +210,14 @@ var _ = AfterSuite(func() {
 	datasetFile.Close()
 	os.Remove("dataset.json")
 })
+
+// createTropeSet generates a generic set of N correct tropes
+func createTropeSet(numTropes int) map[tropestogo.Trope]struct{} {
+	tropeset := make(map[tropestogo.Trope]struct{})
+	for i := 0; i < numTropes; i++ {
+		trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(i), 1, "")
+		tropeset[trope] = struct{}{}
+	}
+
+	return tropeset
+}
