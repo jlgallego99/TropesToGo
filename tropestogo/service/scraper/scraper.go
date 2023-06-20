@@ -304,14 +304,14 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages
 		subReaders = append(subReaders, subPageRes.Body)
 	}
 
-	return scraper.ScrapeWorkPage(res.Body, subReaders, page.GetUrl())
+	return scraper.ScrapeFromReaders(res.Body, subReaders, page.GetUrl())
 }
 
-// ScrapeWorkPage accepts a reader with a TvTropes Work Page contents and an array of readers with all its subpages contents
+// ScrapeFromReaders accepts a reader with a TvTropes Work Page contents and an array of readers with all its subpages contents
 // Extracts all the relevant information from it and the url from the last parameter
 // It scrapes the title, year, media type and all tropes, finally returning a correctly formed media object with all the data
 // It calls sub functions for scraping the multiple parts and returns an error if some scraping has failed
-func (scraper *ServiceScraper) ScrapeWorkPage(reader io.Reader, subReaders []io.Reader, url *url.URL) (media.Media, error) {
+func (scraper *ServiceScraper) ScrapeFromReaders(reader io.Reader, subReaders []io.Reader, url *url.URL) (media.Media, error) {
 	tropes := make(map[tropestogo.Trope]struct{})
 	var errTropes error
 	var subDocs []*goquery.Document

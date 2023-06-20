@@ -37,6 +37,9 @@ var (
 		"resources/theavengers_tropesEtoL.html",
 		"resources/theavengers_tropesMtoP.html",
 		"resources/theavengers_tropesQtoZ.html"}
+	oldboySubpageFiles = []string{"resources/oldboy_awesome.html", "resources/oldboy_fridge.html",
+		"resources/oldboy_laconic.html", "resources/oldboy_trivia.html", "resources/oldboy_ymmv.html",
+		"resources/oldboy_videoexamples.html"}
 )
 
 // A scraper service for test purposes
@@ -218,8 +221,8 @@ var _ = Describe("Scraper", func() {
 			pageReaderCsv, _ = os.Open(attackontitanResource)
 			pageReaderJson, _ = os.Open(attackontitanResource)
 
-			filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeWorkPage(pageReaderCsv, []io.Reader{}, tvTropesUrlUnknown)
-			filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeWorkPage(pageReaderJson, []io.Reader{}, tvTropesUrlUnknown)
+			filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeFromReaders(pageReaderCsv, []io.Reader{}, tvTropesUrlUnknown)
+			filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeFromReaders(pageReaderJson, []io.Reader{}, tvTropesUrlUnknown)
 			errPersistCsv = serviceScraperCsv.Persist()
 			errPersistJson = serviceScraperJson.Persist()
 		})
@@ -276,31 +279,26 @@ var _ = Describe("Scraper", func() {
 
 			var subpageReadersCsv []io.Reader
 			var subpageReadersJson []io.Reader
-			for _, subpageFile := range avengersSubpageFiles {
-				subpageReaderCsv, _ := os.Open(subpageFile)
-				subpageReaderJson, _ := os.Open(subpageFile)
-
-				subpageReadersCsv = append(subpageReadersCsv, subpageReaderCsv)
-				subpageReadersJson = append(subpageReadersJson, subpageReaderJson)
-			}
 
 			// Scrape Oldboy
+			subpageReadersJson, subpageReadersCsv = loadSubpageFiles(oldboySubpageFiles)
 			pageReaderCsv, _ = os.Open(oldboyResource)
 			pageReaderJson, _ = os.Open(oldboyResource)
-			validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, []io.Reader{}, tvTropesUrl)
-			validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, []io.Reader{}, tvTropesUrl)
+			validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeFromReaders(pageReaderJson, subpageReadersJson, tvTropesUrl)
+			validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeFromReaders(pageReaderCsv, subpageReadersCsv, tvTropesUrl)
 
 			// Scrape The Avengers
+			subpageReadersJson, subpageReadersCsv = loadSubpageFiles(avengersSubpageFiles)
 			pageReaderCsv, _ = os.Open(avengersResource)
 			pageReaderJson, _ = os.Open(avengersResource)
-			validfilm2Csv, errorfilm2Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, subpageReadersCsv, tvTropesUrl2)
-			validfilm2Json, errorfilm2Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, subpageReadersJson, tvTropesUrl2)
+			validfilm2Csv, errorfilm2Json = serviceScraperJson.ScrapeFromReaders(pageReaderJson, subpageReadersJson, tvTropesUrl2)
+			validfilm2Json, errorfilm2Csv = serviceScraperCsv.ScrapeFromReaders(pageReaderCsv, subpageReadersCsv, tvTropesUrl2)
 
 			// Scrape A New Hope
 			pageReaderCsv, _ = os.Open(anewhopeResource)
 			pageReaderJson, _ = os.Open(anewhopeResource)
-			validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, []io.Reader{}, tvTropesUrl3)
-			validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, []io.Reader{}, tvTropesUrl3)
+			validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeFromReaders(pageReaderJson, []io.Reader{}, tvTropesUrl3)
+			validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeFromReaders(pageReaderCsv, []io.Reader{}, tvTropesUrl3)
 
 			// Persist all data
 			errPersistJson = serviceScraperJson.Persist()
@@ -421,4 +419,19 @@ func areRepositoryTropesUnique(tropes []string) bool {
 	}
 
 	return true
+}
+
+func loadSubpageFiles(fileNames []string) ([]io.Reader, []io.Reader) {
+	var subpageReadersCsv []io.Reader
+	var subpageReadersJson []io.Reader
+
+	for _, subpageFile := range fileNames {
+		subpageReaderCsv, _ := os.Open(subpageFile)
+		subpageReaderJson, _ := os.Open(subpageFile)
+
+		subpageReadersCsv = append(subpageReadersCsv, subpageReaderCsv)
+		subpageReadersJson = append(subpageReadersJson, subpageReaderJson)
+	}
+
+	return subpageReadersJson, subpageReadersCsv
 }
