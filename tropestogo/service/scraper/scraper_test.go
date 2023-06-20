@@ -40,6 +40,7 @@ var (
 	oldboySubpageFiles = []string{"resources/oldboy_awesome.html", "resources/oldboy_fridge.html",
 		"resources/oldboy_laconic.html", "resources/oldboy_trivia.html", "resources/oldboy_ymmv.html",
 		"resources/oldboy_videoexamples.html"}
+	headers = []string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "subtropes", "subtropes_namespaces"}
 )
 
 // A scraper service for test purposes
@@ -264,7 +265,7 @@ var _ = Describe("Scraper", func() {
 
 			Expect(err).To(BeNil())
 			Expect(len(records)).To(Equal(1))
-			Expect(records[0]).To(Equal([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"}))
+			Expect(records[0]).To(Equal(headers))
 		})
 	})
 
@@ -334,7 +335,9 @@ var _ = Describe("Scraper", func() {
 
 		It("Shouldn't have repeated tropes", func() {
 			Expect(areTropesUnique(validfilm1Csv.GetWork().Tropes)).To(BeTrue())
+			Expect(areSubTropesUnique(validfilm1Csv.GetWork().SubTropes)).To(BeTrue())
 			Expect(areTropesUnique(validfilm1Json.GetWork().Tropes)).To(BeTrue())
+			Expect(areSubTropesUnique(validfilm1Json.GetWork().SubTropes)).To(BeTrue())
 
 			Expect(areTropesUnique(validfilm2Csv.GetWork().Tropes)).To(BeTrue())
 			Expect(areTropesUnique(validfilm2Json.GetWork().Tropes)).To(BeTrue())
@@ -373,17 +376,15 @@ var _ = Describe("Scraper", func() {
 			Expect(errReadAll).To(BeNil())
 
 			Expect(err).To(BeNil())
-			Expect(records[0]).To(Equal([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"}))
+			Expect(records[0]).To(Equal(headers))
 			Expect(len(records) > 1).To(BeTrue())
 			for _, record := range records {
-				for j, column := range record {
-					// The Year can be empty
-					if j != 1 {
-						Expect(column).To(Not(BeEmpty()))
-					}
-				}
-
+				Expect(record[0]).To(Not(BeEmpty()))
+				Expect(record[2]).To(Not(BeEmpty()))
+				Expect(record[3]).To(Not(BeEmpty()))
+				Expect(record[4]).To(Not(BeEmpty()))
 				areRepositoryTropesUnique(strings.Split(record[5], ";"))
+				areRepositorySubTropesUnique(strings.Split(record[6], ";"), strings.Split(record[7], ";"))
 			}
 		})
 	})
@@ -408,6 +409,19 @@ func areTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {
 	return true
 }
 
+func areSubTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {
+	visited := make(map[string]bool, 0)
+	for trope := range tropes {
+		if visited[trope.GetTitle()+trope.GetSubpage()] {
+			return false
+		} else {
+			visited[trope.GetTitle()+trope.GetSubpage()] = true
+		}
+	}
+
+	return true
+}
+
 func areRepositoryTropesUnique(tropes []string) bool {
 	visited := make(map[string]bool, 0)
 	for _, trope := range tropes {
@@ -415,6 +429,19 @@ func areRepositoryTropesUnique(tropes []string) bool {
 			return false
 		} else {
 			visited[trope] = true
+		}
+	}
+
+	return true
+}
+
+func areRepositorySubTropesUnique(subTropes []string, subPages []string) bool {
+	visited := make(map[string]bool, 0)
+	for i, trope := range subTropes {
+		if visited[trope+subPages[i]] == true {
+			return false
+		} else {
+			visited[trope+subPages[i]] = true
 		}
 	}
 

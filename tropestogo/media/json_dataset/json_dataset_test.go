@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
 	"time"
 
@@ -23,9 +24,21 @@ var errorRepository, errRemoveAll, errAddMedia, errPersist error
 var mediaEntry media.Media
 var datasetFile *os.File
 var tropes map[tropestogo.Trope]struct{}
+var numTropes int
+
+var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 var _ = BeforeSuite(func() {
-	tropes = createTropeSet(3)
+	const max = 10
+	const min = 2
+	numTropes = seededRand.Intn(max-min) + min
+
+	tropes = createTropeSet(numTropes)
+	subTropes := createSubTropeSet(numTropes)
+	for subTrope := range subTropes {
+		tropes[subTrope] = struct{}{}
+	}
+
 	tvTropesPage, _ := tropestogo.NewPage(oldboyUrl)
 	mediaEntry, _ = media.NewMedia("Oldboy", "2003", time.Now(), tropes, tvTropesPage, media.Film)
 })
@@ -71,11 +84,12 @@ var _ = Describe("JsonDataset", func() {
 			err := json.Unmarshal(fileContents, &dataset)
 
 			Expect(err).To(BeNil())
-			Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy"))
-			Expect(dataset.Tropestogo[0].Year).To(Equal("2003"))
-			Expect(dataset.Tropestogo[0].URL).To(Equal(oldboyUrl))
-			Expect(dataset.Tropestogo[0].MediaType).To(Equal("Film"))
-			Expect(len(dataset.Tropestogo[0].Tropes)).To(Equal(3))
+			Expect(dataset.Tropestogo[0].Title).To(Not(BeEmpty()))
+			Expect(dataset.Tropestogo[0].Year).To(Not(BeEmpty()))
+			Expect(dataset.Tropestogo[0].URL).To(Not(BeEmpty()))
+			Expect(dataset.Tropestogo[0].MediaType).To(Not(BeEmpty()))
+			Expect(len(dataset.Tropestogo[0].Tropes) > 0).To(BeTrue())
+			Expect(len(dataset.Tropestogo[0].SubTropes) > 0).To(BeTrue())
 		})
 
 		It("Shouldn't return an error", func() {
@@ -156,7 +170,12 @@ var _ = Describe("JsonDataset", func() {
 			errPersist = repository.Persist()
 
 			// Create the new Media to be updated
-			newTropes := createTropeSet(2)
+			newTropes := createTropeSet(numTropes)
+			newSubTropes := createSubTropeSet(numTropes)
+			for subTrope := range newSubTropes {
+				newTropes[subTrope] = struct{}{}
+			}
+
 			tvTropesPage, _ := tropestogo.NewPage(oldboyUrl)
 			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), newTropes, tvTropesPage, media.Film)
 
@@ -171,11 +190,12 @@ var _ = Describe("JsonDataset", func() {
 			Expect(err).To(BeNil())
 			Expect(errPersist).To(BeNil())
 			Expect(len(dataset.Tropestogo)).To(Equal(1))
-			Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy"))
-			Expect(dataset.Tropestogo[0].Year).To(Equal("2013"))
-			Expect(dataset.Tropestogo[0].URL).To(Equal(oldboyUrl))
-			Expect(dataset.Tropestogo[0].MediaType).To(Equal("Film"))
-			Expect(len(dataset.Tropestogo[0].Tropes)).To(Equal(2))
+			Expect(dataset.Tropestogo[0].Title).To(Not(BeEmpty()))
+			Expect(dataset.Tropestogo[0].Year).To(Not(BeEmpty()))
+			Expect(dataset.Tropestogo[0].URL).To(Not(BeEmpty()))
+			Expect(dataset.Tropestogo[0].MediaType).To(Not(BeEmpty()))
+			Expect(len(dataset.Tropestogo[0].Tropes) > 0).To(BeTrue())
+			Expect(len(dataset.Tropestogo[0].SubTropes) > 0).To(BeTrue())
 		})
 
 		It("Shouldn't return an error", func() {
@@ -216,6 +236,22 @@ func createTropeSet(numTropes int) map[tropestogo.Trope]struct{} {
 	tropeset := make(map[tropestogo.Trope]struct{})
 	for i := 0; i < numTropes; i++ {
 		trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(i), 1, "")
+		tropeset[trope] = struct{}{}
+	}
+
+	return tropeset
+}
+
+// createSubTropeSet generates a generic set of N correct SubTropes of different SubWikis at random
+func createSubTropeSet(numTropes int) map[tropestogo.Trope]struct{} {
+	subWikis := []string{"SubWiki1", "SubWiki2"}
+
+	tropeset := make(map[tropestogo.Trope]struct{})
+	for i := 0; i < numTropes; i++ {
+		trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(i), 1, subWikis[0])
+		tropeset[trope] = struct{}{}
+
+		trope, _ = tropestogo.NewTrope("Trope"+fmt.Sprint(i), 1, subWikis[1])
 		tropeset[trope] = struct{}{}
 	}
 

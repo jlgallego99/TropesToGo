@@ -21,9 +21,10 @@ var (
 
 // CSVRepository implements the RepositoryMedia for creating and handling CSV datasets of all the scraped data on TvTropes
 type CSVRepository struct {
-	name   string
-	writer *csv.Writer
-	data   []media.Media
+	name    string
+	headers []string
+	writer  *csv.Writer
+	data    []media.Media
 }
 
 // Error formats a generic error
@@ -45,13 +46,15 @@ func NewCSVRepository(name string) (*CSVRepository, error) {
 	}
 
 	writer := csv.NewWriter(csvFile)
+	headers := []string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "subtropes", "subtropes_namespaces"}
 
 	repository := &CSVRepository{
-		name:   name + ".csv",
-		writer: writer,
+		name:    name + ".csv",
+		headers: headers,
+		writer:  writer,
 	}
 
-	repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"})
+	repository.writer.Write(headers)
 	repository.writer.Flush()
 
 	return repository, nil
@@ -137,7 +140,7 @@ func (repository *CSVRepository) RemoveAll() error {
 
 		repository.writer = csv.NewWriter(csvFile)
 
-		repository.writer.Write([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"})
+		repository.writer.Write(repository.headers)
 		repository.writer.Flush()
 
 		return nil
@@ -196,19 +199,33 @@ func (repository *CSVRepository) Persist() error {
 // Each value on the returned array is a column value for the CSV file
 func CreateMediaRecord(media media.Media) []string {
 	var tropes []string
-	var indexes []string
+	var subTropes []string
+	var subTropesNamespaces []string
+	//var indexes []string
+
 	for trope := range media.GetWork().Tropes {
 		title := trope.GetTitle()
 		index := trope.GetIndex().String()
 
 		if title != "" && index != "" /*&& index != "UnknownTropeIndex"*/ {
 			tropes = append(tropes, title)
-			indexes = append(indexes, index)
+			//indexes = append(indexes, index)
+		}
+	}
+
+	for subTrope := range media.GetWork().SubTropes {
+		title := subTrope.GetTitle()
+		namespace := subTrope.GetSubpage()
+
+		if title != "" && namespace != "" {
+			subTropes = append(subTropes, title)
+			subTropesNamespaces = append(subTropesNamespaces, namespace)
 		}
 	}
 
 	record := []string{media.GetWork().Title, media.GetWork().Year, media.GetWork().LastUpdated.Format("2006-01-02 15:04:05"),
-		media.GetPage().GetUrl().String(), media.GetMediaType().String(), strings.Join(tropes, ";"), strings.Join(indexes, ";")}
+		media.GetPage().GetUrl().String(), media.GetMediaType().String(), strings.Join(tropes, ";"),
+		strings.Join(subTropes, ";"), strings.Join(subTropesNamespaces, ";")}
 
 	return record
 }

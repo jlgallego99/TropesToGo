@@ -84,18 +84,20 @@ type JsonResponse struct {
 	LastUpdated string      `json:"last_updated"`
 	URL         string      `json:"url"`
 	Tropes      []JsonTrope `json:"tropes"`
+	SubTropes   []JsonTrope `json:"sub_tropes"`
 }
 
 // JsonTrope is part of JsonResponse, and represent a trope with the index to which it belongs
 type JsonTrope struct {
-	Title string `json:"title"`
-	Index string `json:"index"`
+	Title     string `json:"title"`
+	Namespace string `json:"namespace"`
+	//Index string `json:"index"`
 }
 
 // MarshalJSON implements Marshaller interface for custom marshalling of Media objects
 // Returns a byte array that can be marshalled into a JSON file
 func (media Media) MarshalJSON() ([]byte, error) {
-	tropes := GetJsonTropes(media)
+	tropes, subTropes := GetJsonTropes(media)
 
 	return json.Marshal(&JsonResponse{
 		Title:       media.work.Title,
@@ -104,25 +106,44 @@ func (media Media) MarshalJSON() ([]byte, error) {
 		LastUpdated: media.work.LastUpdated.Format("2006-01-02 15:04:05"),
 		URL:         media.page.GetUrl().String(),
 		Tropes:      tropes,
+		SubTropes:   subTropes,
 	})
 }
 
 // GetJsonTropes receives a media object and transforms it into a JsonTrope array with all its tropes for correct marshalling
-func GetJsonTropes(media Media) []JsonTrope {
-	var tropes []JsonTrope
+// Return two JsonTrope arrays, the first for the main tropes and the second for the sub tropes
+func GetJsonTropes(media Media) ([]JsonTrope, []JsonTrope) {
+	var tropes, subTropes []JsonTrope
+	mediaType := media.GetMediaType().String()
 	for trope := range media.GetWork().Tropes {
 		title := trope.GetTitle()
-		index := trope.GetIndex().String()
+		namespace := trope.GetSubpage()
+		//index := trope.GetIndex().String()
 
-		if title != "" && index != "" /*&& index != "UnknownTropeIndex"*/ {
+		if title != "" && namespace == "" /*&& index != "UnknownTropeIndex"*/ {
 			tropes = append(tropes, JsonTrope{
-				Title: trope.GetTitle(),
-				Index: trope.GetIndex().String(),
+				Title:     title,
+				Namespace: mediaType,
+				//Index: trope.GetIndex().String(),
 			})
 		}
 	}
 
-	return tropes
+	for subTrope := range media.GetWork().SubTropes {
+		title := subTrope.GetTitle()
+		namespace := subTrope.GetSubpage()
+		//index := subTrope.GetIndex().String()
+
+		if title != "" && namespace != "" /*&& index != "UnknownTropeIndex"*/ {
+			subTropes = append(subTropes, JsonTrope{
+				Title:     title,
+				Namespace: namespace,
+				//Index: trope.GetIndex().String(),
+			})
+		}
+	}
+
+	return tropes, subTropes
 }
 
 // NewMedia is a factory that creates a Media aggregate with validations from a title, year, a set of all tropes, a page object and a media type object
