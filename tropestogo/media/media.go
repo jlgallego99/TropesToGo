@@ -125,7 +125,8 @@ func GetJsonTropes(media Media) []JsonTrope {
 	return tropes
 }
 
-// NewMedia is a factory that creates a Media aggregate with validations from a title, year, a set of tropes, a page object and a media type object
+// NewMedia is a factory that creates a Media aggregate with validations from a title, year, a set of all tropes, a page object and a media type object
+// It divides the tropes between main and secondary
 // It returns a correctly formed Media object and an error of type ErrMissingValues if the title or page are empty
 // an ErrInvalidYear if the year isn't real or an ErrUnknownMediaType if the received media type isn't known
 func NewMedia(title, year string, lastUpdated time.Time, tropes map[tropestogo.Trope]struct{}, page tropestogo.Page, mediaType MediaType) (Media, error) {
@@ -149,11 +150,22 @@ func NewMedia(title, year string, lastUpdated time.Time, tropes map[tropestogo.T
 		return Media{}, fmt.Errorf("%w: "+mediaType.String(), ErrUnknownMediaType)
 	}
 
+	mainTropes := make(map[tropestogo.Trope]struct{})
+	subTropes := make(map[tropestogo.Trope]struct{})
+	for trope := range tropes {
+		if trope.GetIsMain() {
+			mainTropes[trope] = struct{}{}
+		} else {
+			subTropes[trope] = struct{}{}
+		}
+	}
+
 	work := &tropestogo.Work{
 		Title:       title,
 		Year:        year,
 		LastUpdated: lastUpdated,
-		Tropes:      tropes,
+		Tropes:      mainTropes,
+		SubTropes:   subTropes,
 	}
 
 	return Media{
