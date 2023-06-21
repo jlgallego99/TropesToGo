@@ -19,12 +19,18 @@ var (
 	ErrPersist         = errors.New("can't persist data on the CSV file because there's none")
 )
 
+var Headers = []string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "subtropes", "subtropes_namespaces"}
+
 // CSVRepository implements the RepositoryMedia for creating and handling CSV datasets of all the scraped data on TvTropes
 type CSVRepository struct {
-	name    string
-	headers []string
-	writer  *csv.Writer
-	data    []media.Media
+	// name of the file dataset
+	name string
+
+	// writer for modifying the loaded CSV dataset that this repository manages
+	writer *csv.Writer
+
+	// data is the intermediate dataset added here before persisting it all at once
+	data []media.Media
 }
 
 // Error formats a generic error
@@ -46,15 +52,13 @@ func NewCSVRepository(name string) (*CSVRepository, error) {
 	}
 
 	writer := csv.NewWriter(csvFile)
-	headers := []string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "subtropes", "subtropes_namespaces"}
 
 	repository := &CSVRepository{
-		name:    name + ".csv",
-		headers: headers,
-		writer:  writer,
+		name:   name + ".csv",
+		writer: writer,
 	}
 
-	repository.writer.Write(headers)
+	repository.writer.Write(Headers)
 	repository.writer.Flush()
 
 	return repository, nil
@@ -140,7 +144,7 @@ func (repository *CSVRepository) RemoveAll() error {
 
 		repository.writer = csv.NewWriter(csvFile)
 
-		repository.writer.Write(repository.headers)
+		repository.writer.Write(Headers)
 		repository.writer.Flush()
 
 		return nil

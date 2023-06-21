@@ -28,7 +28,10 @@ type JSONDataset struct {
 // JSONRepository implements the RepositoryMedia for creating and handling JSON datasets of all the scraped data on TvTropes
 // It has an internal data structure of Media objects for better performance that can be persisted into a file all in one go
 type JSONRepository struct {
+	// name of the file dataset
 	name string
+
+	// data is the intermediate dataset added here before persisting it all at once
 	data []media.Media
 }
 

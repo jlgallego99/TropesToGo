@@ -150,8 +150,8 @@ var _ = Describe("Media", func() {
 			var errMediaAllTropes error
 
 			BeforeEach(func() {
-				tropes = createTropeSet(numTropes)
-				subTropes := createSubTropeSet(numTropes)
+				tropes = createTropes(numTropes, randomTrope)
+				subTropes := createTropes(numTropes, randomSubTrope)
 				for subTrope := range subTropes {
 					tropes[subTrope] = struct{}{}
 				}
@@ -174,38 +174,11 @@ var _ = Describe("Media", func() {
 			})
 
 			It("Should have added all tropes and SubTropes because they are from different SubWikis", func() {
-				Expect(len(mediaAllTropes.GetWork().Tropes) + len(mediaAllTropes.GetWork().SubTropes)).To(Equal(numTropes * 3))
+				Expect(len(mediaAllTropes.GetWork().Tropes) + len(mediaAllTropes.GetWork().SubTropes)).To(Equal(numTropes * 2))
 			})
 		})
 	})
 })
-
-// createTropeSet generates a generic set of N correct tropes
-func createTropeSet(numTropes int) map[tropestogo.Trope]struct{} {
-	tropeset := make(map[tropestogo.Trope]struct{})
-	for i := 0; i < numTropes; i++ {
-		trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(i), 1, "")
-		tropeset[trope] = struct{}{}
-	}
-
-	return tropeset
-}
-
-// createSubTropeSet generates a generic set of N correct SubTropes of different SubWikis at random
-func createSubTropeSet(numTropes int) map[tropestogo.Trope]struct{} {
-	subWikis := []string{"SubWiki1", "SubWiki2"}
-
-	tropeset := make(map[tropestogo.Trope]struct{})
-	for i := 0; i < numTropes; i++ {
-		trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(i), 1, subWikis[0])
-		tropeset[trope] = struct{}{}
-
-		trope, _ = tropestogo.NewTrope("Trope"+fmt.Sprint(i), 1, subWikis[1])
-		tropeset[trope] = struct{}{}
-	}
-
-	return tropeset
-}
 
 func areTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {
 	visited := make(map[string]bool, 0)
@@ -218,4 +191,27 @@ func areTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {
 	}
 
 	return true
+}
+
+// createTropes generates a map of numTropes size applying a callback function to all elements
+func createTropes(numTropes int, callback func() tropestogo.Trope) map[tropestogo.Trope]struct{} {
+	tropeset := make(map[tropestogo.Trope]struct{}, numTropes)
+
+	for i := 0; i < numTropes; i++ {
+		tropeset[callback()] = struct{}{}
+	}
+
+	return tropeset
+}
+
+var randomTrope = func() tropestogo.Trope {
+	trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, "")
+	return trope
+}
+
+var randomSubTrope = func() tropestogo.Trope {
+	subWikis := []string{"SubWiki1", "SubWiki2"}
+	trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, subWikis[seededRand.Intn(1)])
+
+	return trope
 }

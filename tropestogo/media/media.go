@@ -91,7 +91,6 @@ type JsonResponse struct {
 type JsonTrope struct {
 	Title     string `json:"title"`
 	Namespace string `json:"namespace"`
-	//Index string `json:"index"`
 }
 
 // MarshalJSON implements Marshaller interface for custom marshalling of Media objects
@@ -118,13 +117,11 @@ func GetJsonTropes(media Media) ([]JsonTrope, []JsonTrope) {
 	for trope := range media.GetWork().Tropes {
 		title := trope.GetTitle()
 		namespace := trope.GetSubpage()
-		//index := trope.GetIndex().String()
 
 		if title != "" && namespace == "" /*&& index != "UnknownTropeIndex"*/ {
 			tropes = append(tropes, JsonTrope{
 				Title:     title,
 				Namespace: mediaType,
-				//Index: trope.GetIndex().String(),
 			})
 		}
 	}
@@ -132,13 +129,11 @@ func GetJsonTropes(media Media) ([]JsonTrope, []JsonTrope) {
 	for subTrope := range media.GetWork().SubTropes {
 		title := subTrope.GetTitle()
 		namespace := subTrope.GetSubpage()
-		//index := subTrope.GetIndex().String()
 
 		if title != "" && namespace != "" /*&& index != "UnknownTropeIndex"*/ {
 			subTropes = append(subTropes, JsonTrope{
 				Title:     title,
 				Namespace: namespace,
-				//Index: trope.GetIndex().String(),
 			})
 		}
 	}
