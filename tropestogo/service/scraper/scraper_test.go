@@ -37,6 +37,10 @@ var (
 		"resources/theavengers_tropesEtoL.html",
 		"resources/theavengers_tropesMtoP.html",
 		"resources/theavengers_tropesQtoZ.html"}
+	oldboySubpageFiles = []string{"resources/oldboy_awesome.html", "resources/oldboy_fridge.html",
+		"resources/oldboy_laconic.html", "resources/oldboy_trivia.html", "resources/oldboy_ymmv.html",
+		"resources/oldboy_videoexamples.html"}
+	headers = []string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "subtropes", "subtropes_namespaces"}
 )
 
 // A scraper service for test purposes
@@ -218,8 +222,8 @@ var _ = Describe("Scraper", func() {
 			pageReaderCsv, _ = os.Open(attackontitanResource)
 			pageReaderJson, _ = os.Open(attackontitanResource)
 
-			filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeWorkPage(pageReaderCsv, []io.Reader{}, tvTropesUrlUnknown)
-			filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeWorkPage(pageReaderJson, []io.Reader{}, tvTropesUrlUnknown)
+			filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeFromReaders(pageReaderCsv, []io.Reader{}, tvTropesUrlUnknown)
+			filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeFromReaders(pageReaderJson, []io.Reader{}, tvTropesUrlUnknown)
 			errPersistCsv = serviceScraperCsv.Persist()
 			errPersistJson = serviceScraperJson.Persist()
 		})
@@ -261,7 +265,7 @@ var _ = Describe("Scraper", func() {
 
 			Expect(err).To(BeNil())
 			Expect(len(records)).To(Equal(1))
-			Expect(records[0]).To(Equal([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"}))
+			Expect(records[0]).To(Equal(headers))
 		})
 	})
 
@@ -276,31 +280,26 @@ var _ = Describe("Scraper", func() {
 
 			var subpageReadersCsv []io.Reader
 			var subpageReadersJson []io.Reader
-			for _, subpageFile := range avengersSubpageFiles {
-				subpageReaderCsv, _ := os.Open(subpageFile)
-				subpageReaderJson, _ := os.Open(subpageFile)
-
-				subpageReadersCsv = append(subpageReadersCsv, subpageReaderCsv)
-				subpageReadersJson = append(subpageReadersJson, subpageReaderJson)
-			}
 
 			// Scrape Oldboy
+			subpageReadersJson, subpageReadersCsv = loadSubpageFiles(oldboySubpageFiles)
 			pageReaderCsv, _ = os.Open(oldboyResource)
 			pageReaderJson, _ = os.Open(oldboyResource)
-			validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, []io.Reader{}, tvTropesUrl)
-			validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, []io.Reader{}, tvTropesUrl)
+			validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeFromReaders(pageReaderJson, subpageReadersJson, tvTropesUrl)
+			validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeFromReaders(pageReaderCsv, subpageReadersCsv, tvTropesUrl)
 
 			// Scrape The Avengers
+			subpageReadersJson, subpageReadersCsv = loadSubpageFiles(avengersSubpageFiles)
 			pageReaderCsv, _ = os.Open(avengersResource)
 			pageReaderJson, _ = os.Open(avengersResource)
-			validfilm2Csv, errorfilm2Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, subpageReadersCsv, tvTropesUrl2)
-			validfilm2Json, errorfilm2Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, subpageReadersJson, tvTropesUrl2)
+			validfilm2Csv, errorfilm2Json = serviceScraperJson.ScrapeFromReaders(pageReaderJson, subpageReadersJson, tvTropesUrl2)
+			validfilm2Json, errorfilm2Csv = serviceScraperCsv.ScrapeFromReaders(pageReaderCsv, subpageReadersCsv, tvTropesUrl2)
 
 			// Scrape A New Hope
 			pageReaderCsv, _ = os.Open(anewhopeResource)
 			pageReaderJson, _ = os.Open(anewhopeResource)
-			validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeWorkPage(pageReaderJson, []io.Reader{}, tvTropesUrl3)
-			validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeWorkPage(pageReaderCsv, []io.Reader{}, tvTropesUrl3)
+			validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeFromReaders(pageReaderJson, []io.Reader{}, tvTropesUrl3)
+			validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeFromReaders(pageReaderCsv, []io.Reader{}, tvTropesUrl3)
 
 			// Persist all data
 			errPersistJson = serviceScraperJson.Persist()
@@ -336,7 +335,9 @@ var _ = Describe("Scraper", func() {
 
 		It("Shouldn't have repeated tropes", func() {
 			Expect(areTropesUnique(validfilm1Csv.GetWork().Tropes)).To(BeTrue())
+			Expect(areSubTropesUnique(validfilm1Csv.GetWork().SubTropes)).To(BeTrue())
 			Expect(areTropesUnique(validfilm1Json.GetWork().Tropes)).To(BeTrue())
+			Expect(areSubTropesUnique(validfilm1Json.GetWork().SubTropes)).To(BeTrue())
 
 			Expect(areTropesUnique(validfilm2Csv.GetWork().Tropes)).To(BeTrue())
 			Expect(areTropesUnique(validfilm2Json.GetWork().Tropes)).To(BeTrue())
@@ -375,17 +376,15 @@ var _ = Describe("Scraper", func() {
 			Expect(errReadAll).To(BeNil())
 
 			Expect(err).To(BeNil())
-			Expect(records[0]).To(Equal([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"}))
+			Expect(records[0]).To(Equal(headers))
 			Expect(len(records) > 1).To(BeTrue())
 			for _, record := range records {
-				for j, column := range record {
-					// The Year can be empty
-					if j != 1 {
-						Expect(column).To(Not(BeEmpty()))
-					}
-				}
-
+				Expect(record[0]).To(Not(BeEmpty()))
+				Expect(record[2]).To(Not(BeEmpty()))
+				Expect(record[3]).To(Not(BeEmpty()))
+				Expect(record[4]).To(Not(BeEmpty()))
 				areRepositoryTropesUnique(strings.Split(record[5], ";"))
+				areRepositorySubTropesUnique(strings.Split(record[6], ";"), strings.Split(record[7], ";"))
 			}
 		})
 	})
@@ -410,6 +409,19 @@ func areTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {
 	return true
 }
 
+func areSubTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {
+	visited := make(map[string]bool, 0)
+	for trope := range tropes {
+		if visited[trope.GetTitle()+trope.GetSubpage()] {
+			return false
+		} else {
+			visited[trope.GetTitle()+trope.GetSubpage()] = true
+		}
+	}
+
+	return true
+}
+
 func areRepositoryTropesUnique(tropes []string) bool {
 	visited := make(map[string]bool, 0)
 	for _, trope := range tropes {
@@ -421,4 +433,32 @@ func areRepositoryTropesUnique(tropes []string) bool {
 	}
 
 	return true
+}
+
+func areRepositorySubTropesUnique(subTropes []string, subPages []string) bool {
+	visited := make(map[string]bool, 0)
+	for i, trope := range subTropes {
+		if visited[trope+subPages[i]] == true {
+			return false
+		} else {
+			visited[trope+subPages[i]] = true
+		}
+	}
+
+	return true
+}
+
+func loadSubpageFiles(fileNames []string) ([]io.Reader, []io.Reader) {
+	var subpageReadersCsv []io.Reader
+	var subpageReadersJson []io.Reader
+
+	for _, subpageFile := range fileNames {
+		subpageReaderCsv, _ := os.Open(subpageFile)
+		subpageReaderJson, _ := os.Open(subpageFile)
+
+		subpageReadersCsv = append(subpageReadersCsv, subpageReaderCsv)
+		subpageReadersJson = append(subpageReadersJson, subpageReaderJson)
+	}
+
+	return subpageReadersJson, subpageReadersCsv
 }

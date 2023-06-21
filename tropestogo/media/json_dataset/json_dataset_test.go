@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
 	"time"
 
@@ -16,6 +17,8 @@ import (
 
 const (
 	oldboyUrl = "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"
+	randomMax = 10
+	randomMin = 2
 )
 
 var repository *json_dataset.JSONRepository
@@ -23,9 +26,20 @@ var errorRepository, errRemoveAll, errAddMedia, errPersist error
 var mediaEntry media.Media
 var datasetFile *os.File
 var tropes map[tropestogo.Trope]struct{}
+var numTropes int
+
+var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 var _ = BeforeSuite(func() {
-	tropes = createTropeSet(3)
+
+	numTropes = seededRand.Intn(randomMax-randomMin) + randomMin
+
+	tropes = createTropes(numTropes, randomTrope)
+	subTropes := createTropes(numTropes, randomSubTrope)
+	for subTrope := range subTropes {
+		tropes[subTrope] = struct{}{}
+	}
+
 	tvTropesPage, _ := tropestogo.NewPage(oldboyUrl)
 	mediaEntry, _ = media.NewMedia("Oldboy", "2003", time.Now(), tropes, tvTropesPage, media.Film)
 })
@@ -66,16 +80,7 @@ var _ = Describe("JsonDataset", func() {
 		})
 
 		It("Should have all the correct fields", func() {
-			var dataset json_dataset.JSONDataset
-			fileContents, _ := os.ReadFile("dataset.json")
-			err := json.Unmarshal(fileContents, &dataset)
-
-			Expect(err).To(BeNil())
-			Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy"))
-			Expect(dataset.Tropestogo[0].Year).To(Equal("2003"))
-			Expect(dataset.Tropestogo[0].URL).To(Equal(oldboyUrl))
-			Expect(dataset.Tropestogo[0].MediaType).To(Equal("Film"))
-			Expect(len(dataset.Tropestogo[0].Tropes)).To(Equal(3))
+			correctRecord()
 		})
 
 		It("Shouldn't return an error", func() {
@@ -92,9 +97,7 @@ var _ = Describe("JsonDataset", func() {
 		})
 
 		It("Should only be one record on the JSON file", func() {
-			var dataset json_dataset.JSONDataset
-			fileContents, _ := os.ReadFile("dataset.json")
-			err := json.Unmarshal(fileContents, &dataset)
+			dataset, err := readDataset()
 
 			Expect(err).To(BeNil())
 			Expect(len(dataset.Tropestogo)).To(Equal(1))
@@ -116,9 +119,7 @@ var _ = Describe("JsonDataset", func() {
 		})
 
 		It("Should have an empty key of the main array", func() {
-			var dataset json_dataset.JSONDataset
-			fileContents, _ := os.ReadFile("dataset.json")
-			err := json.Unmarshal(fileContents, &dataset)
+			dataset, err := readDataset()
 
 			Expect(err).To(BeNil())
 			Expect(dataset.Tropestogo).To(BeEmpty())
@@ -156,7 +157,12 @@ var _ = Describe("JsonDataset", func() {
 			errPersist = repository.Persist()
 
 			// Create the new Media to be updated
-			newTropes := createTropeSet(2)
+			newTropes := createTropes(numTropes, randomTrope)
+			newSubTropes := createTropes(numTropes, randomSubTrope)
+			for subTrope := range newSubTropes {
+				newTropes[subTrope] = struct{}{}
+			}
+
 			tvTropesPage, _ := tropestogo.NewPage(oldboyUrl)
 			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), newTropes, tvTropesPage, media.Film)
 
@@ -164,18 +170,7 @@ var _ = Describe("JsonDataset", func() {
 		})
 
 		It("Should have the new record updated", func() {
-			var dataset json_dataset.JSONDataset
-			fileContents, _ := os.ReadFile("dataset.json")
-			err := json.Unmarshal(fileContents, &dataset)
-
-			Expect(err).To(BeNil())
-			Expect(errPersist).To(BeNil())
-			Expect(len(dataset.Tropestogo)).To(Equal(1))
-			Expect(dataset.Tropestogo[0].Title).To(Equal("Oldboy"))
-			Expect(dataset.Tropestogo[0].Year).To(Equal("2013"))
-			Expect(dataset.Tropestogo[0].URL).To(Equal(oldboyUrl))
-			Expect(dataset.Tropestogo[0].MediaType).To(Equal("Film"))
-			Expect(len(dataset.Tropestogo[0].Tropes)).To(Equal(2))
+			correctRecord()
 		})
 
 		It("Shouldn't return an error", func() {
@@ -196,9 +191,7 @@ var _ = Describe("JsonDataset", func() {
 		})
 
 		It("Should only be one Media record on the JSON file", func() {
-			var dataset json_dataset.JSONDataset
-			fileContents, _ := os.ReadFile("dataset.json")
-			err := json.Unmarshal(fileContents, &dataset)
+			dataset, err := readDataset()
 
 			Expect(err).To(BeNil())
 			Expect(len(dataset.Tropestogo)).To(Equal(1))
@@ -211,13 +204,51 @@ var _ = AfterSuite(func() {
 	os.Remove("dataset.json")
 })
 
-// createTropeSet generates a generic set of N correct tropes
-func createTropeSet(numTropes int) map[tropestogo.Trope]struct{} {
-	tropeset := make(map[tropestogo.Trope]struct{})
+// correctRecord checks if a JSON record has something strange and no errors
+func correctRecord() {
+	var dataset json_dataset.JSONDataset
+	fileContents, _ := os.ReadFile("dataset.json")
+	err := json.Unmarshal(fileContents, &dataset)
+
+	Expect(err).To(BeNil())
+	Expect(errPersist).To(BeNil())
+	Expect(len(dataset.Tropestogo)).To(Equal(1))
+	Expect(dataset.Tropestogo[0].Title).To(Not(BeEmpty()))
+	Expect(dataset.Tropestogo[0].Year).To(Not(BeEmpty()))
+	Expect(dataset.Tropestogo[0].URL).To(Not(BeEmpty()))
+	Expect(dataset.Tropestogo[0].MediaType).To(Not(BeEmpty()))
+	Expect(len(dataset.Tropestogo[0].Tropes) > 0).To(BeTrue())
+	Expect(len(dataset.Tropestogo[0].SubTropes) > 0).To(BeTrue())
+}
+
+// readDataset reads the JSON file with all its contents
+func readDataset() (json_dataset.JSONDataset, error) {
+	var dataset json_dataset.JSONDataset
+	fileContents, _ := os.ReadFile("dataset.json")
+	err := json.Unmarshal(fileContents, &dataset)
+
+	return dataset, err
+}
+
+// createTropes generates a map of numTropes size applying a callback function to all elements
+func createTropes(numTropes int, callback func() tropestogo.Trope) map[tropestogo.Trope]struct{} {
+	tropeset := make(map[tropestogo.Trope]struct{}, numTropes)
+
 	for i := 0; i < numTropes; i++ {
-		trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(i), 1, "")
-		tropeset[trope] = struct{}{}
+		tropeset[callback()] = struct{}{}
 	}
 
 	return tropeset
+}
+
+var randomTrope = func() tropestogo.Trope {
+	trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, "")
+	return trope
+}
+
+var randomSubTrope = func() tropestogo.Trope {
+	subWikis := []string{"SubWiki1", "SubWiki2"}
+	trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, subWikis[seededRand.Intn(1)])
+
+	return trope
 }

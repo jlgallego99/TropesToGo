@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+	<html>
+		<head lang="en">
+            <!-- Google tag (gtag.js) -->
+            <script async src="https://www.googletagmanager.com/gtag/js?id=G-XPPLXMRF6Z"></script>
+            <script>
+                // Used for Video players on Tropes
+                var tropes_videos_commands = tropes_videos_commands || [];
+
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-XPPLXMRF6Z');
+
+                window.googletag = window.googletag || {cmd: []};
+            </script>
+			
+						<script type="text/javascript">
+					var site_htl_settings = {
+							"adx"              : "yes", // yes/no if we should include adx on page
+							"groupname"        : "Awesome", // track groupname in htl/gam
+							"user_type"        : "guest", // track member/guest in htl/gam
+							"is_testing"       : "no", // yes/no if in testing mode
+							"split_testing"    : "1", // 0/1, 0=control, 1=test, for a/b testing
+							"send_reports"     : "1", // true/false if reports should be sent for logging in DataBricks
+							"report_url"       : "https://analytics.tvtropes.org/analytics-data/tvtropes/", // Endpoint for logging (data stream)
+							"logging_turned_on": "1", // true/false if console logging should be turned on
+							"site_name"        : "tvtropes", // Site name for display in logging
+							"sticky_slot_names": ["tvtropes_dt_sticky", "tvtropes_m_sticky"], // Possible slot names for the sticky slot
+					}
+			</script>
+			
+											<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+
+								<script>
+					// Create the ad project
+var ads_project = (function(sent_in_settings){
+    var is_mobile = (document.innerWidth <= 768) ? true : false;
+
+    //default settings
+    var setting_defaults = {
+        "adx"              : "yes",
+        "groupname"        : "",
+        "user_type"        : "guest",
+        "is_testing"       : "no",
+        "split_testing"    : "0",
+        "send_reports"     : "0",
+        "logging_turned_on": "false",
+        "site_name"        : "site_name",
+        "report_url"       : "",
+        "page_template"    : "",
+        "sticky_slot_names": []
+    }
+
+    // Combine defaults with sent in parameters
+    var project_settings = {...setting_defaults, ...sent_in_settings};
+    
+    /***************************************
+    --------------- AD CODE ---------------
+    ***************************************/
+    
+    // Variables for refresh logic (sticky)
+    var refresh = true;
+    var sticky_refresh_counter = 1;
+    var refresh_timer;
+    var global_ad_slot_name = "";
+    var global_bidder_name = "";
+    var last_refresh_time = "";
+    var unfilled_count = 0;
+    
+    window.htlbid = window.htlbid || {};
+    htlbid.cmd = htlbid.cmd || [];
+    htlbid.cmd.push(function() {
+        htlbid.layout('universal');
+        
+        // Only set these if given in settings
+        if(project_settings.groupname != "") htlbid.setTargeting("groupname", project_settings.groupname);
+        if(project_settings.page_template != "") htlbid.setTargeting("page_template", project_settings.page_template);
+
+        htlbid.setTargeting("adx", project_settings.adx);
+        //htlbid.setTargeting('is_testing', project_settings.is_testing);
+        //htlbid.setTargeting('split_testing', project_settings.split_testing);
+        htlbid.setTargeting('website', project_settings.site_name);
+        htlbid.setTargeting('user_type', project_settings.user_type);
+
+        // On slot rendering (or unfilled)
+        googletag.pubads().addEventListener('slotRenderEnded', function(event){
+            var slot_targeting = event.slot.getTargetingMap();
+            
+            var bidder_name, size = 0;
+            
+            // If it's empty, no bids?
+            var cpm = (slot_targeting["hb_pb"]) ? slot_targeting["hb_pb"][0] : 0;
+            
+            // In case there is no size from anywhere
+            if(event.size && event.size.length > 0) size = event.size[0]+"x"+event.size[1];
+            
+            // Either Amazon/ADX or Unfilled
+            if(event.advertiserId != 5280547887){
+                if(event.advertiserId == 4467125037){
+                    bidder_name = "adx";
+                    
+                    if(cpm == 0) cpm = 0.11;
+                }
+                else if(event.advertiserId == 5279698200){
+                    bidder_name = "amazon";
+                    
+                    if(cpm == 0) cpm = 0.11;
+                }
+                else if(event.advertiserId == 5291323376) bidder_name = "house";
+                else if(!event.advertiserId || event.isEmpty) bidder_name = "unfilled";
+                else bidder_name = "unknown";
+                
+                if(bidder_name != "unknown" && bidder_name != "unfilled") output_logging("ADX/Amazon bid report");
+                else output_logging("unknown/unfilled bid report");
+            }
+            // Bidder won the auction
+            else{
+                output_logging("Bidders bid report");
+                
+                bidder_name = (slot_targeting["hb_bidder"]) ? slot_targeting["hb_bidder"][0] : "unknown";
+            }
+            
+            var slot = {
+                "slotName"  : validate_value(event.slot.getAdUnitPath().replace("/1026302/", ""), "string", 50),
+                "cpm"       : validate_value(parseFloat(cpm), "number"),
+                "bidder"    : validate_value(bidder_name, "string", 50),
+                "size"      : validate_value(size, "string", 50),
+                "adUnitCode": validate_value(event.slot.getSlotId().getDomId(), "string", 50),
+                "empty"     : validate_value(event.isEmpty, "boolean")
+            };
+
+            var slot_tracking = Object.assign({}, page_tracking_data);
+            
+            // Override ad-unit with this ad unit to send reporting data
+            slot_tracking.ad_unit = slot;
+            
+            // Loggin out bid report
+            output_logging(slot_tracking);
+            output_logging(slot_tracking.ad_unit.slotName + " "+ slot_tracking.ad_unit.bidder + ", "+ slot_tracking.ad_unit.cpm);
+            
+            if(project_settings.send_reports == "1"){
+                try{
+                    // Send actual bid report
+                    send_bid_report(slot_tracking);
+                }
+                catch(e){
+                    output_logging("Bid report error");
+                }
+            }
+            
+            // Sticky changes
+            if(project_settings.sticky_slot_names.includes(slot_tracking.ad_unit.slotName)){
+                // Check if the bidder is one of these bidders, if so, hide the sticky container
+                if(["gumgum", "kargo", "unknown", "unfilled"].includes(bidder_name)){
+                    document.getElementById("outer_sticky").style.display = "none";
+                }
+                // All other bidders use our sticky container, show it
+                else{
+                    document.getElementById("outer_sticky").style.display = "";
+                }
+
+                // Unfilled slot
+                if(bidder_name == "unfilled"){
+                    unfilled_count++;
+                    
+                    // Stop refreshing after 3 unfilled impressions
+                    if(unfilled_count >= 3){
+                        refresh = false;
+                        
+                        console.log("Refreshed turned off after 3 unfilled impressions");
+                    }
+                }
+                // Reset unfilled count if it's not in a row
+                else if(bidder_name != "house") unfilled_count = 0;
+                
+                // Start refresh check after every sticky ad has been filled (refreshed)
+                start_refresh(slot_tracking.ad_unit.adUnitCode, bidder_name);
+            }
+        });
+    });
+    
+    // Functions for Refresh
+    function start_refresh(ad_slot_name, bidder_name){
+        // Remove old listener before adding a new one
+        document.removeEventListener("visibilitychange", visibility_change_logic);
+        
+        // Stop here if we don't need to refresh the sticky (or max number of refreshes has been reached)
+        if(!refresh || sticky_refresh_counter > 10){
+            output_logging("no timer needed");
+            refresh = false;
+            return;
+        }
+        
+        global_ad_slot_name = ad_slot_name;
+        global_bidder_name = bidder_name;
+        
+        document.addEventListener("visibilitychange", visibility_change_logic);
+        
+        output_logging('refresh timer started');
+
+        // Use 35 second tracker on mobile, 40 on desktop
+        if(is_mobile) refresh_timer = refresh_timer_tracker(35, refresh_sticky);
+        else refresh_timer = refresh_timer_tracker(40, refresh_sticky);
+    }
+    // Logic for visibility change
+    function visibility_change_logic(){
+        // Pause refresh timer
+        if(document.hidden){
+            refresh_timer.pause()
+        }
+        // Start refresh timer
+        else if(refresh){
+            refresh_timer.resume();
+        }
+    }
+    // Timer ended, do refresh
+    function refresh_sticky(){
+        // If you aren't supposed to refresh
+        output_logging('refresh timer ended');
+        refresh_timer.delete();
+        
+        // Kargo
+        if(global_bidder_name == "kargo"){
+            //close if Kargo container exists, otherwise don't refresh (must have been manually closed)
+            if(window.Kargo) Kargo.CreativeRegister.getCreativesOfType('Hover')[0].destroy();
+            else refresh = false;
+        }
+        // Gumgum 
+        else if(global_bidder_name == "gumgum") {
+            //close if GumGum container exists, otherwise don't refresh (must have been manually closed)
+            if(document.getElementById("GG_PXS") && document.getElementById("GG_PXS").parentNode){
+                document.getElementById("GG_PXS").parentNode.remove();
+            }
+            else refresh = false;
+        }
+        // Ogury
+        else if(global_bidder_name == "ogury"){
+            if(document.getElementById("ogy-ad-slot")){
+                window.top.dispatchEvent(new Event('ogy_hide'));
+
+                if(document.getElementById("ogy-ad-slot")) document.getElementById("ogy-ad-slot").remove();
+            }
+            else refresh=false;
+        }
+        
+        // Refresh slot (if container wasn't manually closed)
+        if(refresh){
+            sticky_refresh_counter++;
+            
+            //safeguards (max refresh check, minimum time between refreshes)
+            if(sticky_refresh_counter > 12){
+                refresh = false;
+                refresh_timer.delete();
+                document.removeEventListener("visibilitychange", visibility_change_logic);
+                
+                return;
+            }
+            
+            if(last_refresh_time != ""){
+                var current_time = new Date().getTime();
+                var diff_time = current_time - last_refresh_time;
+                
+                if(diff_time<(30*1000)){
+                    output_logging(diff_time + " less than 30 seconds since last refresh, something wrong with timer");
+                    refresh = false;
+                    
+                    refresh_timer.delete();
+                    document.removeEventListener("visibilitychange", visibility_change_logic);
+                    
+                    return;
+                }
+            }
+
+            last_refresh_time = new Date().getTime();
+            output_logging("slot "+global_ad_slot_name+" refreshed");
+
+            var sticky_refresh_counter_display = (sticky_refresh_counter < 10) ? "0"+sticky_refresh_counter : sticky_refresh_counter;
+            
+            if(document.getElementById('sticky_ad_container')) document.getElementById('sticky_ad_container').dataset.targeting="{\"sticky_refresh\":\""+sticky_refresh_counter_display+"\"}";
+            htlbid.forceRefresh([global_ad_slot_name]);
+        }
+        else{
+            output_logging('no refresh - container must have been closed')
+        }
+    }
+    // Force close sticky area
+    function close_sticky(){
+        document.getElementById('outer_sticky').remove();
+        refresh = false;
+        
+        output_logging('refresh timer ended');
+        refresh_timer.delete();
+    }
+    
+    /***************************************
+    ------------ REPORTING CODE ------------
+    ***************************************/
+    // Get $_GET variables
+    var uri = decodeURIComponent(window.location.search.substring(1)).split('&');
+
+    var get_vars = {};
+    for(var x = 0; x < uri.length; x++){
+        var parts = uri[x].split('=');
+        get_vars[parts[0]] = parts[1];
+    }
+
+    // UTM options we track
+    var utm_vars  = [
+          'utm_medium',
+          'utm_source',
+          'utm_campaign',
+          'utm_term',
+          'utm_content',
+          'utm_template',
+          'utm_referrer',
+          'utm_adset',
+          'utm_subid',
+          'gclid',
+          'fbclid'
+    ];
+
+    var utm_confirmed = {}, this_utm_var;
+
+    // See if any UTM variables are defined in the query parameters or session storage
+    utm_vars.forEach(function(utm_var){
+        // (can be blank, so check for null (not set))
+        if(sessionStorage.getItem(utm_var) !== null) this_utm_var = sessionStorage.getItem(utm_var);
+        else{
+            this_utm_var = (typeof get_vars[utm_var] == 'undefined') ? "" : get_vars[utm_var];
+            sessionStorage.setItem(utm_var, this_utm_var);
+        }
+        
+        utm_confirmed[utm_var] = this_utm_var;
+    });
+
+    // Determine browser
+    var browser = '';
+    
+    if(navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPod/i)) browser = 'iOS';
+    else if(/Opera[\/\s](\d+\.\d+)/.test(navigator.userAgent)) browser = 'opera';
+    else if(/MSIE (\d+\.\d+);/.test(navigator.userAgent)) browser = 'MSIE';
+    else if(/Navigator[\/\s](\d+\.\d+)/.test(navigator.userAgent)) browser = 'netscape';
+    else if(/Chrome[\/\s](\d+\.\d+)/.test(navigator.userAgent)) browser = 'chrome';
+    else if(/Safari[\/\s](\d+\.\d+)/.test(navigator.userAgent)) browser = 'safari';
+    else if(/Firefox[\/\s](\d+\.\d+)/.test(navigator.userAgent)) browser = 'firefox';
+    else browser = 'internet_explorer';
+    
+    var session_guid, session_referrer;
+    // Check for session guid in session storage
+    if(sessionStorage.getItem("session_guid")) session_guid = sessionStorage.getItem("session_guid");
+    else{
+        session_guid = generate_uuid();
+        sessionStorage.setItem("session_guid", session_guid);
+    }
+
+    // Check for referrer in session storage (can be blank, so check for null (not set))
+    if(sessionStorage.getItem("session_referrer") !== null) session_referrer = sessionStorage.getItem("session_referrer");
+    else{
+        session_referrer = document.referrer || "";
+        sessionStorage.setItem("session_referrer", session_referrer);
+    }
+
+    var page_tracking_data = {
+        "referrer"          : validate_value(session_referrer, "string"),
+        // UTM variables
+        "utm_variables" : {
+            "utm_source"        : validate_value(utm_confirmed.utm_source,   "string", 100),
+            "utm_campaign"      : validate_value(utm_confirmed.utm_campaign, "string"),
+            "utm_medium"        : validate_value(utm_confirmed.utm_medium,   "string", 100),
+            "utm_term"          : validate_value(utm_confirmed.utm_term,     "string", 100),
+            "utm_content"       : validate_value(utm_confirmed.utm_content,  "string", 100),
+            "utm_template"      : validate_value(utm_confirmed.utm_template, "string", 100),
+            "utm_referrer"      : validate_value(utm_confirmed.utm_referrer, "string", 100),
+            "utm_adset"         : validate_value(utm_confirmed.utm_adset,    "string", 100),
+            "utm_subid"         : validate_value(utm_confirmed.utm_subid,    "string", 100) 
+        },
+        // User information
+        "user"              : {
+            "session_guid"      : validate_value(session_guid,                       "string"),
+            "os"                : validate_value(get_os(),                           "string", 50),
+            "browser"           : validate_value(browser,                            "string", 50),
+            "device"            : validate_value((is_mobile ? "mobile" : "desktop"), "string", 15),
+            "country"           : ""
+        },
+        // Page information
+        "page"              : {
+            "page_guid"         : validate_value(generate_uuid(),          "string"),
+            "url"               : validate_value(window.location.href,     "string"),
+            "url_path"          : validate_value(window.location.pathname, "string", 200)
+            // "editor"            : validate_value(properPage.page_meta.editor, "string", 150),
+            // "writer"            : validate_value(properPage.page_meta.writer, "string", 150)
+        },
+        // Ad unit information
+        "ad_unit"          : {}
+
+
+
+
+
+        // Not sure if we are going to use these, comment out for now
+        // "category"          : validate_value(page_meta.category),
+        // "tags"              : validate_value(page_meta.tags.join(",")),
+        // "website"           : validate_value(site_name),
+        // "is_mobile"         : validate_value(device_type),
+        // "is_isolated"       : validate_value(isolated),
+        // "session_depth"     : validate_value(sessionData.depth),
+        // "page_type"         : validate_value(page_meta.page_type),
+        // "custom"            : validateCustom(page_meta.custom),
+        // 
+        // "use_ssl"           : validate_value(use_ssl),
+        // "resolution_width"  : validate_value(width),
+        // "resolution_height" : validate_value(height),
+        // "gclid"              : validate_value(sessionData.gclid),
+        // "fbclid"            : validate_value(sessionData.fbclid),
+        // "buyer"             : validate_value(page_meta.buyer),
+        // "split"             : validate_value(page_meta.split),
+        // "adblock"           : validate_value(adblock.detected)
+    };
+    
+    // Logging
+    function output_logging(content){
+        if(project_settings.logging_turned_on){
+            if(typeof content == "string") console.log(project_settings.site_name + " Ads: " + content);
+            else console.log(content);
+        }
+    }
+    // Get OS
+    function get_os(){
+        var os = navigator.userAgent;
+        
+        var return_os = "";
+        
+        if(os.search('Windows') !== -1) return_os = "Windows";
+        else if(os.search('Mac') !== -1) return_os = "MacOS";
+        else if(os.search('X11') !== -1 && !(os.search('Linux') !== -1)) return_os = "UNIX";
+        else if(os.search('Linux') !== -1 && os.search('X11') !== -1) return_os = "Linux"
+        
+        return return_os;
+    }
+    // Validate any value benig sent in reporting
+    function validate_value(value, type, max_length = 255){
+        // Validate string logic
+        if(type == "string"){
+            // Convert number to string
+            if(typeof value === 'number') value = value.toString();
+            
+            // If it's not a string, make it empty by default
+            if(typeof value !== 'string') value = "";
+            
+            // Trim max length
+            if(value.length > max_length) value = value.substring(0, max_length);
+        }
+        // Validate number logic
+        else if(type == "number"){
+            // Convert string to number
+            if(typeof value === 'string') value = value.toString();
+            
+            // If it's not a number, make it 0 by default
+            if(typeof value !== 'number') value = 0;
+        }
+        // Validate boolean logic
+        else if(type == "boolean"){
+            // Convert string to boolean
+            if(typeof value === 'string'){
+                if(['false', '0'].includes(value)) value = false;
+                else if(['true', '1'].includes(value)) value = true;
+            }
+            // Convert number to boolean
+            else if(typeof value === 'number'){
+                if(value == 0) value = false;
+                else if(value == 1) value = true;
+            }
+            
+            // If it's not a boolean, make it false by default
+            if(typeof value !== 'boolean') value = false;
+        }
+        
+        return value;
+    }
+    // Generate UUID (unique ID)
+    function generate_uuid(){
+        var d = new Date().getTime();
+
+        // Use high-precision timer if available (time on page)
+        if(window.performance && typeof window.performance.now === "function"){
+            d += performance.now();
+        }
+
+        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = (d + Math.random()*16)%16 | 0;
+            d = Math.floor(d/16);
+
+            return (c == 'x' ? r : (r&0x3|0x8)).toString(16);
+        });
+
+        return uuid;
+    }
+    // Function to send Requests for data logging
+    function send_bid_report(data){
+        // If there is no report endpoint
+        if(project_settings.report_url == "") return;
+        
+        var request = new XMLHttpRequest();
+        
+        request.open("post", project_settings.report_url, 1);
+
+        request.setRequestHeader("Content-Type", "application/json; charset=UTF-8")
+
+        request.onload = function(){
+            if(request.status == 200) output_logging("Bid Report sent");
+            else output_logging("Failed to send bid report");
+        }
+
+        request.send(JSON.stringify(data));
+    }
+    // Timer for leaving the page and pausing refresh
+    function refresh_timer_tracker(seconds, oncomplete){
+        console.log('refresh_timer_tracker: called');
+        var timerId, start, remaining = parseInt(seconds)*1000;
+
+        this.pause = function() {
+            window.clearTimeout(timerId);
+            timerId = null;
+            remaining -= Date.now() - start;
+            output_logging('refresh_timer_tracker: pause = '+remaining);
+        };
+
+        this.resume = function() {
+            if (timerId) return;
+
+            start = Date.now();
+            timerId = window.setTimeout(oncomplete, remaining);
+            output_logging('refresh_timer_tracker: resume = '+remaining);
+        };
+
+        this.delete = function(){
+            if (!timerId) return;
+            clearInterval(timerId);
+            output_logging('refresh_timer_tracker: delete');
+        }
+
+
+        this.resume();
+
+        return this;
+    }
+    
+    return {
+        data: page_tracking_data,
+        close_sticky: close_sticky
+    };
+})(site_htl_settings);				</script>
+					
+				<script async src="https://htlbid.com/v3/tvtropes.org/htlbid.js"></script>
+
+				<!-- Bombora -->
+				<script>
+				!function(e,t,c,n,o,a,m){e._bmb||(o=e._bmb=function(){o.x?o.x.apply(o,arguments):o.q.push(arguments)},o.q=[],a=t.createElement(c),a.async=true,a.src="https://vi.ml314.com/get?eid=90820&tk=wh2f3nQiCsEF22bcOc3am6J9QS7SqBu7WCIKhTJmEBRc03d&fp="+(e.localStorage&&e.localStorage.getItem(n)||""),m=t.getElementsByTagName(c)[0],m.parentNode.insertBefore(a,m))}(window,document,"script","_ccmaid");
+
+				window.googletag = window.googletag || {cmd: []};
+				googletag.cmd.push(function() {
+					_bmb('vi', function(data){
+						if (data != null) {
+							var tmpSegment = [
+								data.industry_id,
+								data.revenue_id,
+								data.size_id,
+								data.functional_area_id,
+								data.professional_group_id,
+								data.seniority_id,
+								data.decision_maker_id,
+								data.install_data_id,
+								data.topic_id,
+								data.interest_group_id,
+								data.segment,
+								data.b2b_interest_cluster_id
+								].filter(Boolean).join(',');
+
+							tmpSegment != '' && googletag.pubads().setTargeting("bmb",tmpSegment.split(','));
+						}
+					});
+				});
+				</script>
+				<script>
+				(function (w,d,t) {
+					_ml = w._ml || {};
+					_ml.eid = '90820';
+					var s, cd, tag; s = d.getElementsByTagName(t)[0]; cd = new Date();
+					tag = d.createElement(t); tag.async = 1;
+					tag.src = 'https://ml314.com/tag.aspx?' + cd.getDate() + cd.getMonth();
+					s.parentNode.insertBefore(tag, s);
+				})(window,document,'script');
+				</script>
+				<!-- Bombora -->
+						
+			
+											<script async src="https://fundingchoicesmessages.google.com/i/pub-2575788690798282?ers=1" nonce="7aDjgy4Z6ho9CCJZZfPh4g"></script><script nonce="7aDjgy4Z6ho9CCJZZfPh4g">(function() {function signalGooglefcPresent() {if (!window.frames['googlefcPresent']) {if (document.body) {const iframe = document.createElement('iframe'); iframe.style = 'width: 0; height: 0; border: none; z-index: -1000; left: -1000px; top: -1000px;'; iframe.style.display = 'none'; iframe.name = 'googlefcPresent'; document.body.appendChild(iframe);} else {setTimeout(signalGooglefcPresent, 0);}}}signalGooglefcPresent();})();</script>
+					
+					<script>(function(){/*
+							 Copyright The Closure Library Authors.
+							 SPDX-License-Identifier: Apache-2.0
+							*/
+							'use strict';var aa=function(a){var b=0;return function(){return b<a.length?{done:!1,value:a[b++]}:{done:!0}}},ba="function"==typeof Object.create?Object.create:function(a){var b=function(){};b.prototype=a;return new b},k;if("function"==typeof Object.setPrototypeOf)k=Object.setPrototypeOf;else{var m;a:{var ca={a:!0},n={};try{n.__proto__=ca;m=n.a;break a}catch(a){}m=!1}k=m?function(a,b){a.__proto__=b;if(a.__proto__!==b)throw new TypeError(a+" is not extensible");return a}:null}
+							var p=k,q=function(a,b){a.prototype=ba(b.prototype);a.prototype.constructor=a;if(p)p(a,b);else for(var c in b)if("prototype"!=c)if(Object.defineProperties){var d=Object.getOwnPropertyDescriptor(b,c);d&&Object.defineProperty(a,c,d)}else a[c]=b[c];a.v=b.prototype},r=this||self,da=function(){},t=function(a){return a};var u;var w=function(a,b){this.g=b===v?a:""};w.prototype.toString=function(){return this.g+""};var v={},x=function(a){if(void 0===u){var b=null;var c=r.trustedTypes;if(c&&c.createPolicy){try{b=c.createPolicy("goog#html",{createHTML:t,createScript:t,createScriptURL:t})}catch(d){r.console&&r.console.error(d.message)}u=b}else u=b}a=(b=u)?b.createScriptURL(a):a;return new w(a,v)};var A=function(){return Math.floor(2147483648*Math.random()).toString(36)+Math.abs(Math.floor(2147483648*Math.random())^Date.now()).toString(36)};var B={},C=null;var D="function"===typeof Uint8Array;function E(a,b,c){return"object"===typeof a?D&&!Array.isArray(a)&&a instanceof Uint8Array?c(a):F(a,b,c):b(a)}function F(a,b,c){if(Array.isArray(a)){for(var d=Array(a.length),e=0;e<a.length;e++){var f=a[e];null!=f&&(d[e]=E(f,b,c))}Array.isArray(a)&&a.s&&G(d);return d}d={};for(e in a)Object.prototype.hasOwnProperty.call(a,e)&&(f=a[e],null!=f&&(d[e]=E(f,b,c)));return d}
+							function ea(a){return F(a,function(b){return"number"===typeof b?isFinite(b)?b:String(b):b},function(b){var c;void 0===c&&(c=0);if(!C){C={};for(var d="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".split(""),e=["+/=","+/","-_=","-_.","-_"],f=0;5>f;f++){var h=d.concat(e[f].split(""));B[f]=h;for(var g=0;g<h.length;g++){var l=h[g];void 0===C[l]&&(C[l]=g)}}}c=B[c];d=Array(Math.floor(b.length/3));e=c[64]||"";for(f=h=0;h<b.length-2;h+=3){var y=b[h],z=b[h+1];l=b[h+2];g=c[y>>2];y=c[(y&3)<<
+							4|z>>4];z=c[(z&15)<<2|l>>6];l=c[l&63];d[f++]=""+g+y+z+l}g=0;l=e;switch(b.length-h){case 2:g=b[h+1],l=c[(g&15)<<2]||e;case 1:b=b[h],d[f]=""+c[b>>2]+c[(b&3)<<4|g>>4]+l+e}return d.join("")})}var fa={s:{value:!0,configurable:!0}},G=function(a){Array.isArray(a)&&!Object.isFrozen(a)&&Object.defineProperties(a,fa);return a};var H;var J=function(a,b,c){var d=H;H=null;a||(a=d);d=this.constructor.u;a||(a=d?[d]:[]);this.j=d?0:-1;this.h=null;this.g=a;a:{d=this.g.length;a=d-1;if(d&&(d=this.g[a],!(null===d||"object"!=typeof d||Array.isArray(d)||D&&d instanceof Uint8Array))){this.l=a-this.j;this.i=d;break a}void 0!==b&&-1<b?(this.l=Math.max(b,a+1-this.j),this.i=null):this.l=Number.MAX_VALUE}if(c)for(b=0;b<c.length;b++)a=c[b],a<this.l?(a+=this.j,(d=this.g[a])?G(d):this.g[a]=I):(d=this.l+this.j,this.g[d]||(this.i=this.g[d]={}),(d=this.i[a])?
+							G(d):this.i[a]=I)},I=Object.freeze(G([])),K=function(a,b){if(-1===b)return null;if(b<a.l){b+=a.j;var c=a.g[b];return c!==I?c:a.g[b]=G([])}if(a.i)return c=a.i[b],c!==I?c:a.i[b]=G([])},M=function(a,b){var c=L;if(-1===b)return null;a.h||(a.h={});if(!a.h[b]){var d=K(a,b);d&&(a.h[b]=new c(d))}return a.h[b]};J.prototype.toJSON=function(){var a=N(this,!1);return ea(a)};
+							var N=function(a,b){if(a.h)for(var c in a.h)if(Object.prototype.hasOwnProperty.call(a.h,c)){var d=a.h[c];if(Array.isArray(d))for(var e=0;e<d.length;e++)d[e]&&N(d[e],b);else d&&N(d,b)}return a.g},O=function(a,b){H=b=b?JSON.parse(b):null;a=new a(b);H=null;return a};J.prototype.toString=function(){return N(this,!1).toString()};var P=function(a){J.call(this,a)};q(P,J);function ha(a){var b,c=(a.ownerDocument&&a.ownerDocument.defaultView||window).document,d=null===(b=c.querySelector)||void 0===b?void 0:b.call(c,"script[nonce]");(b=d?d.nonce||d.getAttribute("nonce")||"":"")&&a.setAttribute("nonce",b)};var Q=function(a,b){b=String(b);"application/xhtml+xml"===a.contentType&&(b=b.toLowerCase());return a.createElement(b)},R=function(a){this.g=a||r.document||document};R.prototype.appendChild=function(a,b){a.appendChild(b)};var S=function(a,b,c,d,e,f){try{var h=a.g,g=Q(a.g,"SCRIPT");g.async=!0;g.src=b instanceof w&&b.constructor===w?b.g:"type_error:TrustedResourceUrl";ha(g);h.head.appendChild(g);g.addEventListener("load",function(){e();d&&h.head.removeChild(g)});g.addEventListener("error",function(){0<c?S(a,b,c-1,d,e,f):(d&&h.head.removeChild(g),f())})}catch(l){f()}};var ia=r.atob("aHR0cHM6Ly93d3cuZ3N0YXRpYy5jb20vaW1hZ2VzL2ljb25zL21hdGVyaWFsL3N5c3RlbS8xeC93YXJuaW5nX2FtYmVyXzI0ZHAucG5n"),ja=r.atob("WW91IGFyZSBzZWVpbmcgdGhpcyBtZXNzYWdlIGJlY2F1c2UgYWQgb3Igc2NyaXB0IGJsb2NraW5nIHNvZnR3YXJlIGlzIGludGVyZmVyaW5nIHdpdGggdGhpcyBwYWdlLg=="),ka=r.atob("RGlzYWJsZSBhbnkgYWQgb3Igc2NyaXB0IGJsb2NraW5nIHNvZnR3YXJlLCB0aGVuIHJlbG9hZCB0aGlzIHBhZ2Uu"),la=function(a,b,c){this.h=a;this.j=new R(this.h);this.g=null;this.i=[];this.l=!1;this.o=b;this.m=c},V=function(a){if(a.h.body&&!a.l){var b=
+							function(){T(a);r.setTimeout(function(){return U(a,3)},50)};S(a.j,a.o,2,!0,function(){r[a.m]||b()},b);a.l=!0}},T=function(a){for(var b=W(1,5),c=0;c<b;c++){var d=X(a);a.h.body.appendChild(d);a.i.push(d)}b=X(a);b.style.bottom="0";b.style.left="0";b.style.position="fixed";b.style.width=W(100,110).toString()+"%";b.style.zIndex=W(2147483544,2147483644).toString();b.style["background-color"]=ma(249,259,242,252,219,229);b.style["box-shadow"]="0 0 12px #888";b.style.color=ma(0,10,0,10,0,10);b.style.display=
+							"flex";b.style["justify-content"]="center";b.style["font-family"]="Roboto, Arial";c=X(a);c.style.width=W(80,85).toString()+"%";c.style.maxWidth=W(750,775).toString()+"px";c.style.margin="24px";c.style.display="flex";c.style["align-items"]="flex-start";c.style["justify-content"]="center";d=Q(a.j.g,"IMG");d.className=A();d.src=ia;d.style.height="24px";d.style.width="24px";d.style["padding-right"]="16px";var e=X(a),f=X(a);f.style["font-weight"]="bold";f.textContent=ja;var h=X(a);h.textContent=ka;Y(a,
+							e,f);Y(a,e,h);Y(a,c,d);Y(a,c,e);Y(a,b,c);a.g=b;a.h.body.appendChild(a.g);b=W(1,5);for(c=0;c<b;c++)d=X(a),a.h.body.appendChild(d),a.i.push(d)},Y=function(a,b,c){for(var d=W(1,5),e=0;e<d;e++){var f=X(a);b.appendChild(f)}b.appendChild(c);c=W(1,5);for(d=0;d<c;d++)e=X(a),b.appendChild(e)},W=function(a,b){return Math.floor(a+Math.random()*(b-a))},ma=function(a,b,c,d,e,f){return"rgb("+W(Math.max(a,0),Math.min(b,255)).toString()+","+W(Math.max(c,0),Math.min(d,255)).toString()+","+W(Math.max(e,0),Math.min(f,
+							255)).toString()+")"},X=function(a){a=Q(a.j.g,"DIV");a.className=A();return a},U=function(a,b){0>=b||null!=a.g&&0!=a.g.offsetHeight&&0!=a.g.offsetWidth||(na(a),T(a),r.setTimeout(function(){return U(a,b-1)},50))},na=function(a){var b=a.i;var c="undefined"!=typeof Symbol&&Symbol.iterator&&b[Symbol.iterator];b=c?c.call(b):{next:aa(b)};for(c=b.next();!c.done;c=b.next())(c=c.value)&&c.parentNode&&c.parentNode.removeChild(c);a.i=[];(b=a.g)&&b.parentNode&&b.parentNode.removeChild(b);a.g=null};var pa=function(a,b,c,d,e){var f=oa(c),h=function(l){l.appendChild(f);r.setTimeout(function(){f?(0!==f.offsetHeight&&0!==f.offsetWidth?b():a(),f.parentNode&&f.parentNode.removeChild(f)):a()},d)},g=function(l){document.body?h(document.body):0<l?r.setTimeout(function(){g(l-1)},e):b()};g(3)},oa=function(a){var b=document.createElement("div");b.className=a;b.style.width="1px";b.style.height="1px";b.style.position="absolute";b.style.left="-10000px";b.style.top="-10000px";b.style.zIndex="-10000";return b};var L=function(a){J.call(this,a)};q(L,J);var qa=function(a){J.call(this,a)};q(qa,J);var ra=function(a,b){this.l=a;this.m=new R(a.document);this.g=b;this.i=K(this.g,1);b=M(this.g,2);this.o=x(K(b,4)||"");this.h=!1;b=M(this.g,13);b=x(K(b,4)||"");this.j=new la(a.document,b,K(this.g,12))};ra.prototype.start=function(){sa(this)};
+							var sa=function(a){ta(a);S(a.m,a.o,3,!1,function(){a:{var b=a.i;var c=r.btoa(b);if(c=r[c]){try{var d=O(P,r.atob(c))}catch(e){b=!1;break a}b=b===K(d,1)}else b=!1}b?Z(a,K(a.g,14)):(Z(a,K(a.g,8)),V(a.j))},function(){pa(function(){Z(a,K(a.g,7));V(a.j)},function(){return Z(a,K(a.g,6))},K(a.g,9),K(a.g,10),K(a.g,11))})},Z=function(a,b){a.h||(a.h=!0,a=new a.l.XMLHttpRequest,a.open("GET",b,!0),a.send())},ta=function(a){var b=r.btoa(a.i);a.l[b]&&Z(a,K(a.g,5))};(function(a,b){r[a]=function(c){for(var d=[],e=0;e<arguments.length;++e)d[e-0]=arguments[e];r[a]=da;b.apply(null,d)}})("__h82AlnkH6D91__",function(a){"function"===typeof window.atob&&(new ra(window,O(qa,window.atob(a)))).start()});}).call(this);
+
+							window.__h82AlnkH6D91__("WyJwdWItMjU3NTc4ODY5MDc5ODI4MiIsW251bGwsbnVsbCxudWxsLCJodHRwczovL2Z1bmRpbmdjaG9pY2VzbWVzc2FnZXMuZ29vZ2xlLmNvbS9iL3B1Yi0yNTc1Nzg4NjkwNzk4MjgyIl0sbnVsbCxudWxsLCJodHRwczovL2Z1bmRpbmdjaG9pY2VzbWVzc2FnZXMuZ29vZ2xlLmNvbS9lbC9BR1NLV3hWV0tMOXhFeS1ZVk1sOTdzcC10MW5mbkxvWmZweWVjaGRJdUxJU244LXpjbUwxM1R5Mlhhb2RoQTJFU3VNS3ljQm1kVHgxSUNlMVBrX2hIeUxHa1ZZNHJ3XHUwMDNkXHUwMDNkP3RlXHUwMDNkVE9LRU5fRVhQT1NFRCIsImh0dHBzOi8vZnVuZGluZ2Nob2ljZXNtZXNzYWdlcy5nb29nbGUuY29tL2VsL0FHU0tXeFZCeVhDdDlWajY1eXNrMWFHVW9LUUpLdktrTlh4WVdlRDBhYnhmS3RVUi00eDZfRTNWOXpqSm5vYkFfVzIxeGNDb3F3M1RmN1dYRmxXZFZaazVMMFlQQ2dcdTAwM2RcdTAwM2Q/YWJcdTAwM2QxXHUwMDI2c2JmXHUwMDNkMSIsImh0dHBzOi8vZnVuZGluZ2Nob2ljZXNtZXNzYWdlcy5nb29nbGUuY29tL2VsL0FHU0tXeFV4bEsxQ0dxcEpGY3lvcXZXZ0ZnWWRBRjhMMzBOU0Y1ci1paGZSd1VRNzV4YmF6NGxydWVfRUhoWmU1ai00UUhRYXc4MUVZREFkQ2pBN21Tb1BxUUsxaFFcdTAwM2RcdTAwM2Q/YWJcdTAwM2QyXHUwMDI2c2JmXHUwMDNkMSIsImh0dHBzOi8vZnVuZGluZ2Nob2ljZXNtZXNzYWdlcy5nb29nbGUuY29tL2VsL0FHU0tXeFZJUWxpOV9jN0NuWWlHWkU3S2xIV2JWVi10NlpYQ2hQTnlHVTRobGhmSjdLQnJnNjllSFhHYm9aSXRqRm42MDViNWpuaG5KYkxCcU1ySURyY2lLVEk0VmdcdTAwM2RcdTAwM2Q/c2JmXHUwMDNkMiIsImRpdi1ncHQtYWQiLDIwLDEwMCwiY0hWaUxUSTFOelUzT0RnMk9UQTNPVGd5T0RJXHUwMDNkIixbbnVsbCxudWxsLG51bGwsImh0dHBzOi8vd3d3LmdzdGF0aWMuY29tLzBlbW4vZi9wL3B1Yi0yNTc1Nzg4NjkwNzk4MjgyLmpzP3VzcXBcdTAwM2RDQkEiXSwiaHR0cHM6Ly9mdW5kaW5nY2hvaWNlc21lc3NhZ2VzLmdvb2dsZS5jb20vZWwvQUdTS1d4V1hNUEJXZjVaNURyT1VGdDZwVVR5eGh1YzBFNlVGQnJJZUhuUUNCMVlUOWVtYlJTbGxYQ3F6NDV5ODdqT3RVWC1SX3JkcmdudFdjejdtazA2WkZYWDQyd1x1MDAzZFx1MDAzZCJd");
+					</script>
+						<meta http-equiv="X-UA-Compatible" content="IE=edge">
+			<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+			<title>Oldboy (2003) / Awesome - TV Tropes</title>
+            <meta name="description" content="A page for describing Awesome: Oldboy (2003). &quot;Can ten years of imaginary training pay off?&quot; [starts some good old fisticuffs with a gang of teens and kicks &hellip;" />
+                        <link rel="canonical" href="https://tvtropes.org/pmwiki/pmwiki.php/Awesome/Oldboy2003" />
+            
+
+                        <link rel="shortcut icon" href="https://assets.tvtropes.org/img/icons/favicon.ico" type="image/x-icon" />
+
+                        <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:site" content="@tvtropes" />
+            <meta name="twitter:owner" content="@tvtropes" />
+            <meta name="twitter:title" content="Oldboy (2003) / Awesome - TV Tropes" />
+            <meta name="twitter:description" content="A page for describing Awesome: Oldboy (2003). &quot;Can ten years of imaginary training pay off?&quot; [starts some good old fisticuffs with a gang of teens and kicks &hellip;" />
+			            	<meta name="twitter:image:src" content="https://static.tvtropes.org/logo_blue_small.png" />
+	        
+                        <meta property="og:site_name" content="TV Tropes" />
+            <meta property="og:locale" content="en_US" />
+            <meta property="article:publisher" content="https://www.facebook.com/tvtropes" />
+			<meta property="og:title" content="Oldboy (2003) / Awesome - TV Tropes" />
+			<meta property="og:type" content="website" />
+							<meta property="og:url" content="https://tvtropes.org/pmwiki/pmwiki.php/Awesome/Oldboy2003" />
+			
+			<meta property="og:image" content="https://static.tvtropes.org/logo_blue_small.png" />
+			<meta property="og:description" content="&quot;Can ten years of imaginary training pay off?&quot; [starts some good old fisticuffs with a gang of teens and kicks their asses] &quot;It can.&quot; Dae-su returns to the building where he had been imprisoned for fifteen years to find out who did it and why. On &hellip;" />
+
+						
+
+			            <link rel="apple-touch-icon" sizes="57x57" href="https://assets.tvtropes.org/img/icons/apple-icon-57x57.png" type="image/png">
+            <link rel="apple-touch-icon" sizes="60x60" href="https://assets.tvtropes.org/img/icons/apple-icon-60x60.png" type="image/png">
+            <link rel="apple-touch-icon" sizes="72x72" href="https://assets.tvtropes.org/img/icons/apple-icon-72x72.png" type="image/png">
+            <link rel="apple-touch-icon" sizes="76x76" href="https://assets.tvtropes.org/img/icons/apple-icon-76x76.png" type="image/png">
+            <link rel="apple-touch-icon" sizes="114x114" href="https://assets.tvtropes.org/img/icons/apple-icon-114x114.png" type="image/png">
+            <link rel="apple-touch-icon" sizes="120x120" href="https://assets.tvtropes.org/img/icons/apple-icon-120x120.png" type="image/png">
+            <link rel="apple-touch-icon" sizes="144x144" href="https://assets.tvtropes.org/img/icons/apple-icon-144x144.png" type="image/png">
+            <link rel="apple-touch-icon" sizes="152x152" href="https://assets.tvtropes.org/img/icons/apple-icon-152x152.png" type="image/png">
+            <link rel="apple-touch-icon" sizes="180x180" href="https://assets.tvtropes.org/img/icons/apple-icon-180x180.png" type="image/png">
+            <link rel="icon" sizes="16x16" href="https://assets.tvtropes.org/img/icons/favicon-16x16.png" type="image/png">
+            <link rel="icon" sizes="32x32" href="https://assets.tvtropes.org/img/icons/favicon-32x32.png" type="image/png">
+            <link rel="icon" sizes="96x96" href="https://assets.tvtropes.org/img/icons/favicon-96x96.png" type="image/png">
+            <link rel="icon" sizes="192x192" href="https://assets.tvtropes.org/img/icons/favicon-192x192.png" type="image/png">
+
+                        
+
+						<meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+                        <link rel="stylesheet" href="https://assets.tvtropes.org/design/assets/bundle.css?rev=3249201cca6b7eeca1de118d08d4474b20e5ab7e" />
+
+                                                    <link href="https://fonts.googleapis.com/css?family=Leckerli+One" rel="stylesheet">
+                                        <link rel="stylesheet" href="https://assets.tvtropes.org/design/assets/skins.css?rev=3249201cca6b7eeca1de118d08d4474b20e5ab7e" />
+            
+                        
+                        
+                        						
+            <script>
+                function object(objectId) {
+                    if (document.getElementById && document.getElementById(objectId)) {
+                        return document.getElementById(objectId);
+                    } else if (document.all && document.all(objectId)) {
+                        return document.all(objectId);
+                    } else if (document.layers && document.layers[objectId]) {
+                        return document.layers[objectId];
+                    } else {
+                        return false;
+                    }
+                }
+
+                // JAVASCRIPT COOKIES CODE: for getting and setting user viewing preferences
+                var cookies = {
+                    create: function (name, value, days2expire, path) {
+                        var date = new Date();
+                        date.setTime(date.getTime() + (days2expire * 24 * 60 * 60 * 1000));
+                        var expires = date.toUTCString();
+                        document.cookie = name + '=' + value + ';' + 'expires=' + expires + ';domain=.tvtropes.org;' + 'path=' + path + ';';
+                    },
+										createWithExpire: function(name, value, expires, path) {
+												document.cookie = name + '=' + value + ';' + 'expires=' + expires + ';domain=.tvtropes.org;' + 'path=' + path + ';';
+										},
+                    read: function (name) {
+                        var cookie_value = "",
+                            current_cookie = "",
+                            name_expr = name + "=",
+                            all_cookies = document.cookie.split(';'),
+                            n = all_cookies.length;
+
+                        for (var i = 0; i < n; i++) {
+                            current_cookie = all_cookies[i].trim();
+                            if (current_cookie.indexOf(name_expr) === 0) {
+                                cookie_value = current_cookie.substring(name_expr.length, current_cookie.length);
+                                break;
+                            }
+                        }
+                        return cookie_value;
+                    },
+                    update: function (name, val) {
+                        this.create(name, val, 300, "/");
+                    },
+                    remove: function (name) {
+                        //delete cookie with and without domain setting
+                        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; domain=.tvtropes.org; path=/;";
+                        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;";
+                    }
+                };
+
+                function updateUserPrefs() {
+                    //GENERAL: detect and set browser, if not cookied (will be treated like a user-preference and added to the #user-pref element)
+                    if( !cookies.read('user-browser') ){
+                        var broswer = '';
+
+                        if(navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPod/i) ){
+                            browser = 'iOS';
+                        } else if (/Opera[\/\s](\d+\.\d+)/.test(navigator.userAgent)) {
+                            browser = 'opera';
+                        } else if (/MSIE (\d+\.\d+);/.test(navigator.userAgent)) {
+                            browser = 'MSIE';
+                        } else if (/Navigator[\/\s](\d+\.\d+)/.test(navigator.userAgent)) {
+                            browser = 'netscape';
+                        } else if (/Chrome[\/\s](\d+\.\d+)/.test(navigator.userAgent)) {
+                            browser = 'chrome';
+                        } else if (/Safari[\/\s](\d+\.\d+)/.test(navigator.userAgent)) {
+                            browser = 'safari';
+                            /Version[\/\s](\d+\.\d+)/.test(navigator.userAgent);
+                            browserVersion = new Number(RegExp.$1);
+                        } else if (/Firefox[\/\s](\d+\.\d+)/.test(navigator.userAgent)) {
+                            browser = 'firefox';
+                        } else {
+                            browser = 'internet_explorer';
+                        }
+                        cookies.create('user-browser',browser,1,'/');
+                        document.getElementById('user-prefs').classList.add('browser-' + browser);
+                    } else {
+                        document.getElementById('user-prefs').classList.add('browser-' + cookies.read('user-browser'));
+                    }
+                    //update user preference settings
+                    if (cookies.read('wide-load') !== '') document.getElementById('user-prefs').classList.add('wide-load');
+                    if (cookies.read('night-vision') !== '') document.getElementById('user-prefs').classList.add('night-vision');
+                    if (cookies.read('sticky-header') !== '') document.getElementById('user-prefs').classList.add('sticky-header');
+                    if (cookies.read('show-spoilers') !== '') document.getElementById('user-prefs').classList.add('show-spoilers');
+                    if (cookies.read('folders-open') !== '') document.getElementById('user-prefs').classList.add('folders-open');
+                    if (cookies.read('lefthand-sidebar') !== '') document.getElementById('user-prefs').classList.add('lefthand-sidebar');
+                    if (cookies.read('highlight-links') !== '') document.getElementById('user-prefs').classList.add('highlight-links');
+                    if (cookies.read('forum-gingerbread') !== '') document.getElementById('user-prefs').classList.add('forum-gingerbread');
+                    //if the user is logged in, update cookies based on their database settings
+                                        //updates element
+                    if(cookies.read('shared-avatars') !== '') document.getElementById('user-prefs').classList.add('shared-avatars');
+                    if(cookies.read('new-search') !== '') document.getElementById('user-prefs').classList.add('new-search');
+                    if(cookies.read('stop-auto-play-video') !== '') document.getElementById('user-prefs').classList.add('stop-auto-play-video');
+                    //desktop view on mobile
+                    if (cookies.read('desktop-on-mobile') !== ''){
+                        document.getElementById('user-prefs').classList.add('desktop-on-mobile');
+
+                        var viewport = document.querySelector("meta[name=viewport]");
+                        viewport.setAttribute('content', 'width=1000');
+                    }
+
+                }
+
+                function updateDesktopPrefs() {
+                    if (cookies.read('wide-load') !== '') document.getElementById('sidebar-toggle-wideload').classList.add('active');
+                    if (cookies.read('night-vision') !== '') document.getElementById('sidebar-toggle-nightvision').classList.add('active');
+                    if (cookies.read('sticky-header') !== '') document.getElementById('sidebar-toggle-stickyheader').classList.add('active');
+                    if (cookies.read('show-spoilers') !== '') document.getElementById('sidebar-toggle-showspoilers').classList.add('active');
+
+                }
+
+                function updateMobilePrefs() {
+                    if (cookies.read('show-spoilers') !== '') document.getElementById('mobile-toggle-showspoilers').classList.add('active');
+                    if (cookies.read('night-vision') !== '') document.getElementById('mobile-toggle-nightvision').classList.add('active');
+                    if (cookies.read('sticky-header') !== '') document.getElementById('mobile-toggle-stickyheader').classList.add('active');
+                    if (cookies.read('highlight-links') !== '') document.getElementById('mobile-toggle-highlightlinks').classList.add('active');
+
+                }
+
+                function is_mobile() {
+	                if(document.body.clientWidth && document.body.clientWidth<=768) return true;
+	                else return false;
+                }
+
+            </script>
+						
+                        <script type="text/javascript">
+
+                var tvtropes_config = {
+                    asteri_stream_enabled : "1",
+                    is_logged_in         : "",
+                    handle               : "",
+                    get_asteri_stream     : "",
+                    revnum               : "3249201cca6b7eeca1de118d08d4474b20e5ab7e",
+                    img_domain           : "https://static.tvtropes.org",
+                    adblock              : "1",
+                    adblock_url          : "propermessage.io",
+                    pause_editing        : "0",
+                    pause_editing_msg    : "",
+                    pause_site_changes   : "",
+                    assets_domain        : "https://assets.tvtropes.org"
+                };
+            </script>
+						
+                        						
+												<script type="text/javascript">
+						  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+						  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+						  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+						  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+						  ga('create', 'UA-3821842-1', 'auto');
+						  ga('send', 'pageview');
+						</script>
+
+						        </head>
+ <body class="sugarWiki skinned">
+        <i id="user-prefs"></i>
+    <script>updateUserPrefs();</script>
+
+    <div id="fb-root"></div>
+
+    <div id="modal-box"></div>
+
+    <header id="main-header-bar" class="headroom-element ">
+        <div id="main-header-bar-inner">
+
+            <span id="header-spacer-left" class="header-spacer"></span>
+
+            <a href="#mobile-menu" id="main-mobile-toggle" class="mobile-menu-toggle-button tablet-on"><span></span><span></span><span></span></a>
+
+            <a href="/" id="main-header-logoButton" class="no-dev"></a>
+
+            <span id="header-spacer-right" class="header-spacer"></span>
+
+            <nav id="main-header-nav" class="tablet-off">
+                <a href="/pmwiki/pmwiki.php/Main/Tropes">Tropes</a>
+                <a href="/pmwiki/pmwiki.php/Main/Media">Media</a>
+                <a href="/pmwiki/browse.php" class="nav-browse">Browse</a>
+                <a href="/pmwiki/index_report.php">Indexes</a>
+                <a href="/pmwiki/topics.php">Forums</a>
+                <a href="/pmwiki/recent_videos.php" class="nav-browse">Videos</a>
+            </nav>
+
+            <div id="main-header-bar-right">
+                                <div id="signup-login-box" class="font-xs mobile-off">
+                    <a href="/pmwiki/login.php" class="hover-underline bold" data-modal-target="signup">Join</a>
+                    <a href="/pmwiki/login.php" class="hover-underline bold" data-modal-target="login">Login</a>
+                </div>
+                
+                                <div id="signup-login-mobileToggle" class="mobile-on inline">
+                    <a href="/pmwiki/login.php" data-modal-target="login"><i class="fa fa-user"></i></a>
+                </div>
+                
+                <div id="search-box">
+                    <form class="search" action="/pmwiki/search_result.php">
+                        <input type="text" name="q" class="search-box" placeholder="Search" value="" required>
+                        <input type="submit" class="submit-button" value="&#xf002;" />
+                                                <input type="hidden" name="search_type" value="article">
+                        <input type="hidden" name="page_type" value="all">
+                                                <input type="hidden" name="cx" value="partner-pub-6610802604051523:amzitfn8e7v">
+                        <input type="hidden" name="cof" value="FORID:10">
+                        <input type="hidden" name="ie" value="ISO-8859-1">
+                        <input name="siteurl" type="hidden" value="">
+                        <input name="ref" type="hidden" value="">
+                        <input name="ss" type="hidden" value="">
+                    </form>
+                    <a href="#close-search" class="mobile-on mobile-search-toggle close-x"><i class="fa fa-close"></i></a>
+                </div>
+
+                <div id="random-box">
+                    <a href="/pmwiki/pmwiki.php/Main/NasalTrauma" class="button-random-trope" rel="nofollow" onclick="ga('send', 'event', 'button', 'click', 'random trope');"></a>
+                    <a href="/pmwiki/pmwiki.php/Film/Persona1966" class="button-random-media" rel="nofollow" onclick="ga('send', 'event', 'button', 'click', 'random media');"></a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id="mobile-menu" class="tablet-on"><div class="mobile-menu-options">
+
+    <div class="nav-wrapper">
+        <a href="/pmwiki/pmwiki.php/Main/Tropes" class="xl">Tropes</a>
+        <a href="/pmwiki/pmwiki.php/Main/Media" class="xl">Media</a>
+        <a href="/pmwiki/browse.php" class="xl">Browse</a>
+        <a href="/pmwiki/index_report.php" class="xl">Indexes</a>
+        <a href="/pmwiki/topics.php" class="xl">Forums</a>
+        <a href="/pmwiki/recent_videos.php" class="xl">Videos</a>
+
+        <a href="/pmwiki/query.php?type=att">Ask The Tropers</a>
+        <a href="/pmwiki/query.php?type=tf">Trope Finder</a>
+        <a href="/pmwiki/query.php?type=ykts">You Know That Show...</a>
+        <a href="/pmwiki/tlp_activity.php">Trope Launch Pad</a>
+        <a href="/pmwiki/query.php?type=wl">Wishlist</a>
+        
+        <a href="#tools" data-click-toggle="active">Tools <i class="fa fa-chevron-down"></i></a>
+        <div class="tools-dropdown mobile-dropdown-linkList">
+            <a href="/pmwiki/cutlist.php">Cut List</a>
+            <a href="/pmwiki/changes.php">New Edits</a>
+            <a href="/pmwiki/recent_edit_reasons.php">Edit Reasons</a>
+            <a href="/pmwiki/launches.php">Launches</a>
+            <a href="/pmwiki/img_list.php">Images List</a>
+            <a href="/pmwiki/crown_activity.php">Crowner Activity</a>
+            <a href="/pmwiki/no_types.php">Un-typed Pages</a>
+            <a href="/pmwiki/page_type_audit.php">Recent Page Type Changes</a>
+        </div>
+
+        <a href="#hq" data-click-toggle="active">Tropes HQ <i class="fa fa-chevron-down"></i></a>
+
+        <div class="tools-dropdown mobile-dropdown-linkList">
+            <a href="/pmwiki/about.php">About Us</a>
+            <a href="/pmwiki/contact.php">Contact Us</a>
+            <a href="mailto:advertising@proper.io">Advertise</a>
+            <a href="/pmwiki/dmca.php">DMCA Notice</a>
+            <a href="/pmwiki/privacypolicy.php">Privacy Policy</a>
+        </div>
+
+        <a href="/pmwiki/ad-free-subscribe.php">Go Ad-Free</a>
+        <a href="/pmwiki/query.php?type=bug">Report Bug</a>
+
+        <div class="toggle-switches">
+            <ul class="mobile-menu display-toggles">
+                <li>Show Spoilers <div id="mobile-toggle-showspoilers" class="display-toggle show-spoilers"></div></li>
+                <li>Night Vision <div id="mobile-toggle-nightvision" class="display-toggle night-vision"></div></li>
+                <li>Sticky Header <div id="mobile-toggle-stickyheader" class="display-toggle sticky-header"></div></li>
+                <li>Highlight Links <div id="mobile-toggle-highlightlinks" class="display-toggle highlight-links"></div></li>
+            </ul>
+            <script>updateMobilePrefs();</script>
+        </div>
+
+    </div>
+
+</div>
+</div>
+
+    </header>
+
+    <div id="homepage-introBox-mobile" class="mobile-on">
+                  <a href="/"><img src="/images/logo-white-big.png" class="logo-small" /></a>
+        
+        <form class="search" action="/pmwiki/search_result.php" style="margin:10px -5px -6px -5px;">
+            <input type="text" name="q" class="search-box" placeholder="Search" value="" required>
+            <input type="submit" class="submit-button" value="&#xf002;" />
+                        <input type="hidden" name="search_type" value="article">
+            <input type="hidden" name="page_type" value="all">
+                        <input type="hidden" name="cx" value="partner-pub-6610802604051523:amzitfn8e7v">
+            <input type="hidden" name="cof" value="FORID:10">
+            <input type="hidden" name="ie" value="ISO-8859-1">
+            <input name="siteurl" type="hidden" value="">
+            <input name="ref" type="hidden" value="">
+            <input name="ss" type="hidden" value="">
+        </form>
+
+            </div>
+    
+                <div id="outer_sticky" style="display: none;">
+            <div id="close_sticky" onclick="ads_project.close_sticky(); return false;"><i class="fa fa-close"></i></div>
+            
+            <script>
+                if(is_mobile()) {
+                    document.write("<div id=\"sticky_ad_container\" class=\"htlad-tvtropes_m_sticky\" data-targeting='{\"sticky_refresh\": \"01\"}'></div>");
+                }
+                else {
+                    document.write("<div id=\"sticky_ad_container\" class=\"htlad-tvtropes_dt_sticky\" data-targeting='{\"sticky_refresh\": \"01\"}'></div>");
+                }
+            </script>
+        </div>
+
+                <div id="tvtropes_oop_ad_slot" style="display: none;"></div>
+    <div id="header-fad-wrapper" class="fad">
+    <div id="header-fad">
+    <div class="fad-size-970x90" style="height:20px">&nbsp;</div>    </div>
+</div>
+
+<div id="main-container">
+
+    
+        <div id="action-bar-top" class="action-bar mobile-off">
+
+        <div class="action-bar-right">
+            <p>Follow TV Tropes</p>
+            <a href="https://www.facebook.com/TVTropes" class="button-fb">
+                <i class="fa fa-facebook"></i></a>
+            <a href="https://www.twitter.com/TVTropes" class="button-tw">
+                <i class="fa fa-twitter"></i></a>
+            <a href="https://www.reddit.com/r/TVTropes" class="button-re">
+                <i class="fa fa-reddit-alien"></i></a>
+        </div>
+
+                <nav class="actions-wrapper" itemscope itemtype="http://schema.org/SiteNavigationElement">
+            <ul id="top_main_list" class="page-actions">
+                <li class="link-edit">
+                    <a rel = "nofollow" class = "article-edit-button"data-modal-target= "login"href = "/pmwiki/pmwiki.php/Awesome/Oldboy2003?action=edit">
+                         <i class="fa fa-pencil"></i> Edit Page</a></li><li class="link-related"><a href="/pmwiki/relatedsearch.php?term=Awesome/Oldboy2003">
+                <i class="fa fa-share-alt"></i> Related</a></li><li class="link-history"><a href="/pmwiki/article_history.php?article=Awesome.Oldboy2003">
+                <i class="fa fa-history"></i> History</a></li><li class="link-discussion"><a href="/pmwiki/remarks.php?trope=Awesome.Oldboy2003">
+                  <i class="fa fa-comment"></i> Discussion</a></li>            </ul>
+                            <button id="top_more_button" onclick="toggle_more_menu('top');" type="button" class="nav__dropdown-toggle">More</button>
+                        <ul id="top_more_list" class="more_menu hidden_more_list">
+                <li class="link-todo tuck-always more_list_item"><a href="#todo" data-modal-target="login"><i class="fa fa-check-circle"></i> To Do</a></li><li class="link-pageSource tuck-always more_list_item"><a href="/pmwiki/pmwiki.php/Awesome/Oldboy2003?action=source" target="_blank" rel="nofollow"data-modal-target= "login"><i class="fa fa-code"></i> Page Source</a></li>            </ul>
+        </nav> 
+
+        <div class="WikiWordModalStub"></div>
+        <div class="ImgUploadModalStub" data-page-type="Article"></div>
+
+        <div class="login-alert" style="display: none;">
+            You need to <a href="/pmwiki/login.php" style="color:#21A0E8">login</a> to do this. <a href="/pmwiki/login.php?tab=register_account" style="color:#21A0E8">Get Known</a> if you don't have an account
+        </div>
+
+    </div>
+    
+    <div id="main-content" class="page-Article ">
+
+        
+                <article id="main-entry" class="with-sidebar">
+        
+        
+
+
+<!-- HIDDEN INPUTS FOR JS -->
+<input type="hidden" id="groupname-hidden" value="Awesome"/>
+<input type="hidden" id="title-hidden" value="Oldboy2003"/>
+<input type="hidden" id="article_id" value="537935" />
+<input type="hidden" id="logged_in" value="false" />
+<p id="current_url" class="hidden">http://tvtropes.org/pmwiki/pmwiki.php/Awesome/Oldboy2003</p>
+
+    <meta itemprop="datePublished" content=""/>
+    <meta itemprop="articleSection" content="" />
+    <meta itemprop="image" content="">
+
+
+
+
+
+
+
+
+
+<a href="#watch" class="watch-button " data-modal-target="login" >Follow<span>ing</span></a>
+
+
+<h1 itemprop="headline" class="entry-title">
+
+    
+                <strong>Awesome / </strong>
+        
+        Oldboy (2003)
+    
+        
+</h1>
+
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [{
+                "@type": "ListItem",
+                "position": 1,
+                "name": "tvtropes.org",
+                "item": "https://tvtropes.org"
+            },{
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Awesome",
+                "item": "https://tvtropes.org/pmwiki/pmwiki.php/Main/Awesome"
+            },{
+                "@type": "ListItem",
+                "position": 3,
+                "name": "Oldboy (2003)"            }]
+        }
+    </script>
+
+<a href="#mobile-actions-toggle" id="mobile-actionbar-toggle" class="mobile-actionbar-toggle mobile-on" data-click-toggle="active" >
+<p class="tiny-off">Go To</p><span></span><span></span><span></span><i class="fa fa-pencil"></i></a>
+<nav id="mobile-actions-bar" class="mobile-actions-wrapper mobile-on"></nav>
+
+
+<div id="editLockModal" class="modal fade hidden-until-active" >
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Edit Locked</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="body">
+                        <div class="danger troper_locked_message"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav class="body-options" itemscope itemtype="http://schema.org/SiteNavigationElement">
+
+    <ul class="subpage-links">
+
+        
+                                        <li>
+                    <a href="/pmwiki/pmwiki.php/Awesome/Oldboy2003" class="subpage-link curr-subpage" title="The Awesome page">
+                    <span class="wrapper"><span class="spi awesome"></span>Awesome</span></a>
+                </li>
+                                                            <li>
+                    <a href="/pmwiki/pmwiki.php/Film/Oldboy2003" class="subpage-link " title="The Film page">
+                    <span class="wrapper"><span class="spi film"></span>Film</span></a>
+                </li>
+                                                            <li>
+                    <a href="/pmwiki/pmwiki.php/Fridge/Oldboy2003" class="subpage-link " title="The Fridge page">
+                    <span class="wrapper"><span class="spi fridge"></span>Fridge</span></a>
+                </li>
+                                                            <li>
+                    <a href="/pmwiki/pmwiki.php/Laconic/Oldboy2003" class="subpage-link " title="The Laconic page">
+                    <span class="wrapper"><span class="spi laconic-icon"></span>Laconic</span></a>
+                </li>
+                                                            <li>
+                    <a href="/pmwiki/pmwiki.php/Trivia/Oldboy2003" class="subpage-link " title="The Trivia page">
+                    <span class="wrapper"><span class="spi trivia"></span>Trivia</span></a>
+                </li>
+                                                            <li>
+                    <a href="/pmwiki/pmwiki.php/YMMV/Oldboy2003" class="subpage-link " title="The YMMV page">
+                    <span class="wrapper"><span class="spi ymmv"></span>YMMV</span></a>
+                </li>
+                            
+                            <li>
+                <a href="/pmwiki/pmwiki.php/VideoExamples/Oldboy2003" class="subpage-link video-examples-tab  " title="Video Examples">
+                    <img src="/images/play-button-logo.png" alt="play" class="">
+                    <span class="wrapper">VideoExamples</span>
+                </a>
+            </li>
+        
+
+        
+                    <li class="create-subpage dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                    <span class="wrapper">Create New <i class="fa fa-plus-circle"></i></span>
+                    </a>
+
+
+                    <select onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);">
+                        <option value="">- Create New -</option>
+
+                                                <option value="/pmwiki/pmwiki.php/Analysis/Oldboy2003?action=edit">Analysis</option>
+                                                <option value="/pmwiki/pmwiki.php/Characters/Oldboy2003?action=edit">Characters</option>
+                                                <option value="/pmwiki/pmwiki.php/FanficRecs/Oldboy2003?action=edit">FanficRecs</option>
+                                                <option value="/pmwiki/pmwiki.php/FanWorks/Oldboy2003?action=edit">FanWorks</option>
+                                                <option value="/pmwiki/pmwiki.php/Haiku/Oldboy2003?action=edit">Haiku</option>
+                                                <option value="/pmwiki/pmwiki.php/Headscratchers/Oldboy2003?action=edit">Headscratchers</option>
+                                                <option value="/pmwiki/pmwiki.php/ImageLinks/Oldboy2003?action=edit">ImageLinks</option>
+                                                <option value="/pmwiki/pmwiki.php/PlayingWith/Oldboy2003?action=edit">PlayingWith</option>
+                                                <option value="/pmwiki/pmwiki.php/Quotes/Oldboy2003?action=edit">Quotes</option>
+                                                <option value="/pmwiki/pmwiki.php/Recap/Oldboy2003?action=edit">Recap</option>
+                                                <option value="/pmwiki/pmwiki.php/ReferencedBy/Oldboy2003?action=edit">ReferencedBy</option>
+                                                <option value="/pmwiki/pmwiki.php/Synopsis/Oldboy2003?action=edit">Synopsis</option>
+                                                <option value="/pmwiki/pmwiki.php/Timeline/Oldboy2003?action=edit">Timeline</option>
+                                                <option value="/pmwiki/pmwiki.php/WMG/Oldboy2003?action=edit">WMG</option>
+                        
+                    </select>
+
+                    
+                            </li>
+            </ul>
+
+
+</nav>
+
+
+
+
+<div id="main-article" class="article-content retro-folders">
+    <p><div class="quoteright" style="width:350px;" ><div class="lazy_load_img_box" style="padding-top:52.29%"><img src='https://static.tvtropes.org/pmwiki/pub/images/picture28.png' class='embeddedimage' border='0' alt='https://static.tvtropes.org/pmwiki/pub/images/picture28.png' / width=350 height=183></div></div><ul ><li> "Can ten years of imaginary training pay off?" <em>[starts some good old fisticuffs with a gang of teens and kicks their asses]</em> "It can."</li><li> Dae-su returns to the building where he had been imprisoned for fifteen years to find out who did it and why. On his way out, after performing some hack-job dental surgery on the guy in charge with a claw hammer, he beats the living daylights out of about twenty guys with only said hammer and his fists, and all with a knife stuck in his back for the second half of the fight. He then proceeds to pummel bloody five <em>more</em> guys in an elevator &#8212; still with the knife in his back. <a class='twikilink' href='/pmwiki/pmwiki.php/Main/OhCrap' title='/pmwiki/pmwiki.php/Main/OhCrap'>The look on their faces</a> when they see <em>one</em> man standing at the top of the corridor, admittedly bruised and cut up, but with all their friends writhing on the ground with broken limbs or concussions? <em>Awesome...</em><ul ><li> For the director as well, given that the scene is nearly 5 minutes long, and is all filmed on one camera, in one take. The fight sequence took three days worth of attempts to nail.</li></ul></li><li> "You see, they say that people shrivel up because they have an imagination. So, don't imagine anything, you'll become brave as hell."</li><li> The scene in which the main character anticipates his enemy's trap and <em>kills two of his bodyguards with a toothbrush.</em></li><li> Dae-su vs Mr. Han. For all his conditioning and rage, he can't stand up to the skills of Woo-jin's top enforcer. But even when <em>thrown across the room and into a window</em>, Dae-su refuses to give in and fights on, managing to stab Han in the ear with a pair of scissors and making the stoic albino undergo a magnificent <a class='twikilink' href='/pmwiki/pmwiki.php/Main/VillainousBreakdown' title='/pmwiki/pmwiki.php/Main/VillainousBreakdown'>Villainous Breakdown</a>, which Woo-jin calmly interrupts as he's about to kill Dae-su by shooting him in the head.</li><li> "If by any chance Mido should find out the truth, you son of a bitch, I'm going to rip you limb from limb. And your remains will never be found. Why? Because I'm going to swallow every last bit!"</li></ul></p></div>
+
+
+
+        
+
+
+
+    
+        <div class="section-links" itemscope itemtype="http://schema.org/SiteNavigationElement">
+
+    
+    <div class="titles">
+        <div><h3 class="text-center text-uppercase">Previous</h3></div>
+        <div><h3 class="text-center text-uppercase">Index</h3></div>
+        <div><h3 class="text-center text-uppercase">Next</h3></div>
+    </div>
+
+
+    <div class="links">
+                    
+                <ul>
+                    <li>
+                                                    <a href="/pmwiki/pmwiki.php/Awesome/OldYeller">Old Yeller</a>
+                                            </li>
+                    <li>
+                        <a href="/pmwiki/pmwiki.php/Awesome/FilmLToO">Awesome/Film - L to O</a>
+                    </li>
+                    <li>
+                         
+                            <a href="/pmwiki/pmwiki.php/Awesome/Olsenbanden">Olsen-banden</a> 
+                                            </li>
+                </ul>
+
+                    
+        
+            </div>
+</div>
+
+
+
+
+    <div id="proper_player_insert_div" class="outer_ads_by_salon_wrapper">
+    </div>
+
+
+<script>
+    if( document.getElementById('user-prefs').classList.contains('folders-open') ){
+        console.log('open all folders');
+        var elements = document.querySelectorAll('.folderlabel, .toggle-all-folders-button');
+        elements.forEach((element) => {
+          element.classList.add('is-open');
+        });
+    }
+</script>
+
+
+<script>
+function insert_ad(adCount, paragraph, adName){
+        var ad_count = adCount < 10 ? "0"+adCount : adCount;
+
+        // Create element for ad unit
+        var adUnit = document.createElement('div');
+        adUnit.setAttribute("class", `htlad-${adName}`);
+        adUnit.setAttribute("id", `${adName}_${adCount}`);
+        adUnit.setAttribute("data-targeting", `{"slot_number": "${ad_count}"}`);
+
+        // Add Advertisement label
+        var adLabel = document.createElement("span");
+        adLabel.innerHTML = "Advertisement:"
+        adLabel.setAttribute("class","ad-caption");
+
+        var adWrapper = document.createElement("div");
+        adWrapper.setAttribute("class","tvtropes-ad-unit mobile-fad square_fad mobile_unit_scroll");
+        adWrapper.setAttribute("id","mobile_"+adCount);
+
+        // Merge all pieces
+        adWrapper.appendChild(adLabel);
+        adWrapper.appendChild(adUnit);
+
+        // Insert into DOM
+        paragraph.parentNode.insertBefore(adWrapper, paragraph.nextSibling);
+}
+
+var node = document.getElementById("main-article").firstElementChild;
+var pHeight = 0;
+var pCount = 0;
+var adCount = 1;
+var nodeCount = 0;
+var nodeLevel = 0;
+var x = 0;
+
+if(1 && (document.body.clientWidth && document.body.clientWidth<=768) ) {
+
+        //loop through elements of content
+        while(x<300) {
+            x++; nodeCount++;
+
+            //traverse to the next element (if exists)
+            if(nodeCount>1) {
+                if(!node.nextElementSibling) {
+                    console.log('adparser: no next element');
+
+                    if(nodeLevel>0) {
+                        nodeLevel--;
+                        node = node.parentElement;
+                        console.log('adparser: we were down a level, go back up ('+nodeLevel+')');
+                        continue;
+                    }
+                    else {
+                       break; 
+                    }
+                }
+
+                node = node.nextElementSibling;
+            }
+
+
+            //skip inserted ads or empty nodes
+            if(!node || node==="null" || typeof node !== "object") continue;
+            if(!node.offsetHeight || node.offsetHeight==0) continue;
+            if(node.className && node.className.includes('tvtropes-ad-unit')) continue;
+
+            //skip if image block that has a caption after it
+            if(node.className && node.className.includes('quoteright')) {
+                if(node.nextElementSibling && node.nextElementSibling.className && node.nextElementSibling.className.includes('acaptionright')) {
+                    pHeight += node.offsetHeight;
+                    continue;
+                }
+            } 
+
+            //if very large element, loop through elements inside
+            if(node.offsetHeight>700 && node.firstElementChild) {
+                nodeLevel++;
+                console.log('adparser: traverse through large element='+node.nodeName+', height='+node.offsetHeight+' level='+nodeLevel);
+                node = node.firstElementChild;
+                nodeCount = 0;
+                continue;
+            }
+
+            //paragraph counter
+            if(node.nodeName=="P") pCount++;
+
+            //add height of node to counter
+            pHeight += node.offsetHeight;
+
+            //add margin of node to counter if available
+            try {
+                var nodeStyle = getComputedStyle(node);
+                if(nodeStyle.marginTop && parseInt(nodeStyle.marginTop)>0) pHeight+=parseInt(nodeStyle.marginTop);
+                if(nodeStyle.marginBottom && parseInt(nodeStyle.marginBottom)>0) pHeight+=parseInt(nodeStyle.marginBottom);
+                //console.log(nodeStyle.marginTop+','+nodeStyle.marginBottom);
+            } catch(e) { }
+
+            //debug logging
+            console.log('adparser: name='+node.nodeName+', height='+node.offsetHeight+' =>'+pHeight);
+            //console.log(node.className);
+
+            //only inserts an ad if the total height and paragraph count conditions are met
+            if( (adCount==1 && pCount>1 && pHeight >= 550) || pHeight >= 750 ) {
+
+                    //if we are about to insert after a folder, use the next sibling so it's under the contents
+                    if(node.className && node.className.includes("folderlabel") && node.nextElementSibling) node = node.nextElementSibling;
+
+                    console.log('adparser: insert ad '+adCount);
+                    insert_ad(adCount, node, "tvtropes_m_incontent_dynamic");
+                    adCount++;
+                    pHeight = 0;
+                    pCount = 0;
+
+                    if(adCount>5) break;
+            }
+        }
+
+
+        //insert one at end if room
+        if(adCount<=5 && pHeight>=550) {
+            console.log('adparser: insert ad');
+            insert_ad(adCount, document.getElementById("main-article").lastElementChild, "tvtropes_m_incontent_dynamic");
+        }
+
+}
+
+</script>
+
+
+                
+
+                
+            </article>
+
+                
+                        <div id="main-content-sidebar"><div class="sidebar-item display-options">
+  <ul class="sidebar display-toggles">
+    <li>Show Spoilers <div id="sidebar-toggle-showspoilers" class="display-toggle show-spoilers"></div></li>
+    <li>Night Vision <div id="sidebar-toggle-nightvision" class="display-toggle night-vision"></div></li>
+    <li>Sticky Header <div id="sidebar-toggle-stickyheader" class="display-toggle sticky-header"></div></li>
+    <li>Wide Load <div id="sidebar-toggle-wideload" class="display-toggle wide-load"></div></li>
+  </ul>
+  <script>updateDesktopPrefs();</script>
+</div>
+
+        <div class="sidebar-item quick-links" itemtype="http://schema.org/SiteNavigationElement">
+
+        <p class="sidebar-item-title" data-title="Important Links">Important Links</p>
+
+        <div class="padded">
+            <a href="/pmwiki/query.php?type=att">Ask The Tropers</a>
+            <a href="/pmwiki/query.php?type=tf">Trope Finder</a>
+            <a href="/pmwiki/query.php?type=ykts">You Know That Show...</a>
+            <a href="/pmwiki/tlp_activity.php">Trope Launch Pad</a>
+            <a href="/pmwiki/query.php?type=wl">Wishlist</a></li>
+            <a href="/pmwiki/review_activity.php">Reviews</a>
+            <a href="/pmwiki/ad-free-subscribe.php">Go Ad Free!</a>
+            <div class="crucial_browsing_dropdown">
+                <a href="javascript:void(0);" onclick="double_dropdown(); return false;" id="crucial_browsing_dropdown"><span class="new_blue">Crucial Browsing</span><i class="fa fa-angle-down"></i></a>
+                <ul id="main_dropdown">
+                    <li class="first_dropdown"><a href="javascript:void(0);" data-click-toggle="active">Genre</a>
+                        <ul>
+                            <li><a href='/pmwiki/pmwiki.php/Main/ActionAdventureTropes' title='Main/ActionAdventureTropes'>Action Adventure</a></li>
+                            <li><a href='/pmwiki/pmwiki.php/Main/ComedyTropes' title='Main/ComedyTropes'>Comedy</a></li>
+                            <li><a href='/pmwiki/pmwiki.php/Main/CommercialsTropes' title='Main/CommercialsTropes'>Commercials</a></li>
+                            <li><a href='/pmwiki/pmwiki.php/Main/CrimeAndPunishmentTropes' title='Main/CrimeAndPunishmentTropes'>Crime &amp; Punishment</a></li>
+                            <li><a href='/pmwiki/pmwiki.php/Main/DramaTropes' title='Main/DramaTropes'>Drama</a></li>
+                            <li><a href='/pmwiki/pmwiki.php/Main/HorrorTropes' title='Main/HorrorTropes'>Horror</a></li>
+                            <li><a href='/pmwiki/pmwiki.php/Main/LoveTropes' title='Main/LoveTropes'>Love</a></li>
+                            <li><a href='/pmwiki/pmwiki.php/Main/NewsTropes' title='Main/NewsTropes'>News</a></li>
+                            <li><a href='/pmwiki/pmwiki.php/Main/ProfessionalWrestling' title='Main/ProfessionalWrestling'>Professional Wrestling</a></li>
+                            <li><a href='/pmwiki/pmwiki.php/Main/SpeculativeFictionTropes' title='Main/SpeculativeFictionTropes'>Speculative Fiction</a></li>
+                            <li><a href='/pmwiki/pmwiki.php/Main/SportsStoryTropes' title='Main/SportsStoryTropes'>Sports Story</a></li>
+                            <li><a href='/pmwiki/pmwiki.php/Main/WarTropes' title='Main/WarTropes'>War</a></li>
+                            <li><a href="/pmwiki/lbs.php" data-modal-target="login">Live Blogs</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="first_dropdown"><a href="javascript:void(0);" data-click-toggle="active">Media</a>
+                        <ul>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Media" title="Main/Media">All Media</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/AnimationTropes" title="Main/AnimationTropes">Animation (Western)</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Anime" title="Main/Anime">Anime</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/ComicBookTropes" title="Main/ComicBookTropes">Comic Book</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/FanFic" title="FanFic/FanFics">Fan Fics</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Film" title="Main/Film">Film</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/GameTropes" title="Main/GameTropes">Game</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Literature" title="Main/Literature">Literature</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/MusicAndSoundEffects" title="Main/MusicAndSoundEffects">Music And Sound Effects</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/NewMediaTropes" title="Main/NewMediaTropes">New Media</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/PrintMediaTropes" title="Main/PrintMediaTropes">Print Media</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Radio" title="Main/Radio">Radio</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/SequentialArt" title="Main/SequentialArt">Sequential Art</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/TabletopGames" title="Main/TabletopGames">Tabletop Games</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/UsefulNotes/Television" title="Main/Television">Television</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Theater" title="Main/Theater">Theater</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/VideogameTropes" title="Main/VideogameTropes">Videogame</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Webcomics" title="Main/Webcomics">Webcomics</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="first_dropdown"><a href="javascript:void(0);" data-click-toggle="active">Narrative</a>
+                        <ul>
+                            <li><a href="/pmwiki/pmwiki.php/Main/UniversalTropes" title="Main/UniversalTropes">Universal</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/AppliedPhlebotinum" title="Main/AppliedPhlebotinum">Applied Phlebotinum</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/CharacterizationTropes" title="Main/CharacterizationTropes">Characterization</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Characters" title="Main/Characters">Characters</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/CharactersAsDevice" title="Main/CharactersAsDevice">Characters As Device</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Dialogue" title="Main/Dialogue">Dialogue</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Motifs" title="Main/Motifs">Motifs</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/NarrativeDevices" title="Main/NarrativeDevices">Narrative Devices</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Paratext" title="Main/Paratext">Paratext</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Plots" title="Main/Plots">Plots</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Settings" title="Main/Settings">Settings</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Spectacle" title="Main/Spectacle">Spectacle</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="first_dropdown"><a href="javascript:void(0);" data-click-toggle="active">Other Categories</a>
+                        <ul>
+                            <li><a href="/pmwiki/pmwiki.php/Main/BritishTellyTropes" title="Main/BritishTellyTropes">British Telly</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/TheContributors" title="Main/TheContributors">The Contributors</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/CreatorSpeak" title="Main/CreatorSpeak">Creator Speak</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Creators" title="Main/Creators">Creators</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/DerivativeWorks" title="Main/DerivativeWorks">Derivative Works</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/LanguageTropes" title="Main/LanguageTropes">Language</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/LawsAndFormulas" title="Main/LawsAndFormulas">Laws And Formulas</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/ShowBusiness" title="Main/ShowBusiness">Show Business</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/SplitPersonalityTropes" title="Main/SplitPersonalityTropes">Split Personality</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/StockRoom" title="Main/StockRoom">Stock Room</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/TropeTropes" title="Main/TropeTropes">Trope</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/Tropes" title="Main/Tropes">Tropes</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/TruthAndLies" title="Main/TruthAndLies">Truth And Lies</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/TruthInTelevision" title="Main/TruthInTelevision">Truth In Television</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="first_dropdown"><a href="javascript:void(0);" data-click-toggle="active">Topical Tropes</a>
+                        <ul>
+                            <li><a href="/pmwiki/pmwiki.php/Main/BetrayalTropes" title="Main/BetrayalTropes">Betrayal</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/CensorshipTropes" title="Main/CensorshipTropes">Censorship</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/CombatTropes" title="Main/CombatTropes">Combat</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/DeathTropes" title="Main/DeathTropes">Death</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/FamilyTropes" title="Main/FamilyTropes">Family</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/FateAndProphecyTropes" title="Main/FateAndProphecyTropes">Fate And Prophecy</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/FoodTropes" title="Main/FoodTropes">Food</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/HolidayTropes" title="Main/HolidayTropes">Holiday</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/MemoryTropes" title="Main/MemoryTropes">Memory</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/MoneyTropes" title="Main/MoneyTropes">Money</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/MoralityTropes" title="Main/MoralityTropes">Morality</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/PoliticsTropes" title="Main/PoliticsTropes">Politics</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/ReligionTropes" title="Main/ReligionTropes">Religion</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/SchoolTropes" title="Main/SchoolTropes">School</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="resources_dropdown">
+                <a href="javascript:void(0);" onclick="second_double_dropdown(); return false;" id="resources_dropdown"><span class="new_blue blue">Resources</span><i class="fa fa-angle-down"></i></a>
+
+                <ul id="second_main_dropdown" class="padded font-s" itemscope itemtype="http://schema.org/SiteNavigationElement">
+                                        <li class="second_dropdown"><a href="#test" data-click-toggle="active">Tools</a>
+                        <ul>
+                            <li><a href="/pmwiki/pmwiki.php/Administrivia/IttyBittyWikiTools">Wiki Tools</a></li>
+                            <li><a href="/pmwiki/cutlist.php">Cut List</a></li>
+                            <li><a href="/pmwiki/changes.php">New Edits</a></li>
+                            <li><a href="/pmwiki/recent_edit_reasons.php">Edit Reasons</a></li>
+                            <li><a href="/pmwiki/isolated_pages.php">Isolated Pages</a></li> 
+                            <li><a href="/pmwiki/launches.php">Launches</a></li>
+                            <li><a href="/pmwiki/img_list.php">Images List</a></li>
+                            <li><a href="/pmwiki/recent_videos.php">Recent Videos</a></li>
+                            <li><a href="/pmwiki/crown_activity.php">Crowner Activity</a></li>
+                            <li><a href="/pmwiki/no_types.php">Un-typed Pages</a></li>
+                            <li><a href="/pmwiki/page_type_audit.php">Recent Page Type Changes</a></li>
+                            <li><a href="/pmwiki/changelog.php">Changelog</a></li>
+                        </ul>
+                    </li>
+                    <li class="second_dropdown"><a href="javascript:void(0);" data-click-toggle="active">Templates</a>
+                        <ul>
+                            <li><a href="/pmwiki/pmwiki.php/Main/TropeEntryTemplate">Trope Entry</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Main/ProgramEntryTemplate">Works</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Administrivia/CharacterSheetTemplate">Character Sheet</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Administrivia/PlayingWithWikiTemplate">Playing With</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/FanficRecs/TemplatePageForNewFandomRecommendations">Fandom</a></li>
+                        </ul>
+                    </li>
+                    <li class="second_dropdown"><a href="javascript:void(0);" data-click-toggle="active">Tips</a>
+                        <ul>
+                            <li><a href="/pmwiki/pmwiki.php/Administrivia/CreatingNewRedirects">Creating New Redirects</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Administrivia/Crosswicking">Cross Wicking</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Administrivia/TipsForEditing">Tips for Editing</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Administrivia/TextFormattingRules">Text Formatting Rules</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Administrivia/TVTropesGlossary">Glossary</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Administrivia/EditReasonsAndWhyYouShouldUseThem">Edit Reasons</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Administrivia/HandlingSpoilers">Handling Spoilers</a></li>
+                            <li><a href="/pmwiki/pmwiki.php/Administrivia/WordCruft">Word Cruft</a></li>
+                        </ul>
+                    </li>
+                    <li class="second_dropdown"><a href="/pmwiki/query.php?type=bug">Report Bug</a></li>
+                    <li class="second_dropdown"><a href="/pmwiki/conversations.php?topic=renames">Trope Repair Shop</a></li>
+                    <li class="second_dropdown"><a href="/pmwiki/conversations.php?topic=images">Image Pickin'</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="asteri-sidebar" style="display:none">
+            <p style="margin-top: 20px;" class="sidebar-item-title" data-title="Advertisement">Advertisement:</p>
+            <div id="asteri_cont"></div>
+        </div>
+        <script>
+            //asteri enabled
+            if((tvtropes_config.asteri_stream_enabled || tvtropes_config.get_asteri_stream == 'live')) {
+                //aster stream currently live and not a logged-in troper
+                if(!tvtropes_config.is_logged_in && cookies.read('asteri_event_active') != '') {
+                    document.getElementById('asteri-sidebar').style.display="";
+                }
+            }
+        </script>
+
+    </div>
+
+        
+            
+
+    
+        
+            <script>
+    if(!is_mobile()) {
+
+        //don't insert if content is too small on page
+        var tropes_insert_side_ad=true;
+        if(document.getElementById("main-article") && document.getElementById("main-article").clientHeight) {
+            var sidebar_height=document.getElementById("main-article").clientHeight;
+            if(sidebar_height>0 && sidebar_height<500) {
+                tropes_insert_side_ad=false;
+                console.log('ad parser: content too small for sidebar ad');
+            }
+        }
+
+        if(tropes_insert_side_ad) {
+
+       document.write(`
+        <div id="stick-cont"  class="sidebar-item sb-fad-unit">
+            <p class="sidebar-item-title" data-title="Advertisement">Advertisement:</p>
+            <div id="stick-bar" class="sidebar-section">
+                <div class="square_fad fad-size-300x600 fad-section text-center">
+                    <div class='tvtropes-ad-unit '>
+                      <div id='tvtropes_dt_inview' class='htlad-tvtropes_dt_inview'></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `);
+        }
+
+    }
+    </script>
+    
+
+</div>
+        
+    </div>
+
+        <div id="action-bar-bottom" class="action-bar tablet-off">
+        <a href="#top-of-page" class="scroll-to-top dead-button" onclick="$('html, body').animate({scrollTop : 0},500);">Top</a>
+    </div>
+    
+</div>    <footer id="main-footer">
+        <div id="main-footer-inner">
+
+
+            <div class="footer-left">
+
+                <a href="/" class="img-link"><img data-src="/img/tvtropes-footer-logo.png" alt="TV Tropes" class="logo_image lazy-image" title="TV Tropes" /></a>
+
+                <form action="index.html" id="cse-search-box-mobile" class="navbar-form newsletter-signup validate modal-replies" name="" role="" data-ajax-get="/ajax/subscribe_email.php">
+
+                    <button class="btn-submit newsletter-signup-submit-button" type="submit" id="subscribe-btn"><i class="fa fa-paper-plane"></i></button>
+                    <input id="subscription-email" type="text" class="form-control" name="q" size="31" placeholder="Subscribe" value="" validate-type="email">
+
+                </form>
+
+                <ul class="social-buttons">
+                   <li><a class="btn fb" target="_blank" onclick="_gaq.push(['_trackEvent', 'btn-social-icon', 'click', 'btn-facebook']);" href="https://www.facebook.com/tvtropes"><i class="fa fa-facebook"></i></a></li>
+                   <li><a class="btn tw" target="_blank" onclick="_gaq.push(['_trackEvent', 'btn-social-icon', 'click', 'btn-twitter']);" href="https://www.twitter.com/tvtropes"><i class="fa fa-twitter"></i></a> </li>
+                                      <li><a class="btn rd" target="_blank" onclick="_gaq.push(['_trackEvent', 'btn-social-icon', 'click', 'btn-reddit']);" href="https://www.reddit.com/r/tvtropes"><i class="fa fa-reddit-alien"></i></a></li>
+                                   </ul>
+
+            </div>
+
+            <hr/>
+
+            <ul class="footer-menu" itemscope itemtype="http://schema.org/SiteNavigationElement">
+                <li><h4 class="footer-menu-header">TVTropes</h4></li>
+                <li><a href="/pmwiki/pmwiki.php/Main/Administrivia">About TVTropes</a></li>
+                <li><a href="/pmwiki/pmwiki.php/Administrivia/TheGoalsOfTVTropes">TVTropes Goals</a></li>
+                <li><a href="/pmwiki/pmwiki.php/Administrivia/TheTropingCode">Troping Code</a></li>
+                <li><a href="/pmwiki/pmwiki.php/Administrivia/TVTropesCustoms">TVTropes Customs</a></li>
+                <li><a href="/pmwiki/pmwiki.php/JustForFun/TropesOfLegend">Tropes of Legend</a></li>
+                <li><a href="/pmwiki/ad-free-subscribe.php">Go Ad-Free</a></li>
+                            </ul>
+
+            <hr/>
+
+            <ul class="footer-menu" itemscope itemtype="http://schema.org/SiteNavigationElement">
+                <li><h4 class="footer-menu-header">Community</h4></li>
+                <li><a href="/pmwiki/query.php?type=att">Ask The Tropers</a></li>
+                <li><a href="/pmwiki/tlp_activity.php">Trope Launch Pad</a></li>
+                <li><a href="/pmwiki/query.php?type=tf">Trope Finder</a></li>
+                <li><a href="/pmwiki/query.php?type=ykts">You Know That Show</a></li>
+                <li><a href="/pmwiki/lbs.php" data-modal-target="login">Live Blogs</a></li>
+                <li><a href="/pmwiki/query.php?type=wl">Wishlist</a></li>
+                <li><a href="/pmwiki/review_activity.php">Reviews</a></li>
+                <li><a href="/pmwiki/topics.php">Forum</a></li>
+            </ul>
+
+            <hr/>
+
+            <ul class="footer-menu" itemscope itemtype="http://schema.org/SiteNavigationElement">
+                <li><h4 class="footer-menu-header">Tropes HQ</h4></li>
+                <li><a href="/pmwiki/about.php">About Us</a></li>
+                                <li><a href="/pmwiki/contact.php">Contact Us</a></li>
+                <li><a href="/pmwiki/query.php?type=bug">Report Bug</a></li>
+                <li><a href="/pmwiki/dmca.php">DMCA Notice</a></li>
+                <li><a href="/pmwiki/privacypolicy.php">Privacy Policy</a></li>
+
+            </ul>
+
+        </div>
+
+        <div id="desktop-on-mobile-toggle" class="text-center gutter-top gutter-bottom tablet-on">
+          <a href="/pmwiki/switchDeviceCss.php?mobileVersion=1" rel="nofollow">Switch to <span class="txt-desktop">Desktop</span><span class="txt-mobile">Mobile</span> Version</a>
+        </div>
+
+        <div class="legal">
+            <p>TVTropes is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License. <br>Permissions beyond the scope of this license may be available from <a xmlns:cc="http://creativecommons.org/ns#" href="mailto:thestaff@tvtropes.org" rel="cc:morePermissions"> thestaff@tvtropes.org</a>.</p>
+            <br>
+            <div class="privacy_wrapper">
+            </div>
+        </div>
+    </footer>
+    
+    
+    <style>
+      div.fc-ccpa-root {
+        position: absolute !important;
+        bottom: 93px !important;
+        margin: auto !important;
+        width: 100% !important;
+        z-index: 9999 !important;
+        overflow: hidden !important;
+      }
+      .fc-ccpa-root .fc-dns-dialog .fc-dns-link p{
+        outline: none !important;
+        text-decoration: underline !important;
+        font-size: .7em !important;
+        font-family: sans-serif !important;
+      }
+      .fc-ccpa-root .fc-dns-dialog .fc-dns-link .fc-button-background {
+        background: none !important;
+      }
+    </style>
+
+        <div id="_pm_videoViewer" class="full-screen">
+
+  <a href="#close" class="close" id="_pm_videoViewer-close"></a>
+
+  <div class="_pmvv-body">
+
+    <div class="_pmvv-vidbox">
+
+        
+    </div>
+
+  </div>
+
+  
+</div>
+
+        
+    
+    
+        <script type="text/javascript">
+
+        var cleanCreativeEnabled = "";
+        var donation = "";
+        var live_ads = "1";
+        var img_domain = "https://static.tvtropes.org";
+        var snoozed = cookies.read('snoozedabm');
+        var snoozable = "";
+
+        var elem = document.createElement('script');
+        elem.async = true;
+
+        elem.src = 'https://assets.tvtropes.org/design/assets/bundle.js?rev=3249201cca6b7eeca1de118d08d4474b20e5ab7e';
+
+        elem.onload = function() {
+                                 }
+        document.getElementsByTagName('head')[0].appendChild(elem);
+
+    </script>
+
+
+    
+    
+
+    
+    
+  <script type="text/javascript">
+      function send_analytics_event(user_type, donation){
+          // if(user_type == 'uncached' || user_type == 'cached'){
+          //   ga('send', 'event', 'caching', 'load', user_type, {'nonInteraction': 1});
+          //   return;
+          // }
+          var event_name = user_type;
+
+          if(donation == 'true'){
+              event_name += "_donation"
+          }else if(typeof(valid_user) == 'undefined'){
+              event_name += "_blocked"
+          }else if(valid_user == true){
+              event_name += "_unblocked";
+          }else{
+              event_name = "_unknown"
+          }
+          ga('send', 'event', 'ads', 'load', event_name, {'nonInteraction': 1});
+      }
+
+    
+    send_analytics_event("guest", "false");
+      </script>
+
+
+<script>
+    ga('send', 'event', 'ab_test_type', "1", 'ab_testing', {'nonInteraction': 1});
+</script>
+
+
+
+<!-- Quantcast Tag -->
+<script type="text/javascript">
+  window._qevents = window._qevents || [];
+
+  (function() {
+    var elem = document.createElement('script');
+    elem.src = (document.location.protocol == "https:" ? "https://secure" : "http://edge") + ".quantserve.com/quant.js";
+    elem.async = true;
+    elem.type = "text/javascript";
+    var scpt = document.getElementsByTagName('script')[0];
+    scpt.parentNode.insertBefore(elem, scpt);
+  })();
+
+  window._qevents.push({
+      qacct:"p-mEzuYq24VEJ-3"
+  });
+</script>
+
+<noscript>
+  <div style="display:none;">
+    <img src="//pixel.quantserve.com/pixel/p-mEzuYq24VEJ-3.gif" border="0" height="1" width="1" alt="Quantcast"/>
+  </div>
+</noscript>
+<!-- End Quantcast tag -->
+
+
+<!-- Begin comScore Tag -->
+<script>
+  var _comscore = _comscore || [];
+  _comscore.push({ c1: "2", c2: "38282685" });
+  (function() {
+    var s = document.createElement("script"), el = document.getElementsByTagName("script")[0]; s.async = true;
+    s.src = "https://sb.scorecardresearch.com/cs/38282685/beacon.js";
+    el.parentNode.insertBefore(s, el);
+  })();
+</script>
+<noscript>
+  <img src="https://sb.scorecardresearch.com/p?c1=2&amp;c2=38282685&amp;cv=3.6.0&amp;cj=1">
+</noscript>
+<!-- End comScore Tag -->
+</body>
+</html>

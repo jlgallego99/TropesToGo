@@ -19,4 +19,7 @@ type Work struct {
 	LastUpdated time.Time
 	// Tropes that define the Work. Is a set, which means that all tropes are unique
 	Tropes map[Trope]struct{}
+	// SubTropes that belong to any of the SubWikis of the Work. Is a set, which means that all SubTropes are unique
+	// There can't be two Tropes on the same SubWiki, but the same Trope can be in different SubWikis
+	SubTropes map[Trope]struct{}
 }
