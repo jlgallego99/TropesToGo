@@ -10,7 +10,7 @@ import (
 // A crawler service for test purposes
 var serviceCrawler *crawler.ServiceCrawler
 var errNewCrawler, errCrawling error
-var crawledPages []tropestogo.Page
+var crawledPages *tropestogo.TvTropesPages
 
 var _ = BeforeSuite(func() {
 	serviceCrawler, errNewCrawler = crawler.NewCrawler("Film")
@@ -25,11 +25,16 @@ var _ = Describe("Crawler", func() {
 		})
 
 		It("Should have crawled web pages", func() {
-			Expect(len(crawledPages) > 0).To(BeTrue())
+			Expect(len(crawledPages.Pages) > 0).To(BeTrue())
 
-			for _, crawledPage := range crawledPages {
+			for crawledPage, crawledSubpages := range crawledPages.Pages {
 				Expect(crawledPage.GetUrl()).To(Not(BeNil()))
 				Expect(crawledPage.GetPageType()).To(Equal(tropestogo.WorkPage))
+				Expect(len(crawledSubpages.Subpages) > 0).To(BeTrue())
+
+				for crawledSubpage := range crawledSubpages.Subpages {
+					Expect(crawledSubpage.GetUrl()).To(Not(BeNil()))
+				}
 			}
 		})
 	})

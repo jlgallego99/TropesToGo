@@ -8,14 +8,21 @@ import (
 	"github.com/jlgallego99/TropesToGo/media"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
 const (
 	Pagelist = "https://tvtropes.org/pmwiki/pagelist_having_pagetype_in_namespace.php?t=work"
 
-	WorkPageSelector = "table a"
+	TvTropesHostname       = "tvtropes.org"
+	TvTropesWeb            = "https://" + TvTropesHostname
+	WorkPageSelector       = "table a"
+	CurrentSubpageSelector = ".curr-subpage"
+	SubWikiSelector        = "a.subpage-link:not(" + CurrentSubpageSelector + ")"
+	SubPageSelector        = "ul a.twikilink"
 )
 
 var (
@@ -43,8 +50,8 @@ func NewCrawler(mediaTypeString string) (*ServiceCrawler, error) {
 
 // CrawlWorkPages searches all Work pages from the defined seed starting page
 // It returns an array of Page objects that are all crawled TvTropes Work pages
-func (crawler *ServiceCrawler) CrawlWorkPages() ([]tropestogo.Page, error) {
-	var crawledPages []tropestogo.Page
+func (crawler *ServiceCrawler) CrawlWorkPages() (*tropestogo.TvTropesPages, error) {
+	crawledPages := tropestogo.NewTvTropesPages()
 	pageNumber := 1
 
 	for {
@@ -55,12 +62,12 @@ func (crawler *ServiceCrawler) CrawlWorkPages() ([]tropestogo.Page, error) {
 
 		resp, errGet := http.Get(workPageList.String())
 		if errGet != nil {
-			return []tropestogo.Page{}, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrNotFound)
+			return nil, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrNotFound)
 		}
 
 		doc, errDocument := goquery.NewDocumentFromReader(resp.Body)
 		if errDocument != nil {
-			return []tropestogo.Page{}, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrInvalidPage)
+			return nil, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrInvalidPage)
 		}
 
 		pageSelector := doc.Find(WorkPageSelector)
@@ -68,23 +75,52 @@ func (crawler *ServiceCrawler) CrawlWorkPages() ([]tropestogo.Page, error) {
 			break
 		}
 
+		var errAddPage error
 		pageSelector.Each(func(_ int, selection *goquery.Selection) {
 			workUrl, urlExists := selection.Attr("href")
-
 			if urlExists {
-				newPage, errNewPage := tropestogo.NewPage(workUrl)
+				subPagesUrls := crawler.CrawlWorkSubpages(doc)
 
-				if errNewPage == nil {
-					crawledPages = append(crawledPages, newPage)
-				}
+				errAddPage = crawledPages.AddTvTropesPage(TvTropesWeb+workUrl, subPagesUrls)
 			}
 		})
+
+		if errAddPage != nil {
+			return nil, errAddPage
+		}
 
 		pageNumber += 1
 		time.Sleep(time.Second / 2)
 	}
 
 	return crawledPages, nil
+}
+
+// CrawlWorkSubpages searches all subpages (both with main tropes and SubWikis) on the goquery Document of a Work page
+// It returns an array of string URLs that belong to all crawled TvTropes Work subpages
+func (crawler *ServiceCrawler) CrawlWorkSubpages(doc *goquery.Document) []string {
+	var subPagesUrls []string
+
+	// Get all SubWikis
+	doc.Find(SubWikiSelector).Each(func(_ int, selection *goquery.Selection) {
+		subWikiUri, subWikiExists := selection.Attr("href")
+		if subWikiExists {
+			subPagesUrls = append(subPagesUrls, TvTropesWeb+subWikiUri)
+		}
+	})
+
+	// Get all main trope subpages (if there are any)
+	doc.Find(SubPageSelector).Each(func(_ int, selection *goquery.Selection) {
+		subPageUri, subPageExists := selection.Attr("href")
+		r, _ := regexp.Compile(`\/tropes[a-z]to[a-z]`)
+		matchUri := r.MatchString(strings.ToLower(subPageUri))
+
+		if subPageExists && matchUri {
+			subPagesUrls = append(subPagesUrls, TvTropesWeb+subPageUri)
+		}
+	})
+
+	return subPagesUrls
 }
 
 // SetMediaSeed sets a mediaType for the crawler seed (starting page) for crawling all pages of that medium
