@@ -3,13 +3,19 @@ package crawler
 import (
 	"errors"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
+	"net/http"
 	"net/url"
+	"strconv"
+	"time"
 )
 
 const (
 	Pagelist = "https://tvtropes.org/pmwiki/pagelist_having_pagetype_in_namespace.php?t=work"
+
+	WorkPageSelector = "table a"
 )
 
 var (
@@ -33,6 +39,52 @@ func NewCrawler(mediaTypeString string) (*ServiceCrawler, error) {
 	crawler.SetMediaSeed(mediaType)
 
 	return crawler, nil
+}
+
+// CrawlWorkPages searches all Work pages from the defined seed starting page
+// It returns an array of Page objects that are all crawled TvTropes Work pages
+func (crawler *ServiceCrawler) CrawlWorkPages() ([]tropestogo.Page, error) {
+	var crawledPages []tropestogo.Page
+	pageNumber := 1
+
+	for {
+		workPageList := crawler.seed.GetUrl()
+		values := workPageList.Query()
+		values.Add("page", strconv.Itoa(pageNumber))
+		workPageList.RawQuery = values.Encode()
+
+		resp, errGet := http.Get(workPageList.String())
+		if errGet != nil {
+			return []tropestogo.Page{}, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrNotFound)
+		}
+
+		doc, errDocument := goquery.NewDocumentFromReader(resp.Body)
+		if errDocument != nil {
+			return []tropestogo.Page{}, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrInvalidPage)
+		}
+
+		pageSelector := doc.Find(WorkPageSelector)
+		if pageSelector.Length() == 0 {
+			break
+		}
+
+		pageSelector.Each(func(_ int, selection *goquery.Selection) {
+			workUrl, urlExists := selection.Attr("href")
+
+			if urlExists {
+				newPage, errNewPage := tropestogo.NewPage(workUrl)
+
+				if errNewPage == nil {
+					crawledPages = append(crawledPages, newPage)
+				}
+			}
+		})
+
+		pageNumber += 1
+		time.Sleep(time.Second / 2)
+	}
+
+	return crawledPages, nil
 }
 
 // SetMediaSeed sets a mediaType for the crawler seed (starting page) for crawling all pages of that medium
