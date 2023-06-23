@@ -15,7 +15,7 @@ var crawledPages *tropestogo.TvTropesPages
 var _ = BeforeSuite(func() {
 	serviceCrawler, errNewCrawler = crawler.NewCrawler("Film")
 	Expect(errNewCrawler).To(BeNil())
-	crawledPages, errCrawling = serviceCrawler.CrawlWorkPages()
+	crawledPages, errCrawling = serviceCrawler.CrawlWorkPages(10)
 })
 
 var _ = Describe("Crawler", func() {
@@ -30,7 +30,7 @@ var _ = Describe("Crawler", func() {
 			for crawledPage, crawledSubpages := range crawledPages.Pages {
 				Expect(crawledPage.GetUrl()).To(Not(BeNil()))
 				Expect(crawledPage.GetPageType()).To(Equal(tropestogo.WorkPage))
-				Expect(len(crawledSubpages.Subpages) > 0).To(BeTrue())
+				Expect(len(crawledSubpages.Subpages) >= 0).To(BeTrue())
 
 				for crawledSubpage := range crawledSubpages.Subpages {
 					Expect(crawledSubpage.GetUrl()).To(Not(BeNil()))

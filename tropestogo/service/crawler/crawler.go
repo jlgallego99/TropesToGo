@@ -49,36 +49,30 @@ func NewCrawler(mediaTypeString string) (*ServiceCrawler, error) {
 	return crawler, nil
 }
 
-// CrawlWorkPages searches all Work pages from the defined seed starting page
-// It returns an array of Page objects that are all crawled TvTropes Work pages
-func (crawler *ServiceCrawler) CrawlWorkPages() (*tropestogo.TvTropesPages, error) {
+// CrawlWorkPages searches crawlLimit number of Work pages from the defined seed starting page; if it's 0 or less, then it crawls all Work pages
+// It returns a TvTropesPages object with all crawled pages and subpages from TvTropes
+func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTropesPages, error) {
 	crawledPages := tropestogo.NewTvTropesPages()
 	pageNumber := 1
 
+	limitedCrawling := true
+	if crawlLimit <= 0 {
+		limitedCrawling = false
+	}
+
 	for {
-		workPageList := crawler.seed.GetUrl()
-		values := workPageList.Query()
-		values.Add("page", strconv.Itoa(pageNumber))
-		workPageList.RawQuery = values.Encode()
-
-		resp, errGetIndex := http.Get(workPageList.String())
-		if errGetIndex != nil {
-			return nil, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrNotFound)
-		}
-
-		doc, errDocument := goquery.NewDocumentFromReader(resp.Body)
-		if errDocument != nil {
-			return nil, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrInvalidPage)
-		}
-
-		pageSelector := doc.Find(WorkPageSelector)
-		if pageSelector.Length() == 0 {
-			break
+		listSelector, errListSelector := crawler.GetWorkListSelector(pageNumber)
+		if errListSelector != nil {
+			return nil, errListSelector
 		}
 
 		var errAddPage error
 		var pageReader *http.Response
-		pageSelector.EachWithBreak(func(i int, selection *goquery.Selection) bool {
+		listSelector.EachWithBreak(func(i int, selection *goquery.Selection) bool {
+			if limitedCrawling && len(crawledPages.Pages) == crawlLimit {
+				return false
+			}
+
 			workUrl, urlExists := selection.Attr("href")
 			pageReader, errAddPage = http.Get(workUrl)
 			if pageReader.StatusCode == 403 {
@@ -98,6 +92,10 @@ func (crawler *ServiceCrawler) CrawlWorkPages() (*tropestogo.TvTropesPages, erro
 			return true
 		})
 
+		if limitedCrawling && len(crawledPages.Pages) == crawlLimit {
+			break
+		}
+
 		if errAddPage != nil {
 			return nil, fmt.Errorf("%w: %w", ErrCrawling, errAddPage)
 		}
@@ -106,6 +104,32 @@ func (crawler *ServiceCrawler) CrawlWorkPages() (*tropestogo.TvTropesPages, erro
 	}
 
 	return crawledPages, nil
+}
+
+// GetWorkListSelector returns the Nth index page selector for crawling Work Pages
+// It returns an error if there's no page
+func (crawler *ServiceCrawler) GetWorkListSelector(indexPage int) (*goquery.Selection, error) {
+	workPageList := crawler.seed.GetUrl()
+	values := workPageList.Query()
+	values.Add("page", strconv.Itoa(indexPage))
+	workPageList.RawQuery = values.Encode()
+
+	resp, errGetIndex := http.Get(workPageList.String())
+	if errGetIndex != nil {
+		return nil, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrNotFound)
+	}
+
+	doc, errDocument := goquery.NewDocumentFromReader(resp.Body)
+	if errDocument != nil {
+		return nil, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrInvalidPage)
+	}
+
+	pageSelector := doc.Find(WorkPageSelector)
+	if pageSelector.Length() == 0 {
+		return nil, fmt.Errorf("%w: "+workPageList.String(), ErrInvalidPage)
+	}
+
+	return pageSelector, nil
 }
 
 // CrawlWorkSubpages searches all subpages (both with main tropes and SubWikis) on the goquery Document of a Work page
