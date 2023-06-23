@@ -6,6 +6,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
+	"io"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -179,4 +180,62 @@ func (crawler *ServiceCrawler) SetMediaSeed(mediaType media.MediaType) error {
 	crawler.seed = seedPage
 
 	return nil
+}
+
+// CrawlWorkPagesFromReaders crawls all Work Pages and its subpages from an index reader and its pages readers. Only for test purposes
+// It searches crawlLimit number of Work pages within the index
+// It returns a TvTropesPages object with all crawled pages and subpages from TvTropes
+func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, workReaders []io.Reader, crawlLimit int) (*tropestogo.TvTropesPages, error) {
+	crawledPages := tropestogo.NewTvTropesPages()
+	pageNumber := 1
+
+	limitedCrawling := true
+	if crawlLimit <= 0 {
+		limitedCrawling = false
+	}
+
+	for {
+		doc, errDocument := goquery.NewDocumentFromReader(indexReader)
+		if errDocument != nil {
+			return nil, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrInvalidPage)
+		}
+
+		listSelector := doc.Find(WorkPageSelector)
+		if listSelector.Length() == 0 {
+			return nil, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrInvalidPage)
+		}
+
+		var errAddPage error
+		listSelector.EachWithBreak(func(i int, selection *goquery.Selection) bool {
+			if limitedCrawling && len(crawledPages.Pages) == crawlLimit {
+				return false
+			}
+
+			workUrl, urlExists := selection.Attr("href")
+
+			if !urlExists {
+				return false
+			}
+
+			pageDoc, _ := goquery.NewDocumentFromReader(workReaders[i])
+			subPagesUrls := crawler.CrawlWorkSubpages(pageDoc)
+
+			errAddPage = crawledPages.AddTvTropesPage(workUrl, subPagesUrls)
+			time.Sleep(time.Second / 2)
+
+			return true
+		})
+
+		if limitedCrawling && len(crawledPages.Pages) == crawlLimit {
+			break
+		}
+
+		if errAddPage != nil {
+			return nil, fmt.Errorf("%w: %w", ErrCrawling, errAddPage)
+		}
+
+		pageNumber += 1
+	}
+
+	return crawledPages, nil
 }
