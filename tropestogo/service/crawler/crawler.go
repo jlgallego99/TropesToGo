@@ -29,6 +29,7 @@ var (
 	ErrNotFound    = errors.New("couldn't request the URL")
 	ErrBadUrl      = errors.New("invalid URL")
 	ErrInvalidPage = errors.New("couldn't crawl in page")
+	ErrCrawling    = errors.New("there was an error crawling TvTropes")
 )
 
 type ServiceCrawler struct {
@@ -60,8 +61,8 @@ func (crawler *ServiceCrawler) CrawlWorkPages() (*tropestogo.TvTropesPages, erro
 		values.Add("page", strconv.Itoa(pageNumber))
 		workPageList.RawQuery = values.Encode()
 
-		resp, errGet := http.Get(workPageList.String())
-		if errGet != nil {
+		resp, errGetIndex := http.Get(workPageList.String())
+		if errGetIndex != nil {
 			return nil, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrNotFound)
 		}
 
@@ -76,17 +77,24 @@ func (crawler *ServiceCrawler) CrawlWorkPages() (*tropestogo.TvTropesPages, erro
 		}
 
 		var errAddPage error
-		pageSelector.Each(func(_ int, selection *goquery.Selection) {
+		var pageReader *http.Response
+		pageSelector.EachWithBreak(func(i int, selection *goquery.Selection) bool {
 			workUrl, urlExists := selection.Attr("href")
-			if urlExists {
-				subPagesUrls := crawler.CrawlWorkSubpages(doc)
-
-				errAddPage = crawledPages.AddTvTropesPage(TvTropesWeb+workUrl, subPagesUrls)
+			pageReader, errAddPage = http.Get(workUrl)
+			if errAddPage != nil || !urlExists {
+				return false
 			}
+
+			pageDoc, _ := goquery.NewDocumentFromReader(pageReader.Body)
+			subPagesUrls := crawler.CrawlWorkSubpages(pageDoc)
+
+			errAddPage = crawledPages.AddTvTropesPage(workUrl, subPagesUrls)
+
+			return true
 		})
 
 		if errAddPage != nil {
-			return nil, errAddPage
+			return nil, fmt.Errorf("%w: %w", ErrCrawling, errAddPage)
 		}
 
 		pageNumber += 1
