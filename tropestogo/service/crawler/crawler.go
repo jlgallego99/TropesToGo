@@ -81,6 +81,10 @@ func (crawler *ServiceCrawler) CrawlWorkPages() (*tropestogo.TvTropesPages, erro
 		pageSelector.EachWithBreak(func(i int, selection *goquery.Selection) bool {
 			workUrl, urlExists := selection.Attr("href")
 			pageReader, errAddPage = http.Get(workUrl)
+			if pageReader.StatusCode == 403 {
+				time.Sleep(time.Minute)
+			}
+
 			if errAddPage != nil || !urlExists {
 				return false
 			}
@@ -89,6 +93,7 @@ func (crawler *ServiceCrawler) CrawlWorkPages() (*tropestogo.TvTropesPages, erro
 			subPagesUrls := crawler.CrawlWorkSubpages(pageDoc)
 
 			errAddPage = crawledPages.AddTvTropesPage(workUrl, subPagesUrls)
+			time.Sleep(time.Second / 2)
 
 			return true
 		})
@@ -98,7 +103,6 @@ func (crawler *ServiceCrawler) CrawlWorkPages() (*tropestogo.TvTropesPages, erro
 		}
 
 		pageNumber += 1
-		time.Sleep(time.Second / 2)
 	}
 
 	return crawledPages, nil
