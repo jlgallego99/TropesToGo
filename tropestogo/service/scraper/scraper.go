@@ -228,8 +228,12 @@ func (scraper *ServiceScraper) CheckIsMainSubpage(doc *goquery.Document) bool {
 	title := scraper.ScrapeNamespace(doc)
 	currentUrl := doc.Find(CurrentUrlSelector).Text()
 
+	// Remove all non-alphanumeric characters from the title
+	r, _ := regexp.Compile(`[^\p{L}\p{N} ]+`)
+	title = r.ReplaceAllString(title, "")
+
 	title = strings.ToLower(strings.ReplaceAll(title, " ", ""))
-	r, _ := regexp.Compile(`\/` + title + `\/tropes[a-z]to[a-z]`)
+	r, _ = regexp.Compile(`\/` + title + `\/tropes[a-z]to[a-z]`)
 	matchUri := scraper.CheckSubpageUri(currentUrl, title)
 	matchTitle := r.MatchString(strings.ToLower(scraper.ScrapeSubpageFullTitle(doc)))
 
@@ -240,8 +244,12 @@ func (scraper *ServiceScraper) CheckIsMainSubpage(doc *goquery.Document) bool {
 // Checks if the elements of the list are anchors to a subpage inside the work
 // A regex matches if the last part of the URL is of the type TropesXtoY and is preceded by the work title name, returning true or false
 func (scraper *ServiceScraper) CheckSubpageUri(URI, title string) bool {
+	// Remove all non-alphanumeric characters from the title
+	r, _ := regexp.Compile(`[^\p{L}\p{N} ]+`)
+	title = r.ReplaceAllString(title, "")
+
 	title = strings.ToLower(strings.ReplaceAll(title, " ", ""))
-	r, _ := regexp.Compile(`\/` + title + `\/tropes[a-z]to[a-z]`)
+	r, _ = regexp.Compile(`\/` + title + `\/tropes[a-z]to[a-z]`)
 	match := r.MatchString(strings.ToLower(URI))
 
 	return match
