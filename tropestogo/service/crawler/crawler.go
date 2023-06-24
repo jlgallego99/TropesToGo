@@ -98,7 +98,7 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 		}
 
 		if errAddPage != nil {
-			return nil, fmt.Errorf("%w: %w", ErrCrawling, errAddPage)
+			return nil, fmt.Errorf("error crawling: %w", errAddPage)
 		}
 
 		pageNumber += 1
@@ -165,7 +165,7 @@ func (crawler *ServiceCrawler) CrawlWorkSubpages(doc *goquery.Document) []string
 func (crawler *ServiceCrawler) SetMediaSeed(mediaType media.MediaType) error {
 	seedUrl, errParse := url.Parse(Pagelist)
 	if errParse != nil {
-		return fmt.Errorf("%w: "+Pagelist+"\n%w", ErrBadUrl, errParse)
+		return fmt.Errorf("%w: "+Pagelist, ErrBadUrl)
 	}
 
 	values := seedUrl.Query()
@@ -231,7 +231,7 @@ func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, 
 		}
 
 		if errAddPage != nil {
-			return nil, fmt.Errorf("%w: %w", ErrCrawling, errAddPage)
+			return nil, fmt.Errorf("error crawling: %w", errAddPage)
 		}
 
 		pageNumber += 1
