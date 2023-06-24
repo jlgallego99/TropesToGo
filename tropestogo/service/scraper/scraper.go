@@ -263,7 +263,11 @@ func (scraper *ServiceScraper) CheckIsSubWiki(doc *goquery.Document) bool {
 	namespace := strings.ToLower(scraper.ScrapeNamespace(doc))
 	title, year, _, errMediatype := scraper.ScrapeWorkTitleAndYear(doc)
 
-	r, _ := regexp.Compile(strings.ToLower(strings.ReplaceAll(`\/`+namespace+`\/`+title+year, " ", "")))
+	// Remove all non-alphanumeric characters from the title
+	r, _ := regexp.Compile(`[^\p{L}\p{N} ]+`)
+	title = r.ReplaceAllString(title, "")
+
+	r, _ = regexp.Compile(strings.ToLower(strings.ReplaceAll(`\/`+namespace+`\/`+title+year, " ", "")))
 	matchUri := r.MatchString(strings.ToLower(subpageUri))
 
 	articleTitle := strings.ReplaceAll(scraper.ScrapeSubpageFullTitle(doc), "(", "")
