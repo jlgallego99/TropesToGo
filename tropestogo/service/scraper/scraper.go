@@ -424,6 +424,9 @@ func (scraper *ServiceScraper) ScrapeTropes(doc *goquery.Document, selector stri
 	doc.Find(selector).Each(func(_ int, selection *goquery.Selection) {
 		tropeUri, tropeUriExists := selection.Attr("href")
 		if tropeUriExists {
+			// Get only the URI (if the href has the full URL, which happens sometimes)
+			tropeUri = strings.ReplaceAll(tropeUri, TvTropesWeb, "")
+
 			subPage := ""
 			if scraper.CheckIsSubWiki(doc) {
 				subPage = scraper.ScrapeNamespace(doc)
