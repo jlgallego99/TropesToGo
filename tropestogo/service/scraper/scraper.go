@@ -279,7 +279,9 @@ func (scraper *ServiceScraper) ScrapeTvTropes(tvtropespages *tropestogo.TvTropes
 	for page, tvtropessubpages := range tvtropespages.Pages {
 		var subPages []tropestogo.Page
 		for subPage := range tvtropessubpages.Subpages {
-			subPages = append(subPages, subPage)
+			if subPage.GetPageType() == tropestogo.WorkPage {
+				subPages = append(subPages, subPage)
+			}
 		}
 
 		scraper.ScrapeTvTropesPage(page, subPages)
