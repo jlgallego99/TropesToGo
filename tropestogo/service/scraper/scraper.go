@@ -229,7 +229,7 @@ func (scraper *ServiceScraper) CheckIsMainSubpage(doc *goquery.Document) bool {
 	currentUrl := doc.Find(CurrentUrlSelector).Text()
 
 	// Remove all non-alphanumeric characters from the title
-	r, _ := regexp.Compile(`[^\p{L}\p{N} ]+`)
+	r, _ := regexp.Compile(`[^\/\p{L}\p{N} ]+`)
 	title = r.ReplaceAllString(title, "")
 
 	title = strings.ToLower(strings.ReplaceAll(title, " ", ""))
@@ -245,7 +245,7 @@ func (scraper *ServiceScraper) CheckIsMainSubpage(doc *goquery.Document) bool {
 // A regex matches if the last part of the URL is of the type TropesXtoY and is preceded by the work title name, returning true or false
 func (scraper *ServiceScraper) CheckSubpageUri(URI, title string) bool {
 	// Remove all non-alphanumeric characters from the title
-	r, _ := regexp.Compile(`[^\p{L}\p{N} ]+`)
+	r, _ := regexp.Compile(`[^\/\p{L}\p{N} ]+`)
 	title = r.ReplaceAllString(title, "")
 
 	title = strings.ToLower(strings.ReplaceAll(title, " ", ""))
@@ -264,14 +264,13 @@ func (scraper *ServiceScraper) CheckIsSubWiki(doc *goquery.Document) bool {
 	title, year, _, errMediatype := scraper.ScrapeWorkTitleAndYear(doc)
 
 	// Remove all non-alphanumeric characters from the title
-	r, _ := regexp.Compile(`[^\p{L}\p{N} ]+`)
-	title = r.ReplaceAllString(title, "")
+	alphanumericRegex, _ := regexp.Compile(`[^\/\p{L}\p{N} ]+`)
+	title = alphanumericRegex.ReplaceAllString(title, "")
 
-	r, _ = regexp.Compile(strings.ToLower(strings.ReplaceAll(`\/`+namespace+`\/`+title+year, " ", "")))
+	r, _ := regexp.Compile(strings.ToLower(strings.ReplaceAll(`\/`+namespace+`\/`+title+year, " ", "")))
 	matchUri := r.MatchString(strings.ToLower(subpageUri))
 
-	articleTitle := strings.ReplaceAll(scraper.ScrapeSubpageFullTitle(doc), "(", "")
-	articleTitle = strings.ReplaceAll(articleTitle, ")", "")
+	articleTitle := alphanumericRegex.ReplaceAllString(scraper.ScrapeSubpageFullTitle(doc), "")
 	matchTitle := r.MatchString(strings.ToLower(articleTitle))
 
 	return matchUri && matchTitle && errMediatype != nil
