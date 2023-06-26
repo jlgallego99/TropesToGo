@@ -311,8 +311,7 @@ typings/
 
 # Ignore all HTMLs (textodite reports) except the TvTropes resources
 *.html
-!tropestogo/service/scraper/resources/*.html
-!tropestogo/service/crawler/resources/*.html
+!tropestogo/service/**/*.html
 
 # ignore .idea folder
 .idea/
