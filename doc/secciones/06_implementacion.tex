@@ -895,12 +895,137 @@ el desarrollo del \textit{crawler} o araña, que permitirá evolucionar el
 extraer y representar la información de todas las películas de TvTropes.
 
 \section{Desarrollo de la araña}
+Teniendo desarrollada toda la funcionalidad que permite extraer todos los datos
+de cualquier página de película y asociarla con varios metadatos y
+\textit{tropos}, el próximo paso es poder aplicar esa funcionalidad de
+extracción a todas las películas y sus \textit{tropos} que han sido registrados
+en TvTropes. Según la
+\href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]}, el usuario
+necesita obtener todas las obras posibles, lo que le permitirá poder realizar
+estudios más completos y actuales al tener un mayor conjunto de datos. Para
+poder conseguir esto es necesario desarrollar otro componente esencial en la
+extracción de datos en páginas web: el \textit{crawler} o araña.
 
-\subsection{Estrategia general para la extracción de información de TvTropes}
-El \textit{crawler} primero indexa todas las páginas relevantes, el
-\textit{scraper} luego extrae la información y almacena en un fichero, etc.
+El principal objetivo de este \textit{sprint} de desarrollo es el de dar una
+versión mínima y funcional de un \textit{crawler} que opere concretamente con lo
+pedido en este problema; debe ser capaz de encontrar todas las páginas
+relevantes de TvTropes para que el \textit{scraper} pueda extraer, limpiar y
+persistir sus datos. Para garantizar la separación entre los dos servicios, y la
+única responsabilidad de cada uno, el \textit{crawler} se ocupa únicamente de
+buscar URLs relevantes, construir el objeto \texttt{Page} correcto y almacenarlo
+en la entidad \texttt{TvTropesPages}, sin realizar ninguna tarea de extracción
+de datos, ya que no es su cometido. El \textit{scraper} únicamente necesita el
+contenido HTML de cada página para buscar los datos necesarios, contenido al que
+accede gracias a conocer previamente las páginas de las que lo tiene que
+extraer.
 
-\subsection{Arquitectura del \textit{crawler}}
+El \textit{crawler} debe manterse simple en su implementación, para dar una
+versión con todo lo necesario para avanzar pero siendo lo suficientemente
+escalable para poder ampliarlo en función de si fuese necesario. Esto es algo
+esencial en el ámbito del \textit{scraping}, y más en una página como TvTropes
+en la que sus contenidos son muy complejos y están distribuidos en múltiples
+lugares; se pueden encontrar nuevas fuentes de datos o páginas relevantes que
+requieran de un \textit{crawling} adicional. EN línea con los objetivos de este
+trabajo y las historias de usuario planteadas, su principal objetivo debe ser el
+de conseguir todas las páginas relevantes de TvTropes de la forma más eficiente
+posible, ya que será la parte de todo el \textit{software} que tratará con un
+mayor volúmen de datos. Adicionalmente, se deben tener muy en cuenta los
+aspectos éticos y de eficiencia del \textit{scraping}, ya que en este punto del
+desarrollo se comienza a trabajar con un gran número de páginas de una web que
+no queremos sobrecargar ni que nos limite o deniegue el acceso, lo que
+imposibilitaría completar el desarrollo.
+
+\subsection{Estrategia general para la búsqueda y extracción de todas las páginas relevantes de TvTropes}
+El \textit{crawler} es el segundo servicio que se implementa en TropesToGo. Un
+servicio implica una unidad de \textit{software} con una funcionalidad concreta
+y encapsulada que pueda trabajar de forma individual, sin embargo, su último fin
+en el contexto general de este trabajo es funcionar junto al servicio
+\textit{scraper} para dar un resultado final que cumpla las necesidades de los
+usuarios. El \textit{crawler} primero buscará e indexará todas las páginas
+relevantes en una entidad común, utilizable por cualquier cliente del
+\textit{crawler}. Ese cliente será el \textit{scraper}, que usará esas páginas
+para extraer los datos y generar el \textit{dataset} con el resultado final. 
+
+Tener el \textit{crawler} y el \textit{scraper} como dos servicios separados que
+funcionarán en conjunto permite poder modificarlos sin afectar al resto del
+código, algo imprescindible al resolver un problema de este tipo, ya que como
+nos indica la \href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}
+TvTropes es muy propensa a cambiar. En general, esta es la filosofía que se
+sigue a lo largo del desarrollo; todos los artefactos del código (los dos
+servicios, los repositorios para los \textit{datasets} o las entidades que
+representan los datos de TvTropes) están encapsulados en distintos paquetes que
+se pueden modificar sin propagar errores al resto, haciendo muy sencilla la
+escalabilidad.
+
+Las páginas relevantes dependen de la información que se quiera y de dónde se
+obtenga. Una buena estrategia de \textit{crawling} tiene que tener en cuenta un
+buen punto de partida y cómo desde ahí encontrar exactamente el tipo de páginas
+que necesita; no es necesario extraer cualquier URL ya que pueden resultar
+inútiles y ocupar espacio en memoria innecesario, además de dificultar el propio
+proceso de extracción. En nuestro caso, el principal artefacto son las películas
+(o, en general, cualquier obra), ya que es de dónde luego el \textit{scraper}
+extraerá toda su información: metadatos y \textit{tropos}.
+
+En la figura \ref{fig:crawling} se puede ver un diagrama de flujo que detalla la
+estrategia que se sigue para encontrar y extraer todas las páginas relevantes de
+TvTropes; en este primer caso, todas las películas, pero en el próximo hito se
+ampliará para cualquier otro medio audiovisual que presente obras con
+\textit{tropos}. Esta es la estrategia que sigue una araña en cualquier ámbito
+\cite{olston2010web}, sin embargo, para el caso de este problema en concreto se
+tienen en cuenta las siguientes consideraciones adicionales:
+\begin{itemize}
+    \item La estrategia de extracción en TvTropes en este incremento consiste en
+    la indexación de páginas y sub páginas de obra, es decir, aquellas que están
+    en un espacio de nombre distinto a \textit{Main}, que es el de
+    \textit{tropos}. Cada espacio de nombres corresponderá a un tipo de medio
+    audiovisual. La mayoría de los \textit{tropos} están presentes en la página
+    principal de la obra y/o en cualquiera de sus sub páginas.
+    \item Se utilizan como semillas todas las páginas del índice estudiado en el
+    \autoref{chapter:5}, el cual es un script interno de TvTropes que nos
+    asegura encontrar todas las páginas del espacio de nombres que se le
+    indique. Para este hito, se indica el espacio de nombres \textit{Film}, en
+    el que se encuentran las películas. El \textit{crawler} encuentra en ese
+    índice las páginas principales de obra, para luego profundizar en la
+    búsqueda dentro de cada una de esas páginas buscando cualquier enlace a sub
+    páginas de cualquier tipo.
+    \item Una vez extraídas y almacenadas todas las URLs en una variable
+    intermedia, se construyen todos los objetos \texttt{Page} y la entidad \texttt{TvTropesPages} final 
+    que conformará el resultado del \textit{crawling}.
+\end{itemize}
+
+\begin{figure}
+    \label{fig:crawling}
+    \caption{Diagrama de flujo del funcionamiento del \textit{crawler}}
+\end{figure}
+
+Esto mejora la estrategia de Tropescraper, que encontraba las páginas de
+películas a través de referencias en las de \textit{tropos}. En TvTropes no se
+puede confiar que una página, de cualquier tipo, liste todos los ejemplos
+relacionados. Existen numerosos casos de películas que tienen un \textit{tropo}
+concreto, pero que luego no aparecen referenciadas al entrar en la página de ese
+\textit{tropo}. Esta relación bidireccional a la cual se ha hecho alusión
+anteriormente no siempre es cierta, porque aunque técnicamente estén
+relacionados, no se puede esperar que los redactores humanos de TvTropes hayan
+tenido en cuenta todas las relaciones y referencias en ambas direcciones y las
+hayan escrito. Con este índice no solo se mejora por completo el
+\textit{crawling} de TvTropes, asegurando que se obtienen todas las obras
+registradas sin lugar a duda, sino que simplifica enormemente el proceso al
+estar todo organizado en un índice. Además, el \textit{scraping} de Tropescraper
+sólo extrae los que están en la sección principal, ignorando las sub wikis.
+
+\subsection{Limitación de la carga al servidor de TvTropes}
+Como se ha introducido al inicio de este hito, llegados a este punto del
+desarrollo es imprescindible tener en cuenta ciertas cuestiones relativas a la
+relación entre el bot y la página web.
+
+En base a las \href{https://github.com/jlgallego99/TropesToGo/issues/7}{[HU02]} y \href{https://github.com/jlgallego99/TropesToGo/issues/45}{[HU06]}, que nos indican, se permite limitar el proceso de \textit{crawling} a un número de obras limitado en lugar de encontrarlas todas.
+
+\subsubsection{Caché/persistencia de las páginas scrapeadas}
+Usar punteros a los Goquery documents.
+\subsubsection{Limitación de la tasa de crawling}
+Esperas aleatorias entre petición y petición.
+
+Todo esto se puede solucionar con un reverse proxy.
 
 \section{Actualizador de información}
 \section{Extracción de otros medios audiovisuales}
