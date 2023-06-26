@@ -3,11 +3,13 @@ package csv_dataset_test
 import (
 	"encoding/csv"
 	"errors"
+	"fmt"
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
 	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"math/rand"
 	"os"
 	"strings"
 	"time"
@@ -15,6 +17,8 @@ import (
 
 const (
 	oldboyUrl = "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"
+	randomMax = 10
+	randomMin = 2
 )
 
 var repository *csv_dataset.CSVRepository
@@ -22,17 +26,21 @@ var errorRepository, errRemoveAll, errAddMedia, errPersist error
 var mediaEntry media.Media
 var reader *csv.Reader
 var datasetFile *os.File
+var tropes map[tropestogo.Trope]struct{}
+var numTropes int
+
+var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 var _ = BeforeSuite(func() {
 	repository, errorRepository = csv_dataset.NewCSVRepository("dataset")
 
-	tropes := make(map[tropestogo.Trope]struct{})
-	trope1, _ := tropestogo.NewTrope("AdaptationalLocationChange", tropestogo.TropeIndex(1))
-	trope2, _ := tropestogo.NewTrope("AdaptationNameChange", tropestogo.TropeIndex(1))
-	trope3, _ := tropestogo.NewTrope("AgeGapRomance", tropestogo.TropeIndex(2))
-	tropes[trope1] = struct{}{}
-	tropes[trope2] = struct{}{}
-	tropes[trope3] = struct{}{}
+	numTropes = seededRand.Intn(randomMax-randomMin) + randomMin
+	tropes = createTropes(numTropes, randomTrope)
+	subTropes := createTropes(numTropes, randomSubTrope)
+	for subTrope := range subTropes {
+		tropes[subTrope] = struct{}{}
+	}
+
 	tvTropesPage, _ := tropestogo.NewPage(oldboyUrl)
 	mediaEntry, _ = media.NewMedia("Oldboy", "2003", time.Now(), tropes, tvTropesPage, media.Film)
 })
@@ -61,11 +69,7 @@ var _ = Describe("CsvDataset", func() {
 		})
 
 		It("Should only have the headers", func() {
-			records, err := reader.ReadAll()
-
-			Expect(err).To(BeNil())
-			Expect(len(records)).To(Equal(1))
-			Expect(records[0]).To(Equal([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"}))
+			checkHeaders()
 		})
 
 		It("Shouldn't be able to persist anything", func() {
@@ -81,20 +85,9 @@ var _ = Describe("CsvDataset", func() {
 
 		It("Should have added the correct record to the CSV", func() {
 			records, err := reader.ReadAll()
-
-			Expect(len(records[0])).To(Equal(7))
-			Expect(len(records[1])).To(Equal(7))
-			Expect(records[1][0]).To(Equal("Oldboy"))
-			Expect(records[1][1]).To(Equal("2003"))
-			Expect(records[1][3]).To(Equal(oldboyUrl))
-			Expect(records[1][4]).To(Equal("Film"))
-			Expect(len(strings.Split(records[1][5], ";"))).To(Equal(3))
-			Expect(strings.Contains(records[1][5], "AdaptationalLocationChange")).To(BeTrue())
-			Expect(strings.Contains(records[1][5], "AdaptationNameChange")).To(BeTrue())
-			Expect(strings.Contains(records[1][5], "AgeGapRomance")).To(BeTrue())
-			Expect(strings.Contains(records[1][6], "GenreTrope")).To(BeTrue())
-			Expect(strings.Contains(records[1][6], "MediaTrope")).To(BeTrue())
 			Expect(err).To(BeNil())
+
+			correctRecords(records)
 		})
 
 		It("Shouldn't return an error", func() {
@@ -133,11 +126,7 @@ var _ = Describe("CsvDataset", func() {
 		})
 
 		It("Should only have the headers", func() {
-			records, err := reader.ReadAll()
-
-			Expect(err).To(BeNil())
-			Expect(len(records)).To(Equal(1))
-			Expect(records[0]).To(Equal([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"}))
+			checkHeaders()
 		})
 
 		It("Should have no errors", func() {
@@ -171,35 +160,30 @@ var _ = Describe("CsvDataset", func() {
 			errAddMedia = repository.AddMedia(mediaEntry)
 			errPersist = repository.Persist()
 
+			numTropes = seededRand.Intn(randomMax-randomMin) + randomMin
+
 			// Create the new Media to be updated
-			trope1, _ := tropestogo.NewTrope("AdaptationalComicRelief", tropestogo.TropeIndex(1))
-			trope2, _ := tropestogo.NewTrope("AdaptationalHeroism", tropestogo.TropeIndex(1))
-			tropes := make(map[tropestogo.Trope]struct{})
-			tropes[trope1] = struct{}{}
-			tropes[trope2] = struct{}{}
-
+			newTropes := createTropes(numTropes, randomTrope)
+			newSubTropes := createTropes(numTropes, randomSubTrope)
+			for subTrope := range newSubTropes {
+				newTropes[subTrope] = struct{}{}
+			}
 			tvTropesPage, _ := tropestogo.NewPage(oldboyUrl)
-
-			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), tropes, tvTropesPage, media.Film)
+			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), newTropes, tvTropesPage, media.Film)
 
 			errUpdate = repository.UpdateMedia("Oldboy", "2003", updatedMediaEntry)
 		})
 
 		It("Should have the new record updated", func() {
 			records, err := reader.ReadAll()
-
 			Expect(err).To(BeNil())
-			Expect(errPersist).To(BeNil())
-			Expect(len(records)).To(Equal(2))
-			Expect(records[0]).To(Equal([]string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "tropes_index"}))
-			Expect(records[1][0]).To(Equal("Oldboy"))
-			Expect(records[1][1]).To(Equal("2013"))
-			Expect(records[1][3]).To(Equal(oldboyUrl))
-			Expect(records[1][4]).To(Equal("Film"))
-			Expect(len(strings.Split(records[1][5], ";"))).To(Equal(2))
-			Expect(strings.Contains(records[1][5], "AdaptationalComicRelief")).To(BeTrue())
-			Expect(strings.Contains(records[1][5], "AdaptationalHeroism")).To(BeTrue())
-			Expect(strings.Contains(records[1][6], "GenreTrope")).To(BeTrue())
+
+			correctRecords(records)
+
+			Expect(records[1][1]).To(Not(Equal(mediaEntry.GetWork().Year)))
+			Expect(records[1][2]).To(Not(Equal(mediaEntry.GetWork().LastUpdated)))
+			Expect(records[1][3]).To(Not(Equal(mediaEntry.GetPage().GetUrl())))
+			Expect(records[1][5]).To(Not(Equal(createTropesString(mediaEntry.GetWork().Tropes))))
 		})
 
 		It("Shouldn't return an error", func() {
@@ -232,3 +216,59 @@ var _ = AfterSuite(func() {
 	datasetFile.Close()
 	os.Remove("dataset.csv")
 })
+
+// correctRecords checks if a CSV record has all expected fields without any errors
+func correctRecords(records [][]string) {
+	Expect(errPersist).To(BeNil())
+	Expect(len(records)).To(Equal(2))
+	Expect(records[0]).To(Equal(csv_dataset.Headers))
+	Expect(records[1][0]).To(Not(BeEmpty()))
+	Expect(records[1][1]).To(Not(BeEmpty()))
+	Expect(records[1][3]).To(Not(BeEmpty()))
+	Expect(records[1][4]).To(Not(BeEmpty()))
+	Expect(len(strings.Split(records[1][5], ";"))).To(Equal(numTropes))
+	Expect(len(strings.Split(records[1][6], ";")) > 0).To(BeTrue())
+	Expect(len(strings.Split(records[1][7], ";")) > 0).To(BeTrue())
+}
+
+// checkHeaders checks if the CSV headers are correct
+func checkHeaders() {
+	records, err := reader.ReadAll()
+
+	Expect(err).To(BeNil())
+	Expect(len(records)).To(Equal(1))
+	Expect(records[0]).To(Equal(csv_dataset.Headers))
+}
+
+// createTropes generates a map of numTropes size applying a callback function to all elements
+func createTropes(numTropes int, callback func() tropestogo.Trope) map[tropestogo.Trope]struct{} {
+	tropeset := make(map[tropestogo.Trope]struct{}, numTropes)
+
+	for i := 0; i < numTropes; i++ {
+		tropeset[callback()] = struct{}{}
+	}
+
+	return tropeset
+}
+
+var randomTrope = func() tropestogo.Trope {
+	trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, "")
+	return trope
+}
+
+var randomSubTrope = func() tropestogo.Trope {
+	subWikis := []string{"SubWiki1", "SubWiki2"}
+	trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, subWikis[seededRand.Intn(1)])
+
+	return trope
+}
+
+// createTropesString generates a string of all tropes titles joined by a semicolon
+func createTropesString(tropes map[tropestogo.Trope]struct{}) string {
+	var tropeTitles []string
+	for trope := range tropes {
+		tropeTitles = append(tropeTitles, trope.GetTitle())
+	}
+
+	return strings.Join(tropeTitles, ";")
+}

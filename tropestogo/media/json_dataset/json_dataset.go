@@ -28,7 +28,10 @@ type JSONDataset struct {
 // JSONRepository implements the RepositoryMedia for creating and handling JSON datasets of all the scraped data on TvTropes
 // It has an internal data structure of Media objects for better performance that can be persisted into a file all in one go
 type JSONRepository struct {
+	// name of the file dataset
 	name string
+
+	// data is the intermediate dataset added here before persisting it all at once
 	data []media.Media
 }
 
@@ -90,13 +93,14 @@ func (repository *JSONRepository) UpdateMedia(title string, year string, updateM
 
 	for pos, record := range dataset.Tropestogo {
 		if record.Title == title && record.Year == year {
-			tropes := media.GetJsonTropes(updateMedia)
+			tropes, subTropes := media.GetJsonTropes(updateMedia)
 			dataset.Tropestogo[pos].Title = updateMedia.GetWork().Title
 			dataset.Tropestogo[pos].Year = updateMedia.GetWork().Year
 			dataset.Tropestogo[pos].MediaType = updateMedia.GetMediaType().String()
 			dataset.Tropestogo[pos].LastUpdated = updateMedia.GetWork().LastUpdated.Format("2006-01-02 15:04:05")
 			dataset.Tropestogo[pos].URL = updateMedia.GetPage().GetUrl().String()
 			dataset.Tropestogo[pos].Tropes = tropes
+			dataset.Tropestogo[pos].SubTropes = subTropes
 
 			break
 		}
@@ -170,7 +174,7 @@ func (repository *JSONRepository) Persist() error {
 		}
 
 		if !exists {
-			tropes := media.GetJsonTropes(mediaData)
+			tropes, subTropes := media.GetJsonTropes(mediaData)
 			record := media.JsonResponse{
 				Title:       mediaData.GetWork().Title,
 				Year:        mediaData.GetWork().Year,
@@ -178,6 +182,7 @@ func (repository *JSONRepository) Persist() error {
 				LastUpdated: mediaData.GetWork().LastUpdated.Format("2006-01-02 15:04:05"),
 				URL:         mediaData.GetPage().GetUrl().String(),
 				Tropes:      tropes,
+				SubTropes:   subTropes,
 			}
 
 			dataset.Tropestogo = append(dataset.Tropestogo, record)

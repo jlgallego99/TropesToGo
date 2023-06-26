@@ -2,6 +2,8 @@ package media_test
 
 import (
 	"errors"
+	"fmt"
+	"math/rand"
 	"time"
 
 	tropestogo "github.com/jlgallego99/TropesToGo"
@@ -14,19 +16,25 @@ const (
 	avengersUrl = "https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012"
 )
 
+var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
+
 var _ = Describe("Media", func() {
 	var tvTropesPage tropestogo.Page
 	var lastUpdated time.Time
 	tropes := make(map[tropestogo.Trope]struct{})
 
 	BeforeEach(func() {
-		trope1, _ := tropestogo.NewTrope("AccentUponTheWrongSyllable", tropestogo.TropeIndex(0))
-		trope2, _ := tropestogo.NewTrope("ChekhovsGun", tropestogo.TropeIndex(0))
+		trope1, _ := tropestogo.NewTrope("AccentUponTheWrongSyllable", tropestogo.TropeIndex(0), "")
+		trope2, _ := tropestogo.NewTrope("ChekhovsGun", tropestogo.TropeIndex(0), "")
 		tropes[trope1] = struct{}{}
 		tropes[trope2] = struct{}{}
 		lastUpdated = time.Now()
 
 		tvTropesPage, _ = tropestogo.NewPage(avengersUrl)
+	})
+
+	AfterEach(func() {
+		tropes = make(map[tropestogo.Trope]struct{})
 	})
 
 	Describe("Create Media", func() {
@@ -133,5 +141,77 @@ var _ = Describe("Media", func() {
 				Expect(errors.Is(errMediaWrongYear, media.ErrInvalidYear)).To(BeTrue())
 			})
 		})
+
+		Context("The Media has same SubTropes on different SubWikis", func() {
+			const max = 10
+			const min = 2
+			numTropes := seededRand.Intn(max-min) + min
+			var mediaAllTropes media.Media
+			var errMediaAllTropes error
+
+			BeforeEach(func() {
+				tropes = createTropes(numTropes, randomTrope)
+				subTropes := createTropes(numTropes, randomSubTrope)
+				for subTrope := range subTropes {
+					tropes[subTrope] = struct{}{}
+				}
+
+				mediaAllTropes, errMediaAllTropes = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, tvTropesPage, media.Film)
+			})
+
+			It("Shouldn't return an error", func() {
+				Expect(errMediaAllTropes).To(BeNil())
+			})
+
+			It("Should have main tropes and sub tropes", func() {
+				Expect(mediaAllTropes.GetWork().Tropes).To(Not(BeEmpty()))
+				Expect(mediaAllTropes.GetWork().SubTropes).To(Not(BeEmpty()))
+			})
+
+			It("Shouldn't have repeated tropes or sub tropes", func() {
+				Expect(areTropesUnique(mediaAllTropes.GetWork().Tropes)).To(BeTrue())
+				Expect(areTropesUnique(mediaAllTropes.GetWork().SubTropes)).To(BeTrue())
+			})
+
+			It("Should have added all tropes and SubTropes because they are from different SubWikis", func() {
+				Expect(len(mediaAllTropes.GetWork().Tropes) + len(mediaAllTropes.GetWork().SubTropes)).To(Equal(numTropes * 2))
+			})
+		})
 	})
 })
+
+func areTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {
+	visited := make(map[string]bool, 0)
+	for trope := range tropes {
+		if visited[trope.GetTitle()+trope.GetSubpage()] {
+			return false
+		} else {
+			visited[trope.GetTitle()+trope.GetSubpage()] = true
+		}
+	}
+
+	return true
+}
+
+// createTropes generates a map of numTropes size applying a callback function to all elements
+func createTropes(numTropes int, callback func() tropestogo.Trope) map[tropestogo.Trope]struct{} {
+	tropeset := make(map[tropestogo.Trope]struct{}, numTropes)
+
+	for i := 0; i < numTropes; i++ {
+		tropeset[callback()] = struct{}{}
+	}
+
+	return tropeset
+}
+
+var randomTrope = func() tropestogo.Trope {
+	trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, "")
+	return trope
+}
+
+var randomSubTrope = func() tropestogo.Trope {
+	subWikis := []string{"SubWiki1", "SubWiki2"}
+	trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, subWikis[seededRand.Intn(1)])
+
+	return trope
+}

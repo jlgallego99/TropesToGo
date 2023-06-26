@@ -176,3 +176,8 @@ reader
 readers
 instancian
 instanciado
+subwiki
+subwikis
+subpágina
+subpáginas
+subtropos
