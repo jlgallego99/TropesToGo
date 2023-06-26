@@ -135,7 +135,7 @@ funciones ya existentes o se añada una nueva, que simplemente se llamaría desd
 el método principal. Según \textit{clean code} no se deben tener funciones que
 mezclen llamadas a otras funciones de alto nivel con lógica más compleja, por lo
 que el método principal \texttt{CheckValidWorkPage} se encarga de llamar a las
-distintas sub funciones que llevan a cabo verificaciones de distintos tipos y
+distintas subfunciones que llevan a cabo verificaciones de distintos tipos y
 trata sus resultados para determinar finalmente si la información de la página
 es extraíble o no.
 
@@ -191,7 +191,7 @@ donde deberían estar contenidos los \textit{tropos}.
     etiqueta, clase y función JavaScript que utiliza para abrirlas, al estar
     generado siempre igual por el motor del wiki. En todos los casos se valida
     si el primer elemento de la lista es un enlace a una página de
-    \textit{tropos} o a una sub página de ellos. Para este último caso, que
+    \textit{tropos} o a una subpágina de ellos. Para este último caso, que
     pertenecería al tercer tipo, se ha hecho uso de una expresión regular que
     confirma si el URI al que redirigen sigue un patrón concreto. Si la última
     parte del URI está codificada como la cadena
@@ -277,7 +277,7 @@ salida, índice al que pertenece (el tipo de \textit{media}, o medio audiovisual
 que en este caso será \textit{Film} (película)) y su lista principal de
 \textit{tropos}. Existe más información que no se encuentra en el artículo
 principal y que se analizará en el siguiente hito, principalmente de
-\textit{tropos} adicionales, que está en otras sub páginas de la obra o en
+\textit{tropos} adicionales, que está en otras subpáginas de la obra o en
 páginas de otros tipos.
 
 Como lista principal entendemos los \textit{tropos} que aparecen directamente
@@ -288,8 +288,8 @@ extraer información del artículo principal únicamente, se extraerán solo los
 \textit{tropos} que están contenidos en listas o carpetas, tal y como se ve en
 los dos primeros tipos de la Figura \ref{fig:tropelist}, ignorando por lo pronto
 el tercer tipo que, aunque también tiene los \textit{tropos} principales de la
-obra, implicaría ahondar en sub páginas. En el próximo \textit{milestone} se
-navegará a estas sub páginas y se discutirán las distintas fuentes donde se
+obra, implicaría ahondar en subpáginas. En el próximo \textit{milestone} se
+navegará a estas subpáginas y se discutirán las distintas fuentes donde se
 pueden encontrar otros \textit{tropos} que no sean los principales.
 
 \subsection{Ampliación del \textit{scraper} para la extracción en el artículo
@@ -407,12 +407,12 @@ principal, y solo nos quedamos con el que encabeza cada punto de la lista.
 
 Este selector completo también resuelve uno de los principales problemas que se
 han encontrado al intentar extraer los \textit{tropos}. Existen muchos casos en
-los que un elemento de la lista de \textit{tropos} contiene sub listas con
+los que un elemento de la lista de \textit{tropos} contiene sublistas con
 descripciones adicionales y \textit{tropos} que no queremos, al ser
 referenciados en la descripción y no principales. En primeras versiones del
-selector se llegaba a meter en esas sub listas, sin embargo, se pudo resolver
+selector se llegaba a meter en esas sublistas, sin embargo, se pudo resolver
 gracias al combinador general de hermanos, que únicamente selecciona las listas
-que estén al mismo nivel, evitando meterse en sub listas. 
+que estén al mismo nivel, evitando meterse en sublistas. 
 
 En cuanto al selector para los \textit{tropos} que se encuentran en carpetas, en
 la \ref{fig:selector-folder}, es muy parecido al anterior pero con una ligera
@@ -422,7 +422,7 @@ arbitrariamente donde cada elemento es un \textit{tropo}, el que es hermano de
 la cabecera de la sección de \textit{tropos} en este caso no es un elemento \texttt{<ul>} sino 
 la carpeta. Por eso, en este caso, el selector se simplifica,
 buscando únicamente los hijos directos de la carpeta, sin necesidad del selector
-de hermanos. Esto también evita las sub listas, porque no son hijos directos de
+de hermanos. Esto también evita las sublistas, porque no son hijos directos de
 la carpeta.
 
 \begin{figure}[ht]
@@ -653,7 +653,7 @@ del \textit{scraper}, que deben poder ejecutarse y funcionar independientemente
 de si TvTropes está disponible en ese momento o no.
 
 Para resolver esto, se realizan pequeños cambios en el planteamiento del
-\textit{scraper}, dejando el análisis de la página como una sub función de la
+\textit{scraper}, dejando el análisis de la página como una subfunción de la
 que recibe una entidad página y realiza una petición HTTP a TvTropes. A partir
 de ahora se emplearán, únicamente para los tests, ficheros HTML descargados
 directamente de TvTropes y guardados en el repositorio. Esto supone una
@@ -684,6 +684,216 @@ semántico\footnote{\url{https://semver.org/}}, hace referencia a que se añade
 nueva funcionalidad sin romper lo anteriormente establecido. En general, lo que
 se hace es aumentar y mejorar la funcionalidad del \textit{scraper}.
 
+\section{Extracción de información en las subpáginas de una película}
+En TvTropes las páginas se organizan en espacios de nombres, y uno de esos
+espacios de nombres son las sub
+wikis\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Main/SubWiki}}, o sub
+páginas de una obra, que presentan información más centrada en un tema concreto.
+Cada obra tiene una serie de subpáginas temáticas muy variadas; no todas tienen
+las mismas, pero siempre se hacen referencia en ellas a \textit{tropos} que, en
+muchos casos, no están en la parte principal. En muchos casos estos
+\textit{tropos} se consideran demasiado subjetivos y dependen del criterio del
+miembro de la comunidad que los ha identificado, como por ejemplo los del
+espacio de nombres YMMV. Por estas razones, podemos hacer una distinción entre
+los \textit{tropos} de una obra que son principales, al estar listados en el
+artículo principal, y secundarios, al pertenecer a una o más subpáginas
+temáticas dentro de una obra. A continuación, se resuelve el segundo producto
+mínimamente viable relacionado con la extracción de \textit{tropos} de una obra,
+que tendrá ya el desarrollo mínimo de un \textit{scraper} para TvTropes con el
+que poder pasar a trabajar en la araña. Por tanto, en este hito se abordará el
+proceso de desarrollo y ampliación del \textit{software} para la extracción de
+\textit{tropos} en subpáginas. Esto aumentará el número de \textit{tropos} que
+TropesToGo es capaz de identificar, organizando cada vez más la información tan
+distribuida que tiene TvTropes. Todo este desarrollo sigue motivado
+principalmente por la
+\href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]}, que nos pide
+obtener todos los \textit{tropos} de todas las obras de la web, y se tendrá una
+solución que mejore la extracción que realizaba Tropescraper, que se centraba
+únicamente en los \textit{tropos} principales.
+
+\subsection{Ampliación del \textit{scraper} para extraer todos los \textit{tropos} principales en subpáginas}
+Antes de pasar a la extracción en los subwikis, es necesario ampliar el
+\textit{scraper} con lo último necesario para que sea capaz de obtener los
+\textit{tropos} principales de todo tipo de páginas. En el hito anterior se
+obtuvieron aquellos ordenados en cualquier tipo de lista o carpetas, y quedaba
+por ver el último tipo de la Figura \ref{fig:tropelist} en el que, cuando los
+\textit{tropos} principales son demasiados, se dejan fuera del artículo
+principal y es necesario explorar subpáginas que los dividen y ordenan
+alfabéticamente.
+
+Estas subpáginas con \textit{tropos} principales siempre siguen las mismas
+reglas, que han facilitado su extracción:
+\begin{itemize}
+    \item Los enlaces a ellas se encuentran siempre donde está la sección de
+    \textit{tropos}. En este caso, la lista contiene únicamente enlaces a sub
+    páginas de diversos tipos, pero no necesariamente principales, sino también
+    temáticas con \textit{tropos} secundarios. En la Figura \ref{fig:tropelist3}
+    se puede ver un ejemplo de esto, donde se dan enlaces a dos subwikis
+    distintas de lo principal. 
+    \item Se identifica cuándo un enlace es a una subpágina de \textit{tropos}
+    principales con una simple expresión regular que compruebe que las dos
+    últimas partes del URI son: primero, el título de la obra, y segundo, una
+    cadena del tipo
+    \begin{otherlanguage}{english}``TropesXtoY''\end{otherlanguage}, donde X e Y
+    son cualquier letra mayúscula, que indican el rango alfabético de
+    \textit{tropos} que presentan.
+    \item La estructura de cada una de estas subpáginas es idéntica a la de una
+    página típica de obra, solo que únicamente conteniendo la parte de
+    \textit{tropos}.
+    \item Los \textit{tropos} se presentan en cualquiera de las dos formas
+    vistas anteriormente: listas o carpetas, con el \textit{tropo} principal
+    encabezando cada elemento de la lista.
+\end{itemize}
+
+Por tanto, para realizar esta extracción se ha utilizado una estrategia simple
+reutilizando el método que extrae los tropos del anterior milestone. Este método
+era capaz de, como sabemos, extraer todos los tropos presentes en cualquier
+artículo principal siempre que estuviesen en listas o carpetas. Puesto que esta
+misma estructura de a veces carpetas a veces listas. Por tanto, para solucionar
+esto basta con lanzar esta función general de tropos tantas veces como sub
+páginas se encuentren, formando listas parciales de \textit{tropos} por cada sub
+página y formando una lista final sumando todas ellas. Ahora, cuando el
+\textit{scraper} extrae información de una página de obra y llega a la sección
+de \textit{tropos}, comprueba si estos están en subpáginas o no, y según eso
+sigue una de las dos estrategias.
+
+\subsection{Responsabilidad única del \textit{scraper} y uso de \textit{readers}
+para testing} 
+
+Adicionalmente, se llevan a cabo varios retoques del servicio \textit{scraper}
+para hacerlo más funcional, que sus métodos estén más centrados en una única
+funcionalidad y en general tener el código más limpio, claro y documentado.
+
+Para poder tener un producto mínimo viable más adecuado, y garantizar la propiedad de
+única responsabilidad del \textit{scraper}, se vuelve a dar un pequeño
+cambio, pero importante, a la entidad \texttt{TvTropesPages} que modela todas las
+páginas que se encuentren en TvTropes. El \textit{scraper} debe encargarse
+únicamente de extraer información de páginas que se le ofrezcan, es decir, la
+responsabilidad de buscar las páginas y sus subpáginas no recae en él, sino en
+el \textit{crawler}. Todas las funciones del \textit{scraper} deben, por tanto,
+trabajar con esta entidad o con objetos valor página de forma individual,
+únicamente sacando datos, formando objetos \texttt{Media} correctos y manejando
+sus repositorios (los \textit{datasets}) para que los clientes hagan lo
+pertinente con ellos.
+
+Se crea una entidad \texttt{TvTropesSubpages} que relaciona mediante un
+\textit{map} una serie de subpáginas con sus respectivas fechas de última
+actualización para satisfacer la
+\href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}. De igual
+manera, para poder modelar cada página con sus subpáginas, se relacionan
+mediante un \textit{map} en la entidad \texttt{TvTropesPages} cada página
+(objeto valor \texttt{Page} que representa una página de cualquier tipo), con la
+entidad de las subpáginas. De esta manera, se modela una entidad que
+gestiona y relaciona todas las páginas, sus subpáginas y las fechas de última
+actualización de todas ellas. Esta es la principal entidad con la que se quiere
+que trabaje el \textit{crawler}, al encontrar las páginas que luego se quiere
+que extraiga el \textit{scraper}.
+
+Adicionalmente, se modifican todos los métodos de extracción para que trabajen
+con objetos \textit{reader} de la biblioteca de entrada/salida de Go. Un
+\textit{reader}\footnote{\url{https://pkg.go.dev/io}} representa cualquier flujo
+de datos de lectura, y es el tipo de datos que acepta Goquery para formar el
+árbol DOM con el que trabaja el \textit{scraper}. La ventaja de definir los
+parámetros de las funciones del \textit{scraper} como \textit{readers} es que el
+contenido HTML puede venir de cualquier fuente, ya sea de haberlo obtenido tras
+una petición HTTP o de leer un fichero local en disco. Por tanto, ahora se tiene
+un método general que se encarga de realizar todas las llamadas a los distintos
+métodos que hacen el \textit{scraping} de las distintas partes de una página,
+para todas las páginas, pero donde el reader es el HTML obtenido de hacer una
+petición HTTP a TvTropes. Para los tests, se llama directamente a cada uno de
+los métodos para testearlos, dándoles como parámetro un \textit{reader} con el
+contenido de la página HTML que se tiene guardada en disco, para seguir
+garantizando que los tests funcionen en cualquier ámbito y sin depender de
+factores externos.
+
+Esto conforma una nueva versión del \textit{software} funcional, con 0.3.0 como
+número de versión, indicando que ha habido una mejora con nueva funcionalidad.
+Concretamente, esta nueva funcionalidad es la posibilidad de extraer
+\textit{tropos} principales en subpáginas.
+
+\subsection{Extracción general de \textit{tropos} en los subwikis para todos los espacios de nombres}
+Previo a esta extracción, se modifica el objeto valor \texttt{Trope} para
+reflejar dos nuevos campos: si es principal y, si no lo es, a qué subwiki (o
+espacio de nombres) pertenece. Esto pone de manifiesto aún más la ventaja de
+tener los \textit{tropos} modelados como objetos valor, ya que pueden
+representar más sencillamente estos campos. Puesto que los objetos valor son
+inmutables y se instancian, un mismo \textit{tropo} puede estar instanciado dos
+veces en dos obras distintas, porque en una puede ser principal y en otra no,
+por ejemplo. En general, los \textit{tropos} se modelan como algo que siempre
+nos dice lo mismo, pero siempre dentro del contexto de cada obra. Este modelado
+nos permitirá organizar y representar mejor los \textit{tropos} que se extraen
+con esta ampliación del \textit{scraper}.
+
+El \textit{scraper} no debe realizar ninguna tarea de \textit{crawling}; sus
+métodos reciben páginas y subpáginas en la que todo lo que necesita es la URL
+para acceder a ellas y buscar datos. Por tanto, su cometido es extraer toda la
+información de \textit{tropos} de cualquiera de las subpáginas que reciba,
+tanto de \textit{tropos} principales como de subwikis. Para poder reflejar el
+nuevo cambio en la representación del objeto \textit{tropo}, el \textit{scraper}
+debe comprobar en qué tipo de subpágina está. Esto se hace con una simple
+comprobación mediante expresiones regulares como ya se vio en la sección
+anterior con las subpáginas de \textit{tropos} principales. En este caso, los
+subwikis tienen siempre las dos mismas partes al final del URI: el espacio de
+nombres y el título de la película. Por tanto, basta con una simple extracción
+del espacio de nombres del título de la página y validar si la forma del URI
+coincide. El \textit{scraper} construirá el \textit{tropo} como principal o
+secundario en relación con la página de donde los esté extrayendo, y al crearlo
+indicará el espacio de nombres al que pertenece.
+
+El conjunto de todos los \textit{tropos}, como se vio en el modelado del
+problema, se implementa mediante un set, que garantiza que todos sus elementos
+son únicos. Existe la posibilidad de que un mismo \textit{tropo} aparezca en dos
+espacios de nombres distintos, y esto no se considera como duplicado, ya que
+aunque el título de este sea el mismo, el espacio de nombres no lo es, por lo
+que son dos elementos distintos. Esto permite que los \textit{tropos} tengan más
+información interesante que pueda permitir relacionarlos entre sí, siguiendo la
+\href{https://github.com/jlgallego99/TropesToGo/issues/57}{[HU08]}, y en general
+garantizar la propiedad de que los \textit{tropos} existen dentro de un
+contexto.
+
+La entidad \texttt{Media} es la encargada de formar la película con toda su
+información, por lo que también se encarga de organizar las listas de
+\textit{tropos} en dos categorías: principales y secundarios. Estos
+cambios también se reflejan en los \textit{datasets} JSON y CSV, añadiendo un
+nuevo \textit{array} para los \textit{subtropos} en el JSON y dos nuevas
+columnas en el CSV, que representan respectivamente todos los sub
+\textit{tropos} y todos los espacios de nombres de ellos.
+
+La estrategia a seguir para la extracción en subwikis es muy parecida a la
+seguida en la parte anterior. Se lanza el método de \textit{scraping} general de
+\textit{tropos} por cada uno de los subwikis, con la diferencia de que en este
+caso los \textit{tropos} están ordenados de formas muy diversas. Los
+\textit{tropos} principales se suelen presentar en los tipos vistos, pero en los
+subwikis es más común ver mucho texto y pocos \textit{tropos}, que generalmente
+no están ni ordenados en listas ni carpetas; en general depende mucho de la sub
+wiki. Por esta razón, se ha seguido una estrategia de extraer cualquier
+referencia que aparezca en cualquier parte del artículo principal de la sub
+wiki, por supuesto siempre comprobando que lo que se extrae es efectivamente un
+\textit{tropo}. Este hito, además, ha motivado la simplificación de los métodos
+de \textit{scraping} de las páginas y de garantizar su única responsabilidad y
+encapsulamiento. Se ha podido reducir su funcionamiento a lo más importante,
+teniendo ahora un método de extracción de \textit{tropos} que funciona para
+cualquier tipo de página, dependiendo del selector CSS elegido. El
+\textit{scraper} simplemente recibe todas las subpáginas y determina el
+selector más adecuado para cada una de ellas, realizando todo el proceso de
+extracción con una interfaz única y sencilla que facilita la reutilización y
+ampliación a más casos, algo imprescindible al diseñar para una página tan
+cambiante como TvTropes.
+
+Con este incremento, en el que además se termina este PMV por completo, se tiene
+la versión 0.4.0, en la que finalmente se tiene una versión bastante completa
+del \textit{scraper}. TropesToGo es ahora capaz de extraer cualquier tipo de
+\textit{tropo}, tanto principal como secundario, que aparezca en la página de
+una obra y todas sus subpáginas asociadas. Por tanto, se tiene un
+\textit{scraper} lo suficientemente completo como para satisfacer en gran medida
+lo pedido en la
+\href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]}, por lo que
+los siguientes esfuerzos de desarrollo se centrarán en ampliar el
+\textit{scraping} a un mayor número de páginas. Es decir, el siguiente paso es
+el desarrollo del \textit{crawler} o araña, que permitirá evolucionar el
+\textit{software} para que, en lugar de extraer páginas individuales, llegue a
+extraer y representar la información de todas las películas de TvTropes.
+
 \section{Desarrollo de la araña}
 
 \subsection{Estrategia general para la extracción de información de TvTropes}
@@ -692,4 +902,6 @@ El \textit{crawler} primero indexa todas las páginas relevantes, el
 
 \subsection{Arquitectura del \textit{crawler}}
 
-\section{Aplicación de línea de comandos}
+\section{Actualizador de información}
+\section{Extracción de otros medios audiovisuales}
+\section{Resultado final}

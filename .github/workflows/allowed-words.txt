@@ -172,3 +172,12 @@ tupla
 tropestogo
 array
 map
+reader
+readers
+instancian
+instanciado
+subwiki
+subwikis
+subpágina
+subpáginas
+subtropos
