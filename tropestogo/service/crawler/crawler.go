@@ -35,7 +35,7 @@ var (
 
 type ServiceCrawler struct {
 	// The seed is the starting URL of the crawler
-	seed tropestogo.Page
+	seed *url.URL
 }
 
 func NewCrawler(mediaTypeString string) (*ServiceCrawler, error) {
@@ -62,7 +62,7 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 	}
 
 	for {
-		listSelector, errListSelector := crawler.GetWorkListSelector(pageNumber)
+		listSelector, errListSelector := crawler.getWorkListSelector(pageNumber)
 		if errListSelector != nil {
 			return nil, errListSelector
 		}
@@ -107,27 +107,26 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 	return crawledPages, nil
 }
 
-// GetWorkListSelector returns the Nth index page selector for crawling Work Pages
+// GetWorkListSelector, internal function that returns the Nth index page selector for crawling Work Pages
 // It returns an error if there's no page
-func (crawler *ServiceCrawler) GetWorkListSelector(indexPage int) (*goquery.Selection, error) {
-	workPageList := crawler.seed.GetUrl()
-	values := workPageList.Query()
+func (crawler *ServiceCrawler) getWorkListSelector(indexPage int) (*goquery.Selection, error) {
+	values := crawler.seed.Query()
 	values.Add("page", strconv.Itoa(indexPage))
-	workPageList.RawQuery = values.Encode()
+	crawler.seed.RawQuery = values.Encode()
 
-	resp, errGetIndex := http.Get(workPageList.String())
+	resp, errGetIndex := http.Get(crawler.seed.String())
 	if errGetIndex != nil {
-		return nil, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrNotFound)
+		return nil, fmt.Errorf("%w: "+crawler.seed.String(), ErrNotFound)
 	}
 
 	doc, errDocument := goquery.NewDocumentFromReader(resp.Body)
 	if errDocument != nil {
-		return nil, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrInvalidPage)
+		return nil, fmt.Errorf("%w: "+crawler.seed.String(), ErrInvalidPage)
 	}
 
 	pageSelector := doc.Find(WorkPageSelector)
 	if pageSelector.Length() == 0 {
-		return nil, fmt.Errorf("%w: "+workPageList.String(), ErrInvalidPage)
+		return nil, fmt.Errorf("%w: "+crawler.seed.String(), ErrInvalidPage)
 	}
 
 	return pageSelector, nil
@@ -197,12 +196,12 @@ func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, 
 	for {
 		doc, errDocument := goquery.NewDocumentFromReader(indexReader)
 		if errDocument != nil {
-			return nil, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrInvalidPage)
+			return nil, fmt.Errorf("%w: "+crawler.seed.String(), ErrInvalidPage)
 		}
 
 		listSelector := doc.Find(WorkPageSelector)
 		if listSelector.Length() == 0 {
-			return nil, fmt.Errorf("%w: "+crawler.seed.GetUrl().String(), ErrInvalidPage)
+			return nil, fmt.Errorf("%w: "+crawler.seed.String(), ErrInvalidPage)
 		}
 
 		var errAddPage error
