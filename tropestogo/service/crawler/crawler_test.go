@@ -22,7 +22,7 @@ var errNewCrawler, errCrawling error
 var crawledPages *tropestogo.TvTropesPages
 
 var _ = BeforeSuite(func() {
-	serviceCrawler, errNewCrawler = crawler.NewCrawler("Film")
+	serviceCrawler = crawler.NewCrawler()
 	Expect(errNewCrawler).To(BeNil())
 
 	indexReader, _ := os.Open(indexResource)

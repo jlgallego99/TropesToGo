@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	tropestogo "github.com/jlgallego99/TropesToGo"
-	"github.com/jlgallego99/TropesToGo/media"
 	"io"
 	"net/http"
 	"net/url"
@@ -38,16 +37,14 @@ type ServiceCrawler struct {
 	seed *url.URL
 }
 
-func NewCrawler(mediaTypeString string) (*ServiceCrawler, error) {
-	crawler := &ServiceCrawler{}
-	mediaType, errMediaType := media.ToMediaType(mediaTypeString)
-	if errMediaType != nil {
-		return nil, errMediaType
+func NewCrawler() *ServiceCrawler {
+	seedUrl, _ := url.Parse(Pagelist)
+
+	crawler := &ServiceCrawler{
+		seed: seedUrl,
 	}
 
-	crawler.SetMediaSeed(mediaType)
-
-	return crawler, nil
+	return crawler
 }
 
 // CrawlWorkPages searches crawlLimit number of Work pages from the defined seed starting page; if it's 0 or less, then it crawls all Work pages
@@ -157,28 +154,6 @@ func (crawler *ServiceCrawler) CrawlWorkSubpages(doc *goquery.Document) []string
 	})
 
 	return subPagesUrls
-}
-
-// SetMediaSeed sets a mediaType for the crawler seed (starting page) for crawling all pages of that medium
-// It returns an error if the page URL or the mediaType isn't valid/doesn't exist on TvTropes
-func (crawler *ServiceCrawler) SetMediaSeed(mediaType media.MediaType) error {
-	seedUrl, errParse := url.Parse(Pagelist)
-	if errParse != nil {
-		return fmt.Errorf("%w: "+Pagelist, ErrBadUrl)
-	}
-
-	values := seedUrl.Query()
-	values.Add("n", mediaType.String())
-	seedUrl.RawQuery = values.Encode()
-
-	seedPage, errNewPage := tropestogo.NewPage(seedUrl.String())
-	if errNewPage != nil {
-		return errNewPage
-	}
-
-	crawler.seed = seedPage
-
-	return nil
 }
 
 // CrawlWorkPagesFromReaders crawls all Work Pages and its subpages from an index reader and its pages readers. Only for test purposes
