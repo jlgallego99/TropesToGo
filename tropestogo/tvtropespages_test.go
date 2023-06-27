@@ -27,18 +27,26 @@ var _ = Describe("Tvtropespages", func() {
 	})
 
 	Context("Add a Film page with subpages to the entity", func() {
-		var errAddValid error
+		var errAddValid, errAddSubpage error
+		var mainPage tropestogo.Page
 
 		BeforeEach(func() {
-			errAddValid = tvtropespages.AddTvTropesPage(oldboyUrl, oldboySuburls, false)
+			mainPage, errAddValid = tvtropespages.AddTvTropesPage(oldboyUrl, false)
+			errAddSubpage = tvtropespages.AddSubpages(oldboyUrl, oldboySuburls, false)
 		})
 
 		It("Shouldn't return an error", func() {
 			Expect(errAddValid).To(BeNil())
+			Expect(errAddSubpage).To(BeNil())
 		})
 
 		It("Should have added the Pages", func() {
+			Expect(isPageEmpty(mainPage)).To(Not(BeTrue()))
 			Expect(len(tvtropespages.Pages) > 0).To(BeTrue())
+
+			for page := range tvtropespages.Pages {
+				Expect(page.GetDocument()).To(BeNil())
+			}
 		})
 
 		It("Should have added the Subpages", func() {
@@ -49,6 +57,7 @@ var _ = Describe("Tvtropespages", func() {
 
 				for subpage := range subpages.Subpages {
 					Expect(subpage.GetUrl()).To(Not(BeNil()))
+					Expect(subpage.GetDocument()).To(BeNil())
 				}
 			}
 		})
@@ -56,19 +65,29 @@ var _ = Describe("Tvtropespages", func() {
 
 	Context("Add Trope and Index Pages without subpages to the entity", func() {
 		var errAddValid2, errAddValid3 error
+		var errAddSubpage2, errAddSubpage3 error
+		var mainPage2, mainPage3 tropestogo.Page
 
 		BeforeEach(func() {
-			errAddValid2 = tvtropespages.AddTvTropesPage(tropeUrl, []string{}, false)
-			errAddValid3 = tvtropespages.AddTvTropesPage(indexUrl, []string{}, false)
+			mainPage2, errAddValid2 = tvtropespages.AddTvTropesPage(tropeUrl, false)
+			errAddSubpage2 = tvtropespages.AddSubpages(tropeUrl, []string{}, false)
+
+			mainPage3, errAddValid3 = tvtropespages.AddTvTropesPage(indexUrl, false)
+			errAddSubpage3 = tvtropespages.AddSubpages(indexUrl, []string{}, false)
 		})
 
 		It("Shouldn't return an error", func() {
 			Expect(errAddValid2).To(BeNil())
+			Expect(errAddSubpage2).To(BeNil())
+
 			Expect(errAddValid3).To(BeNil())
+			Expect(errAddSubpage3).To(BeNil())
 		})
 
 		It("Should have added the Pages", func() {
 			Expect(len(tvtropespages.Pages) > 0).To(BeTrue())
+			Expect(isPageEmpty(mainPage2)).To(Not(BeTrue()))
+			Expect(isPageEmpty(mainPage3)).To(Not(BeTrue()))
 		})
 
 		It("Should have no Subpages", func() {
@@ -78,12 +97,25 @@ var _ = Describe("Tvtropespages", func() {
 		})
 	})
 
-	Context("Add a duplicated Page", func() {
-		var errAddDuplicated error
+	Context("Add subpages to an unknown Page", func() {
+		var errAddSubpage error
 
 		BeforeEach(func() {
-			errAddDuplicated = tvtropespages.AddTvTropesPage(oldboyUrl, oldboySuburls, false)
-			errAddDuplicated = tvtropespages.AddTvTropesPage(oldboyUrl, oldboySuburls, false)
+			errAddSubpage = tvtropespages.AddSubpages("NotAnUrl", oldboySuburls, false)
+		})
+
+		It("Should return an error", func() {
+			Expect(errors.Is(errAddSubpage, tropestogo.ErrNotFound)).To(BeTrue())
+		})
+	})
+
+	Context("Add a duplicated Page", func() {
+		var errAddDuplicated error
+		var duplicatedPage tropestogo.Page
+
+		BeforeEach(func() {
+			duplicatedPage, errAddDuplicated = tvtropespages.AddTvTropesPage(oldboyUrl, false)
+			duplicatedPage, errAddDuplicated = tvtropespages.AddTvTropesPage(oldboyUrl, false)
 		})
 
 		It("Should return an error", func() {
@@ -93,13 +125,18 @@ var _ = Describe("Tvtropespages", func() {
 		It("Shouldn't have added the second Page", func() {
 			Expect(len(tvtropespages.Pages)).To(Equal(1))
 		})
+
+		It("Should have returned an empty main Page", func() {
+			Expect(isPageEmpty(duplicatedPage)).To(BeTrue())
+		})
 	})
 
 	Context("Add and empty string url", func() {
 		var errAddEmpty error
+		var emptyPage tropestogo.Page
 
 		BeforeEach(func() {
-			errAddEmpty = tvtropespages.AddTvTropesPage("", []string{}, false)
+			emptyPage, errAddEmpty = tvtropespages.AddTvTropesPage("", false)
 		})
 
 		It("Should return an error", func() {
@@ -109,13 +146,18 @@ var _ = Describe("Tvtropespages", func() {
 		It("Shouldn't have added anything", func() {
 			Expect(len(tvtropespages.Pages)).To(Equal(0))
 		})
+
+		It("Should have returned an empty Page", func() {
+			Expect(isPageEmpty(emptyPage)).To(BeTrue())
+		})
 	})
 
 	Context("Add a badly formated url", func() {
 		var errAddEmpty error
+		var badPage tropestogo.Page
 
 		BeforeEach(func() {
-			errAddEmpty = tvtropespages.AddTvTropesPage("htp$p%^^^&&***!!!!!", []string{}, false)
+			badPage, errAddEmpty = tvtropespages.AddTvTropesPage("htp$p%^^^&&***!!!!!", false)
 		})
 
 		It("Should return an error", func() {
@@ -125,5 +167,13 @@ var _ = Describe("Tvtropespages", func() {
 		It("Shouldn't have added anything", func() {
 			Expect(len(tvtropespages.Pages)).To(Equal(0))
 		})
+
+		It("Should have returned an empty Page", func() {
+			Expect(isPageEmpty(badPage)).To(BeTrue())
+		})
 	})
 })
+
+func isPageEmpty(page tropestogo.Page) bool {
+	return page.GetPageType() == 0 && page.GetUrl() == nil && page.GetDocument() == nil
+}

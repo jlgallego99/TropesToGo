@@ -75,7 +75,7 @@ func NewPage(pageUrl string, requestPage bool) (Page, error) {
 			return Page{}, fmt.Errorf("%w: "+newUrl.String(), ErrNotFound)
 		}
 
-		if httpResponse.StatusCode == 403 {
+		if httpResponse.StatusCode == 403 || httpResponse.StatusCode == 429 {
 			return Page{}, fmt.Errorf("%w: "+newUrl.String(), ErrForbidden)
 		}
 
