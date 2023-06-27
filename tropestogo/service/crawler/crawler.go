@@ -156,13 +156,17 @@ func (crawler *ServiceCrawler) CrawlWorkSubpages(doc *goquery.Document) []string
 	})
 
 	// Get all main trope subpages (if there are any)
-	doc.Find(SubPageSelector).Each(func(_ int, selection *goquery.Selection) {
+	doc.Find(SubPageSelector).EachWithBreak(func(_ int, selection *goquery.Selection) bool {
 		subPageUri, subPageExists := selection.Attr("href")
 		r, _ := regexp.Compile(`\/tropes[a-z]to[a-z]`)
 		matchUri := r.MatchString(strings.ToLower(subPageUri))
 
 		if subPageExists && matchUri {
 			subPagesUrls = append(subPagesUrls, TvTropesWeb+subPageUri)
+
+			return true
+		} else {
+			return false
 		}
 	})
 

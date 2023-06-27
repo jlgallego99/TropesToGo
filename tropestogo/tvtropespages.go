@@ -15,7 +15,7 @@ var (
 )
 
 const minWaitingSeconds = 0
-const maxWaitingSeconds = 4
+const maxWaitingSeconds = 3
 
 // TvTropesPages is an entity that manages all relevant pages in TvTropes for its extraction
 // Each Page has a last updated date, for checking future TvTropes updates on its Pages
