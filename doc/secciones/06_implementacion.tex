@@ -1086,6 +1086,47 @@ de espacio en memoria que suponía. Ahora, una vez que se ha visitado una págin
 no se volverá a hacer durante la misma ejecución.
 
 \subsubsection{Limitación de la tasa de crawling}
+La solución anterior ya supone una gran mejora en eficiencia y en controlar
+mejor las peticiones, sin embargo, aún quedan consideraciones a tener en cuenta
+en el ámbito del \textit{scraping} para poder limitar y esconder mejor el bot.
+Se deben tener en cuenta políticas de cortesía con respecto a las peticiones que
+se hace a la web, y la más común y efectiva de ellas es limitar la tasa de
+\textit{crawling} de forma randomizada \cite{apress2018scraping}. Esto consiste
+simplemente en dejar el programa en esperas aleatorias entre petición y
+petición, pero no demasiado largas como para que sean negativas para el
+desempeño del bot. Se implementa una espera aleatoria de máximo 1 segundo entre
+cada petición, lo suficiente para que el bucle de peticiones no sobrecargue de
+peticiones al servidor en un corto periodo de tiempo, y también para que no sean
+predecibles y por tanto sufrir el riesgo de ser bloqueados. También se estudian
+los códigos de error que devuelve TvTropes, y si son códigos como 403, que
+indican que se ha denegado el acceso como en la demo que se hizo, se realiza una
+espera mayor hasta que se levante la restricción y poder continuar.
+
+Con estos cambios, ambos servicios son ya capaces de realizar un gran número de
+peticiones y extracciones de datos de forma más eficiente y que respete al
+servidor de TvTropes. Sin embargo, en el ámbito del \textit{scraping} es
+necesario tener siempre una capa extra de seguridad, por lo que es muy
+recomendable hacer más robusto al bot de forma que pase desapercibido. Uno de
+los aspectos que más debe tener en cuenta cualquier \textit{scraper}, como se
+dijo en el \autoref{chapter:3}, es modificar las cabeceras de las peticiones
+HTTP con información típica que contienen los navegadores para evitar ser
+rechazados al instante por no ser un usuario humano \cite{apress2018scraping}.
+Las más importantes son \texttt{User-Agent} con la información de un navegador o
+\texttt{Referer} con la URL de donde se supone que procede la petición. Se opta
+por poner que las peticiones proceden de un navegador Firefox, que es bastante
+común, y referidas desde Google, ya que es bastante común e improbable que se
+bloquee una petición que provenga desde ahí \cite{bettenbuk_10_2019}.
+
+También es recomendable añadir otras cabeceras adicionales que suelen añadir los
+navegadores, las cuales son de muchos tipos. Se utilizan las proporcionadas por
+la web HTTPBin en uno de sus
+ejemplos\footnote{\url{https://httpbin.org/anything}}, una web recomendable para
+hacer pruebas HTTP de cualquier tipo \cite{bettenbuk_10_2019}.
+
+TvTropes no es una página que tenga demasiados mecanismos en contra de los
+\textit{scrapers} por completo, más allá de poner limitaciones cuando les
+llueven muchas peticiones desde una misma IP, sin embargo nunca sobra tener un
+poco más de precaución. 
 
 \section{Actualizador de información}
 \section{Extracción de otros medios audiovisuales}
