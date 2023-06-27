@@ -30,7 +30,7 @@ var _ = Describe("Tvtropespages", func() {
 		var errAddValid error
 
 		BeforeEach(func() {
-			errAddValid = tvtropespages.AddTvTropesPage(oldboyUrl, oldboySuburls)
+			errAddValid = tvtropespages.AddTvTropesPage(oldboyUrl, oldboySuburls, false)
 		})
 
 		It("Shouldn't return an error", func() {
@@ -58,8 +58,8 @@ var _ = Describe("Tvtropespages", func() {
 		var errAddValid2, errAddValid3 error
 
 		BeforeEach(func() {
-			errAddValid2 = tvtropespages.AddTvTropesPage(tropeUrl, []string{})
-			errAddValid3 = tvtropespages.AddTvTropesPage(indexUrl, []string{})
+			errAddValid2 = tvtropespages.AddTvTropesPage(tropeUrl, []string{}, false)
+			errAddValid3 = tvtropespages.AddTvTropesPage(indexUrl, []string{}, false)
 		})
 
 		It("Shouldn't return an error", func() {
@@ -82,8 +82,8 @@ var _ = Describe("Tvtropespages", func() {
 		var errAddDuplicated error
 
 		BeforeEach(func() {
-			errAddDuplicated = tvtropespages.AddTvTropesPage(oldboyUrl, oldboySuburls)
-			errAddDuplicated = tvtropespages.AddTvTropesPage(oldboyUrl, oldboySuburls)
+			errAddDuplicated = tvtropespages.AddTvTropesPage(oldboyUrl, oldboySuburls, false)
+			errAddDuplicated = tvtropespages.AddTvTropesPage(oldboyUrl, oldboySuburls, false)
 		})
 
 		It("Should return an error", func() {
@@ -99,7 +99,7 @@ var _ = Describe("Tvtropespages", func() {
 		var errAddEmpty error
 
 		BeforeEach(func() {
-			errAddEmpty = tvtropespages.AddTvTropesPage("", []string{})
+			errAddEmpty = tvtropespages.AddTvTropesPage("", []string{}, false)
 		})
 
 		It("Should return an error", func() {
@@ -115,7 +115,7 @@ var _ = Describe("Tvtropespages", func() {
 		var errAddEmpty error
 
 		BeforeEach(func() {
-			errAddEmpty = tvtropespages.AddTvTropesPage("htp$p%^^^&&***!!!!!", []string{})
+			errAddEmpty = tvtropespages.AddTvTropesPage("htp$p%^^^&&***!!!!!", []string{}, false)
 		})
 
 		It("Should return an error", func() {
