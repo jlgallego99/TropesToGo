@@ -3,8 +3,6 @@ package scraper
 import (
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
@@ -23,6 +21,7 @@ var (
 	ErrUnknownPageStructure = errors.New("the scraper doesn't recognize the page structure")
 	ErrNotFound             = errors.New("couldn't request the URL")
 	ErrInvalidSubpage       = errors.New("couldn't scrape tropes in subpage")
+	ErrEmptyDocument        = errors.New("can't scrape the page because there's no Goquery document")
 )
 
 const (
@@ -100,30 +99,23 @@ func ConfigMediaRepository(mr media.RepositoryMedia) ScraperConfig {
 	}
 }
 
-// CheckTvTropesPage makes an HTTP request to a TvTropes web page and checks if it's valid for scraping
-// If the page doesn't exist, it returns an ErrNotFound error
+// CheckTvTropesPage validates the Goquery document from a page object and checks if it's valid for scraping
+// If the page doesn't have a parsed document, it returns an ErrEmptyDocument error
 // It returns true if all checks passes
 func (scraper *ServiceScraper) CheckTvTropesPage(page tropestogo.Page) (bool, error) {
-	res, err := http.Get(page.GetUrl().String())
-	if err != nil {
-		return false, fmt.Errorf("%w: "+page.GetUrl().String(), ErrNotFound)
+	if page.GetDocument() == nil {
+		return false, fmt.Errorf("%w: "+page.GetUrl().String(), ErrEmptyDocument)
 	}
 
-	return scraper.CheckValidWorkPage(res.Body, page.GetUrl())
+	return scraper.CheckValidWorkPage(page.GetDocument(), page.GetUrl())
 }
 
-// CheckValidWorkPage accepts any reader (whether it's from an URL or a local HTML file) with a webpage contents
-// and checks if it's a valid TvTropes Work page
+// CheckValidWorkPage accepts a Goquery document with a web page contents and checks if it's a valid TvTropes Work page
 // This allows the scraper to check if TvTropes template has somewhat changed and if the scraper can extract its data
 // It full-checks a TvTropes page, validating if its url is one of a TvTropes Work Page,
 // if it's main article has a known structure that can be scraped and if trope section can also be scraped and contains valid tropes
 // It returns true if all checks passes
-func (scraper *ServiceScraper) CheckValidWorkPage(reader io.Reader, checkUrl *url.URL) (bool, error) {
-	doc, err := goquery.NewDocumentFromReader(reader)
-	if err != nil {
-		return false, ErrNotTvTropes
-	}
-
+func (scraper *ServiceScraper) CheckValidWorkPage(doc *goquery.Document, checkUrl *url.URL) (bool, error) {
 	validWorkPage, errWorkPage := scraper.CheckIsWorkPage(doc, checkUrl)
 	if !validWorkPage {
 		return false, errWorkPage
@@ -299,37 +291,37 @@ func (scraper *ServiceScraper) ScrapeTvTropes(tvtropespages *tropestogo.TvTropes
 	return nil
 }
 
-// ScrapeTvTropesPage makes an HTTP request to a TvTropes page and its subpages and fully scrapes its contents
+// ScrapeTvTropesPage validates the Goquery document from a page object and its subPages and fully scrapes its contents
 // calling all sub functions and returning a valid Media object
-// If the url of the page isn't found, it returns an ErrNotFound error
+// If the page or subpages doesn't have a parsed document, it returns an ErrEmptyDocument error
 func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages []tropestogo.Page) (media.Media, error) {
-	res, err := http.Get(page.GetUrl().String())
-	if err != nil {
-		return media.Media{}, fmt.Errorf("%w: "+page.GetUrl().String(), ErrNotFound)
+	if page.GetDocument() == nil {
+		return media.Media{}, fmt.Errorf("%w: "+page.GetUrl().String(), ErrEmptyDocument)
 	}
 
-	var subReaders []io.Reader
+	var subDocs []*goquery.Document
 	for _, subPage := range subPages {
-		subPageRes, subPageErr := http.Get(subPage.GetUrl().String())
-		if subPageErr != nil {
-			return media.Media{}, fmt.Errorf("%w: "+page.GetUrl().String(), ErrNotFound)
+		if subPage.GetDocument() == nil {
+			return media.Media{}, fmt.Errorf("%w: "+page.GetUrl().String(), ErrEmptyDocument)
 		}
 
-		subReaders = append(subReaders, subPageRes.Body)
+		subDocs = append(subDocs, subPage.GetDocument())
 	}
 
-	return scraper.ScrapeFromReaders(res.Body, subReaders, page.GetUrl())
+	return scraper.ScrapeFromDocuments(page.GetDocument(), subDocs, page.GetUrl())
 }
 
-// ScrapeFromReaders accepts a reader with a TvTropes Work Page contents and an array of readers with all its subpages contents
-// Extracts all the relevant information from it and the url from the last parameter
+// ScrapeFromDocuments accepts a Goquery document with a TvTropes Work Page contents and an array of documents with all its subpages contents
+// Extracts all the relevant information from them and the url from the last parameter
 // It scrapes the title, year, media type and all tropes, finally returning a correctly formed media object with all the data
 // It calls sub functions for scraping the multiple parts and returns an error if some scraping has failed
-func (scraper *ServiceScraper) ScrapeFromReaders(reader io.Reader, subReaders []io.Reader, url *url.URL) (media.Media, error) {
+func (scraper *ServiceScraper) ScrapeFromDocuments(doc *goquery.Document, subDocs []*goquery.Document, url *url.URL) (media.Media, error) {
 	tropes := make(map[tropestogo.Trope]struct{})
 	var errTropes error
-	var subDocs []*goquery.Document
-	doc, _ := goquery.NewDocumentFromReader(reader)
+
+	if doc == nil {
+		return media.Media{}, ErrInvalidField
+	}
 
 	page, errNewPage := tropestogo.NewPage(url.String(), false)
 	if errNewPage != nil {
@@ -339,11 +331,6 @@ func (scraper *ServiceScraper) ScrapeFromReaders(reader io.Reader, subReaders []
 	title, year, mediaIndex, errMediaIndex := scraper.ScrapeWorkTitleAndYear(doc)
 	if errMediaIndex != nil {
 		return media.Media{}, errMediaIndex
-	}
-
-	for _, subReader := range subReaders {
-		subDoc, _ := goquery.NewDocumentFromReader(subReader)
-		subDocs = append(subDocs, subDoc)
 	}
 
 	// Scrape tropes on main article
