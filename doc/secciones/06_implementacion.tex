@@ -975,11 +975,11 @@ ampliará para cualquier otro medio audiovisual que presente obras con
 características principales de este proceso son las siguientes:
 \begin{itemize}
     \item La estrategia de extracción en TvTropes en este incremento consiste en
-    la indexación de páginas y sub páginas de obra, es decir, aquellas que están
+    la indexación de páginas y subpáginas de obra, es decir, aquellas que están
     en un espacio de nombre distinto a \textit{Main}, que es el de
     \textit{tropos}. Cada espacio de nombres corresponderá a un tipo de medio
     audiovisual. La mayoría de los \textit{tropos} están presentes en la página
-    principal de la obra y/o en cualquiera de sus sub páginas.
+    principal de la obra y/o en cualquiera de sus subpáginas.
     \item Se utilizan como semillas todas las páginas del índice estudiado en el
     \autoref{chapter:5}, el cual es un script interno de TvTropes que nos
     asegura encontrar todas las páginas del espacio de nombres que se le
@@ -1007,32 +1007,85 @@ puede confiar que una página, de cualquier tipo, liste todos los ejemplos
 relacionados. Existen numerosos casos de películas que tienen un \textit{tropo}
 concreto, pero que luego no aparecen referenciadas al entrar en la página de ese
 \textit{tropo}. Esta relación bidireccional a la cual se ha hecho alusión
-anteriormente no siempre es cierta, porque aunque técnicamente estén
+en ocasiones anteriores no siempre es cierta, porque aunque técnicamente estén
 relacionados, no se puede esperar que los redactores humanos de TvTropes hayan
 tenido en cuenta todas las relaciones y referencias en ambas direcciones y las
 hayan escrito. Con este índice no solo se mejora por completo el
 \textit{crawling} de TvTropes, asegurando que se obtienen todas las obras
 registradas sin lugar a duda, sino que simplifica enormemente el proceso al
 estar todo organizado en un índice. Además, el \textit{scraping} de Tropescraper
-solamente extrae los que están en la sección principal, ignorando las sub wikis.
+solamente extraía los que están en la sección principal, ignorando los subwikis.
 
 \subsection{Limitación de la carga al servidor de TvTropes}
 Como se ha introducido al inicio de este hito, llegados a este punto del
 desarrollo es imprescindible tener en cuenta ciertas cuestiones relativas a la
-relación entre el bot y la página web.
+relación entre el bot y la página web y empezar a seguir varias políticas de
+cortesía en la implementación. El objetivo es tener una ejecución más eficiente
+y que suponga una carga mínima sobre TvTropes, realizando solamente las
+operaciones necesarias y sin repetir nada ya extraído, lo cual es imprescindible
+al estar ya trabajando con grandes volúmenes de datos. Esto además limitará el
+riesgo de que TvTropes ejerza mecanismos anti-\textit{scraping}, como pueden ser
+el retraso de peticiones, la denegación de acceso temporal o, lo que sería aún
+peor, bloquear el acceso por completo. Se necesitan de mecanismos que permitan
+que el programa funcione como un usuario más sin llamar la atención.
 
-Basándonos en las
+Todo este proceso de mejora del \textit{crawler} se basa en las
 \href{https://github.com/jlgallego99/TropesToGo/issues/7}{[HU02]} y
 \href{https://github.com/jlgallego99/TropesToGo/issues/45}{[HU06]}, que nos
 indican que el usuario quiere poder obtener los datos de la forma más rápida
-posible y pudiendo elegir no tener la totalidad de los datos existentes, se
-permite limitar el proceso de \textit{crawling} a un número de obras limitado en
-lugar de encontrarlas todas.
+posible y pudiendo elegir no tener la totalidad de los datos existentes. Como
+paso previo, se permite elegir limitar el proceso de \textit{crawling} a un
+número de obras limitado en lugar de encontrarlas todas. Esto facilitará la
+creación de demos y satisfará a aquellos usuarios que necesiten solo de un
+subconjunto reducido de los datos, que además reducirá enormemente el tiempo que
+el bot tenga que estar trabajando.
 
 \subsubsection{Reutilización de páginas extraídas}
-Usar punteros a los documentos \textit{Goquery}.
+Con la primera versión del \textit{crawler} construida, se realizó una pequeña
+demo real sobre TvTropes para comprobar su efectividad. Se consiguieron extraer
+más de 500 películas, sin embargo, pasado ese umbral el programa paró de dar
+resultados. Al entrar a TvTropes desde un navegador se pudo ver la razón: la web
+mostraba una única página con un mensaje indicando que TvTropes detectó un
+número alto de peticiones y que esperase unos pocos minutos antes de volver a
+intentarlo de nuevo, lo cual puso de manifiesto la necesidad de controlar mucho
+mejor las peticiones HTTP que se realizaban.
+
+Una de las principales razones por las que se llegó a este caso se debía a que
+el \textit{crawler} necesitaba extraer el HTML, realizando por tanto una
+petición HTTP a la página para ello. Y luego el \textit{scraper}, que solo tenía
+los URL de las páginas encontradas por el \textit{crawler}, volvía a repetir
+peticiones a esas páginas para volver a obtener sus contenidos, por lo que cada
+página de obra se llamaba dos veces, sobrecargando la red más de lo necesario.
+
+Existen varias soluciones para esto, que pasan por la idea de tener una caché
+(temporal o persistida) de los contenidos de las páginas extraídas. Esto se
+puede hacer de múltiples maneras: mediante variables en el código,
+descargándolas y guardándolas en disco (con la consiguiente pérdida en
+eficiencia que supondría escribir y leer tantos ficheros constantemente) o, la
+más sofisticada, mediante un servidor \textit{proxy} que redirija las
+peticiones, permitiendo a la vez ocultar la fuente de las peticiones y utilizar
+la caché de páginas del servidor para no repetir llamadas a TvTropes
+\cite{apress2018scraping}.
+
+Como opción mínima viable se decide tener una caché temporal como un campo
+adicional en la entidad \texttt{TvTropesPages} la cual es el principal punto de
+unión entre \textit{crawler} y \textit{scraper}. Tal y como funciona el
+\textit{crawler}, necesita descargar las páginas de cada obra para encontrar las
+subpáginas que tengan. En este proceso entra primero una petición HTTP a la
+página y luego una transformación a documento Goquery, que es la biblioteca
+encargada de poder iterar sobre el árbol de elementos para encontrar lo que se
+necesita. Este objeto Goquery es lo que utilizan ambos servicios para encontrar
+lo que necesitan, ya sea enlaces o metadatos, y es siempre un objeto
+referenciado. Por tanto, la solución a este problema se basa en  Esto supone una
+gran mejora en eficiencia del código, escalabilidad y simplicidad, puesto que
+basta con usar el mismo objeto que se estaba utilizando anteriormente. El
+\textit{scraper} se ahorra dos operaciones bastante costosas y que hasta ahora
+se estaban haciendo de forma duplicada: la descarga del HTML y su transformación
+a un documento Goquery, con el consiguiente duplicado de variables y desperdicio
+de espacio en memoria que suponía. Ahora, una vez que se ha visitado una página,
+no se volverá a hacer durante la misma ejecución.
+
 \subsubsection{Limitación de la tasa de crawling}
-Esperas aleatorias entre petición y petición.
 
 \section{Actualizador de información}
 \section{Extracción de otros medios audiovisuales}
