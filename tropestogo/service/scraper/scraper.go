@@ -171,6 +171,7 @@ func (scraper *ServiceScraper) CheckIsWorkPage(doc *goquery.Document, url *url.U
 }
 
 // CheckTropeSection checks the received goquery Document DOM Tree
+// CheckTropeSection checks the received goquery Document DOM Tree
 // and validates if the tropes on the TvTropes Work Page are arranged in a known way that can be scraped
 // First it checks if there are folders, then if the list redirects to trope subpages and last if there's a list with only tropes
 // If the trope section isn't of the recognized types, it returns an ErrUnknownPageStructure, so it can't be scraped
@@ -330,7 +331,7 @@ func (scraper *ServiceScraper) ScrapeFromReaders(reader io.Reader, subReaders []
 	var subDocs []*goquery.Document
 	doc, _ := goquery.NewDocumentFromReader(reader)
 
-	page, errNewPage := tropestogo.NewPage(url.String())
+	page, errNewPage := tropestogo.NewPage(url.String(), false)
 	if errNewPage != nil {
 		return media.Media{}, fmt.Errorf("Error creating Page object \n%w", errNewPage)
 	}

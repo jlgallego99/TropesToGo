@@ -3,6 +3,8 @@ package tropestogo
 import (
 	"errors"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
+	"net/http"
 	"net/url"
 	"strings"
 )
@@ -18,6 +20,9 @@ var (
 	ErrNotTvTropes = errors.New("the URL does not belong to a TvTropes web page")
 	ErrBadUrl      = errors.New("invalid URL")
 	ErrEmptyUrl    = errors.New("the provided URL string is empty")
+	ErrNotFound    = errors.New("couldn't request the URL")
+	ErrForbidden   = errors.New("http request denied, maybe there has been too many requests")
+	ErrParsing     = errors.New("error parsing the web contents")
 )
 
 // PageType represents all the relevant types a TvTropes Page can be, so the scraper can know what it is traversing
@@ -35,15 +40,21 @@ type Page struct {
 	// A Page can be accessed only by its URL, which doesn't change
 	url *url.URL
 
+	// document is a reference to the parsed HTML contents of the page
+	// to avoid duplicating HTTP requests to the url if it's been done before
+	document *goquery.Document
+
 	// A Page in TvTropes can be, mainly, a main page, a work page or an index page
 	pageType PageType
 }
 
 // NewPage creates a valid Page value-object that represents a generic and immutable TvTropes web page
 // It accepts a pageUrl string and checks if it belongs to TvTropes and extracts the type of the page from it
+// If requestPage argument is true, it makes an HTTP request to the Page URL and parses its content to a Goquery document
 // (main page, work page, index page, etc.)
 // It returns an ErrEmptyUrl error if it's empty or an ErrBadUrl error if it's not properly represented
-func NewPage(pageUrl string) (Page, error) {
+// It returns an ErrNotFound if the web page couldn't be retrieved or an ErrForbidden if it's access has been temporarily denied by a 403 error
+func NewPage(pageUrl string, requestPage bool) (Page, error) {
 	if pageUrl == "" {
 		return Page{}, ErrEmptyUrl
 	}
@@ -55,6 +66,26 @@ func NewPage(pageUrl string) (Page, error) {
 
 	if newUrl.Hostname() != TvTropesHostname {
 		return Page{}, ErrNotTvTropes
+	}
+
+	var doc *goquery.Document
+	if requestPage {
+		httpResponse, errResponse := http.Get(newUrl.String())
+		if errResponse != nil {
+			return Page{}, fmt.Errorf("%w: "+newUrl.String(), ErrNotFound)
+		}
+
+		if httpResponse.StatusCode == 403 {
+			return Page{}, fmt.Errorf("%w: "+newUrl.String(), ErrForbidden)
+		}
+
+		var errDoc error
+		doc, errDoc = goquery.NewDocumentFromReader(httpResponse.Body)
+		if errDoc != nil {
+			return Page{}, fmt.Errorf("%w: "+newUrl.String(), ErrParsing)
+		}
+	} else {
+		doc = nil
 	}
 
 	var pageType PageType
@@ -70,6 +101,7 @@ func NewPage(pageUrl string) (Page, error) {
 
 	return Page{
 		url:      newUrl,
+		document: doc,
 		pageType: pageType,
 	}, nil
 }
@@ -82,4 +114,8 @@ func (page Page) GetUrl() *url.URL {
 // GetPageType returns the PageType enum that represents the type of the Page
 func (page Page) GetPageType() PageType {
 	return page.pageType
+}
+
+func (page Page) GetDocument() *goquery.Document {
+	return page.document
 }
