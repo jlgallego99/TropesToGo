@@ -1016,6 +1016,13 @@ registradas sin lugar a duda, sino que simplifica enormemente el proceso al
 estar todo organizado en un índice. Además, el \textit{scraping} de Tropescraper
 solamente extraía los que están en la sección principal, ignorando los subwikis.
 
+Con este desarrollo se produce un incremento en el valor del producto, teniendo
+ya un \textit{crawler} de TvTropes completamente funcional para cumplir
+principalmente la
+\href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]}. Se libera con
+esto una versión 0.5.0 de TropesToGo, ya que se añade nueva funcionalidad sobre
+el mismo API.
+
 \subsection{Limitación de la carga al servidor de TvTropes}
 Como se ha introducido al inicio de este hito, llegados a este punto del
 desarrollo es imprescindible tener en cuenta ciertas cuestiones relativas a la
@@ -1090,6 +1097,12 @@ a un documento Goquery, con el consiguiente duplicado de variables y desperdicio
 de espacio en memoria que suponía. Ahora, una vez que se ha visitado una página,
 no se volverá a visitar durante la misma ejecución, ya que ya está descargada.
 
+Estas mejoras para intentar limitar la carga de TvTropes constituyen un parche
+que mejora la eficiencia y protege al \textit{scraper} contra posibles
+denegaciones por parte de TvTropes, por lo que siguiendo el versionado semántico
+se aumenta la última versión, teniendo al final de este PMV una versión 0.5.1 de
+TropesToGo.
+
 \subsubsection{Limitación de la tasa de crawling}
 La solución anterior ya supone una gran mejora en eficiencia y en controlar
 mejor las peticiones, sin embargo, aún quedan consideraciones a tener en cuenta
@@ -1134,11 +1147,11 @@ TvTropes no es una página que tenga demasiados mecanismos en contra de los
 llueven muchas peticiones desde una misma IP, sin embargo, nunca sobra tener un
 poco más de precaución.
 
-Estas mejoras para intentar limitar la carga de TvTropes constituyen un parche
-que mejora la eficiencia y protege al \textit{scraper} contra posibles
-denegaciones por parte de TvTropes, por lo que siguiendo el versionado semántico
-se aumenta la última versión, teniendo al final de este PMV una versión 0.5.1 de
-TropesToGo.
+Esta nueva mejora del \textit{crawler} se presenta como un \textit{pull request}
+adicional que intenta hacer que el bot pase aún más desapercibido y no suponga
+una gran carga sobre TvTropes, evitando posibles impedimentos por parte de la
+web al programa, por lo que siguiendo el versionado semántico se aumenta la
+última versión, teniendo al final de este PMV una versión 0.5.2 de TropesToGo.
 
 \section{Extracción de otros medios audiovisuales}
 \section{Resultado final}
