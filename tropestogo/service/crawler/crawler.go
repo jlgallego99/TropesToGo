@@ -16,6 +16,15 @@ const (
 	// The seed is the starting URL of the crawler
 	seed = "https://tvtropes.org/pmwiki/pagelist_having_pagetype_in_namespace.php?t=work&n=Film"
 
+	// Common headers for a Firefox browser
+	userAgentHeader               = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0"
+	acceptHeader                  = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+	acceptLanguageHeader          = "es"
+	upgradeInsecureRequestsHeader = "1"
+
+	// Referer header for a well-known and trusty webpage
+	refererHeader = "https://www.google.com/"
+
 	TvTropesHostname       = "tvtropes.org"
 	TvTropesWeb            = "https://" + TvTropesHostname
 	TvTropesPmwiki         = TvTropesWeb + "/pmwiki/"
@@ -53,8 +62,19 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 	}
 
 	for {
-		resp, errGetIndex := http.Get(indexPage)
-		if errGetIndex != nil {
+		client := &http.Client{}
+		request, errRequest := http.NewRequest("GET", indexPage, nil)
+		if errRequest != nil {
+			return nil, fmt.Errorf("%w: "+indexPage, ErrNotFound)
+		}
+
+		request.Header.Set("User-Agent", userAgentHeader)
+		request.Header.Set("Referer", refererHeader)
+		request.Header.Set("Accept", acceptHeader)
+		request.Header.Set("Accept-Language", acceptLanguageHeader)
+		request.Header.Set("Upgrade-Insecure-Requests", upgradeInsecureRequestsHeader)
+		resp, errDoRequest := client.Do(request)
+		if errDoRequest != nil {
 			return nil, fmt.Errorf("%w: "+indexPage, ErrNotFound)
 		}
 
