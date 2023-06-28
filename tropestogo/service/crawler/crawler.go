@@ -69,27 +69,33 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 		}
 
 		var errAddPage error
-		var pageReader *http.Response
+		var workPage tropestogo.Page
 		pageSelector.EachWithBreak(func(i int, selection *goquery.Selection) bool {
 			if limitedCrawling && len(crawledPages.Pages) == crawlLimit {
 				return false
 			}
 
 			workUrl, urlExists := selection.Attr("href")
-			pageReader, errAddPage = http.Get(workUrl)
-			if pageReader.StatusCode == 403 {
-				time.Sleep(time.Minute)
-			}
-
-			if errAddPage != nil || !urlExists {
+			if !urlExists {
 				return false
 			}
 
-			pageDoc, _ := goquery.NewDocumentFromReader(pageReader.Body)
-			subPagesUrls := crawler.CrawlWorkSubpages(pageDoc)
+			// Create the Work Page
+			workPage, errAddPage = crawledPages.AddTvTropesPage(workUrl, true)
+			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
+				time.Sleep(time.Minute)
+			}
 
-			errAddPage = crawledPages.AddTvTropesPage(workUrl, subPagesUrls)
-			time.Sleep(time.Second / 2)
+			// Search for subpages on the new Work Page
+			subPagesUrls := crawler.CrawlWorkSubpages(workPage.GetDocument())
+
+			// Add its subpages to the Work Page
+			errAddPage = crawledPages.AddSubpages(workUrl, subPagesUrls, true)
+
+			// If there's been too many requests to TvTropes, wait longer
+			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
+				time.Sleep(time.Minute)
+			}
 
 			return true
 		})
@@ -150,13 +156,17 @@ func (crawler *ServiceCrawler) CrawlWorkSubpages(doc *goquery.Document) []string
 	})
 
 	// Get all main trope subpages (if there are any)
-	doc.Find(SubPageSelector).Each(func(_ int, selection *goquery.Selection) {
+	doc.Find(SubPageSelector).EachWithBreak(func(_ int, selection *goquery.Selection) bool {
 		subPageUri, subPageExists := selection.Attr("href")
 		r, _ := regexp.Compile(`\/tropes[a-z]to[a-z]`)
 		matchUri := r.MatchString(strings.ToLower(subPageUri))
 
 		if subPageExists && matchUri {
 			subPagesUrls = append(subPagesUrls, TvTropesWeb+subPageUri)
+
+			return true
+		} else {
+			return false
 		}
 	})
 
@@ -200,8 +210,8 @@ func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, 
 			pageDoc, _ := goquery.NewDocumentFromReader(workReaders[i])
 			subPagesUrls := crawler.CrawlWorkSubpages(pageDoc)
 
-			errAddPage = crawledPages.AddTvTropesPage(workUrl, subPagesUrls)
-			time.Sleep(time.Second / 2)
+			_, errAddPage = crawledPages.AddTvTropesPage(workUrl, false)
+			errAddPage = crawledPages.AddSubpages(workUrl, subPagesUrls, false)
 
 			return true
 		})

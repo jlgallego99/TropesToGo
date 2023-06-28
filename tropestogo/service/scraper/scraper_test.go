@@ -4,12 +4,12 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"github.com/PuerkitoBio/goquery"
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
 	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
 	"github.com/jlgallego99/TropesToGo/media/json_dataset"
 	"github.com/jlgallego99/TropesToGo/service/scraper"
-	"io"
 	"net/url"
 	"os"
 	"strings"
@@ -101,8 +101,11 @@ var _ = Describe("Scraper", func() {
 				pageReaderJson, _ = os.Open(oldboyResource)
 				pageReaderCsv, _ = os.Open(oldboyResource)
 
-				validTvTropesPageJson, errTvTropesJson = serviceScraperJson.CheckValidWorkPage(pageReaderJson, tvTropesUrl)
-				validTvTropesPageCsv, errTvTropesCsv = serviceScraperCsv.CheckValidWorkPage(pageReaderCsv, tvTropesUrl)
+				docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
+				docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
+
+				validTvTropesPageJson, errTvTropesJson = serviceScraperJson.CheckValidWorkPage(docJson, tvTropesUrl)
+				validTvTropesPageCsv, errTvTropesCsv = serviceScraperCsv.CheckValidWorkPage(docCsv, tvTropesUrl)
 			})
 
 			It("Should mark the page as valid", func() {
@@ -125,8 +128,11 @@ var _ = Describe("Scraper", func() {
 				pageReaderJson, _ = os.Open(avengersResource)
 				pageReaderCsv, _ = os.Open(avengersResource)
 
-				validTvTropesPage2Json, errTvTropes2Json = serviceScraperJson.CheckValidWorkPage(pageReaderJson, tvTropesUrl2)
-				validTvTropesPage2Csv, errTvTropes2Csv = serviceScraperCsv.CheckValidWorkPage(pageReaderCsv, tvTropesUrl2)
+				docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
+				docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
+
+				validTvTropesPage2Json, errTvTropes2Json = serviceScraperJson.CheckValidWorkPage(docJson, tvTropesUrl2)
+				validTvTropesPage2Csv, errTvTropes2Csv = serviceScraperCsv.CheckValidWorkPage(docCsv, tvTropesUrl2)
 			})
 
 			It("Should mark the page as valid", func() {
@@ -149,8 +155,11 @@ var _ = Describe("Scraper", func() {
 				pageReaderCsv, _ = os.Open(anewhopeResource)
 				pageReaderJson, _ = os.Open(anewhopeResource)
 
-				validTvTropesPage3Json, errTvTropes3Json = serviceScraperJson.CheckValidWorkPage(pageReaderJson, tvTropesUrl3)
-				validTvTropesPage3Csv, errTvTropes3Json = serviceScraperCsv.CheckValidWorkPage(pageReaderCsv, tvTropesUrl3)
+				docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
+				docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
+
+				validTvTropesPage3Json, errTvTropes3Json = serviceScraperJson.CheckValidWorkPage(docJson, tvTropesUrl3)
+				validTvTropesPage3Csv, errTvTropes3Json = serviceScraperCsv.CheckValidWorkPage(docCsv, tvTropesUrl3)
 			})
 
 			It("Should mark the page as valid", func() {
@@ -173,8 +182,11 @@ var _ = Describe("Scraper", func() {
 				pageReaderJson, _ = os.Open(emptyResource)
 				pageReaderCsv, _ = os.Open(emptyResource)
 
-				validNotWorkPageJson, errNotWorkPageJson = serviceScraperJson.CheckValidWorkPage(pageReaderJson, notWorkUrl)
-				validNotWorkPageCsv, errNotWorkPageCsv = serviceScraperCsv.CheckValidWorkPage(pageReaderCsv, notWorkUrl)
+				docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
+				docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
+
+				validNotWorkPageJson, errNotWorkPageJson = serviceScraperJson.CheckValidWorkPage(docJson, notWorkUrl)
+				validNotWorkPageCsv, errNotWorkPageCsv = serviceScraperCsv.CheckValidWorkPage(docCsv, notWorkUrl)
 			})
 
 			It("Should mark the page as invalid", func() {
@@ -197,8 +209,11 @@ var _ = Describe("Scraper", func() {
 				pageReaderJson, _ = os.Open(emptyResource)
 				pageReaderCsv, _ = os.Open(emptyResource)
 
-				validDifferentPageJson, errDifferentJson = serviceScraperJson.CheckValidWorkPage(pageReaderJson, differentUrl)
-				validDifferentPageCsv, errDifferentCsv = serviceScraperCsv.CheckValidWorkPage(pageReaderCsv, differentUrl)
+				docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
+				docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
+
+				validDifferentPageJson, errDifferentJson = serviceScraperJson.CheckValidWorkPage(docJson, differentUrl)
+				validDifferentPageCsv, errDifferentCsv = serviceScraperCsv.CheckValidWorkPage(docCsv, differentUrl)
 			})
 
 			It("Should mark the page as invalid", func() {
@@ -222,8 +237,12 @@ var _ = Describe("Scraper", func() {
 			pageReaderCsv, _ = os.Open(attackontitanResource)
 			pageReaderJson, _ = os.Open(attackontitanResource)
 
-			filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeFromReaders(pageReaderCsv, []io.Reader{}, tvTropesUrlUnknown)
-			filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeFromReaders(pageReaderJson, []io.Reader{}, tvTropesUrlUnknown)
+			docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
+			docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
+			subDocs := make([]*goquery.Document, 0)
+
+			filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeFromDocuments(docJson, subDocs, tvTropesUrlUnknown)
+			filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeFromDocuments(docCsv, subDocs, tvTropesUrlUnknown)
 			errPersistCsv = serviceScraperCsv.Persist()
 			errPersistJson = serviceScraperJson.Persist()
 		})
@@ -278,28 +297,35 @@ var _ = Describe("Scraper", func() {
 			tvTropesUrl2, _ := url.Parse(avengersUrl)
 			tvTropesUrl3, _ := url.Parse(anewhopeUrl)
 
-			var subpageReadersCsv []io.Reader
-			var subpageReadersJson []io.Reader
+			var subpageDocsCsv []*goquery.Document
+			var subpageDocsJson []*goquery.Document
 
 			// Scrape Oldboy
-			subpageReadersJson, subpageReadersCsv = loadSubpageFiles(oldboySubpageFiles)
+			subpageDocsJson, subpageDocsCsv = loadSubpageFiles(oldboySubpageFiles)
 			pageReaderCsv, _ = os.Open(oldboyResource)
 			pageReaderJson, _ = os.Open(oldboyResource)
-			validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeFromReaders(pageReaderJson, subpageReadersJson, tvTropesUrl)
-			validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeFromReaders(pageReaderCsv, subpageReadersCsv, tvTropesUrl)
+			docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
+			docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
+			validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeFromDocuments(docJson, subpageDocsJson, tvTropesUrl)
+			validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeFromDocuments(docCsv, subpageDocsCsv, tvTropesUrl)
 
 			// Scrape The Avengers
-			subpageReadersJson, subpageReadersCsv = loadSubpageFiles(avengersSubpageFiles)
+			subpageDocsJson, subpageDocsCsv = loadSubpageFiles(avengersSubpageFiles)
 			pageReaderCsv, _ = os.Open(avengersResource)
 			pageReaderJson, _ = os.Open(avengersResource)
-			validfilm2Csv, errorfilm2Json = serviceScraperJson.ScrapeFromReaders(pageReaderJson, subpageReadersJson, tvTropesUrl2)
-			validfilm2Json, errorfilm2Csv = serviceScraperCsv.ScrapeFromReaders(pageReaderCsv, subpageReadersCsv, tvTropesUrl2)
+			docJson, _ = goquery.NewDocumentFromReader(pageReaderJson)
+			docCsv, _ = goquery.NewDocumentFromReader(pageReaderCsv)
+			validfilm2Csv, errorfilm2Json = serviceScraperJson.ScrapeFromDocuments(docCsv, subpageDocsCsv, tvTropesUrl2)
+			validfilm2Json, errorfilm2Csv = serviceScraperCsv.ScrapeFromDocuments(docJson, subpageDocsJson, tvTropesUrl2)
 
 			// Scrape A New Hope
 			pageReaderCsv, _ = os.Open(anewhopeResource)
 			pageReaderJson, _ = os.Open(anewhopeResource)
-			validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeFromReaders(pageReaderJson, []io.Reader{}, tvTropesUrl3)
-			validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeFromReaders(pageReaderCsv, []io.Reader{}, tvTropesUrl3)
+			docJson, _ = goquery.NewDocumentFromReader(pageReaderJson)
+			docCsv, _ = goquery.NewDocumentFromReader(pageReaderCsv)
+			subDocs := make([]*goquery.Document, 0)
+			validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeFromDocuments(docJson, subDocs, tvTropesUrl3)
+			validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeFromDocuments(docCsv, subDocs, tvTropesUrl3)
 
 			// Persist all data
 			errPersistJson = serviceScraperJson.Persist()
@@ -448,17 +474,20 @@ func areRepositorySubTropesUnique(subTropes []string, subPages []string) bool {
 	return true
 }
 
-func loadSubpageFiles(fileNames []string) ([]io.Reader, []io.Reader) {
-	var subpageReadersCsv []io.Reader
-	var subpageReadersJson []io.Reader
+func loadSubpageFiles(fileNames []string) ([]*goquery.Document, []*goquery.Document) {
+	var subpageDocsCsv []*goquery.Document
+	var subpageDocsJson []*goquery.Document
 
 	for _, subpageFile := range fileNames {
 		subpageReaderCsv, _ := os.Open(subpageFile)
 		subpageReaderJson, _ := os.Open(subpageFile)
 
-		subpageReadersCsv = append(subpageReadersCsv, subpageReaderCsv)
-		subpageReadersJson = append(subpageReadersJson, subpageReaderJson)
+		docCsv, _ := goquery.NewDocumentFromReader(subpageReaderCsv)
+		docJson, _ := goquery.NewDocumentFromReader(subpageReaderJson)
+
+		subpageDocsCsv = append(subpageDocsCsv, docCsv)
+		subpageDocsJson = append(subpageDocsJson, docJson)
 	}
 
-	return subpageReadersJson, subpageReadersCsv
+	return subpageDocsJson, subpageDocsCsv
 }

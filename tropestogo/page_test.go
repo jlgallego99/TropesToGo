@@ -20,7 +20,7 @@ var _ = Describe("Page", func() {
 
 	Context("Create a TvTropes Page object of a Film page", func() {
 		BeforeEach(func() {
-			validPage, errValidPage = tropestogo.NewPage(oldboyUrl)
+			validPage, errValidPage = tropestogo.NewPage(oldboyUrl, false)
 		})
 
 		It("Shouldn't return an error", func() {
@@ -40,7 +40,7 @@ var _ = Describe("Page", func() {
 
 	Context("Create a TvTropes Page object of a Trope page", func() {
 		BeforeEach(func() {
-			validPage, errValidPage = tropestogo.NewPage(tropeUrl)
+			validPage, errValidPage = tropestogo.NewPage(tropeUrl, false)
 		})
 
 		It("Shouldn't return an error", func() {
@@ -60,7 +60,7 @@ var _ = Describe("Page", func() {
 
 	Context("Create a TvTropes Page object of a Index page", func() {
 		BeforeEach(func() {
-			validPage, errValidPage = tropestogo.NewPage(indexUrl)
+			validPage, errValidPage = tropestogo.NewPage(indexUrl, false)
 		})
 
 		It("Shouldn't return an error", func() {
@@ -80,7 +80,7 @@ var _ = Describe("Page", func() {
 
 	Context("Create a Page object of a web that isn't TvTropes", func() {
 		BeforeEach(func() {
-			invalidPage, errInvalidPage = tropestogo.NewPage(googleUrl)
+			invalidPage, errInvalidPage = tropestogo.NewPage(googleUrl, false)
 		})
 
 		It("Should return an error", func() {
@@ -95,7 +95,7 @@ var _ = Describe("Page", func() {
 
 	Context("Create a Page with an empty URL", func() {
 		BeforeEach(func() {
-			nullPage, errNullPage = tropestogo.NewPage("")
+			nullPage, errNullPage = tropestogo.NewPage("", false)
 		})
 
 		It("Should return an error", func() {
