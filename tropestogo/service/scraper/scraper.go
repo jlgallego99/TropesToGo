@@ -10,7 +10,6 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	tropestogo "github.com/jlgallego99/TropesToGo"
-	"github.com/jlgallego99/TropesToGo/index"
 	"github.com/jlgallego99/TropesToGo/media"
 )
 
@@ -55,8 +54,6 @@ type ScraperConfig func(ss *ServiceScraper) error
 // ServiceScraper manages the TropesToGo scraper for checking TvTropes pages, extracting/cleaning its information
 // and persisting the data on a RepositoryMedia
 type ServiceScraper struct {
-	// TvTropes index
-	index index.RepositoryIndex
 	// TvTropes dataset
 	data media.RepositoryMedia
 }
@@ -72,18 +69,6 @@ func NewServiceScraper(cfgs ...ScraperConfig) (*ServiceScraper, error) {
 	}
 
 	return ss, nil
-}
-
-// ConfigIndexRepository defines a function that applies a RepositoryIndex so it can be used as a config when creating a ServiceScraper
-func ConfigIndexRepository(ir index.RepositoryIndex) ScraperConfig {
-	return func(ss *ServiceScraper) error {
-		if ir == nil {
-			return ErrInvalidField
-		}
-
-		ss.index = ir
-		return nil
-	}
 }
 
 // ConfigMediaRepository defines a function that applies a RepositoryMedia so it can be used as a config when creating a ServiceScraper
