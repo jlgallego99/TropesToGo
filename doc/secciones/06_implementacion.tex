@@ -1048,14 +1048,15 @@ resultados. Al entrar a TvTropes desde un navegador se pudo ver la razón: la we
 mostraba una única página con un mensaje indicando que TvTropes detectó un
 número alto de peticiones y que esperase unos pocos minutos antes de volver a
 intentarlo de nuevo, lo cual puso de manifiesto la necesidad de controlar mucho
-mejor las peticiones HTTP que se realizaban.
+mejor las peticiones HTTP enviadas.
 
 Una de las principales razones por las que se llegó a este caso se debía a que
-el \textit{crawler} necesitaba extraer el HTML, realizando por tanto una
-petición HTTP a la página para ello. Y luego el \textit{scraper}, que solo tenía
-los URL de las páginas encontradas por el \textit{crawler}, volvía a repetir
-peticiones a esas páginas para volver a obtener sus contenidos, por lo que cada
-página de obra se llamaba dos veces, sobrecargando la red más de lo necesario.
+el \textit{crawler} necesita extraer el HTML, teniendo que llevar a cabo, por
+tanto, una petición HTTP a la página para ello. Y luego el \textit{scraper}, que
+solo tenía los URL de las páginas encontradas por el \textit{crawler}, volvía a
+repetir peticiones a esas páginas para volver a obtener sus contenidos, por lo
+que cada página de obra se llamaba dos veces, sobrecargando la red más de lo
+necesario.
 
 Existen varias soluciones para esto, que pasan por la idea de tener una caché
 (temporal o persistida) de los contenidos de las páginas extraídas. Esto se
@@ -1074,16 +1075,20 @@ unión entre \textit{crawler} y \textit{scraper}. Tal y como funciona el
 subpáginas que tengan. En este proceso entra primero una petición HTTP a la
 página y luego una transformación a documento Goquery, que es la biblioteca
 encargada de poder iterar sobre el árbol de elementos para encontrar lo que se
-necesita. Este objeto Goquery es lo que utilizan ambos servicios para encontrar
-lo que necesitan, ya sea enlaces o metadatos, y es siempre un objeto
-referenciado. Por tanto, la solución a este problema se basa en  Esto supone una
-gran mejora en eficiencia del código, escalabilidad y simplicidad, puesto que
-basta con usar el mismo objeto que se estaba utilizando anteriormente. El
+necesita. Este objeto Goquery es el recurso con el que ambos servicios
+encuentran lo que necesitan, ya sea enlaces o metadatos, y es siempre un objeto
+referenciado. Por tanto, la solución a este problema se basa en que toda la
+carga de realizar las peticiones al servidor recaiga sobre el \textit{crawler},
+que al crear cada uno de los objetos \texttt{Page} y añadirlos a la entidad \texttt{TvTropesPages} realizan 
+directamente la petición HTTP y transforman el
+contenido al documento Goquery, liberando al \textit{scraper} de cualquier tarea
+de red. Esto supone una gran mejora en eficiencia del código, escalabilidad y
+simplicidad, puesto que basta con reutilizar el documento. El
 \textit{scraper} se ahorra dos operaciones bastante costosas y que hasta ahora
 se estaban haciendo de forma duplicada: la descarga del HTML y su transformación
 a un documento Goquery, con el consiguiente duplicado de variables y desperdicio
 de espacio en memoria que suponía. Ahora, una vez que se ha visitado una página,
-no se volverá a hacer durante la misma ejecución.
+no se volverá a visitar durante la misma ejecución, ya que ya está descargada.
 
 \subsubsection{Limitación de la tasa de crawling}
 La solución anterior ya supone una gran mejora en eficiencia y en controlar
@@ -1091,43 +1096,49 @@ mejor las peticiones, sin embargo, aún quedan consideraciones a tener en cuenta
 en el ámbito del \textit{scraping} para poder limitar y esconder mejor el bot.
 Se deben tener en cuenta políticas de cortesía con respecto a las peticiones que
 se hace a la web, y la más común y efectiva de ellas es limitar la tasa de
-\textit{crawling} de forma randomizada \cite{apress2018scraping}. Esto consiste
+\textit{crawling} aleatoriamente \cite{apress2018scraping}. Esto consiste
 simplemente en dejar el programa en esperas aleatorias entre petición y
 petición, pero no demasiado largas como para que sean negativas para el
 desempeño del bot. Se implementa una espera aleatoria de máximo 1 segundo entre
 cada petición, lo suficiente para que el bucle de peticiones no sobrecargue de
 peticiones al servidor en un corto periodo de tiempo, y también para que no sean
-predecibles y por tanto sufrir el riesgo de ser bloqueados. También se estudian
+predecibles y sufrir el riesgo de ser bloqueados. También se estudian
 los códigos de error que devuelve TvTropes, y si son códigos como 403, que
 indican que se ha denegado el acceso como en la demo que se hizo, se realiza una
 espera mayor hasta que se levante la restricción y poder continuar.
 
-Con estos cambios, ambos servicios son ya capaces de realizar un gran número de
-peticiones y extracciones de datos de forma más eficiente y que respete al
+Con estos cambios, ambos servicios son ya capaces de ejecutar un gran número de
+peticiones y extracciones de datos más eficientemente y respetando al
 servidor de TvTropes. Sin embargo, en el ámbito del \textit{scraping} es
 necesario tener siempre una capa extra de seguridad, por lo que es muy
-recomendable hacer más robusto al bot de forma que pase desapercibido. Uno de
+recomendable hacer más robusto al bot para que pase desapercibido. Uno de
 los aspectos que más debe tener en cuenta cualquier \textit{scraper}, como se
 dijo en el \autoref{chapter:3}, es modificar las cabeceras de las peticiones
 HTTP con información típica que contienen los navegadores para evitar ser
 rechazados al instante por no ser un usuario humano \cite{apress2018scraping}.
-Las más importantes son \texttt{User-Agent} con la información de un navegador o
-\texttt{Referer} con la URL de donde se supone que procede la petición. Se opta
-por poner que las peticiones proceden de un navegador Firefox, que es bastante
-común, y referidas desde Google, ya que es bastante común e improbable que se
-bloquee una petición que provenga desde ahí \cite{bettenbuk_10_2019}.
+Las más importantes son la cabecera \texttt{User-Agent} con la información de un
+navegador o la cabecera \texttt{Referer} con la URL de donde se supone que
+procede la petición. Se opta por poner que las peticiones proceden de un
+navegador Firefox, que es bastante común, y referidas desde Google, ya que es
+bastante común e improbable que se bloquee una petición que provenga desde ahí
+\cite{bettenbuk_10_2019}.
 
 También es recomendable añadir otras cabeceras adicionales que suelen añadir los
 navegadores, las cuales son de muchos tipos. Se utilizan las proporcionadas por
-la web HTTPBin en uno de sus
+la web \texttt{HTTPBin} en uno de sus
 ejemplos\footnote{\url{https://httpbin.org/anything}}, una web recomendable para
 hacer pruebas HTTP de cualquier tipo \cite{bettenbuk_10_2019}.
 
 TvTropes no es una página que tenga demasiados mecanismos en contra de los
 \textit{scrapers} por completo, más allá de poner limitaciones cuando les
-llueven muchas peticiones desde una misma IP, sin embargo nunca sobra tener un
-poco más de precaución. 
+llueven muchas peticiones desde una misma IP, sin embargo, nunca sobra tener un
+poco más de precaución.
 
-\section{Actualizador de información}
+Estas mejoras para intentar limitar la carga de TvTropes constituyen un parche
+que mejora la eficiencia y protege al \textit{scraper} contra posibles
+denegaciones por parte de TvTropes, por lo que siguiendo el versionado semántico
+se aumenta la última versión, teniendo al final de este PMV una versión 0.5.1 de
+TropesToGo.
+
 \section{Extracción de otros medios audiovisuales}
 \section{Resultado final}
