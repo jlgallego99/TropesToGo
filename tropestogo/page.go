@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -59,51 +60,90 @@ func NewPage(pageUrl string, requestPage bool) (Page, error) {
 		return Page{}, ErrEmptyUrl
 	}
 
+	parsedUrl, errParse := parseTvTropesUrl(pageUrl)
+	if errParse != nil {
+		return Page{}, errParse
+	}
+
+	var doc *goquery.Document = nil
+	if requestPage {
+		httpResponse, errRequest := requestTvTropesPage(parsedUrl)
+		if errRequest != nil {
+			return Page{}, errRequest
+		}
+
+		var errParseDocument error
+		doc, errParseDocument = parsePageDocument(httpResponse.Body)
+		if errParseDocument != nil {
+			return Page{}, errParseDocument
+		}
+	}
+
+	pageType := inferPageType(parsedUrl)
+
+	return Page{
+		url:      parsedUrl,
+		document: doc,
+		pageType: pageType,
+	}, nil
+}
+
+// parseTvTropesUrl accepts a pageUrl string and parses it to a valid URL object, only if it belongs to TvTropes
+// If it can't be parsed it returns an ErrBadUrl error and if it's not a TvTropes page it returns an ErrNotTvTropes error
+func parseTvTropesUrl(pageUrl string) (*url.URL, error) {
 	newUrl, errParse := url.Parse(pageUrl)
 	if errParse != nil {
-		return Page{}, fmt.Errorf("%w: "+pageUrl+"\n%w", ErrBadUrl, errParse)
+		return nil, fmt.Errorf("%w: "+pageUrl+"\n%w", ErrBadUrl, errParse)
 	}
 
 	if newUrl.Hostname() != TvTropesHostname {
-		return Page{}, ErrNotTvTropes
+		return nil, ErrNotTvTropes
 	}
 
-	var doc *goquery.Document
-	if requestPage {
-		httpResponse, errResponse := http.Get(newUrl.String())
-		if errResponse != nil {
-			return Page{}, fmt.Errorf("%w: "+newUrl.String(), ErrNotFound)
-		}
+	return newUrl, nil
+}
 
-		if httpResponse.StatusCode == 403 || httpResponse.StatusCode == 429 {
-			return Page{}, fmt.Errorf("%w: "+newUrl.String(), ErrForbidden)
-		}
-
-		var errDoc error
-		doc, errDoc = goquery.NewDocumentFromReader(httpResponse.Body)
-		if errDoc != nil {
-			return Page{}, fmt.Errorf("%w: "+newUrl.String(), ErrParsing)
-		}
-	} else {
-		doc = nil
+// requestTvTropesPage tries to make an HTTP request to a URL and returns its contents
+// If the URL isn't available for retrieving its content will return an ErrNotFound or an ErrForbidden error
+func requestTvTropesPage(url *url.URL) (*http.Response, error) {
+	httpResponse, errResponse := http.Get(url.String())
+	if errResponse != nil {
+		return nil, fmt.Errorf("%w: "+url.String(), ErrNotFound)
 	}
 
+	if httpResponse.StatusCode == 403 || httpResponse.StatusCode == 429 {
+		return nil, fmt.Errorf("%w: "+url.String(), ErrForbidden)
+	}
+
+	return httpResponse, nil
+}
+
+// parsePageDocument accepts a reader object containing the contents of a web page and returns a goquery Document with them
+// if it can't be parsed, it will return an ErrParsing error
+func parsePageDocument(reader io.Reader) (*goquery.Document, error) {
+	doc, errDoc := goquery.NewDocumentFromReader(reader)
+	if errDoc != nil {
+		return nil, ErrParsing
+	}
+
+	return doc, nil
+}
+
+// inferPageType accepts a URL object and analyzes it to infer what TvTropes type page it is
+// If it isn't a known type, it will return an UnknownPageType
+func inferPageType(url *url.URL) PageType {
 	var pageType PageType
-	if strings.HasPrefix(newUrl.Path, TvTropesMainPath) {
+	if strings.HasPrefix(url.Path, TvTropesMainPath) {
 		pageType = MainPage
-	} else if strings.HasPrefix(newUrl.Path, TvTropesPmwiki) {
+	} else if strings.HasPrefix(url.Path, TvTropesPmwiki) {
 		pageType = WorkPage
-	} else if strings.HasPrefix(newUrl.Path, TvTropesIndexPath) {
+	} else if strings.HasPrefix(url.Path, TvTropesIndexPath) {
 		pageType = IndexPage
 	} else {
 		pageType = UnknownPageType
 	}
 
-	return Page{
-		url:      newUrl,
-		document: doc,
-		pageType: pageType,
-	}, nil
+	return pageType
 }
 
 // GetUrl returns the inmutable URL object that defines the Page
