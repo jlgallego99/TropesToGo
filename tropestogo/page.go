@@ -24,6 +24,8 @@ var (
 	ErrNotFound    = errors.New("couldn't request the URL")
 	ErrForbidden   = errors.New("http request denied, maybe there has been too many requests")
 	ErrParsing     = errors.New("error parsing the web contents")
+
+	httpClient = &http.Client{}
 )
 
 // PageType represents all the relevant types a TvTropes Page can be, so the scraper can know what it is traversing
@@ -55,7 +57,7 @@ type Page struct {
 // (main page, work page, index page, etc.)
 // It returns an ErrEmptyUrl error if it's empty or an ErrBadUrl error if it's not properly represented
 // It returns an ErrNotFound if the web page couldn't be retrieved or an ErrForbidden if it's access has been temporarily denied by a 403 error
-func NewPage(pageUrl string, requestPage bool) (Page, error) {
+func NewPage(pageUrl string, requestPage bool, req *http.Request) (Page, error) {
 	if pageUrl == "" {
 		return Page{}, ErrEmptyUrl
 	}
@@ -67,7 +69,7 @@ func NewPage(pageUrl string, requestPage bool) (Page, error) {
 
 	var doc *goquery.Document = nil
 	if requestPage {
-		httpResponse, errRequest := requestTvTropesPage(parsedUrl)
+		httpResponse, errRequest := doRequest(pageUrl, req)
 		if errRequest != nil {
 			return Page{}, errRequest
 		}
@@ -103,16 +105,16 @@ func parseTvTropesUrl(pageUrl string) (*url.URL, error) {
 	return newUrl, nil
 }
 
-// requestTvTropesPage tries to make an HTTP request to a URL and returns its contents
+// doRequest tries to make an HTTP request and returns its contents
 // If the URL isn't available for retrieving its content will return an ErrNotFound or an ErrForbidden error
-func requestTvTropesPage(url *url.URL) (*http.Response, error) {
-	httpResponse, errResponse := http.Get(url.String())
-	if errResponse != nil {
-		return nil, fmt.Errorf("%w: "+url.String(), ErrNotFound)
+func doRequest(pageUrl string, request *http.Request) (*http.Response, error) {
+	httpResponse, errDoRequest := httpClient.Do(request)
+	if errDoRequest != nil {
+		return nil, fmt.Errorf("%w: "+pageUrl, ErrNotFound)
 	}
 
 	if httpResponse.StatusCode == 403 || httpResponse.StatusCode == 429 {
-		return nil, fmt.Errorf("%w: "+url.String(), ErrForbidden)
+		return nil, fmt.Errorf("%w: "+pageUrl, ErrForbidden)
 	}
 
 	return httpResponse, nil

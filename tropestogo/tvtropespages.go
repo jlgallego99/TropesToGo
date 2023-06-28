@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -43,13 +44,14 @@ func NewTvTropesPages() *TvTropesPages {
 
 // AddTvTropesPage creates a valid TvTropes Page with no SubPages from a string pageUrl and adds it to the internal structure of all pages
 // except if the page has already been added before, then it will return an ErrDuplicatedPage error
+// It receives a request object with specific headers for unnoticed crawling
 // If the requestPages argument is true, it makes an http request to the page with a random waiting time between requests
 // If successful, returns the created Page for its use
 // If the url is empty or has an invalid format, it will return either an ErrEmptyUrl or ErrBadUrl error
 // If the url does not belong to a TvTropes page, it will return an ErrNotTvTropes error
 // If TvTropes denies access because of too many requests, it will not create the Page and return an ErrForbidden error for the crawler to manage
-func (tvtropespages *TvTropesPages) AddTvTropesPage(pageUrl string, requestPages bool) (Page, error) {
-	newPage, errNewPage := NewPage(pageUrl, requestPages)
+func (tvtropespages *TvTropesPages) AddTvTropesPage(pageUrl string, requestPages bool, request *http.Request) (Page, error) {
+	newPage, errNewPage := NewPage(pageUrl, requestPages, request)
 	if errNewPage != nil {
 		return Page{}, errNewPage
 	}
@@ -72,10 +74,15 @@ func (tvtropespages *TvTropesPages) AddTvTropesPage(pageUrl string, requestPages
 // If the url is empty or has an invalid format, it will return either an ErrEmptyUrl or ErrBadUrl error
 // If the url does not belong to a TvTropes page, it will return an ErrNotTvTropes error
 // If TvTropes denies access because of too many requests, it will not create the Page and return an ErrForbidden error for the crawler to manage
-func (tvtropespages *TvTropesPages) AddSubpages(pageUrl string, subpageUrls []string, requestPages bool) error {
+func (tvtropespages *TvTropesPages) AddSubpages(pageUrl string, subpageUrls []string, requestPages bool, requests []*http.Request) error {
 	subPages := make(map[Page]time.Time, 0)
-	for _, subpageUrl := range subpageUrls {
-		newSubpage, errSubpage := NewPage(subpageUrl, requestPages)
+	for i, subpageUrl := range subpageUrls {
+		var req *http.Request = nil
+		if requestPages {
+			req = requests[i]
+		}
+
+		newSubpage, errSubpage := NewPage(subpageUrl, requestPages, req)
 		if errSubpage != nil {
 			return errSubpage
 		}

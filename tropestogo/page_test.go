@@ -20,7 +20,7 @@ var _ = Describe("Page", func() {
 
 	Context("Create a TvTropes Page object of a Film page", func() {
 		BeforeEach(func() {
-			validPage, errValidPage = tropestogo.NewPage(oldboyUrl, false)
+			validPage, errValidPage = tropestogo.NewPage(oldboyUrl, false, nil)
 		})
 
 		It("Shouldn't return an error", func() {
@@ -40,7 +40,7 @@ var _ = Describe("Page", func() {
 
 	Context("Create a TvTropes Page object of a Trope page", func() {
 		BeforeEach(func() {
-			validPage, errValidPage = tropestogo.NewPage(tropeUrl, false)
+			validPage, errValidPage = tropestogo.NewPage(tropeUrl, false, nil)
 		})
 
 		It("Shouldn't return an error", func() {
@@ -60,7 +60,7 @@ var _ = Describe("Page", func() {
 
 	Context("Create a TvTropes Page object of a Index page", func() {
 		BeforeEach(func() {
-			validPage, errValidPage = tropestogo.NewPage(indexUrl, false)
+			validPage, errValidPage = tropestogo.NewPage(indexUrl, false, nil)
 		})
 
 		It("Shouldn't return an error", func() {
@@ -80,7 +80,7 @@ var _ = Describe("Page", func() {
 
 	Context("Create a Page object of a web that isn't TvTropes", func() {
 		BeforeEach(func() {
-			invalidPage, errInvalidPage = tropestogo.NewPage(googleUrl, false)
+			invalidPage, errInvalidPage = tropestogo.NewPage(googleUrl, false, nil)
 		})
 
 		It("Should return an error", func() {
@@ -95,7 +95,7 @@ var _ = Describe("Page", func() {
 
 	Context("Create a Page with an empty URL", func() {
 		BeforeEach(func() {
-			nullPage, errNullPage = tropestogo.NewPage("", false)
+			nullPage, errNullPage = tropestogo.NewPage("", false, nil)
 		})
 
 		It("Should return an error", func() {

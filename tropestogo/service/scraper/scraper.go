@@ -308,7 +308,7 @@ func (scraper *ServiceScraper) ScrapeFromDocuments(doc *goquery.Document, subDoc
 		return media.Media{}, ErrInvalidField
 	}
 
-	page, errNewPage := tropestogo.NewPage(url.String(), false)
+	page, errNewPage := tropestogo.NewPage(url.String(), false, nil)
 	if errNewPage != nil {
 		return media.Media{}, fmt.Errorf("Error creating Page object \n%w", errNewPage)
 	}

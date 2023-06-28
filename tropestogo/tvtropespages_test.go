@@ -31,8 +31,8 @@ var _ = Describe("Tvtropespages", func() {
 		var mainPage tropestogo.Page
 
 		BeforeEach(func() {
-			mainPage, errAddValid = tvtropespages.AddTvTropesPage(oldboyUrl, false)
-			errAddSubpage = tvtropespages.AddSubpages(oldboyUrl, oldboySuburls, false)
+			mainPage, errAddValid = tvtropespages.AddTvTropesPage(oldboyUrl, false, nil)
+			errAddSubpage = tvtropespages.AddSubpages(oldboyUrl, oldboySuburls, false, nil)
 		})
 
 		It("Shouldn't return an error", func() {
@@ -69,11 +69,11 @@ var _ = Describe("Tvtropespages", func() {
 		var mainPage2, mainPage3 tropestogo.Page
 
 		BeforeEach(func() {
-			mainPage2, errAddValid2 = tvtropespages.AddTvTropesPage(tropeUrl, false)
-			errAddSubpage2 = tvtropespages.AddSubpages(tropeUrl, []string{}, false)
+			mainPage2, errAddValid2 = tvtropespages.AddTvTropesPage(tropeUrl, false, nil)
+			errAddSubpage2 = tvtropespages.AddSubpages(tropeUrl, []string{}, false, nil)
 
-			mainPage3, errAddValid3 = tvtropespages.AddTvTropesPage(indexUrl, false)
-			errAddSubpage3 = tvtropespages.AddSubpages(indexUrl, []string{}, false)
+			mainPage3, errAddValid3 = tvtropespages.AddTvTropesPage(indexUrl, false, nil)
+			errAddSubpage3 = tvtropespages.AddSubpages(indexUrl, []string{}, false, nil)
 		})
 
 		It("Shouldn't return an error", func() {
@@ -101,7 +101,7 @@ var _ = Describe("Tvtropespages", func() {
 		var errAddSubpage error
 
 		BeforeEach(func() {
-			errAddSubpage = tvtropespages.AddSubpages("NotAnUrl", oldboySuburls, false)
+			errAddSubpage = tvtropespages.AddSubpages("NotAnUrl", oldboySuburls, false, nil)
 		})
 
 		It("Should return an error", func() {
@@ -114,8 +114,8 @@ var _ = Describe("Tvtropespages", func() {
 		var duplicatedPage tropestogo.Page
 
 		BeforeEach(func() {
-			duplicatedPage, errAddDuplicated = tvtropespages.AddTvTropesPage(oldboyUrl, false)
-			duplicatedPage, errAddDuplicated = tvtropespages.AddTvTropesPage(oldboyUrl, false)
+			duplicatedPage, errAddDuplicated = tvtropespages.AddTvTropesPage(oldboyUrl, false, nil)
+			duplicatedPage, errAddDuplicated = tvtropespages.AddTvTropesPage(oldboyUrl, false, nil)
 		})
 
 		It("Should return an error", func() {
@@ -136,7 +136,7 @@ var _ = Describe("Tvtropespages", func() {
 		var emptyPage tropestogo.Page
 
 		BeforeEach(func() {
-			emptyPage, errAddEmpty = tvtropespages.AddTvTropesPage("", false)
+			emptyPage, errAddEmpty = tvtropespages.AddTvTropesPage("", false, nil)
 		})
 
 		It("Should return an error", func() {
@@ -157,7 +157,7 @@ var _ = Describe("Tvtropespages", func() {
 		var badPage tropestogo.Page
 
 		BeforeEach(func() {
-			badPage, errAddEmpty = tvtropespages.AddTvTropesPage("htp$p%^^^&&***!!!!!", false)
+			badPage, errAddEmpty = tvtropespages.AddTvTropesPage("htp$p%^^^&&***!!!!!", false, nil)
 		})
 
 		It("Should return an error", func() {

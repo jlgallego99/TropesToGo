@@ -30,7 +30,7 @@ var _ = Describe("Media", func() {
 		tropes[trope2] = struct{}{}
 		lastUpdated = time.Now()
 
-		tvTropesPage, _ = tropestogo.NewPage(avengersUrl, false)
+		tvTropesPage, _ = tropestogo.NewPage(avengersUrl, false, nil)
 	})
 
 	AfterEach(func() {
