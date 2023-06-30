@@ -257,14 +257,7 @@ func (scraper *ServiceScraper) CheckIsSubWiki(doc *goquery.Document) bool {
 // ScrapeTvTropes tries to scrape all pages and its subpages that are TvTropesPages by making HTTP requests to TvTropes
 // It only returns an error if it can't write or read the dataset, if the page can't be scraped it skips to the next
 func (scraper *ServiceScraper) ScrapeTvTropes(tvtropespages *tropestogo.TvTropesPages) error {
-	for page, tvtropessubpages := range tvtropespages.Pages {
-		var subPages []tropestogo.Page
-		for subPage := range tvtropessubpages.Subpages {
-			if subPage.GetPageType() == tropestogo.WorkPage {
-				subPages = append(subPages, subPage)
-			}
-		}
-
+	for page, subPages := range tvtropespages.Pages {
 		scraper.ScrapeTvTropesPage(page, subPages)
 	}
 
@@ -276,16 +269,18 @@ func (scraper *ServiceScraper) ScrapeTvTropes(tvtropespages *tropestogo.TvTropes
 	return nil
 }
 
-// ScrapeTvTropesPage validates the Goquery document from a page object and its subPages and fully scrapes its contents
-// calling all sub functions and returning a valid Media object
+// ScrapeTvTropesPage accepts a main Work Page object and TvTropesSubpages object which contains all its subpages
+// Full scrapes its contents, extracting the title, year, media type and all tropes, finally returning a correctly formed media object with all the data
+// It calls sub functions for scraping the multiple parts and returns an error if some scraping has failed
 // If the page or subpages doesn't have a parsed document, it returns an ErrEmptyDocument error
-func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages []tropestogo.Page) (media.Media, error) {
-	if page.GetDocument() == nil {
+func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages *tropestogo.TvTropesSubpages) (media.Media, error) {
+	doc := page.GetDocument()
+	if doc == nil {
 		return media.Media{}, fmt.Errorf("%w: "+page.GetUrl().String(), ErrEmptyDocument)
 	}
 
 	var subDocs []*goquery.Document
-	for _, subPage := range subPages {
+	for subPage, _ := range subPages.Subpages {
 		if subPage.GetDocument() == nil {
 			return media.Media{}, fmt.Errorf("%w: "+page.GetUrl().String(), ErrEmptyDocument)
 		}
@@ -293,14 +288,6 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages
 		subDocs = append(subDocs, subPage.GetDocument())
 	}
 
-	return scraper.ScrapeFromDocuments(page.GetDocument(), subDocs, page.GetUrl())
-}
-
-// ScrapeFromDocuments accepts a Goquery document with a TvTropes Work Page contents and an array of documents with all its subpages contents
-// Extracts all the relevant information from them and the url from the last parameter
-// It scrapes the title, year, media type and all tropes, finally returning a correctly formed media object with all the data
-// It calls sub functions for scraping the multiple parts and returns an error if some scraping has failed
-func (scraper *ServiceScraper) ScrapeFromDocuments(doc *goquery.Document, subDocs []*goquery.Document, url *url.URL) (media.Media, error) {
 	tropes := make(map[tropestogo.Trope]struct{})
 	var errTropes error
 
@@ -308,7 +295,7 @@ func (scraper *ServiceScraper) ScrapeFromDocuments(doc *goquery.Document, subDoc
 		return media.Media{}, ErrInvalidField
 	}
 
-	page, errNewPage := tropestogo.NewPage(url.String(), false, nil)
+	page, errNewPage := tropestogo.NewPage(page.GetUrl().String(), false, nil)
 	if errNewPage != nil {
 		return media.Media{}, fmt.Errorf("Error creating Page object \n%w", errNewPage)
 	}
