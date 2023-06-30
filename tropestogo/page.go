@@ -69,9 +69,13 @@ func NewPage(pageUrl string, requestPage bool, req *http.Request) (Page, error) 
 
 	var doc *goquery.Document = nil
 	if requestPage {
-		httpResponse, errRequest := doRequest(pageUrl, req)
+		httpResponse, errRequest := doRequest(req)
 		if errRequest != nil {
 			return Page{}, errRequest
+		}
+
+		if httpResponse.StatusCode == 403 || httpResponse.StatusCode == 429 {
+			return Page{}, fmt.Errorf("%w: "+pageUrl, ErrForbidden)
 		}
 
 		var errParseDocument error
@@ -107,14 +111,10 @@ func parseTvTropesUrl(pageUrl string) (*url.URL, error) {
 
 // doRequest tries to make an HTTP request and returns its contents
 // If the URL isn't available for retrieving its content will return an ErrNotFound or an ErrForbidden error
-func doRequest(pageUrl string, request *http.Request) (*http.Response, error) {
+func doRequest(request *http.Request) (*http.Response, error) {
 	httpResponse, errDoRequest := httpClient.Do(request)
 	if errDoRequest != nil {
-		return nil, fmt.Errorf("%w: "+pageUrl, ErrNotFound)
-	}
-
-	if httpResponse.StatusCode == 403 || httpResponse.StatusCode == 429 {
-		return nil, fmt.Errorf("%w: "+pageUrl, ErrForbidden)
+		return nil, fmt.Errorf("%w: "+request.URL.String(), ErrNotFound)
 	}
 
 	return httpResponse, nil
