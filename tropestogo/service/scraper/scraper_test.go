@@ -58,7 +58,7 @@ var _ = BeforeSuite(func() {
 	serviceScraperCsv, newScraperCsvErr = scraper.NewServiceScraper(scraper.ConfigMediaRepository(csvRepository))
 
 	// Create invalid scraper
-	invalidScraper, invalidScraperErr = scraper.NewServiceScraper(scraper.ConfigIndexRepository(nil))
+	invalidScraper, invalidScraperErr = scraper.NewServiceScraper(scraper.ConfigMediaRepository(nil))
 })
 
 var _ = Describe("Scraper", func() {

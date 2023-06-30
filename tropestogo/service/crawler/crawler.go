@@ -16,6 +16,15 @@ const (
 	// The seed is the starting URL of the crawler
 	seed = "https://tvtropes.org/pmwiki/pagelist_having_pagetype_in_namespace.php?t=work&n=Film"
 
+	// Common headers for a Firefox browser
+	userAgentHeader               = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0"
+	acceptHeader                  = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+	acceptLanguageHeader          = "es"
+	upgradeInsecureRequestsHeader = "1"
+
+	// Referer header for a well-known and trusty webpage
+	refererHeader = "https://www.google.com/"
+
 	TvTropesHostname       = "tvtropes.org"
 	TvTropesWeb            = "https://" + TvTropesHostname
 	TvTropesPmwiki         = TvTropesWeb + "/pmwiki/"
@@ -31,6 +40,8 @@ var (
 	ErrCrawling = errors.New("there was an error crawling TvTropes")
 	ErrEndIndex = errors.New("there's no next page on the index")
 	ErrParse    = errors.New("couldn't parse the HTML contents of the page")
+
+	httpClient = &http.Client{}
 )
 
 type ServiceCrawler struct{}
@@ -53,8 +64,13 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 	}
 
 	for {
-		resp, errGetIndex := http.Get(indexPage)
-		if errGetIndex != nil {
+		request, errValidRequest := crawler.makeValidRequest(indexPage)
+		if errValidRequest != nil {
+			return nil, errValidRequest
+		}
+
+		resp, errDoRequest := httpClient.Do(request)
+		if errDoRequest != nil {
 			return nil, fmt.Errorf("%w: "+indexPage, ErrNotFound)
 		}
 
@@ -81,7 +97,12 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 			}
 
 			// Create the Work Page
-			workPage, errAddPage = crawledPages.AddTvTropesPage(workUrl, true)
+			validRequest, errRequest := crawler.makeValidRequest(workUrl)
+			if errRequest != nil {
+				errAddPage = errRequest
+				return false
+			}
+			workPage, errAddPage = crawledPages.AddTvTropesPage(workUrl, true, validRequest)
 			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
 				time.Sleep(time.Minute)
 			}
@@ -90,7 +111,17 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 			subPagesUrls := crawler.CrawlWorkSubpages(workPage.GetDocument())
 
 			// Add its subpages to the Work Page
-			errAddPage = crawledPages.AddSubpages(workUrl, subPagesUrls, true)
+			var requests []*http.Request
+			for _, subPagesUrl := range subPagesUrls {
+				validRequest, errRequest = crawler.makeValidRequest(subPagesUrl)
+				if errRequest != nil {
+					errAddPage = errRequest
+					return false
+				}
+
+				requests = append(requests, validRequest)
+			}
+			errAddPage = crawledPages.AddSubpages(workUrl, subPagesUrls, true, requests)
 
 			// If there's been too many requests to TvTropes, wait longer
 			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
@@ -210,8 +241,8 @@ func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, 
 			pageDoc, _ := goquery.NewDocumentFromReader(workReaders[i])
 			subPagesUrls := crawler.CrawlWorkSubpages(pageDoc)
 
-			_, errAddPage = crawledPages.AddTvTropesPage(workUrl, false)
-			errAddPage = crawledPages.AddSubpages(workUrl, subPagesUrls, false)
+			_, errAddPage = crawledPages.AddTvTropesPage(workUrl, false, nil)
+			errAddPage = crawledPages.AddSubpages(workUrl, subPagesUrls, false, nil)
 
 			return true
 		})
@@ -226,4 +257,22 @@ func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, 
 	}
 
 	return crawledPages, nil
+}
+
+// makeValidRequests builds an HTTP request to the url page and returns its contents
+// The request sets very specific Headers to pass as a real browser, avoiding banning for being a bot
+// It returns an ErrNotFound error if the request couldn't be made
+func (crawler *ServiceCrawler) makeValidRequest(pageUrl string) (*http.Request, error) {
+	request, errRequest := http.NewRequest("GET", pageUrl, nil)
+	if errRequest != nil {
+		return nil, fmt.Errorf("%w: "+pageUrl, ErrNotFound)
+	}
+
+	request.Header.Set("User-Agent", userAgentHeader)
+	request.Header.Set("Referer", refererHeader)
+	request.Header.Set("Accept", acceptHeader)
+	request.Header.Set("Accept-Language", acceptLanguageHeader)
+	request.Header.Set("Upgrade-Insecure-Requests", upgradeInsecureRequestsHeader)
+
+	return request, nil
 }

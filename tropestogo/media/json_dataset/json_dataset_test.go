@@ -40,7 +40,7 @@ var _ = BeforeSuite(func() {
 		tropes[subTrope] = struct{}{}
 	}
 
-	tvTropesPage, _ := tropestogo.NewPage(oldboyUrl, false)
+	tvTropesPage, _ := tropestogo.NewPage(oldboyUrl, false, nil)
 	mediaEntry, _ = media.NewMedia("Oldboy", "2003", time.Now(), tropes, tvTropesPage, media.Film)
 })
 
@@ -163,7 +163,7 @@ var _ = Describe("JsonDataset", func() {
 				newTropes[subTrope] = struct{}{}
 			}
 
-			tvTropesPage, _ := tropestogo.NewPage(oldboyUrl, false)
+			tvTropesPage, _ := tropestogo.NewPage(oldboyUrl, false, nil)
 			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), newTropes, tvTropesPage, media.Film)
 
 			errUpdate = repository.UpdateMedia("Oldboy", "2003", updatedMediaEntry)
