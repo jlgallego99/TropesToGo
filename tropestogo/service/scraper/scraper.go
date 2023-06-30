@@ -3,14 +3,12 @@ package scraper
 import (
 	"errors"
 	"fmt"
-	"net/url"
-	"regexp"
-	"strings"
-	"time"
-
 	"github.com/PuerkitoBio/goquery"
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
+	"net/url"
+	"regexp"
+	"strings"
 )
 
 var (
@@ -330,7 +328,7 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages
 		tropes[subTrope] = struct{}{}
 	}
 
-	newMedia, errNewMedia := media.NewMedia(title, year, time.Now(), tropes, page, mediaIndex)
+	newMedia, errNewMedia := media.NewMedia(title, year, subPages.LastUpdated, tropes, page, mediaIndex)
 	if errNewMedia != nil {
 		return media.Media{}, errNewMedia
 	}
