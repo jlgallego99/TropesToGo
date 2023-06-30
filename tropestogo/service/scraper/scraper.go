@@ -281,9 +281,9 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages
 	for subPage, _ := range subPages.Subpages {
 		if subPage.GetDocument() == nil {
 			return media.Media{}, fmt.Errorf("%w: "+page.GetUrl().String(), ErrEmptyDocument)
+		} else if subPage.GetPageType() == tropestogo.WorkPage {
+			subDocs = append(subDocs, subPage.GetDocument())
 		}
-
-		subDocs = append(subDocs, subPage.GetDocument())
 	}
 
 	tropes := make(map[tropestogo.Trope]struct{})
