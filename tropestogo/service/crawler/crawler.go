@@ -22,24 +22,31 @@ const (
 	acceptLanguageHeader          = "es"
 	upgradeInsecureRequestsHeader = "1"
 
+	// TvTropes date format
+	tvTropesDateFormat = "Jan 2 2006 at 3:04:05 PM"
+
 	// Referer header for a well-known and trusty webpage
 	refererHeader = "https://www.google.com/"
 
-	TvTropesHostname       = "tvtropes.org"
-	TvTropesWeb            = "https://" + TvTropesHostname
-	TvTropesPmwiki         = TvTropesWeb + "/pmwiki/"
-	WorkPageSelector       = "table a"
-	CurrentSubpageSelector = ".curr-subpage"
-	SubWikiSelector        = "a.subpage-link:not(" + CurrentSubpageSelector + ")"
-	SubPageSelector        = "ul a.twikilink"
-	PaginationNavSelector  = "nav.pagination-box > a"
+	TvTropesHostname        = "tvtropes.org"
+	TvTropesWeb             = "https://" + TvTropesHostname
+	TvTropesPmwiki          = TvTropesWeb + "/pmwiki/"
+	WorkPageSelector        = "table a"
+	CurrentSubpageSelector  = ".curr-subpage"
+	SubWikiSelector         = "a.subpage-link:not(" + CurrentSubpageSelector + ")"
+	SubPageSelector         = "ul a.twikilink"
+	PaginationNavSelector   = "nav.pagination-box > a"
+	WorkHistoryPageSelector = "li.link-history a"
+	LastUpdatedSelector     = "#main-article > div:first-of-type .pull-right a"
 )
 
 var (
-	ErrNotFound = errors.New("couldn't request the URL")
-	ErrCrawling = errors.New("there was an error crawling TvTropes")
-	ErrEndIndex = errors.New("there's no next page on the index")
-	ErrParse    = errors.New("couldn't parse the HTML contents of the page")
+	ErrNotFound    = errors.New("couldn't request the URL")
+	ErrCrawling    = errors.New("there was an error crawling TvTropes")
+	ErrEndIndex    = errors.New("there's no next page on the index")
+	ErrParse       = errors.New("couldn't parse the HTML contents of the page")
+	ErrLastUpdated = errors.New("couldn't retrieve o the last updated time")
+	ErrParseTime   = errors.New("couldn't parse the TvTropes last updated time")
 
 	httpClient = &http.Client{}
 )
@@ -106,6 +113,14 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
 				time.Sleep(time.Minute)
 			}
+
+			// Set LastUpdated time
+			lastUpdated, errLastUpdated := crawler.getLastUpdated(workPage.GetDocument())
+			if errLastUpdated != nil {
+				errAddPage = errLastUpdated
+				return false
+			}
+			crawledPages.Pages[workPage].LastUpdated = lastUpdated
 
 			// Search for subpages on the new Work Page
 			subPagesUrls := crawler.CrawlWorkSubpages(workPage.GetDocument())
@@ -275,4 +290,48 @@ func (crawler *ServiceCrawler) makeValidRequest(pageUrl string) (*http.Request, 
 	request.Header.Set("Upgrade-Insecure-Requests", upgradeInsecureRequestsHeader)
 
 	return request, nil
+}
+
+// GetLastUpdated retrieves the last updated date from the history page of a Work page and parses it to a valid time object
+// If it couldn't be parsed or obtained, it will return an ErrLastUpdated error
+func (crawler *ServiceCrawler) getLastUpdated(doc *goquery.Document) (time.Time, error) {
+	historyPageUri, historyPageExists := doc.Find(WorkHistoryPageSelector).First().Attr("href")
+	if !historyPageExists {
+		return time.Time{}, ErrLastUpdated
+	}
+
+	request, errRequest := crawler.makeValidRequest(TvTropesWeb + historyPageUri)
+	if errRequest != nil {
+		return time.Time{}, errRequest
+	}
+
+	resp, errDoRequest := httpClient.Do(request)
+	if errDoRequest != nil {
+		return time.Time{}, fmt.Errorf("%w because there was an error on the HTTP request to the history ", ErrLastUpdated)
+	}
+
+	historyDoc, _ := goquery.NewDocumentFromReader(resp.Body)
+	lastUpdated, errLastUpdated := crawler.ParseTvTropesTime(historyDoc)
+	if errLastUpdated != nil {
+		return time.Time{}, errLastUpdated
+	}
+
+	return lastUpdated, nil
+}
+
+// ParseTvTropesTime searches for the last updated time in a work history page and parses it to a valid time object
+// If it can't be parsed it will return an ErrParseTime error
+func (crawler *ServiceCrawler) ParseTvTropesTime(historyDoc *goquery.Document) (time.Time, error) {
+	lastUpdatedString := historyDoc.Find(LastUpdatedSelector).Text()
+	lastUpdatedString = strings.ReplaceAll(lastUpdatedString, "st", "")
+	lastUpdatedString = strings.ReplaceAll(lastUpdatedString, "nd", "")
+	lastUpdatedString = strings.ReplaceAll(lastUpdatedString, "rd", "")
+	lastUpdatedString = strings.ReplaceAll(lastUpdatedString, "th", "")
+
+	lastUpdated, errParseTime := time.Parse(tvTropesDateFormat, lastUpdatedString)
+	if errParseTime != nil {
+		return time.Time{}, fmt.Errorf("%w: "+lastUpdatedString, ErrParseTime)
+	}
+
+	return lastUpdated, nil
 }
