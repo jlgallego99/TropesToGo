@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -37,9 +38,16 @@ var (
 		"resources/theavengers_tropesEtoL.html",
 		"resources/theavengers_tropesMtoP.html",
 		"resources/theavengers_tropesQtoZ.html"}
+	avengersSubpageUrls = []string{
+		"https://tvtropes.org/pmwiki/pmwiki.php/TheAvengers/TropesAToD", "https://tvtropes.org/pmwiki/pmwiki.php/TheAvengers/TropesEToL",
+		"https://tvtropes.org/pmwiki/pmwiki.php/TheAvengers/TropesMToP", "https://tvtropes.org/pmwiki/pmwiki.php/TheAvengers/TropesQToZ"}
 	oldboySubpageFiles = []string{"resources/oldboy_awesome.html", "resources/oldboy_fridge.html",
 		"resources/oldboy_laconic.html", "resources/oldboy_trivia.html", "resources/oldboy_ymmv.html",
 		"resources/oldboy_videoexamples.html"}
+	oldboySubpageUrls = []string{
+		"https://tvtropes.org/pmwiki/pmwiki.php/Awesome/Oldboy2003", "https://tvtropes.org/pmwiki/pmwiki.php/Fridge/Oldboy2003",
+		"https://tvtropes.org/pmwiki/pmwiki.php/Laconic/Oldboy2003", "https://tvtropes.org/pmwiki/pmwiki.php/Trivia/Oldboy2003",
+		"https://tvtropes.org/pmwiki/pmwiki.php/YMMV/Oldboy2003", "https://tvtropes.org/pmwiki/pmwiki.php/VideoExamples/Oldboy2003"}
 	headers = []string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "subtropes", "subtropes_namespaces"}
 )
 
@@ -233,16 +241,22 @@ var _ = Describe("Scraper", func() {
 		var errorfilminvalidtypeJson, errorfilminvalidtypeCsv error
 
 		BeforeEach(func() {
-			tvTropesUrlUnknown, _ := url.Parse(attackontitanUrl)
 			pageReaderCsv, _ = os.Open(attackontitanResource)
 			pageReaderJson, _ = os.Open(attackontitanResource)
-
 			docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
 			docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
-			subDocs := make([]*goquery.Document, 0)
 
-			filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeFromDocuments(docJson, subDocs, tvTropesUrlUnknown)
-			filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeFromDocuments(docCsv, subDocs, tvTropesUrlUnknown)
+			pageJson, errCreatePageJson := tropestogo.NewPageWithDocument(attackontitanUrl, docJson)
+			Expect(errCreatePageJson).To(BeNil())
+			pageCsv, errCreatePageCsv := tropestogo.NewPageWithDocument(attackontitanUrl, docCsv)
+			Expect(errCreatePageCsv).To(BeNil())
+			subPages := &tropestogo.TvTropesSubpages{
+				LastUpdated: time.Now(),
+				Subpages:    make(map[tropestogo.Page]time.Time, 0),
+			}
+
+			filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeTvTropesPage(pageJson, subPages)
+			filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeTvTropesPage(pageCsv, subPages)
 			errPersistCsv = serviceScraperCsv.Persist()
 			errPersistJson = serviceScraperJson.Persist()
 		})
@@ -293,39 +307,50 @@ var _ = Describe("Scraper", func() {
 		var errorfilm1Csv, errorfilm2Csv, errorfilm3Csv, errorfilm1Json, errorfilm2Json, errorfilm3Json error
 
 		BeforeEach(func() {
-			tvTropesUrl, _ := url.Parse(oldboyUrl)
-			tvTropesUrl2, _ := url.Parse(avengersUrl)
-			tvTropesUrl3, _ := url.Parse(anewhopeUrl)
-
-			var subpageDocsCsv []*goquery.Document
-			var subpageDocsJson []*goquery.Document
+			var subpageDocsCsv *tropestogo.TvTropesSubpages
+			var subpageDocsJson *tropestogo.TvTropesSubpages
 
 			// Scrape Oldboy
-			subpageDocsJson, subpageDocsCsv = loadSubpageFiles(oldboySubpageFiles)
+			subpageDocsJson, subpageDocsCsv = loadSubpageFiles(oldboySubpageFiles, oldboySubpageUrls)
 			pageReaderCsv, _ = os.Open(oldboyResource)
 			pageReaderJson, _ = os.Open(oldboyResource)
 			docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
 			docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
-			validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeFromDocuments(docJson, subpageDocsJson, tvTropesUrl)
-			validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeFromDocuments(docCsv, subpageDocsCsv, tvTropesUrl)
+			pageJson, errCreatePageJson := tropestogo.NewPageWithDocument(oldboyUrl, docJson)
+			Expect(errCreatePageJson).To(BeNil())
+			pageCsv, errCreatePageCsv := tropestogo.NewPageWithDocument(oldboyUrl, docCsv)
+			Expect(errCreatePageCsv).To(BeNil())
+			validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeTvTropesPage(pageJson, subpageDocsJson)
+			validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeTvTropesPage(pageCsv, subpageDocsCsv)
 
 			// Scrape The Avengers
-			subpageDocsJson, subpageDocsCsv = loadSubpageFiles(avengersSubpageFiles)
+			subpageDocsJson, subpageDocsCsv = loadSubpageFiles(avengersSubpageFiles, avengersSubpageUrls)
 			pageReaderCsv, _ = os.Open(avengersResource)
 			pageReaderJson, _ = os.Open(avengersResource)
 			docJson, _ = goquery.NewDocumentFromReader(pageReaderJson)
 			docCsv, _ = goquery.NewDocumentFromReader(pageReaderCsv)
-			validfilm2Csv, errorfilm2Json = serviceScraperJson.ScrapeFromDocuments(docCsv, subpageDocsCsv, tvTropesUrl2)
-			validfilm2Json, errorfilm2Csv = serviceScraperCsv.ScrapeFromDocuments(docJson, subpageDocsJson, tvTropesUrl2)
+			pageJson, errCreatePageJson = tropestogo.NewPageWithDocument(anewhopeUrl, docJson)
+			Expect(errCreatePageJson).To(BeNil())
+			pageCsv, errCreatePageCsv = tropestogo.NewPageWithDocument(anewhopeUrl, docCsv)
+			Expect(errCreatePageCsv).To(BeNil())
+			validfilm2Csv, errorfilm2Json = serviceScraperJson.ScrapeTvTropesPage(pageJson, subpageDocsJson)
+			validfilm2Json, errorfilm2Csv = serviceScraperCsv.ScrapeTvTropesPage(pageCsv, subpageDocsCsv)
 
 			// Scrape A New Hope
 			pageReaderCsv, _ = os.Open(anewhopeResource)
 			pageReaderJson, _ = os.Open(anewhopeResource)
 			docJson, _ = goquery.NewDocumentFromReader(pageReaderJson)
 			docCsv, _ = goquery.NewDocumentFromReader(pageReaderCsv)
-			subDocs := make([]*goquery.Document, 0)
-			validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeFromDocuments(docJson, subDocs, tvTropesUrl3)
-			validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeFromDocuments(docCsv, subDocs, tvTropesUrl3)
+			pageJson, errCreatePageJson = tropestogo.NewPageWithDocument(anewhopeUrl, docJson)
+			Expect(errCreatePageJson).To(BeNil())
+			pageCsv, errCreatePageCsv = tropestogo.NewPageWithDocument(anewhopeUrl, docCsv)
+			Expect(errCreatePageCsv).To(BeNil())
+			emptySubPages := &tropestogo.TvTropesSubpages{
+				LastUpdated: time.Now(),
+				Subpages:    make(map[tropestogo.Page]time.Time, 0),
+			}
+			validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeTvTropesPage(pageJson, emptySubPages)
+			validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeTvTropesPage(pageCsv, emptySubPages)
 
 			// Persist all data
 			errPersistJson = serviceScraperJson.Persist()
@@ -474,19 +499,28 @@ func areRepositorySubTropesUnique(subTropes []string, subPages []string) bool {
 	return true
 }
 
-func loadSubpageFiles(fileNames []string) ([]*goquery.Document, []*goquery.Document) {
-	var subpageDocsCsv []*goquery.Document
-	var subpageDocsJson []*goquery.Document
+func loadSubpageFiles(fileNames []string, urlNames []string) (*tropestogo.TvTropesSubpages, *tropestogo.TvTropesSubpages) {
+	subpageDocsCsv := &tropestogo.TvTropesSubpages{
+		LastUpdated: time.Now(),
+		Subpages:    make(map[tropestogo.Page]time.Time, 0),
+	}
+	subpageDocsJson := &tropestogo.TvTropesSubpages{
+		LastUpdated: time.Now(),
+		Subpages:    make(map[tropestogo.Page]time.Time, 0),
+	}
 
-	for _, subpageFile := range fileNames {
+	for i, subpageFile := range fileNames {
 		subpageReaderCsv, _ := os.Open(subpageFile)
 		subpageReaderJson, _ := os.Open(subpageFile)
 
 		docCsv, _ := goquery.NewDocumentFromReader(subpageReaderCsv)
 		docJson, _ := goquery.NewDocumentFromReader(subpageReaderJson)
 
-		subpageDocsCsv = append(subpageDocsCsv, docCsv)
-		subpageDocsJson = append(subpageDocsJson, docJson)
+		subPageCsv, _ := tropestogo.NewPageWithDocument(urlNames[i], docCsv)
+		subPageJson, _ := tropestogo.NewPageWithDocument(urlNames[i], docJson)
+
+		subpageDocsCsv.Subpages[subPageCsv] = time.Now()
+		subpageDocsJson.Subpages[subPageJson] = time.Now()
 	}
 
 	return subpageDocsJson, subpageDocsCsv
