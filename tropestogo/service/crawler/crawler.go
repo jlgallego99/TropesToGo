@@ -40,7 +40,7 @@ const (
 	PaginationNavSelector   = "nav.pagination-box > a"
 	WorkHistoryPageSelector = "li.link-history a"
 	LastUpdatedSelector     = "#main-article > div:first-of-type .pull-right a"
-	ChangeRowSelector       = ".table-wrapper tbody > tr:not(.post-list)"
+	ChangeRowSelector       = "table tbody > tr:not(.post-list)"
 	ChangeDateOnRowSelector = "td:nth-of-type(1)"
 	ChangeWorkOnRowSelector = "td:nth-of-type(2) a"
 )
@@ -294,7 +294,8 @@ func (crawler *ServiceCrawler) CrawlChanges() (*tropestogo.TvTropesPages, error)
 		var errAddPage error
 		var changesPage tropestogo.Page
 		changeRowSelector.EachWithBreak(func(i int, selection *goquery.Selection) bool {
-			lastUpdated, errParse := time.Parse(tvTropesChangesDateFormat, selection.Find(ChangeDateOnRowSelector).Text())
+			lastUpdatedString := strings.TrimSpace(selection.Find(ChangeDateOnRowSelector).Text())
+			lastUpdated, errParse := time.Parse(tvTropesChangesDateFormat, lastUpdatedString)
 			if errParse != nil {
 				errAddPage = errParse
 				return false
