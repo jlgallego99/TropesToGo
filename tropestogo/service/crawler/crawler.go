@@ -109,15 +109,10 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 				return false
 			}
 
-			// Create the Work Page
-			validRequest, errRequest := crawler.makeValidRequest(workUrl)
-			if errRequest != nil {
-				errAddPage = errRequest
+			// Create the Work Page with its subpages
+			workPage, errAddPage = crawler.createWorkPage(workUrl, crawledPages)
+			if errAddPage != nil {
 				return false
-			}
-			workPage, errAddPage = crawledPages.AddTvTropesPage(workUrl, true, validRequest)
-			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
-				time.Sleep(time.Minute)
 			}
 
 			// Set LastUpdated time
@@ -128,21 +123,11 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 			}
 			crawledPages.Pages[workPage].LastUpdated = lastUpdated
 
-			// Search for subpages on the new Work Page
-			subPagesUrls := crawler.CrawlWorkSubpages(workPage.GetDocument())
-
-			// Add its subpages to the Work Page
-			var requests []*http.Request
-			for _, subPagesUrl := range subPagesUrls {
-				validRequest, errRequest = crawler.makeValidRequest(subPagesUrl)
-				if errRequest != nil {
-					errAddPage = errRequest
-					return false
-				}
-
-				requests = append(requests, validRequest)
+			// Crawl Work subpages and add them
+			errAddPage = crawler.addWorkSubpages(workPage, crawledPages)
+			if errAddPage != nil {
+				return false
 			}
-			errAddPage = crawledPages.AddSubpages(workUrl, subPagesUrls, true, requests)
 
 			// If there's been too many requests to TvTropes, wait longer
 			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
@@ -323,39 +308,25 @@ func (crawler *ServiceCrawler) CrawlChanges() (*tropestogo.TvTropesPages, error)
 
 			// Create the Work Page
 			workUrl := TvTropesWeb + workUri
-			validRequest, errRequest := crawler.makeValidRequest(workUrl)
-			if errRequest != nil {
-				errAddPage = errRequest
+			// Create the Work Page with its subpages
+			changesPage, errAddPage = crawler.createWorkPage(workUrl, crawledPages)
+			if errAddPage != nil {
 				return false
-			}
-			changesPage, errAddPage = crawledPages.AddTvTropesPage(workUrl, true, validRequest)
-			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
-				time.Sleep(time.Minute)
 			}
 
 			// Set LastUpdated time
-			lastUpdated, errLastUpdated := crawler.getLastUpdated(changesPage.GetDocument())
-			if errLastUpdated != nil {
-				errAddPage = errLastUpdated
-				return false
-			}
 			crawledPages.Pages[changesPage].LastUpdated = lastUpdated
 
-			// Search for subpages on the new Work Page
-			subPagesUrls := crawler.CrawlWorkSubpages(changesPage.GetDocument())
-
-			// Add its subpages to the Work Page
-			var requests []*http.Request
-			for _, subPagesUrl := range subPagesUrls {
-				validRequest, errRequest = crawler.makeValidRequest(subPagesUrl)
-				if errRequest != nil {
-					errAddPage = errRequest
-					return false
-				}
-
-				requests = append(requests, validRequest)
+			// Crawl Work subpages and add them
+			errAddPage = crawler.addWorkSubpages(changesPage, crawledPages)
+			if errAddPage != nil {
+				return false
 			}
-			errAddPage = crawledPages.AddSubpages(workUrl, subPagesUrls, true, requests)
+
+			// If there's been too many requests to TvTropes, wait longer
+			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
+				time.Sleep(time.Minute)
+			}
 
 			// If there's been too many requests to TvTropes, wait longer
 			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
@@ -377,6 +348,39 @@ func (crawler *ServiceCrawler) CrawlChanges() (*tropestogo.TvTropesPages, error)
 	}
 
 	return crawledPages, nil
+}
+
+// createWorkPage forms a valid Work Page object and adds it to the crawledPages object
+func (crawler *ServiceCrawler) createWorkPage(workUrl string, crawledPages *tropestogo.TvTropesPages) (tropestogo.Page, error) {
+	validRequest, errRequest := crawler.makeValidRequest(workUrl)
+	if errRequest != nil {
+		return tropestogo.Page{}, errRequest
+	}
+	workPage, errAddPage := crawledPages.AddTvTropesPage(workUrl, true, validRequest)
+	if errors.Is(errAddPage, tropestogo.ErrForbidden) {
+		time.Sleep(time.Minute)
+	}
+
+	return workPage, nil
+}
+
+// addWorkSubpages crawls all Work subpages, creates them and adds them to the crawledPages object
+func (crawler *ServiceCrawler) addWorkSubpages(workPage tropestogo.Page, crawledPages *tropestogo.TvTropesPages) error {
+	// Search for subpages on the new Work Page
+	subPagesUrls := crawler.CrawlWorkSubpages(workPage.GetDocument())
+
+	// Add its subpages to the Work Page
+	var requests []*http.Request
+	for _, subPagesUrl := range subPagesUrls {
+		validRequest, errRequest := crawler.makeValidRequest(subPagesUrl)
+		if errRequest != nil {
+			return errRequest
+		}
+
+		requests = append(requests, validRequest)
+	}
+
+	return crawledPages.AddSubpages(workPage.GetUrl().String(), subPagesUrls, true, requests)
 }
 
 // makeValidRequests builds an HTTP request to the url page and returns its contents
