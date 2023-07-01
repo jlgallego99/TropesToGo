@@ -14,7 +14,8 @@ import (
 
 const (
 	// The seed is the starting URL of the crawler
-	seed = "https://tvtropes.org/pmwiki/pagelist_having_pagetype_in_namespace.php?t=work&n=Film"
+	seed        = "https://tvtropes.org/pmwiki/pagelist_having_pagetype_in_namespace.php?t=work&n=Film"
+	changesSeed = "https://tvtropes.org/pmwiki/changes.php?filter=Film"
 
 	// Common headers for a Firefox browser
 	userAgentHeader               = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0"
@@ -22,8 +23,9 @@ const (
 	acceptLanguageHeader          = "es"
 	upgradeInsecureRequestsHeader = "1"
 
-	// TvTropes date format
-	tvTropesDateFormat = "Jan 2 2006 at 3:04:05 PM"
+	// TvTropes date formats
+	tvTropesHistoryDateFormat = "Jan 2 2006 at 3:04:05 PM"
+	tvTropesChangesDateFormat = "2006-01-02 3:04:05"
 
 	// Referer header for a well-known and trusty webpage
 	refererHeader = "https://www.google.com/"
@@ -38,15 +40,19 @@ const (
 	PaginationNavSelector   = "nav.pagination-box > a"
 	WorkHistoryPageSelector = "li.link-history a"
 	LastUpdatedSelector     = "#main-article > div:first-of-type .pull-right a"
+	ChangeRowSelector       = ".table-wrapper tbody > tr:not(.post-list)"
+	ChangeDateOnRowSelector = "td:nth-of-type(1)"
+	ChangeWorkOnRowSelector = "td:nth-of-type(2) a"
 )
 
 var (
-	ErrNotFound    = errors.New("couldn't request the URL")
-	ErrCrawling    = errors.New("there was an error crawling TvTropes")
-	ErrEndIndex    = errors.New("there's no next page on the index")
-	ErrParse       = errors.New("couldn't parse the HTML contents of the page")
-	ErrLastUpdated = errors.New("couldn't retrieve o the last updated time")
-	ErrParseTime   = errors.New("couldn't parse the TvTropes last updated time")
+	ErrNotFound        = errors.New("couldn't request the URL")
+	ErrCrawling        = errors.New("there was an error crawling TvTropes")
+	ErrEndIndex        = errors.New("there's no next page on the index")
+	ErrParse           = errors.New("couldn't parse the HTML contents of the page")
+	ErrLastUpdated     = errors.New("couldn't retrieve o the last updated time")
+	ErrParseTime       = errors.New("couldn't parse the TvTropes last updated time")
+	ErrCrawlingChanges = errors.New("there was an error crawling the TvTropes changes page")
 
 	httpClient = &http.Client{}
 )
@@ -164,7 +170,7 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 	return crawledPages, nil
 }
 
-// getNextPageUrl, internal function that looks for the next Work index pagination URL on the current index page
+// getNextPageUrl, internal function that looks for the next pagination URL on the current index or changes page
 // It looks for a "Next" button on the pagination navigator, and returns an error if there's no next page
 func (crawler *ServiceCrawler) getNextPageUrl(doc *goquery.Document) (string, error) {
 	// Search the "Next" button on the nav pagination
@@ -274,6 +280,105 @@ func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, 
 	return crawledPages, nil
 }
 
+// CrawlChanges crawls the latest changes on TvTropes Films and returns a TvTropesPages with all recently-updated Work Pages
+func (crawler *ServiceCrawler) CrawlChanges() (*tropestogo.TvTropesPages, error) {
+	crawledPages := tropestogo.NewTvTropesPages()
+	changesPageUrl := seed
+
+	for {
+		request, errValidRequest := crawler.makeValidRequest(changesPageUrl)
+		if errValidRequest != nil {
+			return nil, errValidRequest
+		}
+
+		resp, errDoRequest := httpClient.Do(request)
+		if errDoRequest != nil {
+			return nil, fmt.Errorf("%w: "+changesPageUrl, ErrNotFound)
+		}
+
+		doc, errDocument := goquery.NewDocumentFromReader(resp.Body)
+		if errDocument != nil {
+			return nil, fmt.Errorf("%w: "+changesPageUrl, ErrParse)
+		}
+
+		changeRowSelector := doc.Find(ChangeRowSelector)
+		if changeRowSelector.Length() == 0 {
+			return nil, fmt.Errorf("%w: "+changesPageUrl, ErrCrawling)
+		}
+
+		var errAddPage error
+		var changesPage tropestogo.Page
+		changeRowSelector.EachWithBreak(func(i int, selection *goquery.Selection) bool {
+			lastUpdated, errParse := time.Parse(tvTropesChangesDateFormat, selection.Find(ChangeDateOnRowSelector).Text())
+			if errParse != nil {
+				errAddPage = errParse
+				return false
+			}
+
+			workUri, workUriExists := selection.Find(ChangeWorkOnRowSelector).Attr("href")
+			if !workUriExists {
+				errAddPage = fmt.Errorf("%w:"+changesPageUrl, ErrCrawlingChanges)
+				return false
+			}
+
+			// Create the Work Page
+			workUrl := TvTropesWeb + workUri
+			validRequest, errRequest := crawler.makeValidRequest(workUrl)
+			if errRequest != nil {
+				errAddPage = errRequest
+				return false
+			}
+			changesPage, errAddPage = crawledPages.AddTvTropesPage(workUrl, true, validRequest)
+			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
+				time.Sleep(time.Minute)
+			}
+
+			// Set LastUpdated time
+			lastUpdated, errLastUpdated := crawler.getLastUpdated(changesPage.GetDocument())
+			if errLastUpdated != nil {
+				errAddPage = errLastUpdated
+				return false
+			}
+			crawledPages.Pages[changesPage].LastUpdated = lastUpdated
+
+			// Search for subpages on the new Work Page
+			subPagesUrls := crawler.CrawlWorkSubpages(changesPage.GetDocument())
+
+			// Add its subpages to the Work Page
+			var requests []*http.Request
+			for _, subPagesUrl := range subPagesUrls {
+				validRequest, errRequest = crawler.makeValidRequest(subPagesUrl)
+				if errRequest != nil {
+					errAddPage = errRequest
+					return false
+				}
+
+				requests = append(requests, validRequest)
+			}
+			errAddPage = crawledPages.AddSubpages(workUrl, subPagesUrls, true, requests)
+
+			// If there's been too many requests to TvTropes, wait longer
+			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
+				time.Sleep(time.Minute)
+			}
+
+			return true
+		})
+
+		if errAddPage != nil {
+			return nil, fmt.Errorf("error crawling: %w", errAddPage)
+		}
+
+		// Get next index page for crawling
+		changesPageUrl, errAddPage = crawler.getNextPageUrl(doc)
+		if errAddPage != nil {
+			break
+		}
+	}
+
+	return crawledPages, nil
+}
+
 // makeValidRequests builds an HTTP request to the url page and returns its contents
 // The request sets very specific Headers to pass as a real browser, avoiding banning for being a bot
 // It returns an ErrNotFound error if the request couldn't be made
@@ -328,7 +433,7 @@ func (crawler *ServiceCrawler) ParseTvTropesTime(historyDoc *goquery.Document) (
 	lastUpdatedString = strings.ReplaceAll(lastUpdatedString, "rd", "")
 	lastUpdatedString = strings.ReplaceAll(lastUpdatedString, "th", "")
 
-	lastUpdated, errParseTime := time.Parse(tvTropesDateFormat, lastUpdatedString)
+	lastUpdated, errParseTime := time.Parse(tvTropesHistoryDateFormat, lastUpdatedString)
 	if errParseTime != nil {
 		return time.Time{}, fmt.Errorf("%w: "+lastUpdatedString, ErrParseTime)
 	}

@@ -457,6 +457,11 @@ func (scraper *ServiceScraper) ScrapeNamespace(doc *goquery.Document) string {
 	return strings.Trim(doc.Find(WorkIndexSelector).First().Text(), " /")
 }
 
+// UpdateDataset receives an array of TvTropes changes pages and updates all Media in the existing dataset that have had changes
+func (scraper *ServiceScraper) UpdateDataset(changesPages []*tropestogo.Page) {
+
+}
+
 // Persist calls the same method on the RepositoryMedia that is defined for the scraper and writes all data in the repository file
 // If the internal data structure is empty, it will do nothing and return an ErrPersist error
 // or return the proper Reading/Writing errors depending on the implementation
