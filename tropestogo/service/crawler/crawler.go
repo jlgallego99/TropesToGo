@@ -268,7 +268,7 @@ func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, 
 // CrawlChanges crawls the latest changes on TvTropes Films and returns a TvTropesPages with all recently-updated Work Pages
 func (crawler *ServiceCrawler) CrawlChanges() (*tropestogo.TvTropesPages, error) {
 	crawledPages := tropestogo.NewTvTropesPages()
-	changesPageUrl := seed
+	changesPageUrl := changesSeed
 
 	for {
 		request, errValidRequest := crawler.makeValidRequest(changesPageUrl)
@@ -321,11 +321,6 @@ func (crawler *ServiceCrawler) CrawlChanges() (*tropestogo.TvTropesPages, error)
 			errAddPage = crawler.addWorkSubpages(changesPage, crawledPages)
 			if errAddPage != nil {
 				return false
-			}
-
-			// If there's been too many requests to TvTropes, wait longer
-			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
-				time.Sleep(time.Minute)
 			}
 
 			// If there's been too many requests to TvTropes, wait longer
