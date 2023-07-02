@@ -14,6 +14,7 @@ import (
 const (
 	indexResource = "resources/film_index_page1.html"
 	historyPage   = "resources/oldboy_history.html"
+	changesPage   = "resources/changes.html"
 )
 
 var filmResources = []string{"resources/film1.html", "resources/film2.html", "resources/film3.html",
@@ -76,6 +77,25 @@ var _ = Describe("Crawler", func() {
 
 		It("Should return a valid time object", func() {
 			Expect(lastUpdated).To(Not(Equal(time.Time{})))
+		})
+	})
+
+	Context("Extract all Work uri and last updated time from a changes page", func() {
+		var changesDoc *goquery.Document
+
+		BeforeEach(func() {
+			changesFile, _ := os.Open(changesPage)
+			changesDoc, _ = goquery.NewDocumentFromReader(changesFile)
+		})
+
+		It("Shouldn't return any error", func() {
+			changesDoc.Find(crawler.ChangeRowSelector).Each(func(_ int, selection *goquery.Selection) {
+				workUri, lastUpdated, errChangedEntry := serviceCrawler.GetChangedEntry(selection)
+
+				Expect(workUri).To(Not(BeEmpty()))
+				Expect(lastUpdated).To(Not(Equal(time.Time{})))
+				Expect(errChangedEntry).To(BeNil())
+			})
 		})
 	})
 })

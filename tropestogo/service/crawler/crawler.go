@@ -295,16 +295,9 @@ func (crawler *ServiceCrawler) CrawlChanges() (*tropestogo.TvTropesPages, error)
 		var errAddPage error
 		var changesPage tropestogo.Page
 		changeRowSelector.EachWithBreak(func(i int, selection *goquery.Selection) bool {
-			lastUpdatedString := strings.TrimSpace(selection.Find(ChangeDateOnRowSelector).Text())
-			lastUpdated, errParse := time.Parse(tvTropesChangesDateFormat, lastUpdatedString)
-			if errParse != nil {
-				errAddPage = errParse
-				return false
-			}
-
-			workUri, workUriExists := selection.Find(ChangeWorkOnRowSelector).Attr("href")
-			if !workUriExists {
-				errAddPage = fmt.Errorf("%w:"+changesPageUrl, ErrCrawlingChanges)
+			workUri, lastUpdated, errChangedEntry := crawler.GetChangedEntry(selection)
+			if errChangedEntry != nil {
+				errAddPage = errChangedEntry
 				return false
 			}
 
@@ -346,6 +339,24 @@ func (crawler *ServiceCrawler) CrawlChanges() (*tropestogo.TvTropesPages, error)
 	}
 
 	return crawledPages, nil
+}
+
+// GetChangedEntry extracts the Work Uri and Last Updated time from a rowSelector Goquery selection object
+// corresponding to a row in the changes tables in TvTropes
+// Returns the work uri, the work last updated parsed time and an error if it wasn't possible to do extract them
+func (crawler *ServiceCrawler) GetChangedEntry(rowSelector *goquery.Selection) (string, time.Time, error) {
+	lastUpdatedString := strings.TrimSpace(rowSelector.Find(ChangeDateOnRowSelector).Text())
+	lastUpdated, errParse := time.Parse(tvTropesChangesDateFormat, lastUpdatedString)
+	if errParse != nil {
+		return "", time.Time{}, ErrParseTime
+	}
+
+	workUri, workUriExists := rowSelector.Find(ChangeWorkOnRowSelector).Attr("href")
+	if !workUriExists {
+		return "", time.Time{}, fmt.Errorf("%w:"+workUri, ErrCrawlingChanges)
+	}
+
+	return workUri, lastUpdated, nil
 }
 
 // createWorkPage forms a valid Work Page object and adds it to the crawledPages object
