@@ -38,7 +38,7 @@ Debido a que las metodologías tradicionales son incapaces de abordar un
 desarrollo moderno y no consiguen permanecer en el tiempo, siendo muy mecánicas,
 con largos ciclos de desarrollo que requieren una larga planificación fija y
 extensa documentación que no garantizan un producto de calidad, surgen una serie
-de nuevos métodos conocidos como ``ágiles`` \cite{abrahamsson2017agile}. Estos
+de nuevos métodos conocidos como ``ágiles'' \cite{abrahamsson2017agile}. Estos
 nuevos métodos pretenden resolver todos estos problemas, centrándose
 principalmente en el usuario final y en la calidad, y que gozan de una gran
 popularidad en la actualidad. En la actualidad la mayoría de proyectos que se
@@ -269,20 +269,24 @@ parte de los \textit{tropos} principales de la película, que han sido divididos
 en sub páginas debido a su gran volumen.
 
 \subsubsection{M5. Araña que recorre el sitio}
-Se tendrá desarrollada una araña que recorra todas las páginas de películas de
-TvTropes y extraiga la información de sus tropos.
+Se tendrá desarrollada una araña que sea capaz de encontrar todas las páginas de
+películas de TvTropes que sean relevantes, para así poder extraer sus metadatos
+y \textit{tropos}.
 
 \subsubsection{M6. Actualizador de información}
-El objetivo de este hito es poder actualizar la información ya extraída. Se
-tendrá como producto mínimamente viable una araña que, al recorrer todas las
-páginas, añada la información de las páginas nuevas que existen y actualice la
-información de las antiguas.
+El objetivo de este hito es poder actualizar aquella información ya extraída que
+ha sido actualizada en TvTropes. Se tendrá como producto mínimamente viable una
+araña que sea capaz de saber cuándo una página ha sido actualizada y las
+encuentre todas ellas para volver a extraerlas y actualizar el conjunto de datos
+sin tener que volver a lanzar el \textit{scraper} desde cero.
 
-\subsubsection{M7. Extracción de tropos de videojuegos, libros y series}
-Como producto de este hito el scraper podrá encontrar páginas de tropos de
-videojuegos, libros y series. Podrá entender y testar su estructura, así como
-extraer la información de la página, almacenándola en un fichero de datos
-estándar.
+\subsubsection{M7. Aplicación de extracción de tropos de múltiples medios audiovisuales}
+Como producto de este hito se dará una primera aplicación ejecutable sencilla
+que podrá utilizar el usuario final. Se tendrá una programa en el cual el
+scraper y el crawler desarrollados previamente trabajarán en conjunto para
+encontrar todas las páginas de obras con \textit{tropos}, pudiendo elegir entre
+varios medios audiovisuales (videojuegos, libros, series, etc.) y extraerlos en
+datasets de distinto formato (CSV o JSON).
 
 \subsection{Desarrollo dirigido por pruebas}
 El desarrollo dirigido por pruebas (TDD, de sus siglas en inglés \textit{Test
@@ -619,7 +623,8 @@ tipo.
 \subsection{[HU04] Investigador - Información actualizada}
 Como investigador quiero que la información de tropos que obtenga esté lo más
 actualizada posible, sepa cuándo se ha extraído y pueda obtenerla actualizada
-cuando quiera para traer la nueva información que pueda existir.
+cuando quiera para traer la nueva información que pueda existir, ya que TvTropes
+es una página que cambia constantemente, tanto en estructura como en contenidos.
 
 \subsection{[HU05] Investigador - Representación de los datos}
 Como investigador quiero poder elegir el formato en el que se represente el
