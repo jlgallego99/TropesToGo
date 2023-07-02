@@ -25,7 +25,7 @@ const (
 
 	// TvTropes date formats
 	tvTropesHistoryDateFormat = "Jan 2 2006 at 3:04:05 PM"
-	tvTropesChangesDateFormat = "2006-01-02 3:04:05"
+	tvTropesChangesDateFormat = "2006-01-02 15:04:05"
 
 	// Referer header for a well-known and trusty webpage
 	refererHeader = "https://www.google.com/"
@@ -146,7 +146,8 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 		}
 
 		// Get next index page for crawling
-		indexPage, errAddPage = crawler.getNextPageUrl(doc)
+		indexPage, errAddPage = crawler.getNextPageUri(doc)
+		indexPage = TvTropesPmwiki + indexPage
 		if errAddPage != nil {
 			break
 		}
@@ -155,9 +156,9 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 	return crawledPages, nil
 }
 
-// getNextPageUrl, internal function that looks for the next pagination URL on the current index or changes page
+// getNextPageUri, internal function that looks for the next pagination URI on the current index or changes page
 // It looks for a "Next" button on the pagination navigator, and returns an error if there's no next page
-func (crawler *ServiceCrawler) getNextPageUrl(doc *goquery.Document) (string, error) {
+func (crawler *ServiceCrawler) getNextPageUri(doc *goquery.Document) (string, error) {
 	// Search the "Next" button on the nav pagination
 	nextPageUri := ""
 	var nextPageExists bool
@@ -176,7 +177,7 @@ func (crawler *ServiceCrawler) getNextPageUrl(doc *goquery.Document) (string, er
 		return "", fmt.Errorf("%w: "+seed, ErrEndIndex)
 	}
 
-	return TvTropesPmwiki + nextPageUri, nil
+	return nextPageUri, nil
 }
 
 // CrawlWorkSubpages searches all subpages (both with main tropes and SubWikis) on the goquery Document of a Work page
@@ -337,7 +338,8 @@ func (crawler *ServiceCrawler) CrawlChanges() (*tropestogo.TvTropesPages, error)
 		}
 
 		// Get next index page for crawling
-		changesPageUrl, errAddPage = crawler.getNextPageUrl(doc)
+		changesPageUrl, errAddPage = crawler.getNextPageUri(doc)
+		changesPageUrl = TvTropesWeb + changesPageUrl
 		if errAddPage != nil {
 			break
 		}
