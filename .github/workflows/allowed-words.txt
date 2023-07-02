@@ -182,3 +182,5 @@ subpágina
 subpáginas
 subtropos
 proxy
+checksums
+checksum
