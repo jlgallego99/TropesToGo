@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var (
@@ -455,6 +456,12 @@ func (scraper *ServiceScraper) ScrapeSubpageTropes(subDocs []*goquery.Document) 
 // It returns the namespace string
 func (scraper *ServiceScraper) ScrapeNamespace(doc *goquery.Document) string {
 	return strings.Trim(doc.Find(WorkIndexSelector).First().Text(), " /")
+}
+
+// GetScrapedPages returns a map of all the string URLs of the and the last time they were updated
+// To be used for searching updates on those pages
+func (scraper *ServiceScraper) GetScrapedPages() (map[string]time.Time, error) {
+	return scraper.data.GetWorkPages()
 }
 
 // UpdateDataset receives an array of TvTropes changes pages and updates all Media in the existing dataset that have had changes
