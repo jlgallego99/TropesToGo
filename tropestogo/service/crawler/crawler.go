@@ -267,7 +267,8 @@ func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, 
 }
 
 // CrawlChanges crawls the latest changes on TvTropes Films and returns a TvTropesPages with all recently-updated Work Pages
-func (crawler *ServiceCrawler) CrawlChanges() (*tropestogo.TvTropesPages, error) {
+// Receives a map of already crawledUrls with its last updated time and only crawls them if there's record of them on the changes page and it's newer
+func (crawler *ServiceCrawler) CrawlChanges(crawledUrls map[string]time.Time) (*tropestogo.TvTropesPages, error) {
 	crawledPages := tropestogo.NewTvTropesPages()
 	changesPageUrl := changesSeed
 
@@ -295,32 +296,34 @@ func (crawler *ServiceCrawler) CrawlChanges() (*tropestogo.TvTropesPages, error)
 		var errAddPage error
 		var changesPage tropestogo.Page
 		changeRowSelector.EachWithBreak(func(i int, selection *goquery.Selection) bool {
-			workUri, lastUpdated, errChangedEntry := crawler.GetChangedEntry(selection)
+			workUri, changeLastUpdated, errChangedEntry := crawler.GetChangedEntry(selection)
 			if errChangedEntry != nil {
 				errAddPage = errChangedEntry
 				return false
 			}
-
-			// Create the Work Page
 			workUrl := TvTropesWeb + workUri
-			// Create the Work Page with its subpages
-			changesPage, errAddPage = crawler.createWorkPage(workUrl, crawledPages)
-			if errAddPage != nil {
-				return false
-			}
 
-			// Set LastUpdated time
-			crawledPages.Pages[changesPage].LastUpdated = lastUpdated
+			// Only crawl the page if it has been crawled before, and it's been updated
+			if lastUpdated, exists := crawledUrls[workUrl]; exists && changeLastUpdated.After(lastUpdated) {
+				// Create the Work Page
+				changesPage, errAddPage = crawler.createWorkPage(workUrl, crawledPages)
+				if errAddPage != nil {
+					return false
+				}
 
-			// Crawl Work subpages and add them
-			errAddPage = crawler.addWorkSubpages(changesPage, crawledPages)
-			if errAddPage != nil {
-				return false
-			}
+				// Set LastUpdated time
+				crawledPages.Pages[changesPage].LastUpdated = changeLastUpdated
 
-			// If there's been too many requests to TvTropes, wait longer
-			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
-				time.Sleep(time.Minute)
+				// Crawl Work subpages and add them
+				errAddPage = crawler.addWorkSubpages(changesPage, crawledPages)
+				if errAddPage != nil {
+					return false
+				}
+
+				// If there's been too many requests to TvTropes, wait longer
+				if errors.Is(errAddPage, tropestogo.ErrForbidden) {
+					time.Sleep(time.Minute)
+				}
 			}
 
 			return true
