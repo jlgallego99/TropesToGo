@@ -20,6 +20,7 @@ var (
 	ErrNotFound             = errors.New("couldn't request the URL")
 	ErrInvalidSubpage       = errors.New("couldn't scrape tropes in subpage")
 	ErrEmptyDocument        = errors.New("can't scrape the page because there's no Goquery document")
+	ErrUpdateDataset        = errors.New("can't update the dataset with the new scraped data from the work")
 )
 
 const (
@@ -465,8 +466,20 @@ func (scraper *ServiceScraper) GetScrapedPages() (map[string]time.Time, error) {
 }
 
 // UpdateDataset receives an array of TvTropes changes pages and updates all Media in the existing dataset that have had changes
-func (scraper *ServiceScraper) UpdateDataset(changesPages []*tropestogo.Page) {
+func (scraper *ServiceScraper) UpdateDataset(changedPages *tropestogo.TvTropesPages) error {
+	for page, subPages := range changedPages.Pages {
+		newUpdatedMedia, errScrape := scraper.ScrapeTvTropesPage(page, subPages)
+		if errScrape != nil {
+			return errScrape
+		}
 
+		errUpdate := scraper.data.UpdateMedia(newUpdatedMedia.GetWork().Title, newUpdatedMedia.GetWork().Year, newUpdatedMedia)
+		if errUpdate != nil {
+			return fmt.Errorf("%w: "+newUpdatedMedia.GetWork().Title+newUpdatedMedia.GetWork().Year, ErrUpdateDataset)
+		}
+	}
+
+	return nil
 }
 
 // Persist calls the same method on the RepositoryMedia that is defined for the scraper and writes all data in the repository file

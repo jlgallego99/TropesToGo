@@ -438,6 +438,84 @@ var _ = Describe("Scraper", func() {
 				areRepositorySubTropesUnique(strings.Split(record[6], ";"), strings.Split(record[7], ";"))
 			}
 		})
+
+		Context("Update the contents of one of the Films to not have subtropes", func() {
+			var errUpdateJson, errUpdateCsv error
+
+			BeforeEach(func() {
+				pageReaderCsv, _ = os.Open(oldboyResource)
+				pageReaderJson, _ = os.Open(oldboyResource)
+				docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
+				docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
+				pageJson, errCreatePageJson := tropestogo.NewPageWithDocument(oldboyUrl, docJson)
+				Expect(errCreatePageJson).To(BeNil())
+				pageCsv, errCreatePageCsv := tropestogo.NewPageWithDocument(oldboyUrl, docCsv)
+				Expect(errCreatePageCsv).To(BeNil())
+				emptySubPages := &tropestogo.TvTropesSubpages{
+					LastUpdated: time.Now(),
+					Subpages:    make(map[tropestogo.Page]time.Time, 0),
+				}
+
+				updatedPagesCsv := tropestogo.NewTvTropesPages()
+				updatedPagesJson := tropestogo.NewTvTropesPages()
+				updatedPagesCsv.Pages[pageCsv] = emptySubPages
+				updatedPagesJson.Pages[pageJson] = emptySubPages
+
+				errUpdateJson = serviceScraperJson.UpdateDataset(updatedPagesJson)
+				errUpdateCsv = serviceScraperCsv.UpdateDataset(updatedPagesCsv)
+			})
+
+			It("Shouldn't return an error", func() {
+				Expect(errUpdateCsv).To(BeNil())
+				Expect(errUpdateJson).To(BeNil())
+			})
+
+			It("The new Film should have all correct fields but no subtropes", func() {
+				// Check JSON dataset
+				var dataset json_dataset.JSONDataset
+				fileContents, _ := os.ReadFile("dataset.json")
+				err := json.Unmarshal(fileContents, &dataset)
+
+				Expect(err).To(BeNil())
+				Expect(dataset.Tropestogo).To(Not(BeEmpty()))
+				for _, record := range dataset.Tropestogo {
+					jsonStringTropes := make([]string, 0)
+					for _, datasetTrope := range record.Tropes {
+						jsonStringTropes = append(jsonStringTropes, datasetTrope.Title)
+					}
+
+					Expect(record.Title).To(Not(BeEmpty()))
+					Expect(record.URL).To(Not(BeEmpty()))
+					Expect(record.LastUpdated).To(Not(BeEmpty()))
+					Expect(record.MediaType).To(Equal(media.Film.String()))
+					Expect(record.SubTropes).To(BeEmpty())
+
+					areRepositoryTropesUnique(jsonStringTropes)
+				}
+
+				// Check CSV dataset
+				datasetFile, errReader := os.Open("dataset.csv")
+				Expect(errReader).To(BeNil())
+				reader := csv.NewReader(datasetFile)
+				records, errReadAll := reader.ReadAll()
+				Expect(errReadAll).To(BeNil())
+
+				Expect(err).To(BeNil())
+				Expect(records[0]).To(Equal(headers))
+				Expect(len(records) > 1).To(BeTrue())
+				for pos, record := range records {
+					if pos != 0 {
+						Expect(record[0]).To(Not(BeEmpty()))
+						Expect(record[2]).To(Not(BeEmpty()))
+						Expect(record[3]).To(Not(BeEmpty()))
+						Expect(record[4]).To(Not(BeEmpty()))
+						Expect(record[6]).To(BeEmpty())
+						areRepositoryTropesUnique(strings.Split(record[5], ";"))
+						areRepositorySubTropesUnique(strings.Split(record[6], ";"), strings.Split(record[7], ";"))
+					}
+				}
+			})
+		})
 	})
 })
 
