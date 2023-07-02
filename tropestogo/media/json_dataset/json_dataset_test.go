@@ -197,6 +197,31 @@ var _ = Describe("JsonDataset", func() {
 			Expect(len(dataset.Tropestogo)).To(Equal(1))
 		})
 	})
+
+	Context("Get all the URLs of the persisted Media and its last updated time", func() {
+		var workPages map[string]time.Time
+		var errGetWorkPages error
+
+		BeforeEach(func() {
+			errAddMedia = repository.AddMedia(mediaEntry)
+			Expect(errAddMedia).To(BeNil())
+			errPersist = repository.Persist()
+			Expect(errPersist).To(BeNil())
+
+			workPages, errGetWorkPages = repository.GetWorkPages()
+		})
+
+		It("Shouldn't return an error", func() {
+			Expect(errGetWorkPages).To(BeNil())
+		})
+
+		It("Should return an URL and its last updated time", func() {
+			for workUrl, workLastUpdated := range workPages {
+				Expect(workUrl).To(Not(BeEmpty()))
+				Expect(workLastUpdated).To(Not(Equal(time.Time{})))
+			}
+		})
+	})
 })
 
 var _ = AfterSuite(func() {

@@ -7,6 +7,7 @@ import (
 	"github.com/jlgallego99/TropesToGo/media"
 	"os"
 	"strings"
+	"time"
 )
 
 var (
@@ -17,9 +18,12 @@ var (
 	ErrOpenCsv         = errors.New("error opening CSV file")
 	ErrWriteCsv        = errors.New("error writing on the CSV file")
 	ErrPersist         = errors.New("can't persist data on the CSV file because there's none")
+	ErrParseTime       = errors.New("error parsing the timestamp string from the dataset")
 )
 
 var Headers = []string{"title", "year", "lastupdated", "url", "mediatype", "tropes", "subtropes", "subtropes_namespaces"}
+
+const timeLayout = "2006-01-02 15:04:05"
 
 // CSVRepository implements the RepositoryMedia for creating and handling CSV datasets of all the scraped data on TvTropes
 type CSVRepository struct {
@@ -227,9 +231,38 @@ func CreateMediaRecord(media media.Media) []string {
 		}
 	}
 
-	record := []string{media.GetWork().Title, media.GetWork().Year, media.GetWork().LastUpdated.Format("2006-01-02 15:04:05"),
+	record := []string{media.GetWork().Title, media.GetWork().Year, media.GetWork().LastUpdated.Format(timeLayout),
 		media.GetPage().GetUrl().String(), media.GetMediaType().String(), strings.Join(tropes, ";"),
 		strings.Join(subTropes, ";"), strings.Join(subTropesNamespaces, ";")}
 
 	return record
+}
+
+// GetWorkPages retrieves all persisted Work urls on the CSV dataset and the last time they were updated
+// Returns a map relating page URLs to the last time they were updated
+func (repository *CSVRepository) GetWorkPages() (map[string]time.Time, error) {
+	datasetPages := make(map[string]time.Time, 0)
+
+	reader, errReader := repository.GetReader()
+	if errReader != nil {
+		return nil, Error(repository.name, ErrReadCsv, errReader)
+	}
+
+	records, errReadAll := reader.ReadAll()
+	if errReadAll != nil {
+		return nil, Error(repository.name, ErrReadCsv, errReadAll)
+	}
+
+	for pos, record := range records {
+		if pos != 0 {
+			lastUpdated, errLastUpdated := time.Parse(timeLayout, record[2])
+			if errLastUpdated != nil {
+				return nil, Error(repository.name, ErrParseTime, errLastUpdated)
+			}
+
+			datasetPages[record[3]] = lastUpdated
+		}
+	}
+
+	return datasetPages, nil
 }

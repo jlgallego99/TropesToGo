@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/jlgallego99/TropesToGo/media"
 	"os"
+	"time"
 )
 
 var (
@@ -18,7 +19,10 @@ var (
 	ErrUnmarshalJson   = errors.New("error unmarshalling JSON file")
 	ErrMarshalJson     = errors.New("error marshalling JSON")
 	ErrPersist         = errors.New("can't persist data on the JSON file because there's none")
+	ErrParseTime       = errors.New("error parsing the timestamp string from the dataset")
 )
+
+const timeLayout = "2006-01-02 15:04:05"
 
 // JSONDataset is an intermediate structure for marshaling/unmarshalling data from the JSON dataset
 type JSONDataset struct {
@@ -97,7 +101,7 @@ func (repository *JSONRepository) UpdateMedia(title string, year string, updateM
 			dataset.Tropestogo[pos].Title = updateMedia.GetWork().Title
 			dataset.Tropestogo[pos].Year = updateMedia.GetWork().Year
 			dataset.Tropestogo[pos].MediaType = updateMedia.GetMediaType().String()
-			dataset.Tropestogo[pos].LastUpdated = updateMedia.GetWork().LastUpdated.Format("2006-01-02 15:04:05")
+			dataset.Tropestogo[pos].LastUpdated = updateMedia.GetWork().LastUpdated.Format(timeLayout)
 			dataset.Tropestogo[pos].URL = updateMedia.GetPage().GetUrl().String()
 			dataset.Tropestogo[pos].Tropes = tropes
 			dataset.Tropestogo[pos].SubTropes = subTropes
@@ -179,7 +183,7 @@ func (repository *JSONRepository) Persist() error {
 				Title:       mediaData.GetWork().Title,
 				Year:        mediaData.GetWork().Year,
 				MediaType:   mediaData.GetMediaType().String(),
-				LastUpdated: mediaData.GetWork().LastUpdated.Format("2006-01-02 15:04:05"),
+				LastUpdated: mediaData.GetWork().LastUpdated.Format(timeLayout),
 				URL:         mediaData.GetPage().GetUrl().String(),
 				Tropes:      tropes,
 				SubTropes:   subTropes,
@@ -202,4 +206,32 @@ func (repository *JSONRepository) Persist() error {
 	}
 
 	return nil
+}
+
+// GetWorkPages retrieves all persisted Work urls on the JSON dataset and the last time they were updated
+// Returns a map relating page URLs to the last time they were updated
+func (repository *JSONRepository) GetWorkPages() (map[string]time.Time, error) {
+	var dataset JSONDataset
+	datasetPages := make(map[string]time.Time, 0)
+
+	fileContents, errReadDataset := os.ReadFile(repository.name)
+	if errReadDataset != nil {
+		return nil, Error(repository.name, ErrReadJson, errReadDataset)
+	}
+
+	errUnmarshal := json.Unmarshal(fileContents, &dataset)
+	if errUnmarshal != nil {
+		return nil, Error(repository.name, ErrUnmarshalJson, errUnmarshal)
+	}
+
+	for _, record := range dataset.Tropestogo {
+		lastUpdated, errLastUpdated := time.Parse(timeLayout, record.LastUpdated)
+		if errLastUpdated != nil {
+			return nil, Error(repository.name, ErrParseTime, errLastUpdated)
+		}
+
+		datasetPages[record.URL] = lastUpdated
+	}
+
+	return datasetPages, nil
 }
