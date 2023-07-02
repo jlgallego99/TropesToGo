@@ -14,8 +14,7 @@ import (
 
 const (
 	// The seed is the starting URL of the crawler
-	seed        = "https://tvtropes.org/pmwiki/pagelist_having_pagetype_in_namespace.php?t=work&n=Film"
-	changesSeed = "https://tvtropes.org/pmwiki/changes.php?filter=Film"
+	seed = "https://tvtropes.org/pmwiki/pagelist_having_pagetype_in_namespace.php?t=work&n=Film"
 
 	// Common headers for a Firefox browser
 	userAgentHeader               = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0"
@@ -25,7 +24,6 @@ const (
 
 	// TvTropes date formats
 	tvTropesHistoryDateFormat = "Jan 2 2006 at 3:04:05 PM"
-	tvTropesChangesDateFormat = "2006-01-02 15:04:05"
 
 	// Referer header for a well-known and trusty webpage
 	refererHeader = "https://www.google.com/"
@@ -40,19 +38,15 @@ const (
 	PaginationNavSelector   = "nav.pagination-box > a"
 	WorkHistoryPageSelector = "li.link-history a"
 	LastUpdatedSelector     = "#main-article > div:first-of-type .pull-right a"
-	ChangeRowSelector       = "table tbody > tr:not(.post-list)"
-	ChangeDateOnRowSelector = "td:nth-of-type(1)"
-	ChangeWorkOnRowSelector = "td:nth-of-type(2) a"
 )
 
 var (
-	ErrNotFound        = errors.New("couldn't request the URL")
-	ErrCrawling        = errors.New("there was an error crawling TvTropes")
-	ErrEndIndex        = errors.New("there's no next page on the index")
-	ErrParse           = errors.New("couldn't parse the HTML contents of the page")
-	ErrLastUpdated     = errors.New("couldn't retrieve o the last updated time")
-	ErrParseTime       = errors.New("couldn't parse the TvTropes last updated time")
-	ErrCrawlingChanges = errors.New("there was an error crawling the TvTropes changes page")
+	ErrNotFound    = errors.New("couldn't request the URL")
+	ErrCrawling    = errors.New("there was an error crawling TvTropes")
+	ErrEndIndex    = errors.New("there's no next page on the index")
+	ErrParse       = errors.New("couldn't parse the HTML contents of the page")
+	ErrLastUpdated = errors.New("couldn't retrieve o the last updated time")
+	ErrParseTime   = errors.New("couldn't parse the TvTropes last updated time")
 
 	httpClient = &http.Client{}
 )
@@ -156,7 +150,7 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 	return crawledPages, nil
 }
 
-// getNextPageUri, internal function that looks for the next pagination URI on the current index or changes page
+// getNextPageUri, internal function that looks for the next pagination URI on the current index
 // It looks for a "Next" button on the pagination navigator, and returns an error if there's no next page
 func (crawler *ServiceCrawler) getNextPageUri(doc *goquery.Document) (string, error) {
 	// Search the "Next" button on the nav pagination
@@ -267,99 +261,43 @@ func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, 
 }
 
 // CrawlChanges crawls the latest changes on TvTropes Films and returns a TvTropesPages with all recently-updated Work Pages
-// Receives a map of already crawledUrls with its last updated time and only crawls them if there's record of them on the changes page and it's newer
-func (crawler *ServiceCrawler) CrawlChanges(crawledUrls map[string]time.Time) (*tropestogo.TvTropesPages, error) {
+// Receives a map of already crawled works, relating a name with its last updated time
+// and only crawls them if there's record of them on the history page, and it's newer
+// Returns a TvTropesPages containing the crawled Pages of the Media that needs to be updated
+func (crawler *ServiceCrawler) CrawlChanges(crawledWorks map[string]time.Time) (*tropestogo.TvTropesPages, error) {
 	crawledPages := tropestogo.NewTvTropesPages()
-	changesPageUrl := changesSeed
 
-	for {
-		request, errValidRequest := crawler.makeValidRequest(changesPageUrl)
-		if errValidRequest != nil {
-			return nil, errValidRequest
+	for crawledUrl, lastUpdated := range crawledWorks {
+		// Create the Work Page
+		newPage, errNewPage := crawler.createWorkPage(crawledUrl, crawledPages)
+		if errNewPage != nil {
+			return nil, errNewPage
 		}
 
-		resp, errDoRequest := httpClient.Do(request)
-		if errDoRequest != nil {
-			return nil, fmt.Errorf("%w: "+changesPageUrl, ErrNotFound)
+		newLastUpdated, errGetLastUpdated := crawler.getLastUpdated(newPage.GetDocument())
+		if errGetLastUpdated != nil {
+			return nil, errGetLastUpdated
 		}
 
-		doc, errDocument := goquery.NewDocumentFromReader(resp.Body)
-		if errDocument != nil {
-			return nil, fmt.Errorf("%w: "+changesPageUrl, ErrParse)
-		}
+		// Only crawl the page if it has been crawled before, and it's been updated
+		if newLastUpdated.After(lastUpdated) {
+			// Set LastUpdated time
+			crawledPages.Pages[newPage].LastUpdated = newLastUpdated
 
-		changeRowSelector := doc.Find(ChangeRowSelector)
-		if changeRowSelector.Length() == 0 {
-			return nil, fmt.Errorf("%w: "+changesPageUrl, ErrCrawling)
-		}
-
-		var errAddPage error
-		var changesPage tropestogo.Page
-		changeRowSelector.EachWithBreak(func(i int, selection *goquery.Selection) bool {
-			workUri, changeLastUpdated, errChangedEntry := crawler.GetChangedEntry(selection)
-			if errChangedEntry != nil {
-				errAddPage = errChangedEntry
-				return false
-			}
-			workUrl := TvTropesWeb + workUri
-
-			// Only crawl the page if it has been crawled before, and it's been updated
-			if lastUpdated, exists := crawledUrls[workUrl]; exists && changeLastUpdated.After(lastUpdated) {
-				// Create the Work Page
-				changesPage, errAddPage = crawler.createWorkPage(workUrl, crawledPages)
-				if errAddPage != nil {
-					return false
-				}
-
-				// Set LastUpdated time
-				crawledPages.Pages[changesPage].LastUpdated = changeLastUpdated
-
-				// Crawl Work subpages and add them
-				errAddPage = crawler.addWorkSubpages(changesPage, crawledPages)
-				if errAddPage != nil {
-					return false
-				}
-
-				// If there's been too many requests to TvTropes, wait longer
-				if errors.Is(errAddPage, tropestogo.ErrForbidden) {
-					time.Sleep(time.Minute)
-				}
+			// Crawl Work subpages and add them
+			errCrawlSubpages := crawler.addWorkSubpages(newPage, crawledPages)
+			if errCrawlSubpages != nil {
+				return nil, errCrawlSubpages
 			}
 
-			return true
-		})
-
-		if errAddPage != nil {
-			return nil, fmt.Errorf("error crawling: %w", errAddPage)
-		}
-
-		// Get next index page for crawling
-		changesPageUrl, errAddPage = crawler.getNextPageUri(doc)
-		changesPageUrl = TvTropesWeb + changesPageUrl
-		if errAddPage != nil {
-			break
+			// If there's been too many requests to TvTropes, wait longer
+			if errors.Is(errCrawlSubpages, tropestogo.ErrForbidden) {
+				time.Sleep(time.Minute)
+			}
 		}
 	}
 
 	return crawledPages, nil
-}
-
-// GetChangedEntry extracts the Work Uri and Last Updated time from a rowSelector Goquery selection object
-// corresponding to a row in the changes tables in TvTropes
-// Returns the work uri, the work last updated parsed time and an error if it wasn't possible to do extract them
-func (crawler *ServiceCrawler) GetChangedEntry(rowSelector *goquery.Selection) (string, time.Time, error) {
-	lastUpdatedString := strings.TrimSpace(rowSelector.Find(ChangeDateOnRowSelector).Text())
-	lastUpdated, errParse := time.Parse(tvTropesChangesDateFormat, lastUpdatedString)
-	if errParse != nil {
-		return "", time.Time{}, ErrParseTime
-	}
-
-	workUri, workUriExists := rowSelector.Find(ChangeWorkOnRowSelector).Attr("href")
-	if !workUriExists {
-		return "", time.Time{}, fmt.Errorf("%w:"+workUri, ErrCrawlingChanges)
-	}
-
-	return workUri, lastUpdated, nil
 }
 
 // createWorkPage forms a valid Work Page object and adds it to the crawledPages object
