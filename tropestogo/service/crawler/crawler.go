@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	tropestogo "github.com/jlgallego99/TropesToGo"
+	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	"regexp"
@@ -81,6 +82,7 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 
 		resp, errDoRequest := httpClient.Do(request)
 		if errDoRequest != nil {
+			log.Error().Err(errDoRequest).Msg("CRAWLING FAILED " + indexPage)
 			return nil, fmt.Errorf("%w: "+indexPage, ErrNotFound)
 		}
 
@@ -106,9 +108,12 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 				return false
 			}
 
+			log.Info().Msg("CRAWLING: " + workUrl)
+
 			// Create the Work Page with its subpages
 			workPage, errAddPage = crawler.createWorkPage(workUrl, crawledPages)
 			if errAddPage != nil {
+				log.Error().Err(errAddPage).Msg("CRAWLING WORK PAGE FAILED " + workUrl)
 				return false
 			}
 
@@ -116,6 +121,7 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 			lastUpdated, errLastUpdated := crawler.getLastUpdated(workPage.GetDocument())
 			if errLastUpdated != nil {
 				errAddPage = errLastUpdated
+				log.Error().Err(errAddPage).Msg("CRAWLING LAST UPDATE DATE FAILED " + workUrl)
 				return false
 			}
 			crawledPages.Pages[workPage].LastUpdated = lastUpdated
@@ -123,6 +129,7 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 			// Crawl Work subpages and add them
 			errAddPage = crawler.addWorkSubpages(workPage, crawledPages)
 			if errAddPage != nil {
+				log.Error().Err(errAddPage).Msg("CRAWLING WORK SUBPAGES FAILED " + workUrl)
 				return false
 			}
 
@@ -141,6 +148,7 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 		indexPage, errAddPage = crawler.getNextPageUriFromDocument(doc)
 		indexPage = TvTropesPmwiki + indexPage
 		if errAddPage != nil {
+			log.Error().Err(errAddPage).Msg("CRAWLING NEXT INDEX PAGE FAILED " + indexPage)
 			break
 		}
 	}

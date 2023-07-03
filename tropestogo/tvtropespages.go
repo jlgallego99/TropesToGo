@@ -3,6 +3,7 @@ package tropestogo
 import (
 	"errors"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -77,6 +78,8 @@ func (tvtropespages *TvTropesPages) AddTvTropesPage(pageUrl string, requestPages
 func (tvtropespages *TvTropesPages) AddSubpages(pageUrl string, subpageUrls []string, requestPages bool, requests []*http.Request) error {
 	subPages := make(map[Page]time.Time, 0)
 	for i, subpageUrl := range subpageUrls {
+		log.Info().Str("mainPage", pageUrl).Msg("Making HTTP request: " + subpageUrl)
+
 		var req *http.Request = nil
 		if requestPages {
 			req = requests[i]

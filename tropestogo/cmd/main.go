@@ -2,11 +2,13 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/jlgallego99/TropesToGo/media/json_dataset"
 	"github.com/jlgallego99/TropesToGo/service/crawler"
 	"github.com/jlgallego99/TropesToGo/service/scraper"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"os"
 	"strconv"
 	"time"
 )
@@ -24,24 +26,26 @@ func main() {
 	var crawlLimit int
 	var unlimitedCrawling bool
 
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+
 	err := survey.AskOne(promptLimit, &unlimitedCrawling)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Error().Msg(err.Error())
 		return
 	}
 
 	if unlimitedCrawling {
 		crawlLimit = -1
-		fmt.Println("Extracting all films in TvTropes...")
+		log.Info().Msg("Extracting all films in TvTropes...")
 	} else {
 		err = survey.AskOne(promptCrawlLimit, &crawlLimitInput, survey.WithValidator(numberValidator))
 		if err != nil {
-			fmt.Println(err.Error())
+			log.Error().Msg(err.Error())
 			return
 		}
 
 		crawlLimit, _ = strconv.Atoi(crawlLimitInput)
-		fmt.Println("Extracting", crawlLimit, "films...")
+		log.Info().Msg("Extracting " + crawlLimitInput + " films...")
 	}
 
 	start := time.Now()
@@ -65,8 +69,8 @@ func main() {
 		panic(errScraping)
 	}
 
-	fmt.Printf("Process finished in %s\n", time.Since(start))
-	fmt.Println("TropesToGo finished successfully!")
+	log.Info().Msgf("Process finished in %s\n", time.Since(start))
+	log.Info().Msg("TropesToGo finished successfully!")
 }
 
 func numberValidator(val interface{}) error {

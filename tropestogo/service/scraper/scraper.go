@@ -6,6 +6,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
+	"github.com/rs/zerolog/log"
 	"net/url"
 	"regexp"
 	"strings"
@@ -258,13 +259,18 @@ func (scraper *ServiceScraper) CheckIsSubWiki(doc *goquery.Document) bool {
 // It only returns an error if it can't write or read the dataset, if the page can't be scraped it skips to the next
 func (scraper *ServiceScraper) ScrapeTvTropes(tvtropespages *tropestogo.TvTropesPages) error {
 	for page, subPages := range tvtropespages.Pages {
-		if valid, _ := scraper.CheckTvTropesPage(page); valid {
+		if valid, err := scraper.CheckTvTropesPage(page); valid && err == nil {
+			log.Info().Msg("SCRAPING: " + page.GetUrl().String())
+
 			scraper.ScrapeTvTropesPage(page, subPages)
+		} else {
+			log.Error().Err(err).Msg("SCRAPING: " + page.GetUrl().String())
 		}
 	}
 
 	errPersist := scraper.Persist()
 	if errPersist != nil {
+		log.Error().Err(errPersist).Msg("Persisting the scraped data on the dataset")
 		return errPersist
 	}
 
@@ -304,6 +310,7 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages
 
 	title, year, mediaIndex, errMediaIndex := scraper.ScrapeWorkTitleAndYear(doc)
 	if errMediaIndex != nil {
+		log.Error().Err(errMediaIndex).Msg("SCRAPING FAILED " + page.GetUrl().String())
 		return media.Media{}, errMediaIndex
 	}
 
@@ -318,6 +325,7 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages
 
 		tropes, errTropes = scraper.ScrapeTropes(doc, selector)
 		if errTropes != nil {
+			log.Error().Err(errTropes).Msg("SCRAPING MAIN TROPES FAILED " + page.GetUrl().String())
 			return media.Media{}, errTropes
 		}
 	}
@@ -325,6 +333,7 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages
 	// Scrape all subpages tropes (SubWikis and main SubPages if there are)
 	subpageTropes, errSubpageTropes := scraper.ScrapeSubpageTropes(subDocs)
 	if errSubpageTropes != nil {
+		log.Error().Err(errSubpageTropes).Msg("SCRAPING SUBTROPES FAILED " + page.GetUrl().String())
 		return media.Media{}, errSubpageTropes
 	}
 
@@ -334,10 +343,15 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages
 
 	newMedia, errNewMedia := media.NewMedia(title, year, subPages.LastUpdated, tropes, page, mediaIndex)
 	if errNewMedia != nil {
+		log.Error().Err(errNewMedia).Msg("SCRAPING FAILED")
 		return media.Media{}, errNewMedia
 	}
 
 	errAddMedia := scraper.data.AddMedia(newMedia)
+	if errAddMedia != nil {
+		log.Error().Msg("DUPLICATED MEDIA " + newMedia.GetWork().Title)
+	}
+
 	return newMedia, errAddMedia
 }
 
