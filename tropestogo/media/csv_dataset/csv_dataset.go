@@ -253,15 +253,15 @@ func (repository *CSVRepository) GetWorkPages() (map[string]time.Time, error) {
 		return nil, Error(repository.name, ErrReadCsv, errReadAll)
 	}
 
-	for pos, record := range records {
-		if pos != 0 {
-			lastUpdated, errLastUpdated := time.Parse(timeLayout, record[2])
-			if errLastUpdated != nil {
-				return nil, Error(repository.name, ErrParseTime, errLastUpdated)
-			}
-
-			datasetPages[record[3]] = lastUpdated
+	// Only iterate from the second row onwards (ignoring the first row, the headers)
+	records = append(records[:0], records[1:]...)
+	for _, record := range records {
+		lastUpdated, errLastUpdated := time.Parse(timeLayout, record[2])
+		if errLastUpdated != nil {
+			return nil, Error(repository.name, ErrParseTime, errLastUpdated)
 		}
+
+		datasetPages[record[3]] = lastUpdated
 	}
 
 	return datasetPages, nil

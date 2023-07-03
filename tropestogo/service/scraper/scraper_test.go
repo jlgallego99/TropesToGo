@@ -443,23 +443,8 @@ var _ = Describe("Scraper", func() {
 			var errUpdateJson, errUpdateCsv error
 
 			BeforeEach(func() {
-				pageReaderCsv, _ = os.Open(oldboyResource)
-				pageReaderJson, _ = os.Open(oldboyResource)
-				docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
-				docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
-				pageJson, errCreatePageJson := tropestogo.NewPageWithDocument(oldboyUrl, docJson)
-				Expect(errCreatePageJson).To(BeNil())
-				pageCsv, errCreatePageCsv := tropestogo.NewPageWithDocument(oldboyUrl, docCsv)
-				Expect(errCreatePageCsv).To(BeNil())
-				emptySubPages := &tropestogo.TvTropesSubpages{
-					LastUpdated: time.Now(),
-					Subpages:    make(map[tropestogo.Page]time.Time, 0),
-				}
-
-				updatedPagesCsv := tropestogo.NewTvTropesPages()
-				updatedPagesJson := tropestogo.NewTvTropesPages()
-				updatedPagesCsv.Pages[pageCsv] = emptySubPages
-				updatedPagesJson.Pages[pageJson] = emptySubPages
+				updatedPagesCsv := createTvTropesPagesWithEmptySubpages(oldboyUrl, oldboyResource)
+				updatedPagesJson := createTvTropesPagesWithEmptySubpages(oldboyUrl, oldboyResource)
 
 				errUpdateJson = serviceScraperJson.UpdateDataset(updatedPagesJson)
 				errUpdateCsv = serviceScraperCsv.UpdateDataset(updatedPagesCsv)
@@ -470,7 +455,7 @@ var _ = Describe("Scraper", func() {
 				Expect(errUpdateJson).To(BeNil())
 			})
 
-			It("The new Film should have all correct fields but no subtropes", func() {
+			It("All the new Film fields should be correct but have no subtropes", func() {
 				// Check JSON dataset
 				var dataset json_dataset.JSONDataset
 				fileContents, _ := os.ReadFile("dataset.json")
@@ -602,4 +587,24 @@ func loadSubpageFiles(fileNames []string, urlNames []string) (*tropestogo.TvTrop
 	}
 
 	return subpageDocsJson, subpageDocsCsv
+}
+
+func createTvTropesPagesWithEmptySubpages(urlString, resource string) *tropestogo.TvTropesPages {
+	reader, _ := os.Open(resource)
+	defer reader.Close()
+
+	doc, _ := goquery.NewDocumentFromReader(reader)
+
+	page, errCreatePageJson := tropestogo.NewPageWithDocument(urlString, doc)
+	Expect(errCreatePageJson).To(BeNil())
+
+	emptySubPages := &tropestogo.TvTropesSubpages{
+		LastUpdated: time.Now(),
+		Subpages:    make(map[tropestogo.Page]time.Time, 0),
+	}
+
+	pages := tropestogo.NewTvTropesPages()
+	pages.Pages[page] = emptySubPages
+
+	return pages
 }

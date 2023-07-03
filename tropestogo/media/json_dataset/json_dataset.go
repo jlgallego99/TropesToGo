@@ -101,7 +101,7 @@ func (repository *JSONRepository) UpdateMedia(title string, year string, updateM
 			dataset.Tropestogo[pos].Title = updateMedia.GetWork().Title
 			dataset.Tropestogo[pos].Year = updateMedia.GetWork().Year
 			dataset.Tropestogo[pos].MediaType = updateMedia.GetMediaType().String()
-			dataset.Tropestogo[pos].LastUpdated = updateMedia.GetWork().LastUpdated.Format(timeLayout)
+			dataset.Tropestogo[pos].LastUpdated = formatDate(updateMedia.GetWork().LastUpdated)
 			dataset.Tropestogo[pos].URL = updateMedia.GetPage().GetUrl().String()
 			dataset.Tropestogo[pos].Tropes = tropes
 			dataset.Tropestogo[pos].SubTropes = subTropes
@@ -183,7 +183,7 @@ func (repository *JSONRepository) Persist() error {
 				Title:       mediaData.GetWork().Title,
 				Year:        mediaData.GetWork().Year,
 				MediaType:   mediaData.GetMediaType().String(),
-				LastUpdated: mediaData.GetWork().LastUpdated.Format(timeLayout),
+				LastUpdated: formatDate(mediaData.GetWork().LastUpdated),
 				URL:         mediaData.GetPage().GetUrl().String(),
 				Tropes:      tropes,
 				SubTropes:   subTropes,
@@ -234,4 +234,9 @@ func (repository *JSONRepository) GetWorkPages() (map[string]time.Time, error) {
 	}
 
 	return datasetPages, nil
+}
+
+// formatDate transforms a date to a unified string format across all datasets
+func formatDate(date time.Time) string {
+	return date.Format(timeLayout)
 }
