@@ -163,7 +163,7 @@ func (scraper *ServiceScraper) CheckTropeSection(doc *goquery.Document) (bool, e
 	}
 
 	tropeHref, exists := doc.Find(TropeLinkSelector).First().Attr("href")
-	if exists && strings.HasPrefix(tropeHref, TvTropesMainPath) {
+	if exists && strings.Contains(tropeHref, TvTropesMainPath) {
 		return true, nil
 	}
 
@@ -258,7 +258,9 @@ func (scraper *ServiceScraper) CheckIsSubWiki(doc *goquery.Document) bool {
 // It only returns an error if it can't write or read the dataset, if the page can't be scraped it skips to the next
 func (scraper *ServiceScraper) ScrapeTvTropes(tvtropespages *tropestogo.TvTropesPages) error {
 	for page, subPages := range tvtropespages.Pages {
-		scraper.ScrapeTvTropesPage(page, subPages)
+		if valid, _ := scraper.CheckTvTropesPage(page); valid {
+			scraper.ScrapeTvTropesPage(page, subPages)
+		}
 	}
 
 	errPersist := scraper.Persist()
