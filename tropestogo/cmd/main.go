@@ -15,19 +15,35 @@ var promptCrawlLimit = &survey.Input{
 	Message: "How many Films would you like to extract?",
 }
 
+var promptLimit = &survey.Confirm{
+	Message: "Do you want to scrape all Films?",
+}
+
 func main() {
 	var crawlLimitInput string
 	var crawlLimit int
+	var unlimitedCrawling bool
 
-	err := survey.AskOne(promptCrawlLimit, &crawlLimitInput, survey.WithValidator(numberValidator))
+	err := survey.AskOne(promptLimit, &unlimitedCrawling)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	crawlLimit, _ = strconv.Atoi(crawlLimitInput)
+	if unlimitedCrawling {
+		crawlLimit = -1
+		fmt.Println("Extracting all films in TvTropes...")
+	} else {
+		err = survey.AskOne(promptCrawlLimit, &crawlLimitInput, survey.WithValidator(numberValidator))
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
 
-	fmt.Println("Extracting", crawlLimit, "films...")
+		crawlLimit, _ = strconv.Atoi(crawlLimitInput)
+		fmt.Println("Extracting", crawlLimit, "films...")
+	}
+
 	start := time.Now()
 
 	// Crawling TvTropes Pages
