@@ -1,5 +1,7 @@
 package media
 
+import "time"
+
 // RepositoryMedia defines an interface for all kinds of repositories of media tropes in TvTropes
 // The interface allows us to implement multiple structs that handle different data formats like CSV or JSON
 // sharing common methods
@@ -16,4 +18,7 @@ type RepositoryMedia interface {
 
 	// Persist adds all repository Media objects to the proper dataset
 	Persist() error
+
+	// GetWorkPages retrieves all persisted Work urls on the dataset and the last time they were updated
+	GetWorkPages() (map[string]time.Time, error)
 }
