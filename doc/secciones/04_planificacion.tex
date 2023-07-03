@@ -249,16 +249,25 @@ resolver los dos próximos \textit{milestones} centrados en la extracción de
 información de \textit{tropos} de las películas de TvTropes.
 
 \subsubsection{M2. Scraper que entiende y testea una página de tropos de películas}
-Con este hito se dará una primera versión funcional del \textit{scraper} que sea
-capaz de encontrar el URL de una página sobre tropos de películas en TvTropes,
-entienda su estructura y realice una serie de comprobaciones sobre ella para
-confirmar que se pueda extraer información.
+Con este hito se dará una primera versión funcional de un servicio
+\textit{scraper} que sea capaz de encontrar el URL de una página sobre tropos de
+películas en TvTropes, entienda su estructura y realice una serie de
+comprobaciones sobre ella para confirmar que se pueda extraer información.
+
+Al completar este hito se alcanza la primera
+\href{https://github.com/jlgallego99/TropesToGo/releases/tag/v0.1.0}{versión
+0.1.0} del \textit{software}, disponible en el repositorio de GitHub.
 
 \subsubsection{M3. Scraper que extrae la información de una página de tropos de películas}
-Se producirá un producto mínimamente viable con una primera versión del scraper
-que extraiga la información de la página principal de tropos de películas, que
-ha sido previamente testeada y de la cual se entiende su estructura. El scraper
-almacenará esta información en un fichero de datos estándar.
+Se producirá un producto mínimamente viable que amplíe la funcionalidad del
+scraper para poder extraer la información de la página principal de una
+película, que ha sido previamente testeada y de la cual se entiende su
+estructura. El scraper almacenará esta información en un fichero de datos
+estándar.
+
+Se lanza en el repositorio de GitHub la
+\href{https://github.com/jlgallego99/TropesToGo/releases/tag/v0.1.0}{versión
+0.2.0}.
 
 \subsubsection{M4. Scraper que extrae tropos de las sub páginas de una película}
 Con este hito se expande la extracción de \textit{tropos} anterior, con un
@@ -268,10 +277,24 @@ película en cualquiera de sus sub páginas. Estas sub páginas contienen
 parte de los \textit{tropos} principales de la película, que han sido divididos
 en sub páginas debido a su gran volumen.
 
+Se lanzan las versiones
+\href{https://github.com/jlgallego99/TropesToGo/releases/tag/v0.3.0}{0.3.0} y
+\href{https://github.com/jlgallego99/TropesToGo/releases/tag/v0.3.0}{0.4.0}, que
+amplían el \textit{scraper} para la extracción sobre los distintos tipos de
+subpáginas.
+
 \subsubsection{M5. Araña que recorre el sitio}
-Se tendrá desarrollada una araña que sea capaz de encontrar todas las páginas de
-películas de TvTropes que sean relevantes, para así poder extraer sus metadatos
-y \textit{tropos}.
+Se tendrá desarrollado un servicio adicional: un \textit{crawler} que sea capaz
+de encontrar todas las páginas de películas de TvTropes que sean relevantes,
+para así poder extraer sus metadatos y \textit{tropos}.
+
+En este PMV se lanza primero la
+\href{https://github.com/jlgallego99/TropesToGo/releases/tag/v0.5.0}{versión
+0.5.0} con la funcionalidad principal del \textit{crawler} y luego se mejora su
+eficiencia y efectividad con las versiones
+\href{https://github.com/jlgallego99/TropesToGo/releases/tag/v0.5.1}{0.5.1} y
+\href{https://github.com/jlgallego99/TropesToGo/releases/tag/v0.5.1}{0.5.2} del
+\textit{software}.
 
 \subsubsection{M6. Actualizador de información}
 El objetivo de este hito es poder actualizar aquella información ya extraída que
@@ -279,6 +302,11 @@ ha sido actualizada en TvTropes. Se tendrá como producto mínimamente viable un
 araña que sea capaz de saber cuándo una página ha sido actualizada y las
 encuentre todas ellas para volver a extraerlas y actualizar el conjunto de datos
 sin tener que volver a lanzar el \textit{scraper} desde cero.
+
+Se lanza una
+\href{https://github.com/jlgallego99/TropesToGo/releases/tag/v0.6.0}{versión
+0.6.0} con todo el código desarrollado para abordar la actualización de datos
+extraídos.
 
 \subsubsection{M7. Aplicación de extracción de tropos de múltiples medios audiovisuales}
 Como producto de este hito se dará una primera aplicación ejecutable sencilla
