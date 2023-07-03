@@ -1153,5 +1153,137 @@ una gran carga sobre TvTropes, evitando posibles impedimentos por parte de la
 web al programa, por lo que siguiendo el versionado semántico se aumenta la
 última versión, teniendo al final de este PMV una versión 0.5.2 de TropesToGo.
 
-\section{Extracción de otros medios audiovisuales}
+\section{\textit{Crawling} del historial de cambios y actualización del conjunto de datos}
+
+Para terminar de desarrollar un \textit{crawler} que cumpla con todos los
+objetivos propuestos, falta por tener en cuenta la naturaleza cambiante que
+tienen las páginas de TvTropes. Al ser un wiki, sus contenidos están en un
+continuo cambio por parte de múltiples usuarios, lo que hace que los datos
+puedan volverse obsoletos pasado poco tiempo. Por esta razón existe la
+\href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}, en la que el
+usuario especifica su necesidad de tener los datos tan actualizados como se
+pueda, si este lo requiere. Sabiendo esto, y que la
+\href{https://github.com/jlgallego99/TropesToGo/issues/45}{[HU06]} nos dice que
+el usuario necesita los datos lo más rápido posible para poder ponerse a
+analizarlos cuanto antes, se llega a la conclusión de que la mejor manera para
+construir este producto mínimamente viable es actualizar los datos directamente
+sobre el conjunto de datos previamente creado a petición del usuario. De esta
+manera, se quiere dotar al \textit{crawler} y \textit{scraper} de la
+funcionalidad necesaria para, teniendo ya un conjunto de datos en el que se han
+extraído películas asociadas a \textit{tropos}, poder actualizar únicamente
+aquellas que hayan sufrido cambios con respecto a los datos que se tienen
+persistidos, sin necesidad de repetir el proceso de búsqueda de páginas y
+extracción de información desde 0, con la pérdida de tiempo que ello supondría.
+
+TvTropes, como cualquier wiki, tiene un historial de cambios muy extenso que
+facilita enormemente la tarea de encontrar la última vez que se actualizaron los
+contenidos de una página. Otros métodos comunes en el \textit{scraping} incluyen
+el revisar la cabecera HTTP \texttt{Last-Modified} de la página o algún campo en
+el HTML que lo contenga, que no siempre está presente como es el caso de
+TvTropes, o utilizar la caché de Google, pero no está actualizada constantemente
+y requeriría un esfuerzo adicional y una complejidad mayor
+\cite{find_last_updated}. También se podría hacer uso de \textit{checksums}, que
+codificasen el contenido cada vez que se extrajesen datos de las páginas, y
+comparar si ha cambiado ese \textit{checksum} al volver a extraer la página, no
+obstante esta opción tiene varios problemas. Esto implicaría tener que almacenar
+información adicional que no son fechas y que no es del todo fiable para
+comparar cambios, ya que pueden haber variado aspectos mínimos de la página sin
+importancia, que desembocarían en una codificación distinta y se daría un
+falso positivo de que el contenido ha cambiado. 
+
+El propio registro presente en TvTropes supone la mejor alternativa debido a que
+nos asegura que siempre tendremos la última fecha con seguridad, esta es de
+fácil acceso y seguiríamos trabajando con los mismos recursos. Además, de esta
+manera no es necesario tener en cuenta zonas horarias, ya que las fechas en esta
+web están en una única zona horaria, en la que se encuentra el servidor y, por
+tanto, facilitan la comparación entre distintas fechas extraídas en momentos
+distintos del tiempo al estar extrayendo, guardando y comparando siempre fechas
+generadas por TvTropes y no propias o externas.
+
+Existe una página dedicada en TvTropes que contiene un historial listando todos
+los cambios que sufre la
+web\footnote{\url{https://tvtropes.org/pmwiki/changes.php}}. En un principio se
+pensó en esta página como fuente de conocimiento para las fechas de
+actualización, sin embargo, no es demasiado fiable porque solo lista aquellos
+cambios que se han realizado en los últimos 3 o 4 días, no pudiendo consultar
+ahí cualquier cambio más antiguo. Si el usuario decidiese sacar un conjunto de
+datos con lo que necesita, y meses después decide que quiere actualizarlo, es
+muy probable que no se detecten cambios que realmente sí que se han hecho.
+
+Por suerte, TvTropes tiene un historial de todos los cambios que ha tenido cada
+página de forma individual. Como se puede ver en la Figura
+\ref{fig:changes_history}, desde cualquier página de obra se puede acceder,
+mediante el menú superior al artículo, a una historial de cambios centrado en
+esa obra concreta. De esta página lo único que necesitamos es la fecha de
+actualización de la última edición que ha tenido, que será efectivamente la
+última fecha de actualización de la página completa.
+
+\begin{figure}[!h]
+    \centering
+    \begin{subfigure}{\textwidth}
+      \includegraphics[width=\linewidth]{img/historial_1.png}
+      \caption{Enlace al historial de cambios en la página de una obra.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+      \includegraphics[width=\linewidth]{img/historial_2.png}
+      \caption{Historial de cambios de una obra y fecha de última actualización.}
+    \end{subfigure}
+    \caption{Historial de cambios en una página de TvTropes.}
+    \label{fig:changes_history}
+\end{figure}
+
+Extraer mediante selectores CSS esa fecha es muy sencillo siguiendo las mismas
+técnicas empleadas hasta ahora. Cada uno de los cambios en el historial está
+contenido en un elemento \texttt{div} cuyo hijo directo es otro elemento del
+mismo tipo, solo que con una clase llamada
+\begin{otherlanguage}{english}\textit{panel-heading}\end{otherlanguage} donde
+está contenida la fecha de cada cambio realizado. La fecha está contenida
+siempre en el único elemento de enlace que hay en ese contenedor, por lo
+que se puede extraer directamente. Puesto que la fecha de última actualización
+de la página es la fecha de cambios más reciente, o más bien, la primera del
+historial, basta con apoyarse de la función CSS \texttt{:nth-of-type(1)} para
+obtener el primer elemento, teniendo finalmente la fecha. Una vez extraído esto,
+basta con utilizar la biblioteca de fechas de Go para transformar la cadena de
+texto en un objeto fecha con el que se pueda comparar, indicando el formato de
+fechas que utiliza TvTropes para que lo entienda la biblioteca.
+
+La estrategia consiste, por tanto, en que primero el \textit{scraper} tenga un
+método desde el cual se puedan recuperar del fichero de datos persistido todas
+las páginas (sus URL) y la fecha en la que fueron actualizados por última vez.
+Entonces, el \textit{crawler} puede tener ahora una nueva funcionalidad de
+\textit{crawling} consistente en explorar todas esas páginas, que ya habían sido
+extraídas antes, navegar hasta el historial de cambios y comparar si la última
+fecha en el historial es más reciente que la que está persistida en el conjunto
+de datos. Si es así, se vuelve a extraer de nuevo la página y se forma el
+documento Goquery para que el \textit{scraper} pueda volver a extraer sus datos.
+Si no, se ignora, haciendo que únicamente se haga \textit{crawling} de aquellas
+páginas que fueron extraídas de antemano y cuyo contenido ha sufrido cambios.
+
+Para actualizar los conjuntos de datos basta con utilizar el método definido al
+principio del desarrollo para los repositorios de \texttt{Media} encargado de
+recibir un objeto \texttt{Media} con nuevos campos y actualizarlo directamente
+sobre el fichero de datos, ya sea CSV o JSON, sin tocar el resto de registros.
+Basta con lanzar el \textit{scraper} para cada página recibida que sabemos que
+tiene nuevos datos, y llamar al método de actualización sobre el conjunto de
+datos para cada una de las páginas actualizadas. Esto hará que se tenga el mismo
+conjunto de datos anterior, solo que con campos actualizados, reflejando el
+nuevo estado de TvTropes y cumpliendo finalmente la
+\href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]} y el objetivo
+propuesto al principio de este trabajo de que TropesToGo debía tener en cuenta
+que los datos en la página pueden cambiar muy frecuentemente.
+
+Tras este incremento se alcanza la versión 0.6.0 del \textit{software}, al haber
+aumentado la funcionalidad sin haber modificado la anterior, teniendo ahora la
+capacidad de analizar el historial de cambios de una página y poder actualizar
+los datos en caso de que estos sean más nuevos.
+
+\section{Aplicación de línea de comandos para múltiples medios audiovisuales}
+\subsection{Interfaz de línea de comandos}
+\subsection{Extracción de \textit{tropos} en otros medios audiovisuales}
+Hasta ahora únicamente se había trabajado con películas, sin embargo, para
+finalizar el desarrollo de este trabajo se amplía el \textit{scraper} para que
+pueda trabajar con cualquier otro medio audiovisual de los existentes en
+TvTropes, consiguiendo un producto final mucho más completo y que podrá obtener
+conjuntos de datos para análisis más diversos y profundos.
+
 \section{Resultado final}
