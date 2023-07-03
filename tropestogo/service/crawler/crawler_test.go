@@ -1,16 +1,19 @@
 package crawler_test
 
 import (
+	"github.com/PuerkitoBio/goquery"
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	crawler "github.com/jlgallego99/TropesToGo/service/crawler"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"io"
 	"os"
+	"time"
 )
 
 const (
 	indexResource = "resources/film_index_page1.html"
+	historyPage   = "resources/oldboy_history.html"
 )
 
 var filmResources = []string{"resources/film1.html", "resources/film2.html", "resources/film3.html",
@@ -53,6 +56,26 @@ var _ = Describe("Crawler", func() {
 					Expect(crawledSubpage.GetUrl()).To(Not(BeNil()))
 				}
 			}
+		})
+	})
+
+	Context("Extract the last updated time from an history page", func() {
+		var lastUpdated time.Time
+		var errLastUpdated error
+
+		BeforeEach(func() {
+			historyFile, _ := os.Open(historyPage)
+			historyDoc, _ := goquery.NewDocumentFromReader(historyFile)
+
+			lastUpdated, errLastUpdated = serviceCrawler.ParseTvTropesTime(historyDoc)
+		})
+
+		It("Shouldn't return an error", func() {
+			Expect(errLastUpdated).To(BeNil())
+		})
+
+		It("Should return a valid time object", func() {
+			Expect(lastUpdated).To(Not(Equal(time.Time{})))
 		})
 	})
 })

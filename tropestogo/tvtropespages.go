@@ -63,7 +63,7 @@ func (tvtropespages *TvTropesPages) AddTvTropesPage(pageUrl string, requestPages
 	}
 
 	tvtropespages.Pages[newPage] = &TvTropesSubpages{
-		LastUpdated: time.Now(),
+		LastUpdated: time.Time{},
 		Subpages:    make(map[Page]time.Time, 0),
 	}
 	return newPage, nil
@@ -87,7 +87,7 @@ func (tvtropespages *TvTropesPages) AddSubpages(pageUrl string, subpageUrls []st
 			return errSubpage
 		}
 
-		subPages[newSubpage] = time.Now()
+		subPages[newSubpage] = time.Time{}
 
 		// Wait random time between HTTP requests
 		if requestPages {

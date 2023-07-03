@@ -3,14 +3,13 @@ package scraper
 import (
 	"errors"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
+	tropestogo "github.com/jlgallego99/TropesToGo"
+	"github.com/jlgallego99/TropesToGo/media"
 	"net/url"
 	"regexp"
 	"strings"
 	"time"
-
-	"github.com/PuerkitoBio/goquery"
-	tropestogo "github.com/jlgallego99/TropesToGo"
-	"github.com/jlgallego99/TropesToGo/media"
 )
 
 var (
@@ -21,6 +20,7 @@ var (
 	ErrNotFound             = errors.New("couldn't request the URL")
 	ErrInvalidSubpage       = errors.New("couldn't scrape tropes in subpage")
 	ErrEmptyDocument        = errors.New("can't scrape the page because there's no Goquery document")
+	ErrUpdateDataset        = errors.New("can't update the dataset with the new scraped data from the work")
 )
 
 const (
@@ -257,14 +257,7 @@ func (scraper *ServiceScraper) CheckIsSubWiki(doc *goquery.Document) bool {
 // ScrapeTvTropes tries to scrape all pages and its subpages that are TvTropesPages by making HTTP requests to TvTropes
 // It only returns an error if it can't write or read the dataset, if the page can't be scraped it skips to the next
 func (scraper *ServiceScraper) ScrapeTvTropes(tvtropespages *tropestogo.TvTropesPages) error {
-	for page, tvtropessubpages := range tvtropespages.Pages {
-		var subPages []tropestogo.Page
-		for subPage := range tvtropessubpages.Subpages {
-			if subPage.GetPageType() == tropestogo.WorkPage {
-				subPages = append(subPages, subPage)
-			}
-		}
-
+	for page, subPages := range tvtropespages.Pages {
 		scraper.ScrapeTvTropesPage(page, subPages)
 	}
 
@@ -276,31 +269,25 @@ func (scraper *ServiceScraper) ScrapeTvTropes(tvtropespages *tropestogo.TvTropes
 	return nil
 }
 
-// ScrapeTvTropesPage validates the Goquery document from a page object and its subPages and fully scrapes its contents
-// calling all sub functions and returning a valid Media object
+// ScrapeTvTropesPage accepts a main Work Page object and TvTropesSubpages object which contains all its subpages
+// Full scrapes its contents, extracting the title, year, media type and all tropes, finally returning a correctly formed media object with all the data
+// It calls sub functions for scraping the multiple parts and returns an error if some scraping has failed
 // If the page or subpages doesn't have a parsed document, it returns an ErrEmptyDocument error
-func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages []tropestogo.Page) (media.Media, error) {
-	if page.GetDocument() == nil {
+func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages *tropestogo.TvTropesSubpages) (media.Media, error) {
+	doc := page.GetDocument()
+	if doc == nil {
 		return media.Media{}, fmt.Errorf("%w: "+page.GetUrl().String(), ErrEmptyDocument)
 	}
 
 	var subDocs []*goquery.Document
-	for _, subPage := range subPages {
+	for subPage, _ := range subPages.Subpages {
 		if subPage.GetDocument() == nil {
 			return media.Media{}, fmt.Errorf("%w: "+page.GetUrl().String(), ErrEmptyDocument)
+		} else if subPage.GetPageType() == tropestogo.WorkPage {
+			subDocs = append(subDocs, subPage.GetDocument())
 		}
-
-		subDocs = append(subDocs, subPage.GetDocument())
 	}
 
-	return scraper.ScrapeFromDocuments(page.GetDocument(), subDocs, page.GetUrl())
-}
-
-// ScrapeFromDocuments accepts a Goquery document with a TvTropes Work Page contents and an array of documents with all its subpages contents
-// Extracts all the relevant information from them and the url from the last parameter
-// It scrapes the title, year, media type and all tropes, finally returning a correctly formed media object with all the data
-// It calls sub functions for scraping the multiple parts and returns an error if some scraping has failed
-func (scraper *ServiceScraper) ScrapeFromDocuments(doc *goquery.Document, subDocs []*goquery.Document, url *url.URL) (media.Media, error) {
 	tropes := make(map[tropestogo.Trope]struct{})
 	var errTropes error
 
@@ -308,7 +295,7 @@ func (scraper *ServiceScraper) ScrapeFromDocuments(doc *goquery.Document, subDoc
 		return media.Media{}, ErrInvalidField
 	}
 
-	page, errNewPage := tropestogo.NewPage(url.String(), false, nil)
+	page, errNewPage := tropestogo.NewPage(page.GetUrl().String(), false, nil)
 	if errNewPage != nil {
 		return media.Media{}, fmt.Errorf("Error creating Page object \n%w", errNewPage)
 	}
@@ -343,7 +330,7 @@ func (scraper *ServiceScraper) ScrapeFromDocuments(doc *goquery.Document, subDoc
 		tropes[subTrope] = struct{}{}
 	}
 
-	newMedia, errNewMedia := media.NewMedia(title, year, time.Now(), tropes, page, mediaIndex)
+	newMedia, errNewMedia := media.NewMedia(title, year, subPages.LastUpdated, tropes, page, mediaIndex)
 	if errNewMedia != nil {
 		return media.Media{}, errNewMedia
 	}
@@ -470,6 +457,29 @@ func (scraper *ServiceScraper) ScrapeSubpageTropes(subDocs []*goquery.Document) 
 // It returns the namespace string
 func (scraper *ServiceScraper) ScrapeNamespace(doc *goquery.Document) string {
 	return strings.Trim(doc.Find(WorkIndexSelector).First().Text(), " /")
+}
+
+// GetScrapedPages returns a map of all the string URLs of the and the last time they were updated
+// To be used for searching updates on those pages
+func (scraper *ServiceScraper) GetScrapedPages() (map[string]time.Time, error) {
+	return scraper.data.GetWorkPages()
+}
+
+// UpdateDataset receives an array of TvTropes changes pages and updates all Media in the existing dataset that have had changes
+func (scraper *ServiceScraper) UpdateDataset(changedPages *tropestogo.TvTropesPages) error {
+	for page, subPages := range changedPages.Pages {
+		newUpdatedMedia, errScrape := scraper.ScrapeTvTropesPage(page, subPages)
+		if errScrape != nil {
+			return errScrape
+		}
+
+		errUpdate := scraper.data.UpdateMedia(newUpdatedMedia.GetWork().Title, newUpdatedMedia.GetWork().Year, newUpdatedMedia)
+		if errUpdate != nil {
+			return fmt.Errorf("%w: "+newUpdatedMedia.GetWork().Title+newUpdatedMedia.GetWork().Year, ErrUpdateDataset)
+		}
+	}
+
+	return nil
 }
 
 // Persist calls the same method on the RepositoryMedia that is defined for the scraper and writes all data in the repository file

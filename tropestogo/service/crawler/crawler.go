@@ -22,26 +22,36 @@ const (
 	acceptLanguageHeader          = "es"
 	upgradeInsecureRequestsHeader = "1"
 
+	// TvTropes date formats
+	tvTropesHistoryDateFormat = "Jan 2 2006 at 3:04:05 PM"
+
 	// Referer header for a well-known and trusty webpage
 	refererHeader = "https://www.google.com/"
 
-	TvTropesHostname       = "tvtropes.org"
-	TvTropesWeb            = "https://" + TvTropesHostname
-	TvTropesPmwiki         = TvTropesWeb + "/pmwiki/"
-	WorkPageSelector       = "table a"
-	CurrentSubpageSelector = ".curr-subpage"
-	SubWikiSelector        = "a.subpage-link:not(" + CurrentSubpageSelector + ")"
-	SubPageSelector        = "ul a.twikilink"
-	PaginationNavSelector  = "nav.pagination-box > a"
+	TvTropesHostname        = "tvtropes.org"
+	TvTropesWeb             = "https://" + TvTropesHostname
+	TvTropesPmwiki          = TvTropesWeb + "/pmwiki/"
+	WorkPageSelector        = "table a"
+	CurrentSubpageSelector  = ".curr-subpage"
+	SubWikiSelector         = "a.subpage-link:not(" + CurrentSubpageSelector + ")"
+	SubPageSelector         = "ul a.twikilink"
+	PaginationNavSelector   = "nav.pagination-box > a"
+	WorkHistoryPageSelector = "li.link-history a"
+	LastUpdatedSelector     = "#main-article > div:first-of-type .pull-right a"
 )
 
 var (
-	ErrNotFound = errors.New("couldn't request the URL")
-	ErrCrawling = errors.New("there was an error crawling TvTropes")
-	ErrEndIndex = errors.New("there's no next page on the index")
-	ErrParse    = errors.New("couldn't parse the HTML contents of the page")
+	ErrNotFound    = errors.New("couldn't request the URL")
+	ErrCrawling    = errors.New("there was an error crawling TvTropes")
+	ErrEndIndex    = errors.New("there's no next page on the index")
+	ErrParse       = errors.New("couldn't parse the HTML contents of the page")
+	ErrLastUpdated = errors.New("couldn't retrieve o the last updated time")
+	ErrParseTime   = errors.New("couldn't parse the TvTropes last updated time")
 
 	httpClient = &http.Client{}
+
+	// date ordinals for removing them on a date string
+	dateOrdinals = []string{"st", "nd", "rd", "th"}
 )
 
 type ServiceCrawler struct{}
@@ -96,36 +106,24 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 				return false
 			}
 
-			// Create the Work Page
-			validRequest, errRequest := crawler.makeValidRequest(workUrl)
-			if errRequest != nil {
-				errAddPage = errRequest
+			// Create the Work Page with its subpages
+			workPage, errAddPage = crawler.createWorkPage(workUrl, crawledPages)
+			if errAddPage != nil {
 				return false
 			}
-			workPage, errAddPage = crawledPages.AddTvTropesPage(workUrl, true, validRequest)
-			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
-				time.Sleep(time.Minute)
+
+			// Set LastUpdated time
+			lastUpdated, errLastUpdated := crawler.getLastUpdated(workPage.GetDocument())
+			if errLastUpdated != nil {
+				errAddPage = errLastUpdated
+				return false
 			}
+			crawledPages.Pages[workPage].LastUpdated = lastUpdated
 
-			// Search for subpages on the new Work Page
-			subPagesUrls := crawler.CrawlWorkSubpages(workPage.GetDocument())
-
-			// Add its subpages to the Work Page
-			var requests []*http.Request
-			for _, subPagesUrl := range subPagesUrls {
-				validRequest, errRequest = crawler.makeValidRequest(subPagesUrl)
-				if errRequest != nil {
-					errAddPage = errRequest
-					return false
-				}
-
-				requests = append(requests, validRequest)
-			}
-			errAddPage = crawledPages.AddSubpages(workUrl, subPagesUrls, true, requests)
-
-			// If there's been too many requests to TvTropes, wait longer
-			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
-				time.Sleep(time.Minute)
+			// Crawl Work subpages and add them
+			errAddPage = crawler.addWorkSubpages(workPage, crawledPages)
+			if errAddPage != nil {
+				return false
 			}
 
 			return true
@@ -140,7 +138,8 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 		}
 
 		// Get next index page for crawling
-		indexPage, errAddPage = crawler.getNextPageUrl(doc)
+		indexPage, errAddPage = crawler.getNextPageUriFromDocument(doc)
+		indexPage = TvTropesPmwiki + indexPage
 		if errAddPage != nil {
 			break
 		}
@@ -149,9 +148,10 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 	return crawledPages, nil
 }
 
-// getNextPageUrl, internal function that looks for the next Work index pagination URL on the current index page
+// getNextPageUriFromDocument, internal function that looks for the next pagination URI on the current index
 // It looks for a "Next" button on the pagination navigator, and returns an error if there's no next page
-func (crawler *ServiceCrawler) getNextPageUrl(doc *goquery.Document) (string, error) {
+// It works for any page with a pagination navigator, and the path can be different, so it returns only the URI
+func (crawler *ServiceCrawler) getNextPageUriFromDocument(doc *goquery.Document) (string, error) {
 	// Search the "Next" button on the nav pagination
 	nextPageUri := ""
 	var nextPageExists bool
@@ -170,7 +170,7 @@ func (crawler *ServiceCrawler) getNextPageUrl(doc *goquery.Document) (string, er
 		return "", fmt.Errorf("%w: "+seed, ErrEndIndex)
 	}
 
-	return TvTropesPmwiki + nextPageUri, nil
+	return nextPageUri, nil
 }
 
 // CrawlWorkSubpages searches all subpages (both with main tropes and SubWikis) on the goquery Document of a Work page
@@ -259,6 +259,82 @@ func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, 
 	return crawledPages, nil
 }
 
+// CrawlChanges crawls the latest changes on TvTropes Films and returns a TvTropesPages with all recently-updated Work Pages
+// Receives a map of already crawled works, relating a name with its last updated time
+// and only crawls them if there's record of them on the history page, and it's newer
+// Returns a TvTropesPages containing the crawled Pages of the Media that needs to be updated
+func (crawler *ServiceCrawler) CrawlChanges(crawledWorks map[string]time.Time) (*tropestogo.TvTropesPages, error) {
+	crawledPages := tropestogo.NewTvTropesPages()
+
+	for crawledUrl, lastUpdated := range crawledWorks {
+		// Create the Work Page
+		newPage, errNewPage := crawler.createWorkPage(crawledUrl, crawledPages)
+		if errNewPage != nil {
+			return nil, errNewPage
+		}
+
+		newLastUpdated, errGetLastUpdated := crawler.getLastUpdated(newPage.GetDocument())
+		if errGetLastUpdated != nil {
+			return nil, errGetLastUpdated
+		}
+
+		// Only crawl the page if it has been crawled before, and it's been updated
+		if newLastUpdated.After(lastUpdated) {
+			// Set LastUpdated time
+			crawledPages.Pages[newPage].LastUpdated = newLastUpdated
+
+			// Crawl Work subpages and add them
+			errCrawlSubpages := crawler.addWorkSubpages(newPage, crawledPages)
+			if errCrawlSubpages != nil {
+				return nil, errCrawlSubpages
+			}
+		}
+	}
+
+	return crawledPages, nil
+}
+
+// createWorkPage forms a valid Work Page object and adds it to the crawledPages object
+func (crawler *ServiceCrawler) createWorkPage(workUrl string, crawledPages *tropestogo.TvTropesPages) (tropestogo.Page, error) {
+	validRequest, errRequest := crawler.makeValidRequest(workUrl)
+	if errRequest != nil {
+		return tropestogo.Page{}, errRequest
+	}
+	workPage, errAddPage := crawledPages.AddTvTropesPage(workUrl, true, validRequest)
+	if errAddPage != nil {
+		return tropestogo.Page{}, errAddPage
+	}
+
+	return workPage, nil
+}
+
+// addWorkSubpages crawls all Work subpages, creates them and adds them to the referenced crawledPages argument
+func (crawler *ServiceCrawler) addWorkSubpages(workPage tropestogo.Page, crawledPages *tropestogo.TvTropesPages) error {
+	// Search for subpages on the new Work Page
+	subPagesUrls := crawler.CrawlWorkSubpages(workPage.GetDocument())
+
+	// Add its subpages to the Work Page
+	var requests []*http.Request
+	for _, subPagesUrl := range subPagesUrls {
+		validRequest, errRequest := crawler.makeValidRequest(subPagesUrl)
+		if errRequest != nil {
+			return errRequest
+		}
+
+		requests = append(requests, validRequest)
+	}
+
+	errSubpages := crawledPages.AddSubpages(workPage.GetUrl().String(), subPagesUrls, true, requests)
+
+	// If there's been too many requests to TvTropes, wait longer
+	if errors.Is(errSubpages, tropestogo.ErrForbidden) {
+		time.Sleep(time.Minute)
+		errSubpages = nil
+	}
+
+	return errSubpages
+}
+
 // makeValidRequests builds an HTTP request to the url page and returns its contents
 // The request sets very specific Headers to pass as a real browser, avoiding banning for being a bot
 // It returns an ErrNotFound error if the request couldn't be made
@@ -275,4 +351,47 @@ func (crawler *ServiceCrawler) makeValidRequest(pageUrl string) (*http.Request, 
 	request.Header.Set("Upgrade-Insecure-Requests", upgradeInsecureRequestsHeader)
 
 	return request, nil
+}
+
+// GetLastUpdated retrieves the last updated date from the history page of a Work page and parses it to a valid time object
+// If it couldn't be parsed or obtained, it will return an ErrLastUpdated error
+func (crawler *ServiceCrawler) getLastUpdated(doc *goquery.Document) (time.Time, error) {
+	historyPageUri, historyPageExists := doc.Find(WorkHistoryPageSelector).First().Attr("href")
+	if !historyPageExists {
+		return time.Time{}, nil
+	}
+
+	request, errRequest := crawler.makeValidRequest(TvTropesWeb + historyPageUri)
+	if errRequest != nil {
+		return time.Time{}, errRequest
+	}
+
+	resp, errDoRequest := httpClient.Do(request)
+	if errDoRequest != nil {
+		return time.Time{}, fmt.Errorf("%w because there was an error on the HTTP request to the history ", ErrLastUpdated)
+	}
+
+	historyDoc, _ := goquery.NewDocumentFromReader(resp.Body)
+	lastUpdated, errLastUpdated := crawler.ParseTvTropesTime(historyDoc)
+	if errLastUpdated != nil {
+		return time.Time{}, errLastUpdated
+	}
+
+	return lastUpdated, nil
+}
+
+// ParseTvTropesTime searches for the last updated time in a work history page and parses it to a valid time object
+// If it can't be parsed it will return an ErrParseTime error
+func (crawler *ServiceCrawler) ParseTvTropesTime(historyDoc *goquery.Document) (time.Time, error) {
+	lastUpdatedString := historyDoc.Find(LastUpdatedSelector).Text()
+	for _, ordinal := range dateOrdinals {
+		lastUpdatedString = strings.ReplaceAll(lastUpdatedString, ordinal, "")
+	}
+
+	lastUpdated, errParseTime := time.Parse(tvTropesHistoryDateFormat, lastUpdatedString)
+	if errParseTime != nil {
+		return time.Time{}, fmt.Errorf("%w: "+lastUpdatedString, ErrParseTime)
+	}
+
+	return lastUpdated, nil
 }

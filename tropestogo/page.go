@@ -94,6 +94,18 @@ func NewPage(pageUrl string, requestPage bool, req *http.Request) (Page, error) 
 	}, nil
 }
 
+// NewPageWithDocument creates a valid Page value-object with a custom document that represents a generic and immutable TvTropes web page
+func NewPageWithDocument(pageUrl string, doc *goquery.Document) (Page, error) {
+	page, errPage := NewPage(pageUrl, false, nil)
+	if errPage != nil {
+		return Page{}, errPage
+	}
+
+	page.document = doc
+
+	return page, nil
+}
+
 // parseTvTropesUrl accepts a pageUrl string and parses it to a valid URL object, only if it belongs to TvTropes
 // If it can't be parsed it returns an ErrBadUrl error and if it's not a TvTropes page it returns an ErrNotTvTropes error
 func parseTvTropesUrl(pageUrl string) (*url.URL, error) {
