@@ -49,6 +49,9 @@ var (
 	ErrParseTime   = errors.New("couldn't parse the TvTropes last updated time")
 
 	httpClient = &http.Client{}
+
+	// date ordinals for removing them on a date string
+	dateOrdinals = []string{"st", "nd", "rd", "th"}
 )
 
 type ServiceCrawler struct{}
@@ -305,7 +308,7 @@ func (crawler *ServiceCrawler) createWorkPage(workUrl string, crawledPages *trop
 	return workPage, nil
 }
 
-// addWorkSubpages crawls all Work subpages, creates them and adds them to the crawledPages object
+// addWorkSubpages crawls all Work subpages, creates them and adds them to the referenced crawledPages argument
 func (crawler *ServiceCrawler) addWorkSubpages(workPage tropestogo.Page, crawledPages *tropestogo.TvTropesPages) error {
 	// Search for subpages on the new Work Page
 	subPagesUrls := crawler.CrawlWorkSubpages(workPage.GetDocument())
@@ -355,7 +358,7 @@ func (crawler *ServiceCrawler) makeValidRequest(pageUrl string) (*http.Request, 
 func (crawler *ServiceCrawler) getLastUpdated(doc *goquery.Document) (time.Time, error) {
 	historyPageUri, historyPageExists := doc.Find(WorkHistoryPageSelector).First().Attr("href")
 	if !historyPageExists {
-		return time.Time{}, ErrLastUpdated
+		return time.Time{}, nil
 	}
 
 	request, errRequest := crawler.makeValidRequest(TvTropesWeb + historyPageUri)
@@ -381,10 +384,9 @@ func (crawler *ServiceCrawler) getLastUpdated(doc *goquery.Document) (time.Time,
 // If it can't be parsed it will return an ErrParseTime error
 func (crawler *ServiceCrawler) ParseTvTropesTime(historyDoc *goquery.Document) (time.Time, error) {
 	lastUpdatedString := historyDoc.Find(LastUpdatedSelector).Text()
-	lastUpdatedString = strings.ReplaceAll(lastUpdatedString, "st", "")
-	lastUpdatedString = strings.ReplaceAll(lastUpdatedString, "nd", "")
-	lastUpdatedString = strings.ReplaceAll(lastUpdatedString, "rd", "")
-	lastUpdatedString = strings.ReplaceAll(lastUpdatedString, "th", "")
+	for _, ordinal := range dateOrdinals {
+		lastUpdatedString = strings.ReplaceAll(lastUpdatedString, ordinal, "")
+	}
 
 	lastUpdated, errParseTime := time.Parse(tvTropesHistoryDateFormat, lastUpdatedString)
 	if errParseTime != nil {
