@@ -123,11 +123,6 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 				return false
 			}
 
-			// If there's been too many requests to TvTropes, wait longer
-			if errors.Is(errAddPage, tropestogo.ErrForbidden) {
-				time.Sleep(time.Minute)
-			}
-
 			return true
 		})
 
@@ -140,7 +135,7 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 		}
 
 		// Get next index page for crawling
-		indexPage, errAddPage = crawler.getNextPageUri(doc)
+		indexPage, errAddPage = crawler.getNextPageUriFromDocument(doc)
 		indexPage = TvTropesPmwiki + indexPage
 		if errAddPage != nil {
 			break
@@ -150,9 +145,10 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 	return crawledPages, nil
 }
 
-// getNextPageUri, internal function that looks for the next pagination URI on the current index
+// getNextPageUriFromDocument, internal function that looks for the next pagination URI on the current index
 // It looks for a "Next" button on the pagination navigator, and returns an error if there's no next page
-func (crawler *ServiceCrawler) getNextPageUri(doc *goquery.Document) (string, error) {
+// It works for any page with a pagination navigator, and the path can be different, so it returns only the URI
+func (crawler *ServiceCrawler) getNextPageUriFromDocument(doc *goquery.Document) (string, error) {
 	// Search the "Next" button on the nav pagination
 	nextPageUri := ""
 	var nextPageExists bool
@@ -289,11 +285,6 @@ func (crawler *ServiceCrawler) CrawlChanges(crawledWorks map[string]time.Time) (
 			if errCrawlSubpages != nil {
 				return nil, errCrawlSubpages
 			}
-
-			// If there's been too many requests to TvTropes, wait longer
-			if errors.Is(errCrawlSubpages, tropestogo.ErrForbidden) {
-				time.Sleep(time.Minute)
-			}
 		}
 	}
 
@@ -307,8 +298,8 @@ func (crawler *ServiceCrawler) createWorkPage(workUrl string, crawledPages *trop
 		return tropestogo.Page{}, errRequest
 	}
 	workPage, errAddPage := crawledPages.AddTvTropesPage(workUrl, true, validRequest)
-	if errors.Is(errAddPage, tropestogo.ErrForbidden) {
-		time.Sleep(time.Minute)
+	if errAddPage != nil {
+		return tropestogo.Page{}, errAddPage
 	}
 
 	return workPage, nil
@@ -330,7 +321,15 @@ func (crawler *ServiceCrawler) addWorkSubpages(workPage tropestogo.Page, crawled
 		requests = append(requests, validRequest)
 	}
 
-	return crawledPages.AddSubpages(workPage.GetUrl().String(), subPagesUrls, true, requests)
+	errSubpages := crawledPages.AddSubpages(workPage.GetUrl().String(), subPagesUrls, true, requests)
+
+	// If there's been too many requests to TvTropes, wait longer
+	if errors.Is(errSubpages, tropestogo.ErrForbidden) {
+		time.Sleep(time.Minute)
+		errSubpages = nil
+	}
+
+	return errSubpages
 }
 
 // makeValidRequests builds an HTTP request to the url page and returns its contents
