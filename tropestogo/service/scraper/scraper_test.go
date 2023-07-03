@@ -312,39 +312,21 @@ var _ = Describe("Scraper", func() {
 
 			// Scrape Oldboy
 			subpageDocsJson, subpageDocsCsv = loadSubpageFiles(oldboySubpageFiles, oldboySubpageUrls)
-			pageReaderCsv, _ = os.Open(oldboyResource)
-			pageReaderJson, _ = os.Open(oldboyResource)
-			docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
-			docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
-			pageJson, errCreatePageJson := tropestogo.NewPageWithDocument(oldboyUrl, docJson)
-			Expect(errCreatePageJson).To(BeNil())
-			pageCsv, errCreatePageCsv := tropestogo.NewPageWithDocument(oldboyUrl, docCsv)
-			Expect(errCreatePageCsv).To(BeNil())
+			pageJson := createPage(oldboyUrl, oldboyResource)
+			pageCsv := createPage(oldboyUrl, oldboyResource)
 			validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeTvTropesPage(pageJson, subpageDocsJson)
 			validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeTvTropesPage(pageCsv, subpageDocsCsv)
 
 			// Scrape The Avengers
 			subpageDocsJson, subpageDocsCsv = loadSubpageFiles(avengersSubpageFiles, avengersSubpageUrls)
-			pageReaderCsv, _ = os.Open(avengersResource)
-			pageReaderJson, _ = os.Open(avengersResource)
-			docJson, _ = goquery.NewDocumentFromReader(pageReaderJson)
-			docCsv, _ = goquery.NewDocumentFromReader(pageReaderCsv)
-			pageJson, errCreatePageJson = tropestogo.NewPageWithDocument(anewhopeUrl, docJson)
-			Expect(errCreatePageJson).To(BeNil())
-			pageCsv, errCreatePageCsv = tropestogo.NewPageWithDocument(anewhopeUrl, docCsv)
-			Expect(errCreatePageCsv).To(BeNil())
+			pageJson = createPage(avengersUrl, avengersResource)
+			pageCsv = createPage(avengersUrl, avengersResource)
 			validfilm2Csv, errorfilm2Json = serviceScraperJson.ScrapeTvTropesPage(pageJson, subpageDocsJson)
 			validfilm2Json, errorfilm2Csv = serviceScraperCsv.ScrapeTvTropesPage(pageCsv, subpageDocsCsv)
 
 			// Scrape A New Hope
-			pageReaderCsv, _ = os.Open(anewhopeResource)
-			pageReaderJson, _ = os.Open(anewhopeResource)
-			docJson, _ = goquery.NewDocumentFromReader(pageReaderJson)
-			docCsv, _ = goquery.NewDocumentFromReader(pageReaderCsv)
-			pageJson, errCreatePageJson = tropestogo.NewPageWithDocument(anewhopeUrl, docJson)
-			Expect(errCreatePageJson).To(BeNil())
-			pageCsv, errCreatePageCsv = tropestogo.NewPageWithDocument(anewhopeUrl, docCsv)
-			Expect(errCreatePageCsv).To(BeNil())
+			pageJson = createPage(anewhopeUrl, anewhopeResource)
+			pageCsv = createPage(anewhopeUrl, anewhopeResource)
 			emptySubPages := &tropestogo.TvTropesSubpages{
 				LastUpdated: time.Now(),
 				Subpages:    make(map[tropestogo.Page]time.Time, 0),
@@ -607,4 +589,15 @@ func createTvTropesPagesWithEmptySubpages(urlString, resource string) *tropestog
 	pages.Pages[page] = emptySubPages
 
 	return pages
+}
+
+func createPage(urlString, resource string) tropestogo.Page {
+	pageReader, _ := os.Open(resource)
+	defer pageReader.Close()
+
+	doc, _ := goquery.NewDocumentFromReader(pageReader)
+	page, errCreatePageJson := tropestogo.NewPageWithDocument(urlString, doc)
+	Expect(errCreatePageJson).To(BeNil())
+
+	return page
 }
