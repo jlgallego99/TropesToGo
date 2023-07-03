@@ -3,14 +3,13 @@ package scraper
 import (
 	"errors"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
+	tropestogo "github.com/jlgallego99/TropesToGo"
+	"github.com/jlgallego99/TropesToGo/media"
 	"net/url"
 	"regexp"
 	"strings"
 	"time"
-
-	"github.com/PuerkitoBio/goquery"
-	tropestogo "github.com/jlgallego99/TropesToGo"
-	"github.com/jlgallego99/TropesToGo/media"
 )
 
 var (
@@ -21,6 +20,7 @@ var (
 	ErrNotFound             = errors.New("couldn't request the URL")
 	ErrInvalidSubpage       = errors.New("couldn't scrape tropes in subpage")
 	ErrEmptyDocument        = errors.New("can't scrape the page because there's no Goquery document")
+	ErrUpdateDataset        = errors.New("can't update the dataset with the new scraped data from the work")
 )
 
 const (
@@ -283,9 +283,9 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages
 	for subPage, _ := range subPages.Subpages {
 		if subPage.GetDocument() == nil {
 			return media.Media{}, fmt.Errorf("%w: "+page.GetUrl().String(), ErrEmptyDocument)
+		} else if subPage.GetPageType() == tropestogo.WorkPage {
+			subDocs = append(subDocs, subPage.GetDocument())
 		}
-
-		subDocs = append(subDocs, subPage.GetDocument())
 	}
 
 	tropes := make(map[tropestogo.Trope]struct{})
@@ -330,7 +330,7 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages
 		tropes[subTrope] = struct{}{}
 	}
 
-	newMedia, errNewMedia := media.NewMedia(title, year, time.Now(), tropes, page, mediaIndex)
+	newMedia, errNewMedia := media.NewMedia(title, year, subPages.LastUpdated, tropes, page, mediaIndex)
 	if errNewMedia != nil {
 		return media.Media{}, errNewMedia
 	}
@@ -457,6 +457,29 @@ func (scraper *ServiceScraper) ScrapeSubpageTropes(subDocs []*goquery.Document) 
 // It returns the namespace string
 func (scraper *ServiceScraper) ScrapeNamespace(doc *goquery.Document) string {
 	return strings.Trim(doc.Find(WorkIndexSelector).First().Text(), " /")
+}
+
+// GetScrapedPages returns a map of all the string URLs of the and the last time they were updated
+// To be used for searching updates on those pages
+func (scraper *ServiceScraper) GetScrapedPages() (map[string]time.Time, error) {
+	return scraper.data.GetWorkPages()
+}
+
+// UpdateDataset receives an array of TvTropes changes pages and updates all Media in the existing dataset that have had changes
+func (scraper *ServiceScraper) UpdateDataset(changedPages *tropestogo.TvTropesPages) error {
+	for page, subPages := range changedPages.Pages {
+		newUpdatedMedia, errScrape := scraper.ScrapeTvTropesPage(page, subPages)
+		if errScrape != nil {
+			return errScrape
+		}
+
+		errUpdate := scraper.data.UpdateMedia(newUpdatedMedia.GetWork().Title, newUpdatedMedia.GetWork().Year, newUpdatedMedia)
+		if errUpdate != nil {
+			return fmt.Errorf("%w: "+newUpdatedMedia.GetWork().Title+newUpdatedMedia.GetWork().Year, ErrUpdateDataset)
+		}
+	}
+
+	return nil
 }
 
 // Persist calls the same method on the RepositoryMedia that is defined for the scraper and writes all data in the repository file
