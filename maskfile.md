@@ -3,6 +3,12 @@
 > **mask \<task\>**  
 > where \<task\> is any of the following
 
+## run
+> Command for running TropesToGo CLI and be able to scrape data on TvTropes
+~~~sh
+go run ./tropestogo/cmd/main.go
+~~~
+
 ## build
 > Command for building the project
 ~~~sh
