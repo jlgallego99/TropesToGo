@@ -5,6 +5,7 @@ import (
 	tropestogo "github.com/jlgallego99/TropesToGo"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/rs/zerolog"
 )
 
 var (
@@ -18,6 +19,9 @@ var (
 var tvtropespages *tropestogo.TvTropesPages
 
 var _ = BeforeSuite(func() {
+	// Do not log during testing
+	zerolog.SetGlobalLevel(zerolog.Disabled)
+
 	tvtropespages = tropestogo.NewTvTropesPages()
 })
 

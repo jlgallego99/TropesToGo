@@ -6,6 +6,7 @@ import (
 	crawler "github.com/jlgallego99/TropesToGo/service/crawler"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/rs/zerolog"
 	"io"
 	"os"
 	"time"
@@ -25,6 +26,9 @@ var errNewCrawler, errCrawling error
 var crawledPages *tropestogo.TvTropesPages
 
 var _ = BeforeSuite(func() {
+	// Do not log during testing
+	zerolog.SetGlobalLevel(zerolog.Disabled)
+
 	serviceCrawler = crawler.NewCrawler()
 	Expect(errNewCrawler).To(BeNil())
 

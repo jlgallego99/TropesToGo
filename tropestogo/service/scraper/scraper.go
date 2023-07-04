@@ -128,7 +128,8 @@ func (scraper *ServiceScraper) CheckIsWorkPage(doc *goquery.Document, url *url.U
 	}
 
 	splitPath := strings.Split(url.Path, "/")
-	if !strings.HasPrefix(url.Path, TvTropesPmwiki) || splitPath[3] != media.Film.String() {
+	_, errMediaType := media.ToMediaType(splitPath[3])
+	if !strings.HasPrefix(url.Path, TvTropesPmwiki) || errMediaType != nil {
 		return false, fmt.Errorf("%w: "+url.String(), ErrNotWorkPage)
 	}
 
@@ -139,9 +140,10 @@ func (scraper *ServiceScraper) CheckIsWorkPage(doc *goquery.Document, url *url.U
 		return false, ErrUnknownPageStructure
 	}
 
-	tropeIndex := strings.Trim(doc.Find(WorkIndexSelector).Text(), " /")
-	if tropeIndex != media.Film.String() {
-		return false, fmt.Errorf("%w: the index is"+tropeIndex, ErrNotWorkPage)
+	mediaIndex := strings.Trim(doc.Find(WorkIndexSelector).Text(), " /")
+	_, errMediaType = media.ToMediaType(mediaIndex)
+	if errMediaType != nil {
+		return false, fmt.Errorf("%w: the index is "+mediaIndex, ErrNotWorkPage)
 	}
 
 	return true, nil

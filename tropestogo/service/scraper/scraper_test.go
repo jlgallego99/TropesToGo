@@ -10,6 +10,7 @@ import (
 	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
 	"github.com/jlgallego99/TropesToGo/media/json_dataset"
 	"github.com/jlgallego99/TropesToGo/service/scraper"
+	"github.com/rs/zerolog"
 	"net/url"
 	"os"
 	"strings"
@@ -20,17 +21,15 @@ import (
 )
 
 const (
-	oldboyUrl             = "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"
-	oldboyResource        = "resources/oldboy2003.html"
-	anewhopeUrl           = "https://tvtropes.org/pmwiki/pmwiki.php/Film/ANewHope"
-	anewhopeResource      = "resources/anewhope.html"
-	avengersUrl           = "https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012"
-	avengersResource      = "resources/theavengers2012.html"
-	mediaUrl              = "https://tvtropes.org/pmwiki/pmwiki.php/Main/Media"
-	googleUrl             = "https://www.google.com/"
-	attackontitanUrl      = "https://tvtropes.org/pmwiki/pmwiki.php/Manga/AttackOnTitan"
-	attackontitanResource = "resources/attackontitan.html"
-	emptyResource         = "resources/empty.html"
+	oldboyUrl        = "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"
+	oldboyResource   = "resources/oldboy2003.html"
+	anewhopeUrl      = "https://tvtropes.org/pmwiki/pmwiki.php/Film/ANewHope"
+	anewhopeResource = "resources/anewhope.html"
+	avengersUrl      = "https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012"
+	avengersResource = "resources/theavengers2012.html"
+	mediaUrl         = "https://tvtropes.org/pmwiki/pmwiki.php/Main/Media"
+	googleUrl        = "https://www.google.com/"
+	emptyResource    = "resources/empty.html"
 )
 
 var (
@@ -59,6 +58,9 @@ var csvRepository, jsonRepository media.RepositoryMedia
 var pageReaderJson, pageReaderCsv *os.File
 
 var _ = BeforeSuite(func() {
+	// Do not log during testing
+	zerolog.SetGlobalLevel(zerolog.Disabled)
+
 	// Create two scrapers, one for the JSON dataset and the other for the CSV dataset
 	csvRepository, csvRepositoryErr = csv_dataset.NewCSVRepository("dataset")
 	jsonRepository, jsonRepositoryErr = json_dataset.NewJSONRepository("dataset")
@@ -233,72 +235,6 @@ var _ = Describe("Scraper", func() {
 				Expect(errors.Is(errDifferentJson, scraper.ErrNotTvTropes)).To(BeTrue())
 				Expect(errors.Is(errDifferentCsv, scraper.ErrNotTvTropes)).To(BeTrue())
 			})
-		})
-	})
-
-	Describe("Scrape and persist an invalid Film because the media type isn't supported", func() {
-		var filminvalidtypeJson, filminvalidtypeCsv media.Media
-		var errorfilminvalidtypeJson, errorfilminvalidtypeCsv error
-
-		BeforeEach(func() {
-			pageReaderCsv, _ = os.Open(attackontitanResource)
-			pageReaderJson, _ = os.Open(attackontitanResource)
-			docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
-			docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
-
-			pageJson, errCreatePageJson := tropestogo.NewPageWithDocument(attackontitanUrl, docJson)
-			Expect(errCreatePageJson).To(BeNil())
-			pageCsv, errCreatePageCsv := tropestogo.NewPageWithDocument(attackontitanUrl, docCsv)
-			Expect(errCreatePageCsv).To(BeNil())
-			subPages := &tropestogo.TvTropesSubpages{
-				LastUpdated: time.Now(),
-				Subpages:    make(map[tropestogo.Page]time.Time, 0),
-			}
-
-			filminvalidtypeJson, errorfilminvalidtypeJson = serviceScraperJson.ScrapeTvTropesPage(pageJson, subPages)
-			filminvalidtypeCsv, errorfilminvalidtypeCsv = serviceScraperCsv.ScrapeTvTropesPage(pageCsv, subPages)
-			errPersistCsv = serviceScraperCsv.Persist()
-			errPersistJson = serviceScraperJson.Persist()
-		})
-
-		It("Should return an empty media object", func() {
-			Expect(filminvalidtypeJson.GetWork()).To(BeNil())
-			Expect(filminvalidtypeJson.GetPage().GetUrl()).To(BeNil())
-			Expect(filminvalidtypeJson.GetPage().GetPageType()).To(BeZero())
-			Expect(filminvalidtypeJson.GetMediaType()).To(Equal(media.UnknownMediaType))
-
-			Expect(filminvalidtypeCsv.GetWork()).To(BeNil())
-			Expect(filminvalidtypeCsv.GetPage().GetUrl()).To(BeNil())
-			Expect(filminvalidtypeCsv.GetPage().GetPageType()).To(BeZero())
-			Expect(filminvalidtypeCsv.GetMediaType()).To(Equal(media.UnknownMediaType))
-		})
-
-		It("Should return an appropriate error", func() {
-			Expect(errors.Unwrap(errorfilminvalidtypeJson)).To(Equal(media.ErrUnknownMediaType))
-			Expect(errors.Unwrap(errorfilminvalidtypeCsv)).To(Equal(media.ErrUnknownMediaType))
-			Expect(errors.Unwrap(errPersistCsv)).To(Equal(csv_dataset.ErrPersist))
-			Expect(errors.Unwrap(errPersistJson)).To(Equal(json_dataset.ErrPersist))
-		})
-
-		It("Should have empty datasets", func() {
-			// Check empty JSON dataset
-			var dataset json_dataset.JSONDataset
-			fileContents, _ := os.ReadFile("dataset.json")
-			err := json.Unmarshal(fileContents, &dataset)
-
-			Expect(err).To(BeNil())
-			Expect(dataset.Tropestogo).To(BeEmpty())
-
-			// Check empty CSV dataset
-			datasetFile, errReader := os.Open("dataset.csv")
-			Expect(errReader).To(BeNil())
-			reader := csv.NewReader(datasetFile)
-			records, errReadAll := reader.ReadAll()
-			Expect(errReadAll).To(BeNil())
-
-			Expect(err).To(BeNil())
-			Expect(len(records)).To(Equal(1))
-			Expect(records[0]).To(Equal(headers))
 		})
 	})
 
