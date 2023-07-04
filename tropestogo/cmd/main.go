@@ -45,7 +45,9 @@ func main() {
 	var crawlLimit int
 	var unlimitedCrawling bool
 
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	logFile, _ := os.OpenFile("log.json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0664)
+	multiWriter := zerolog.MultiLevelWriter(zerolog.ConsoleWriter{Out: os.Stderr}, logFile)
+	log.Logger = zerolog.New(multiWriter).With().Timestamp().Logger()
 	log.Info().Msg("TropesToGo: A scraper for TvTropes")
 
 	err := survey.AskOne(promptDataFormat, &dataFormat)
@@ -119,11 +121,14 @@ func main() {
 }
 
 func numberValidator(val interface{}) error {
-	if _, err := strconv.Atoi(val.(string)); err != nil {
+	var limitNumber int
+	var errNumber error
+
+	if limitNumber, errNumber = strconv.Atoi(val.(string)); errNumber != nil {
 		return errors.New("the input must be a number")
 	}
 
-	if limitNumber, _ := val.(int); limitNumber <= 0 {
+	if limitNumber <= 0 {
 		return errors.New("there should be at least one work to scrape")
 	}
 
