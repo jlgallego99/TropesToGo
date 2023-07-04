@@ -73,8 +73,18 @@ func ToMediaType(mediaTypeString string) (MediaType, error) {
 			return mediatype, nil
 		}
 	}
-	
+
 	return UnknownMediaType, fmt.Errorf("%w: "+mediaTypeString, ErrUnknownMediaType)
+}
+
+// GetAllMediaTypes returns a string array consisting of all the supported Media types on TropesToGo
+func GetAllMediaTypes() []string {
+	mediaTypes := make([]string, 0)
+	for mediatype := UnknownMediaType + 1; mediatype <= Wrestling; mediatype++ {
+		mediaTypes = append(mediaTypes, mediatype.String())
+	}
+
+	return mediaTypes
 }
 
 // Media holds the logic of all Works with its tropes that exist within a particular medium in TvTropes

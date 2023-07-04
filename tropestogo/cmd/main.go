@@ -32,16 +32,22 @@ var promptDatasetName = &survey.Input{
 	Message: "What will be the name of the generated TvTropes dataset?",
 }
 
+var promptMediaType = &survey.Select{
+	Message: "Select the media you wish to extract the data from",
+	Options: media.GetAllMediaTypes(),
+}
+
 var promptLimit = &survey.Confirm{
-	Message: "Do you want to scrape all Films?",
+	Message: "Do you want to scrape all works on the selected Media?",
 }
 
 var promptCrawlLimit = &survey.Input{
-	Message: "How many Films would you like to extract?",
+	Message: "How many works would you like to extract?",
 }
 
 func main() {
-	var crawlLimitInput, datasetName, dataFormat string
+	var crawlLimitInput, datasetName, dataFormat, mediaTypeString string
+	var mediaType media.MediaType
 	var crawlLimit int
 	var unlimitedCrawling bool
 
@@ -62,6 +68,13 @@ func main() {
 		return
 	}
 
+	err = survey.AskOne(promptMediaType, &mediaTypeString)
+	if err != nil {
+		log.Error().Msg(err.Error())
+		return
+	}
+	mediaType, _ = media.ToMediaType(mediaTypeString)
+
 	err = survey.AskOne(promptLimit, &unlimitedCrawling, survey.WithValidator(survey.Required))
 	if err != nil {
 		log.Error().Msg(err.Error())
@@ -70,7 +83,7 @@ func main() {
 
 	if unlimitedCrawling {
 		crawlLimit = -1
-		log.Info().Msg("Extracting all films in TvTropes...")
+		log.Info().Msg("Extracting all works of type " + mediaTypeString + " in TvTropes...")
 	} else {
 		err = survey.AskOne(promptCrawlLimit, &crawlLimitInput, survey.WithValidator(numberValidator))
 		if err != nil {
@@ -79,14 +92,14 @@ func main() {
 		}
 
 		crawlLimit, _ = strconv.Atoi(crawlLimitInput)
-		log.Info().Msg("Extracting " + crawlLimitInput + " films...")
+		log.Info().Msg("Extracting " + crawlLimitInput + " works of type " + mediaTypeString + "...")
 	}
 
 	start := time.Now()
 
 	// Crawling TvTropes Pages
 	serviceCrawler := crawler.NewCrawler()
-	pages, err := serviceCrawler.CrawlWorkPages(crawlLimit)
+	pages, err := serviceCrawler.CrawlWorkPages(crawlLimit, mediaType)
 	if err != nil && pages == nil {
 		panic(err)
 	}
