@@ -140,7 +140,7 @@ func (scraper *ServiceScraper) CheckIsWorkPage(doc *goquery.Document, url *url.U
 		return false, ErrUnknownPageStructure
 	}
 
-	mediaIndex := strings.Trim(doc.Find(WorkIndexSelector).Text(), " /")
+	mediaIndex := strings.ReplaceAll(strings.Trim(doc.Find(WorkIndexSelector).Text(), " /"), " ", "")
 	_, errMediaType = media.ToMediaType(mediaIndex)
 	if errMediaType != nil {
 		return false, fmt.Errorf("%w: the index is "+mediaIndex, ErrNotWorkPage)
