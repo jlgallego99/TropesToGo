@@ -22,6 +22,8 @@ var (
 	ErrInvalidSubpage       = errors.New("couldn't scrape tropes in subpage")
 	ErrEmptyDocument        = errors.New("can't scrape the page because there's no Goquery document")
 	ErrUpdateDataset        = errors.New("can't update the dataset with the new scraped data from the work")
+
+	headerSelectors = []string{"h1", "h2", "h3", "h4", "h5", "h6"}
 )
 
 const (
@@ -38,7 +40,7 @@ const (
 	SubPageListSelector      = "ul.subpage-links"
 	SubPageLinkSelector      = "a.subpage-link"
 	TropeTag                 = "a.twikilink"
-	TropeLinkSelector        = TropeListHeaderSelector + " ~ ul li " + TropeTag
+	TropeLinkSelector        = " ~ ul li " + TropeTag
 	TropeFolderSelector      = MainArticleSelector + " div.folderlabel"
 	FolderToggleFunction     = "toggleAllFolders();"
 	MainTropesSelector       = TropeListHeaderSelector + " ~ ul > li > " + TropeTag + ":first-child"
@@ -140,7 +142,7 @@ func (scraper *ServiceScraper) CheckIsWorkPage(doc *goquery.Document, url *url.U
 		return false, ErrUnknownPageStructure
 	}
 
-	mediaIndex := strings.ReplaceAll(strings.Trim(doc.Find(WorkIndexSelector).Text(), " /"), " ", "")
+	mediaIndex := scraper.ScrapeNamespace(doc)
 	_, errMediaType = media.ToMediaType(mediaIndex)
 	if errMediaType != nil {
 		return false, fmt.Errorf("%w: the index is "+mediaIndex, ErrNotWorkPage)
@@ -164,7 +166,7 @@ func (scraper *ServiceScraper) CheckTropeSection(doc *goquery.Document) (bool, e
 		return true, nil
 	}
 
-	tropeHref, exists := doc.Find(TropeLinkSelector).First().Attr("href")
+	tropeHref, exists := doc.Find(getAnyHeaderTropeSelector()).First().Attr("href")
 	if exists && strings.Contains(tropeHref, TvTropesMainPath) {
 		return true, nil
 	}
@@ -189,7 +191,7 @@ func (scraper *ServiceScraper) CheckTropesOnFolders(doc *goquery.Document) bool 
 // It returns a boolean meaning if the check passes or not
 func (scraper *ServiceScraper) CheckTropesOnSubpages(doc *goquery.Document) bool {
 	// Get the first word of the first element of the list, check if is an anchor to a subpage
-	tropeHref, exists := doc.Find(TropeLinkSelector).First().Attr("href")
+	tropeHref, exists := doc.Find(getAnyHeaderTropeSelector()).First().Attr("href")
 	workTitle, _, _, _ := scraper.ScrapeWorkTitleAndYear(doc)
 
 	// Check if the link directs to a subpage with tropes
@@ -473,7 +475,7 @@ func (scraper *ServiceScraper) ScrapeSubpageTropes(subDocs []*goquery.Document) 
 // ScrapeNamespace extracts the namespace from a Goquery document of any Work page or subpage
 // It returns the namespace string
 func (scraper *ServiceScraper) ScrapeNamespace(doc *goquery.Document) string {
-	return strings.Trim(doc.Find(WorkIndexSelector).First().Text(), " /")
+	return strings.ReplaceAll(strings.Trim(doc.Find(WorkIndexSelector).First().Text(), " /"), " ", "")
 }
 
 // GetScrapedPages returns a map of all the string URLs of the and the last time they were updated
@@ -504,4 +506,14 @@ func (scraper *ServiceScraper) UpdateDataset(changedPages *tropestogo.TvTropesPa
 // or return the proper Reading/Writing errors depending on the implementation
 func (scraper *ServiceScraper) Persist() error {
 	return scraper.data.Persist()
+}
+
+// getAnyHeaderTropeSelector builds a trope selector that is able to locate any main trope section, no matter what header is preceded
+func getAnyHeaderTropeSelector() string {
+	selector := make([]string, 0)
+	for _, headerSelector := range headerSelectors {
+		selector = append(selector, headerSelector+TropeLinkSelector)
+	}
+
+	return strings.Join(selector, ",")
 }
