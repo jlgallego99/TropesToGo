@@ -20,47 +20,60 @@ type MediaType int64
 
 const (
 	UnknownMediaType MediaType = iota
-	Film
-	Series
+	Advertising
+	Animation
 	Anime
-	VideoGames
+	ARG
+	AudioPlay
+	Blog
+	ComicBook
+	ComicStrip
+	Creator
+	Fanfic
+	Film
+	Franchise
+	Literature
+	Magazine
+	Manga
+	Manhua
+	Manhwa
+	Music
+	Pinball
+	Podcast
+	Radio
+	Roleplay
+	Script
+	Series
+	TabletopGame
+	Theatre
+	VideoGame
+	VisualNovel
+	WebAnimation
+	Webcomic
+	Website
+	WebVideo
+	WesternAnimation
+	Wrestling
 )
-
-// String is an implementation of the Stringer interface for comparing string media types and avoid using literals
-func (mediatype MediaType) String() string {
-	switch mediatype {
-	case Film:
-		return "Film"
-	case Series:
-		return "Series"
-	case Anime:
-		return "Anime"
-	case VideoGames:
-		return "VideoGames"
-	default:
-		return "UnknownMediaType"
-	}
-}
 
 // IsValid checks whether a MediaType is known or not
 func (mediatype MediaType) IsValid() bool {
-	switch mediatype {
-	case Film, Series, Anime, VideoGames:
-		return true
+	if mediatype <= UnknownMediaType || mediatype > Wrestling {
+		return false
 	}
 
-	return false
+	return true
 }
 
 // ToMediaType converts a string to a MediaType
 // It returns an ErrUnknownMediaType if the MediaType isn't recognized
 func ToMediaType(mediaTypeString string) (MediaType, error) {
-	for mediatype := UnknownMediaType + 1; mediatype <= VideoGames; mediatype++ {
+	for mediatype := UnknownMediaType + 1; mediatype <= Wrestling; mediatype++ {
 		if mediaTypeString == mediatype.String() {
 			return mediatype, nil
 		}
 	}
-
+	
 	return UnknownMediaType, fmt.Errorf("%w: "+mediaTypeString, ErrUnknownMediaType)
 }
 
