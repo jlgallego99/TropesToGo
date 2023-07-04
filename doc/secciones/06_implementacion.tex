@@ -1400,26 +1400,27 @@ sea interactiva. Es decir, queremos una biblioteca que permita, al ejecutar el
 programa de forma normal, mostrar en el terminal campos para que el usuario
 introduzca texto, haga confirmaciones y pueda elegir entre varias opciones de un
 menú. Esto está pensado para investigadores y desarrolladores que quieren
-obtener el conjunto de datos lo antes posible, de forma personalizable, y sin
-tener que aprender comandos o cómo utilizar el programa; simplemente deberán
-seguir paso a paso lo que les dicte el programa. Todo ello debe además ser lo
-suficientemente vistoso y usable, de forma que el usuario pueda interactuar con
-el programa escribiendo o manejando opciones con las flechas del teclado.
+obtener el conjunto de datos lo antes posible, eligiendo la información que
+quieren, y sin tener que aprender comandos o cómo utilizar el programa;
+simplemente deberán seguir paso a paso lo que les dicte el programa. Todo ello
+debe además ser lo suficientemente vistoso y usable para que el usuario
+pueda interactuar con el programa escribiendo o manejando opciones con las
+flechas del teclado.
 
 En Go existen un buen número de bibliotecas para crear aplicaciones de terminal.
 La opción más popular es Cobra\footnote{\url{https://github.com/spf13/cobra}},
-que se utiliza para las aplicaciones CLI de proyectos tan conocidos como
+presente en aplicaciones CLI de proyectos tan conocidos como
 Kubernetes o GitHub. Si bien es una biblioteca con muy buena y extensa
 documentación, gran popularidad y comunidad, no se adapta a las necesidades de
-este proyecto puesto que solo permite ejecutar comandos y argumentos de
+este proyecto, puesto que solo permite ejecutar comandos y argumentos de
 terminal, y no proporciona funcionalidades de interacción con el usuario en
 tiempo real. Dentro de las opciones que sí dan de interactividad con el usuario
 (lo que se conoce como \textit{prompt}), se encuentra
 Promptui\footnote{\url{https://github.com/manifoldco/promptui}}. Esta biblioteca
-proporciona un API sencillo que se adapta bien a las necesidades de la
+proporciona métodos sencillos que se adaptan bien a las necesidades de la
 aplicación que se quiere construir, sin embargo, su última versión es de hace
 más de dos años y su documentación y ejemplos son muy limitados, además de que
-tiene algunas funcionalidades para retocar el aspecto del interfaz que no son
+tiene algunas funcionalidades para retocar el aspecto visual que no son
 necesarias, ya que buscamos una opción simple pero efectiva.
 
 Promptui, pese a no estar actualizada, es estable y es una opción más que
@@ -1429,7 +1430,7 @@ es la que finalmente se empleará en este trabajo. Survey es aún más sencilla 
 utilizar, se adapta perfectamente a las necesidades que se han especificado,
 contiene una gran cantidad de documentación y ejemplos, tiene más popularidad y
 está en constante crecimiento, con una última versión estable lanzada en las
-últimas semanas. Tiene un API muy parecido al de Promptui, pero con la ventaja
+últimas semanas. Su API se parece mucho al de Promptui, con la ventaja
 de que requiere menos programación y permite personalizar bastante las entradas
 del usuario y crear entradas del usuario individuales o varias encadenadas. Con
 esta biblioteca se puede validar fácilmente la entrada, ya sea con funciones
@@ -1453,13 +1454,13 @@ basta con crear los dos servicios, \textit{scraper} y \textit{crawler}, y
 ejecutarlos. El programa se encargará de llamar a las distintas funciones de los
 servicios según los resultados de las entradas del usuario. El proceso de
 ejecución de TropesToGo para la extracción de datos de TvTropes consiste en
-primero crear el \textit{crawler} y llamar a la función principal que encuentra
+primero construir el \textit{crawler} y llamar a la función principal que encuentra
 todas las páginas, indicando si se limita el número de páginas extraídas o no.
 Cuando termina esta ejecución, que puede tardar bastante al ser la parte de todo
 el programa que más tiempo emplea debido a las esperas entre peticiones HTTP, se
-obtiene un objeto TvTropesPages con el resultado completo del \textit{crawling}
+obtiene un objeto \texttt{TvTropesPages} con el resultado completo del \textit{crawling}
 sobre TvTropes. A continuación se configura un repositorio u otro según lo que
-ha elegido el usuario, y se crea el servicio \textit{scraper} inyectando esta
+ha elegido el usuario para producir el servicio \textit{scraper} inyectando esta
 dependencia en él. Una vez hecho esto, ya se puede utilizar el objeto obtenido
 del \textit{crawler} que contiene todas las páginas, y se utiliza para llamar al
 método de extracción general del \textit{scraper}. Ahora, este se ocupa
@@ -1471,8 +1472,74 @@ generados. Una vez terminado esto, ya habrá terminado la ejecución del program
 y se tendrá el \textit{dataset} con lo especificado.
 
 \subsection{\textit{Logging}}
+Al igual que con el CLI, es necesario también elegir una biblioteca de
+\textit{logging} adecuada, que sea popular, tenga buena documentación, esté
+actualizada y mantenida y sea sencilla. Además, nos debe permitir
+poder sacar los logs tanto por terminal (para que el usuario esté informado en
+tiempo real de lo que está pasando) como en un fichero para tenerlo persistido y
+poder revisarlos en otro momento, sin que esto suponga un golpe duro en la
+eficiencia del programa. Por tanto, buscamos una biblioteca sencilla y
+eficiente, que sea lo suficientemente buena como para que merezca la pena
+aprender a usarla y se pueda emplear en otros proyectos de Go en el futuro, para
+aprovechar el aprendizaje.
 
-% Para simplificar solo se utilizaran dos niveles de logging imprescindibles INFO, en verde indicando que todo esta bien, y ERROR en rojo indicando que no
+Las bibliotecas más populares de \textit{logging} en Go son
+Logrus\footnote{\url{https://github.com/sirupsen/logrus}},
+Zap\footnote{\url{https://github.com/uber-go/zap}} y
+Zerolog\footnote{\url{https://github.com/rs/zerolog}}, todas ellas con una buena
+documentación, soporte y amplia comunidad de desarrolladores y proyectos que las
+amparan, por lo que son buenas opciones. Todas ellas permiten escribir los logs
+en ficheros JSON, pero Logrus es la que más tiempo toma según un
+\textit{benchmark} realizado por Zap, lo cual lo hace la opción menos preferible
+de las tres, además de que, aunque se sigue manteniendo, no se desarrollan
+nuevas funcionalidades para él. Logrus permite mostrar en terminal los mensajes
+de forma legible, a diferencia de Zap, que únicamente permite mostrar por terminal las
+estructuras JSON que se van formando, por lo que no es aceptable para que el
+usuario medio se informe del estado de ejecución del programa. La principal
+desventaja que tiene Zap y por la que se descarta su uso es que tiene su API es
+bastante más complejo que las otras dos alternativas, además de que no permite
+definir el \textit{logger} globalmente, teniendo que configurar y añadir las
+dependencias por cada servicio en el que se use, lo que lo hace más complicado
+de integrar en el proyecto.
+
+Finalmente, se decide utilizar Zerolog, puesto que es la biblioteca más rápida de
+todas y más recomendable, con buena documentación, buenos ejemplos y tutoriales
+y está presente en numerosos proyectos, además de que suele ser una alternativa
+muy apreciada por los desarrolladores de Go \cite{zerolog} y en el propio
+\textit{benchmark} de Zap se dice que es la más rápida de todas. Permite sacar
+los logs a la vez por el terminal, con colores y de un modo legible y vistoso para
+el usuario, y escribirlos en un fichero JSON para poder explorarlos más
+fácilmente. Zerolog tiene además otras ventajas que la hacen preferible a las
+otras alternativas, siendo la principal de ellas que no requiere gestionar la
+dependencia dentro de ningún servicio, ya que Zerolog ya viene configurado
+globalmente únicamente con importarlo, y si se cambia la configuración global en
+la aplicación, se cambiará para cualquier otro fichero en el que se utilice.
+Esto facilita enormemente su integración en el código y ha sido decisivo para la
+elección de esta biblioteca. Se configura en una sola línea y ya se
+pueden empezar a lanzar mensajes y escribirlos, algo muy necesario en un
+programa en el que queremos monitorizar los casos de error en varios ficheros.
+
+Para simplificar la salida del log y que el usuario entienda bien los
+resultados, solamente se mostrarán dos niveles de \textit{logging}
+imprescindibles: el nivel de información, con color verde indicando la traza de
+ejecución del programa que se está ejecutando correctamente, y el nivel de
+error, con color en rojo para indicar aquellos casos en los que no se ha podido
+realizar alguna extracción o exploración de páginas. Se monitorizan
+principalmente los casos de error en los dos servicios, en prácticamente todos
+los casos que pueden tener problemas, como es el caso de las distintas
+extracciones de información y comprobaciones de \textit{tropos} o al extraer
+páginas y subpáginas. En cuanto al nivel de información, para seguir la traza de
+ejecución se lanzan mensajes por cada página que se esté haciendo
+\textit{crawling} en ese momento, y también por cada subpágina, indicando desde
+qué obra se está explorando esa subpágina. También se puede seguir la traza de
+ejecución del \textit{scraper} indicando qué obra se está extrayendo en cada
+momento, y finalmente informando al usuario la ruta donde se ha persistido el
+\textit{dataset} y si el proceso ha terminado correctamente o no. El
+\textit{logger} informa en el terminal y escribe en el fichero JSON del log,
+donde se podrá comprobar si el \textit{scraping} ha fallado al extraer una
+página ya sea por no estar disponible, por no adecuarse a la estructura de
+TvTropes que se espera, por no tener sección de \textit{tropos} o por cualquier
+otro problema que pueda surgir.
 
 \subsection{Extracción de \textit{tropos} en otros medios audiovisuales} 
 
