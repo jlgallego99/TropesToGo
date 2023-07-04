@@ -38,14 +38,13 @@ const (
 	SubPageListSelector      = "ul.subpage-links"
 	SubPageLinkSelector      = "a.subpage-link"
 	TropeTag                 = "a.twikilink"
-	TropeLinkSelector        = "#main-article ul li " + TropeTag
+	TropeLinkSelector        = TropeListHeaderSelector + " ~ ul li " + TropeTag
 	TropeFolderSelector      = MainArticleSelector + " div.folderlabel"
 	FolderToggleFunction     = "toggleAllFolders();"
 	MainTropesSelector       = TropeListHeaderSelector + " ~ ul > li > " + TropeTag + ":first-child"
 	MainTropesFolderSelector = MainArticleSelector + " .folder > ul > li > " + TropeTag + ":first-child"
 	CurrentSubpageSelector   = ".curr-subpage"
 	CurrentUrlSelector       = "#current_url"
-	SubWikiSelector          = SubPageLinkSelector + ":not(" + CurrentSubpageSelector + ")"
 )
 
 // ScraperConfig is an alias for a function that will accept a pointer to a ServiceScraper and modify its fields
@@ -136,7 +135,7 @@ func (scraper *ServiceScraper) CheckIsWorkPage(doc *goquery.Document, url *url.U
 	if doc.Find(MainArticleSelector).Length() == 0 ||
 		doc.Find(SubPagesNavSelector).Find(SubPageListSelector).Find(SubPageLinkSelector).Length() == 0 ||
 		doc.Find(TropeListSelector).Length() == 0 ||
-		doc.Find(TropeLinkSelector).Length() == 0 {
+		doc.Find(TropeListSelector+" "+TropeTag).Length() == 0 {
 		return false, ErrUnknownPageStructure
 	}
 
