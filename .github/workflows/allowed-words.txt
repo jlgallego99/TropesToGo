@@ -184,3 +184,11 @@ subtropos
 proxy
 checksums
 checksum
+Command
+Line
+Interface
+usable
+log
+logs
+Logging
+logging

@@ -1278,12 +1278,135 @@ capacidad de analizar el historial de cambios de una página y poder actualizar
 los datos en caso de que estos sean más nuevos.
 
 \section{Aplicación de línea de comandos para múltiples medios audiovisuales}
+Finalmente, se alcanza a desarrollar un último producto mínimamente viable en el
+que el \textit{scraper} y el \textit{crawler} trabajen conjuntamente. El
+objetivo de este último \textit{sprint} es dar una aplicación ejecutable de
+TropesToGo que una toda la funcionalidad desarrollada hasta ahora para que el
+usuario pueda utilizar TropesToGo de manera sencilla y personalizable para que
+pueda obtener el resultado que necesita y espera. Este es el objetivo final que
+tiene TropesToGo y con el que se consigue dar una solución al problema de
+extracción de \textit{tropos} en TvTropes, ya que se han desarrollado hasta
+ahora todas las piezas necesarias para conseguirlo.
+
+Con este incremento se quiere dar un producto que abstraiga el funcionamiento
+interno del \textit{scraper} para la extracción de \textit{tropos} y generación
+de \textit{datasets}, de forma que usuarios como los vistos en los \textit{user
+journey} puedan realizar las tareas que necesitan para obtener unos datos
+limpios y estructurados con los que realizar estudios e investigaciones en el
+ámbito de la estadística o la ciencia de datos. Para darles valor a estos
+usuarios, es necesario tener en cuenta estos \textit{user journey} y gran parte
+de las historias de usuario derivadas de ellos, que nos guían para saber qué
+tiene que tener la aplicación para que sea usable y cumpla sus necesidades:
+
+\begin{itemize}
+    \item Según la
+    \href{https://github.com/jlgallego99/TropesToGo/issues/6}{[HU01]}, el
+    usuario necesita poder obtener información estructurada sobre todos los
+    \textit{tropos} asociados a cualquier medio audiovisual y con una estructura
+    definida para que puedan ser utilizados por lenguajes de programación o
+    programas de análisis. El \textit{crawler} es capaz de extraer todas las
+    páginas posibles de películas, necesitando ampliar a otros medios
+    audiovisuales, y el \textit{scraper} puede extraer todas ellas y generar un
+    dataset. El programa necesita coordinar estos dos servicios para alcanzar el
+    resultado deseado con una simple ejecución transparente al usuario.
+    \item La \href{https://github.com/jlgallego99/TropesToGo/issues/7}{[HU02]}
+    sirve para detallar más la anterior, y nos dice que el usuario quiere poder
+    elegir qué parte de los datos quiere; la aplicación debe poder dar la opción
+    de generar un dataset con todas las obras de TvTropes o con un conjunto
+    reducido de ellas, según lo que decida el usuario. El \textit{crawler} está
+    preparado para poder encontrar un número limitado de páginas, por lo que la
+    aplicación interactuará con este servicio según las entradas del usuario.
+    Aquí también entraría el poder elegir el tipo de medio audiovisual del que
+    se quieren los datos. De esto se deduce también que la aplicación debe
+    informar al usuario de lo que está extrayendo en cada momento, para que sea
+    consciente de lo que está haciendo el programa sin necesidad de saber cómo.
+    Así podrá seguir la ejecución del \textit{scraper} y saber qué está
+    extrayendo y cuándo ha acabado.
+    \item En el PMV anterior se desarrolló la funcionalidad necesaria para
+    actualizar los \textit{datasets} y tener, siempre que quiera el usuario, la
+    versión más actualizada de los datos según la
+    \href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}. Por
+    tanto, la aplicación debe dar al usuario la opción de, en lugar de extraer
+    desde cero los datos, actualizar los que ya tiene en el momento en el que
+    este los necesite, ya sea ahora o dentro de mucho tiempo.
+    \item Existen muchos formatos de representación de datos que se utilizan en
+    el ámbito de la ciencia de datos, por lo que tal y como especifica la
+    \href{https://github.com/jlgallego99/TropesToGo/issues/30}{[HU05]}, la
+    aplicación debe dar a elegir al usuario en qué formato quiere los datos,
+    para adaptarse a la necesidad que tenga en ese momento. En este trabajo se
+    tienen desarrollados repositorios para JSON y CSV. El usuario podrá querer
+    en un momento los datos en CSV, pero quizá en otro momento los necesite en
+    JSON, por lo que ahí estará la aplicación para volver a extraerlos de la
+    manera que necesita.
+    \item Por último, y relacionada con la historia anterior, según la
+    \href{https://github.com/jlgallego99/TropesToGo/issues/46}{[HU07]} el
+    usuario requiere tener acceso al conjunto de datos y poder hacer lo que
+    necesita con él, incluso de forma offline. Esto implica que la aplicación
+    debe generar un fichero en su ordenador con el conjunto de datos extraído e
+    informarle de donde se encuentra, para que pueda encontrarlo y utilizarlo, y
+    este no depende de que TvTropes esté activo o no, ya que ya habrá sido
+    persistido en disco anteriormente.
+\end{itemize}
+
+Estas HU guían lo que debe tener la aplicación para que sea usable por el
+usuario. Debe permitir al usuario elegir el formato de datos que quiere, el
+medio audiovisual del que extraer obras asociadas con \textit{tropos} y cuántas
+obras extraer (todas o un conjunto de ellas). También debe informarle en todo
+momento del estado de ejecución que lleva el programa, para saber si el proceso
+está siendo correcto o si ha habido algún problema y poder identificarlo, como
+podría ser que TvTropes en ese momento no estuviese online. Al terminar
+informará de si el proceso ha salido correctamente y de dónde puede encontrar el
+fichero de datos, que es el valor principal que ofrece TropesToGo al usuario.
+
+Por tanto, para completar este desarrollo es necesario encontrar dos bibliotecas
+adicionales que faciliten el crear la aplicación final: una biblioteca para
+gestionar \textit{logs} y otra para gestionar la ejecución de una aplicación
+interactiva de línea de comandos. La gestión de logs es imprescindible en
+cualquier aplicación, y más aún en una de este tipo en la que muchas pequeñas
+piezas trabajan en conjunto y pueden surgir varios problemas, como páginas que
+no se pueden extraer, denegaciones de acceso por parte de TvTropes, etc. Esto
+permitirá al usuario seguir en todo momento la traza de ejecución del programa,
+con un formato legible e informativo, y poder revisar más tarde si algo ha
+fallado y por qué, al tener un registro de todos los procesos realizados y los
+casos en los que ha fallado. Por otro lado, el uso de una biblioteca para
+construir aplicaciones CLI \begin{otherlanguage}{english}(del inglés
+\textit{Command Line Interface})\end{otherlanguage} interactivas nos ayudará a
+generar menús interactivos y vistosos con los que tener un programa más fácil para
+el usuario y que se ejecute rápidamente, sin necesidad de utilizar comandos y
+opciones complicadas con las que sea necesario consultar un manual. El objetivo
+es que cualquier usuario pueda ejecutarlo y obtener lo que quiera al instante,
+sin necesidad de saber nada de antemano. Ya que TropesToGo es un
+\textit{software} que trabaja principalmente procesando en segundo plano sin
+necesidad de interacción con el usuario, no necesita más que de unas pocas
+entradas para configurar el procesamiento, basta con una aplicación de línea de
+comandos que sea ligera y fácil de usar para cualquier usuario como los
+estudiados.
+
+Además de los aspectos relativos a la aplicación CLI, necesitaremos ampliar el
+funcionamiento del \textit{crawler} para que sea capaz de encontrar páginas de
+cualquier otro medio audiovisual presente en TvTropes, ampliando lo que hasta
+ahora era únicamente una extracción de películas y mejorando la propuesta
+inicial de \textit{Tropescraper}. Un mayor número de páginas extraíbles
+permitirán a los usuarios realizar análisis más elaborados y complejos, que no
+se limiten únicamente a películas, sino también a otros medios con mucha fuerza
+mediática y comercial como pueden ser los videojuegos.
+
 \subsection{Interfaz de línea de comandos}
-\subsection{Extracción de \textit{tropos} en otros medios audiovisuales}
+
+\subsection{\textit{Logging}}
+
+% Para simplificar solo se utilizaran dos niveles de logging imprescindibles INFO, en verde indicando que todo esta bien, y ERROR en rojo indicando que no
+
+\subsection{Extracción de \textit{tropos} en otros medios audiovisuales} 
+
 Hasta ahora únicamente se había trabajado con películas, sin embargo, para
 finalizar el desarrollo de este trabajo se amplía el \textit{scraper} para que
 pueda trabajar con cualquier otro medio audiovisual de los existentes en
 TvTropes, consiguiendo un producto final mucho más completo y que podrá obtener
-conjuntos de datos para análisis más diversos y profundos.
+conjuntos de datos para análisis más diversos y profundos. Esto además también
+permitirá cumplir aún más la
+\href{https://github.com/jlgallego99/TropesToGo/issues/57}{[HU08]}, ya que los
+investigadores podrán estudiar la relación entre \textit{tropos} utilizados en
+medios audiovisuales distintos, por ejemplo.
 
 \section{Resultado final}
