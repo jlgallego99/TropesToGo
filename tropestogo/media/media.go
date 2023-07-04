@@ -23,6 +23,7 @@ const (
 	Film
 	Series
 	Anime
+	ARG
 	VideoGames
 )
 
@@ -35,6 +36,8 @@ func (mediatype MediaType) String() string {
 		return "Series"
 	case Anime:
 		return "Anime"
+	case ARG:
+		return "ARG"
 	case VideoGames:
 		return "VideoGames"
 	default:
@@ -45,7 +48,7 @@ func (mediatype MediaType) String() string {
 // IsValid checks whether a MediaType is known or not
 func (mediatype MediaType) IsValid() bool {
 	switch mediatype {
-	case Film, Series, Anime, VideoGames:
+	case Film, Series, Anime, ARG, VideoGames:
 		return true
 	}
 
