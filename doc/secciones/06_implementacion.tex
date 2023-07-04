@@ -1392,6 +1392,83 @@ se limiten únicamente a películas, sino también a otros medios con mucha fuer
 mediática y comercial como pueden ser los videojuegos.
 
 \subsection{Interfaz de línea de comandos}
+Para elegir una buena biblioteca de línea de comandos para Go, que se adapte
+bien a este problema, es necesario que como mínimo esté mantenida, actualizada
+recientemente, tenga buena documentación, sea sencilla de integrar para poder
+tener una aplicación sencilla en pocas líneas de código y, lo más importante,
+sea interactiva. Es decir, queremos una biblioteca que permita, al ejecutar el
+programa de forma normal, mostrar en el terminal campos para que el usuario
+introduzca texto, haga confirmaciones y pueda elegir entre varias opciones de un
+menú. Esto está pensado para investigadores y desarrolladores que quieren
+obtener el conjunto de datos lo antes posible, de forma personalizable, y sin
+tener que aprender comandos o cómo utilizar el programa; simplemente deberán
+seguir paso a paso lo que les dicte el programa. Todo ello debe además ser lo
+suficientemente vistoso y usable, de forma que el usuario pueda interactuar con
+el programa escribiendo o manejando opciones con las flechas del teclado.
+
+En Go existen un buen número de bibliotecas para crear aplicaciones de terminal.
+La opción más popular es Cobra\footnote{\url{https://github.com/spf13/cobra}},
+que se utiliza para las aplicaciones CLI de proyectos tan conocidos como
+Kubernetes o GitHub. Si bien es una biblioteca con muy buena y extensa
+documentación, gran popularidad y comunidad, no se adapta a las necesidades de
+este proyecto puesto que solo permite ejecutar comandos y argumentos de
+terminal, y no proporciona funcionalidades de interacción con el usuario en
+tiempo real. Dentro de las opciones que sí dan de interactividad con el usuario
+(lo que se conoce como \textit{prompt}), se encuentra
+Promptui\footnote{\url{https://github.com/manifoldco/promptui}}. Esta biblioteca
+proporciona un API sencillo que se adapta bien a las necesidades de la
+aplicación que se quiere construir, sin embargo, su última versión es de hace
+más de dos años y su documentación y ejemplos son muy limitados, además de que
+tiene algunas funcionalidades para retocar el aspecto del interfaz que no son
+necesarias, ya que buscamos una opción simple pero efectiva.
+
+Promptui, pese a no estar actualizada, es estable y es una opción más que
+adecuada para aplicaciones sencillas, sin embargo, existe una opción aún mejor
+de ellas llamada Survey\footnote{\url{https://github.com/go-survey/survey}}, que
+es la que finalmente se empleará en este trabajo. Survey es aún más sencilla de
+utilizar, se adapta perfectamente a las necesidades que se han especificado,
+contiene una gran cantidad de documentación y ejemplos, tiene más popularidad y
+está en constante crecimiento, con una última versión estable lanzada en las
+últimas semanas. Tiene un API muy parecido al de Promptui, pero con la ventaja
+de que requiere menos programación y permite personalizar bastante las entradas
+del usuario y crear entradas del usuario individuales o varias encadenadas. Con
+esta biblioteca se puede validar fácilmente la entrada, ya sea con funciones
+propias o de la biblioteca, permitiendo un mejor control sobre lo que introduce
+el usuario, lo que evitará errores.
+
+Con esta biblioteca es posible definir las entradas necesarias para el usuario;
+en orden: una entrada de confirmación de sí o no para elegir si se quieren
+extraer datos o actualizarlos, un menú selector mediante flechas para elegir
+entre el formato CSV o JSON para los datos, un campo de texto para indicar el
+nombre que se quiere para el \textit{dataset}, un campo de confirmación de sí o
+no para indicar si se quieren extraer todas las obras y, en caso de decir que
+no, un campo adicional de texto para indicar cuántas obras extraer. Se pueden
+definir funciones personalizadas para validar las entradas, pasándolas
+fácilmente como argumento a cada una de las entradas. Para validar la entrada
+del usuario al indicar cuántas obras extraer, basta con validar que lo que ha
+introducido sea un número y sea mayor que 1.
+
+Una vez definidas todas las entradas del usuario, que se guardan en variables,
+basta con crear los dos servicios, \textit{scraper} y \textit{crawler}, y
+ejecutarlos. El programa se encargará de llamar a las distintas funciones de los
+servicios según los resultados de las entradas del usuario. El proceso de
+ejecución de TropesToGo para la extracción de datos de TvTropes consiste en
+primero crear el \textit{crawler} y llamar a la función principal que encuentra
+todas las páginas, indicando si se limita el número de páginas extraídas o no.
+Cuando termina esta ejecución, que puede tardar bastante al ser la parte de todo
+el programa que más tiempo emplea debido a las esperas entre peticiones HTTP, se
+obtiene un objeto TvTropesPages con el resultado completo del \textit{crawling}
+sobre TvTropes. A continuación se configura un repositorio u otro según lo que
+ha elegido el usuario, y se crea el servicio \textit{scraper} inyectando esta
+dependencia en él. Una vez hecho esto, ya se puede utilizar el objeto obtenido
+del \textit{crawler} que contiene todas las páginas, y se utiliza para llamar al
+método de extracción general del \textit{scraper}. Ahora, este se ocupa
+internamente de llamar al \textit{scraper} para cada una de las páginas y
+subpáginas, persistiéndolas en el fichero de datos configurado. Esta parte final
+de la ejecución es muy rápida, ya que todas las páginas ya han sido descargadas,
+por lo que solamente tiene que extraer datos de los documentos Goquery ya
+generados. Una vez terminado esto, ya habrá terminado la ejecución del programa
+y se tendrá el \textit{dataset} con lo especificado.
 
 \subsection{\textit{Logging}}
 
