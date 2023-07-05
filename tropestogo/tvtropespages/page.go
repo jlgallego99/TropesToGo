@@ -1,4 +1,4 @@
-package tropestogo
+package tvtropespages
 
 import (
 	"errors"

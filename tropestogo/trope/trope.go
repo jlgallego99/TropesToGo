@@ -1,4 +1,4 @@
-package tropestogo
+package trope
 
 import "errors"
 

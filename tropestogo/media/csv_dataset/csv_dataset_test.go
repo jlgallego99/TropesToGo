@@ -4,9 +4,10 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
-	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
 	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
+	"github.com/jlgallego99/TropesToGo/trope"
+	"github.com/jlgallego99/TropesToGo/tvtropespages"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"math/rand"
@@ -26,7 +27,7 @@ var errorRepository, errRemoveAll, errAddMedia, errPersist error
 var mediaEntry media.Media
 var reader *csv.Reader
 var datasetFile *os.File
-var tropes map[tropestogo.Trope]struct{}
+var tropes map[trope.Trope]struct{}
 var numTropes int
 
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -41,7 +42,7 @@ var _ = BeforeSuite(func() {
 		tropes[subTrope] = struct{}{}
 	}
 
-	tvTropesPage, _ := tropestogo.NewPage(oldboyUrl, false, nil)
+	tvTropesPage, _ := tvtropespages.NewPage(oldboyUrl, false, nil)
 	mediaEntry, _ = media.NewMedia("Oldboy", "2003", time.Now(), tropes, tvTropesPage, media.Film)
 })
 
@@ -168,7 +169,7 @@ var _ = Describe("CsvDataset", func() {
 			for subTrope := range newSubTropes {
 				newTropes[subTrope] = struct{}{}
 			}
-			tvTropesPage, _ := tropestogo.NewPage(oldboyUrl, false, nil)
+			tvTropesPage, _ := tvtropespages.NewPage(oldboyUrl, false, nil)
 			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), newTropes, tvTropesPage, media.Film)
 
 			errUpdate = repository.UpdateMedia("Oldboy", "2003", updatedMediaEntry)
@@ -266,8 +267,8 @@ func checkHeaders() {
 }
 
 // createTropes generates a map of numTropes size applying a callback function to all elements
-func createTropes(numTropes int, callback func() tropestogo.Trope) map[tropestogo.Trope]struct{} {
-	tropeset := make(map[tropestogo.Trope]struct{}, numTropes)
+func createTropes(numTropes int, callback func() trope.Trope) map[trope.Trope]struct{} {
+	tropeset := make(map[trope.Trope]struct{}, numTropes)
 
 	for i := 0; i < numTropes; i++ {
 		tropeset[callback()] = struct{}{}
@@ -276,20 +277,20 @@ func createTropes(numTropes int, callback func() tropestogo.Trope) map[tropestog
 	return tropeset
 }
 
-var randomTrope = func() tropestogo.Trope {
-	trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, "")
+var randomTrope = func() trope.Trope {
+	trope, _ := trope.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, "")
 	return trope
 }
 
-var randomSubTrope = func() tropestogo.Trope {
+var randomSubTrope = func() trope.Trope {
 	subWikis := []string{"SubWiki1", "SubWiki2"}
-	trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, subWikis[seededRand.Intn(1)])
+	trope, _ := trope.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, subWikis[seededRand.Intn(1)])
 
 	return trope
 }
 
 // createTropesString generates a string of all tropes titles joined by a semicolon
-func createTropesString(tropes map[tropestogo.Trope]struct{}) string {
+func createTropesString(tropes map[trope.Trope]struct{}) string {
 	var tropeTitles []string
 	for trope := range tropes {
 		tropeTitles = append(tropeTitles, trope.GetTitle())

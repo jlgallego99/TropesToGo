@@ -1,4 +1,4 @@
-package tropestogo_test
+package tvtropespages_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestTropestogo(t *testing.T) {
+func TestTvTropesPages(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Tropestogo Suite")
+	RunSpecs(t, "TvTropesPages Suite")
 }

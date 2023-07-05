@@ -2,10 +2,11 @@ package crawler_test
 
 import (
 	"github.com/PuerkitoBio/goquery"
-	tropestogo "github.com/jlgallego99/TropesToGo"
 	crawler "github.com/jlgallego99/TropesToGo/service/crawler"
+	"github.com/jlgallego99/TropesToGo/tvtropespages"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/rs/zerolog"
 	"io"
 	"os"
 	"time"
@@ -22,9 +23,12 @@ var filmResources = []string{"resources/film1.html", "resources/film2.html", "re
 // A crawler service for test purposes
 var serviceCrawler *crawler.ServiceCrawler
 var errNewCrawler, errCrawling error
-var crawledPages *tropestogo.TvTropesPages
+var crawledPages *tvtropespages.TvTropesPages
 
 var _ = BeforeSuite(func() {
+	// Do not log during testing
+	zerolog.SetGlobalLevel(zerolog.Disabled)
+
 	serviceCrawler = crawler.NewCrawler()
 	Expect(errNewCrawler).To(BeNil())
 
@@ -49,7 +53,7 @@ var _ = Describe("Crawler", func() {
 
 			for crawledPage, crawledSubpages := range crawledPages.Pages {
 				Expect(crawledPage.GetUrl()).To(Not(BeNil()))
-				Expect(crawledPage.GetPageType()).To(Equal(tropestogo.WorkPage))
+				Expect(crawledPage.GetPageType()).To(Equal(tvtropespages.WorkPage))
 				Expect(len(crawledSubpages.Subpages) >= 0).To(BeTrue())
 
 				for crawledSubpage := range crawledSubpages.Subpages {
