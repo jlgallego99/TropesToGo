@@ -190,13 +190,19 @@ func (crawler *ServiceCrawler) getNextPageUriFromDocument(doc *goquery.Document)
 
 // CrawlWorkSubpages searches all subpages (both with main tropes and SubWikis) on the goquery Document of a Work page
 // It returns an array of string URLs that belong to all crawled TvTropes Work subpages
+// It ignores subpages that belong to a Media namespace, because those are not SubWikis, but main work pages
 func (crawler *ServiceCrawler) CrawlWorkSubpages(doc *goquery.Document) []string {
 	var subPagesUrls []string
 
 	// Get all SubWikis
 	doc.Find(SubWikiSelector).Each(func(_ int, selection *goquery.Selection) {
 		subWikiUri, subWikiExists := selection.Attr("href")
-		if subWikiExists {
+
+		splitPath := strings.Split(subWikiUri, "/")
+
+		// Check if the SubWiki is instead a media work page
+		_, errMediaType := media.ToMediaType(splitPath[3])
+		if subWikiExists && errMediaType != nil {
 			subPagesUrls = append(subPagesUrls, TvTropesWeb+subWikiUri)
 		}
 	})
