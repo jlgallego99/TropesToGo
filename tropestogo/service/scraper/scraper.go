@@ -35,7 +35,6 @@ const (
 	WorkIndexSelector        = WorkTitleSelector + " strong"
 	MainArticleSelector      = "#main-article"
 	TropeListSelector        = MainArticleSelector + " ul"
-	TropeListHeaderSelector  = MainArticleSelector + " h2"
 	SubPagesNavSelector      = "nav.body-options"
 	SubPageListSelector      = "ul.subpage-links"
 	SubPageLinkSelector      = "a.subpage-link"
@@ -43,8 +42,8 @@ const (
 	TropeLinkSelector        = " ~ ul li " + TropeTag
 	TropeFolderSelector      = MainArticleSelector + " div.folderlabel"
 	FolderToggleFunction     = "toggleAllFolders();"
-	MainTropesSelector       = TropeListHeaderSelector + " ~ ul > li > " + TropeTag + ":first-child"
-	MainTropesFolderSelector = MainArticleSelector + " .folder > ul > li > " + TropeTag + ":first-child"
+	MainTropesSelector       = " ~ ul > li > " + TropeTag + ":first-child"
+	MainTropesFolderSelector = " ~ .folder > ul > li > " + TropeTag + ":first-child"
 	CurrentSubpageSelector   = ".curr-subpage"
 	CurrentUrlSelector       = "#current_url"
 )
@@ -321,9 +320,9 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages
 	if !scraper.CheckTropesOnSubpages(doc) {
 		var selector string
 		if scraper.CheckTropesOnFolders(doc) {
-			selector = MainTropesFolderSelector
+			selector = getAnyHeaderMainTropesFolderSelector()
 		} else {
-			selector = MainTropesSelector
+			selector = getAnyHeaderMainTropesSelector()
 		}
 
 		tropes, errTropes = scraper.ScrapeTropes(doc, selector)
@@ -449,9 +448,9 @@ func (scraper *ServiceScraper) ScrapeSubpageTropes(subDocs []*goquery.Document) 
 			if scraper.CheckIsSubWiki(subDoc) {
 				selector = TropeTag
 			} else if scraper.CheckTropesOnFolders(subDoc) {
-				selector = MainTropesFolderSelector
+				selector = getAnyHeaderMainTropesFolderSelector()
 			} else {
-				selector = MainTropesSelector
+				selector = getAnyHeaderMainTropesSelector()
 			}
 
 			subpageTropes, err := scraper.ScrapeTropes(subDoc, selector)
@@ -513,6 +512,26 @@ func getAnyHeaderTropeSelector() string {
 	selector := make([]string, 0)
 	for _, headerSelector := range headerSelectors {
 		selector = append(selector, headerSelector+TropeLinkSelector)
+	}
+
+	return strings.Join(selector, ",")
+}
+
+// getAnyHeaderMainTropesFolderSelector builds a trope selector that is able to locate any main trope section with folders, no matter what header is preceded
+func getAnyHeaderMainTropesFolderSelector() string {
+	selector := make([]string, 0)
+	for _, headerSelector := range headerSelectors {
+		selector = append(selector, headerSelector+MainTropesFolderSelector)
+	}
+
+	return strings.Join(selector, ",")
+}
+
+// getAnyHeaderMainTropesSelector builds a trope selector that is able to locate any main trope in a list, no matter what header is preceded
+func getAnyHeaderMainTropesSelector() string {
+	selector := make([]string, 0)
+	for _, headerSelector := range headerSelectors {
+		selector = append(selector, headerSelector+MainTropesSelector)
 	}
 
 	return strings.Join(selector, ",")
