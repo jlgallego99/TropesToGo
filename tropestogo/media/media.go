@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	tropestogo "github.com/jlgallego99/TropesToGo"
+	"github.com/jlgallego99/TropesToGo/trope"
+	"github.com/jlgallego99/TropesToGo/tvtropespages"
 	"regexp"
 	"time"
 )
@@ -90,10 +91,10 @@ func GetAllMediaTypes() []string {
 // Media holds the logic of all Works with its tropes that exist within a particular medium in TvTropes
 type Media struct {
 	// work is the root entity, holds the work information and its tropes
-	work *tropestogo.Work
+	work *trope.Work
 
 	// page is the TvTropes webpage from where the Work information is extracted
-	page tropestogo.Page
+	page tvtropespages.Page
 
 	// MediaType is the media index that this work belongs to
 	mediaType MediaType
@@ -168,7 +169,7 @@ func GetJsonTropes(media Media) ([]JsonTrope, []JsonTrope) {
 // It divides the tropes between main and secondary
 // It returns a correctly formed Media object and an error of type ErrMissingValues if the title or page are empty
 // an ErrInvalidYear if the year isn't real or an ErrUnknownMediaType if the received media type isn't known
-func NewMedia(title, year string, lastUpdated time.Time, tropes map[tropestogo.Trope]struct{}, page tropestogo.Page, mediaType MediaType) (Media, error) {
+func NewMedia(title, year string, lastUpdated time.Time, tropes map[trope.Trope]struct{}, page tvtropespages.Page, mediaType MediaType) (Media, error) {
 	if page.GetUrl() == nil {
 		return Media{}, ErrMissingValues
 	}
@@ -189,8 +190,8 @@ func NewMedia(title, year string, lastUpdated time.Time, tropes map[tropestogo.T
 		return Media{}, fmt.Errorf("%w: "+mediaType.String(), ErrUnknownMediaType)
 	}
 
-	mainTropes := make(map[tropestogo.Trope]struct{})
-	subTropes := make(map[tropestogo.Trope]struct{})
+	mainTropes := make(map[trope.Trope]struct{})
+	subTropes := make(map[trope.Trope]struct{})
 	for trope := range tropes {
 		if trope.GetIsMain() {
 			mainTropes[trope] = struct{}{}
@@ -199,7 +200,7 @@ func NewMedia(title, year string, lastUpdated time.Time, tropes map[tropestogo.T
 		}
 	}
 
-	work := &tropestogo.Work{
+	work := &trope.Work{
 		Title:       title,
 		Year:        year,
 		LastUpdated: lastUpdated,
@@ -215,12 +216,12 @@ func NewMedia(title, year string, lastUpdated time.Time, tropes map[tropestogo.T
 }
 
 // GetWork returns the Work object that this media object manages
-func (media Media) GetWork() *tropestogo.Work {
+func (media Media) GetWork() *trope.Work {
 	return media.work
 }
 
 // GetPage returns the Page object that this media object manages
-func (media Media) GetPage() tropestogo.Page {
+func (media Media) GetPage() tvtropespages.Page {
 	return media.page
 }
 

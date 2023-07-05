@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/jlgallego99/TropesToGo/trope"
+	"github.com/jlgallego99/TropesToGo/tvtropespages"
 	"math/rand"
 	"os"
 	"time"
 
-	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
 	"github.com/jlgallego99/TropesToGo/media/json_dataset"
 	. "github.com/onsi/ginkgo/v2"
@@ -25,7 +26,7 @@ var repository *json_dataset.JSONRepository
 var errorRepository, errRemoveAll, errAddMedia, errPersist error
 var mediaEntry media.Media
 var datasetFile *os.File
-var tropes map[tropestogo.Trope]struct{}
+var tropes map[trope.Trope]struct{}
 var numTropes int
 
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -40,7 +41,7 @@ var _ = BeforeSuite(func() {
 		tropes[subTrope] = struct{}{}
 	}
 
-	tvTropesPage, _ := tropestogo.NewPage(oldboyUrl, false, nil)
+	tvTropesPage, _ := tvtropespages.NewPage(oldboyUrl, false, nil)
 	mediaEntry, _ = media.NewMedia("Oldboy", "2003", time.Now(), tropes, tvTropesPage, media.Film)
 })
 
@@ -163,7 +164,7 @@ var _ = Describe("JsonDataset", func() {
 				newTropes[subTrope] = struct{}{}
 			}
 
-			tvTropesPage, _ := tropestogo.NewPage(oldboyUrl, false, nil)
+			tvTropesPage, _ := tvtropespages.NewPage(oldboyUrl, false, nil)
 			updatedMediaEntry, _ := media.NewMedia("Oldboy", "2013", time.Now(), newTropes, tvTropesPage, media.Film)
 
 			errUpdate = repository.UpdateMedia("Oldboy", "2003", updatedMediaEntry)
@@ -256,8 +257,8 @@ func readDataset() (json_dataset.JSONDataset, error) {
 }
 
 // createTropes generates a map of numTropes size applying a callback function to all elements
-func createTropes(numTropes int, callback func() tropestogo.Trope) map[tropestogo.Trope]struct{} {
-	tropeset := make(map[tropestogo.Trope]struct{}, numTropes)
+func createTropes(numTropes int, callback func() trope.Trope) map[trope.Trope]struct{} {
+	tropeset := make(map[trope.Trope]struct{}, numTropes)
 
 	for i := 0; i < numTropes; i++ {
 		tropeset[callback()] = struct{}{}
@@ -266,14 +267,14 @@ func createTropes(numTropes int, callback func() tropestogo.Trope) map[tropestog
 	return tropeset
 }
 
-var randomTrope = func() tropestogo.Trope {
-	trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, "")
+var randomTrope = func() trope.Trope {
+	trope, _ := trope.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, "")
 	return trope
 }
 
-var randomSubTrope = func() tropestogo.Trope {
+var randomSubTrope = func() trope.Trope {
 	subWikis := []string{"SubWiki1", "SubWiki2"}
-	trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, subWikis[seededRand.Intn(1)])
+	trope, _ := trope.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, subWikis[seededRand.Intn(1)])
 
 	return trope
 }

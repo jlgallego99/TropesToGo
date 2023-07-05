@@ -4,17 +4,19 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
-	"github.com/PuerkitoBio/goquery"
-	tropestogo "github.com/jlgallego99/TropesToGo"
-	"github.com/jlgallego99/TropesToGo/media"
-	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
-	"github.com/jlgallego99/TropesToGo/media/json_dataset"
-	"github.com/jlgallego99/TropesToGo/service/scraper"
-	"github.com/rs/zerolog"
 	"net/url"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/jlgallego99/TropesToGo/media"
+	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
+	"github.com/jlgallego99/TropesToGo/media/json_dataset"
+	"github.com/jlgallego99/TropesToGo/service/scraper"
+	trope "github.com/jlgallego99/TropesToGo/trope"
+	"github.com/jlgallego99/TropesToGo/tvtropespages"
+	"github.com/rs/zerolog"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -243,8 +245,8 @@ var _ = Describe("Scraper", func() {
 		var errorfilm1Csv, errorfilm2Csv, errorfilm3Csv, errorfilm1Json, errorfilm2Json, errorfilm3Json error
 
 		BeforeEach(func() {
-			var subpageDocsCsv *tropestogo.TvTropesSubpages
-			var subpageDocsJson *tropestogo.TvTropesSubpages
+			var subpageDocsCsv *tvtropespages.TvTropesSubpages
+			var subpageDocsJson *tvtropespages.TvTropesSubpages
 
 			// Scrape Oldboy
 			subpageDocsJson, subpageDocsCsv = loadSubpageFiles(oldboySubpageFiles, oldboySubpageUrls)
@@ -263,9 +265,9 @@ var _ = Describe("Scraper", func() {
 			// Scrape A New Hope
 			pageJson = createPage(anewhopeUrl, anewhopeResource)
 			pageCsv = createPage(anewhopeUrl, anewhopeResource)
-			emptySubPages := &tropestogo.TvTropesSubpages{
+			emptySubPages := &tvtropespages.TvTropesSubpages{
 				LastUpdated: time.Now(),
-				Subpages:    make(map[tropestogo.Page]time.Time, 0),
+				Subpages:    make(map[tvtropespages.Page]time.Time, 0),
 			}
 			validfilm3Json, errorfilm3Json = serviceScraperJson.ScrapeTvTropesPage(pageJson, emptySubPages)
 			validfilm3Csv, errorfilm3Csv = serviceScraperCsv.ScrapeTvTropesPage(pageCsv, emptySubPages)
@@ -428,7 +430,7 @@ func testValidScrapedMedia(validMedia media.Media) {
 	Expect(validMedia.GetWork().Tropes).To(Not(BeEmpty()))
 }
 
-func areTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {
+func areTropesUnique(tropes map[trope.Trope]struct{}) bool {
 	visited := make(map[string]bool, 0)
 	for trope := range tropes {
 		if visited[trope.GetTitle()] == true {
@@ -441,7 +443,7 @@ func areTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {
 	return true
 }
 
-func areSubTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {
+func areSubTropesUnique(tropes map[trope.Trope]struct{}) bool {
 	visited := make(map[string]bool, 0)
 	for trope := range tropes {
 		if visited[trope.GetTitle()+trope.GetSubpage()] {
@@ -480,14 +482,14 @@ func areRepositorySubTropesUnique(subTropes []string, subPages []string) bool {
 	return true
 }
 
-func loadSubpageFiles(fileNames []string, urlNames []string) (*tropestogo.TvTropesSubpages, *tropestogo.TvTropesSubpages) {
-	subpageDocsCsv := &tropestogo.TvTropesSubpages{
+func loadSubpageFiles(fileNames []string, urlNames []string) (*tvtropespages.TvTropesSubpages, *tvtropespages.TvTropesSubpages) {
+	subpageDocsCsv := &tvtropespages.TvTropesSubpages{
 		LastUpdated: time.Now(),
-		Subpages:    make(map[tropestogo.Page]time.Time, 0),
+		Subpages:    make(map[tvtropespages.Page]time.Time, 0),
 	}
-	subpageDocsJson := &tropestogo.TvTropesSubpages{
+	subpageDocsJson := &tvtropespages.TvTropesSubpages{
 		LastUpdated: time.Now(),
-		Subpages:    make(map[tropestogo.Page]time.Time, 0),
+		Subpages:    make(map[tvtropespages.Page]time.Time, 0),
 	}
 
 	for i, subpageFile := range fileNames {
@@ -497,8 +499,8 @@ func loadSubpageFiles(fileNames []string, urlNames []string) (*tropestogo.TvTrop
 		docCsv, _ := goquery.NewDocumentFromReader(subpageReaderCsv)
 		docJson, _ := goquery.NewDocumentFromReader(subpageReaderJson)
 
-		subPageCsv, _ := tropestogo.NewPageWithDocument(urlNames[i], docCsv)
-		subPageJson, _ := tropestogo.NewPageWithDocument(urlNames[i], docJson)
+		subPageCsv, _ := tvtropespages.NewPageWithDocument(urlNames[i], docCsv)
+		subPageJson, _ := tvtropespages.NewPageWithDocument(urlNames[i], docJson)
 
 		subpageDocsCsv.Subpages[subPageCsv] = time.Now()
 		subpageDocsJson.Subpages[subPageJson] = time.Now()
@@ -507,32 +509,32 @@ func loadSubpageFiles(fileNames []string, urlNames []string) (*tropestogo.TvTrop
 	return subpageDocsJson, subpageDocsCsv
 }
 
-func createTvTropesPagesWithEmptySubpages(urlString, resource string) *tropestogo.TvTropesPages {
+func createTvTropesPagesWithEmptySubpages(urlString, resource string) *tvtropespages.TvTropesPages {
 	reader, _ := os.Open(resource)
 	defer reader.Close()
 
 	doc, _ := goquery.NewDocumentFromReader(reader)
 
-	page, errCreatePageJson := tropestogo.NewPageWithDocument(urlString, doc)
+	page, errCreatePageJson := tvtropespages.NewPageWithDocument(urlString, doc)
 	Expect(errCreatePageJson).To(BeNil())
 
-	emptySubPages := &tropestogo.TvTropesSubpages{
+	emptySubPages := &tvtropespages.TvTropesSubpages{
 		LastUpdated: time.Now(),
-		Subpages:    make(map[tropestogo.Page]time.Time, 0),
+		Subpages:    make(map[tvtropespages.Page]time.Time, 0),
 	}
 
-	pages := tropestogo.NewTvTropesPages()
+	pages := tvtropespages.NewTvTropesPages()
 	pages.Pages[page] = emptySubPages
 
 	return pages
 }
 
-func createPage(urlString, resource string) tropestogo.Page {
+func createPage(urlString, resource string) tvtropespages.Page {
 	pageReader, _ := os.Open(resource)
 	defer pageReader.Close()
 
 	doc, _ := goquery.NewDocumentFromReader(pageReader)
-	page, errCreatePageJson := tropestogo.NewPageWithDocument(urlString, doc)
+	page, errCreatePageJson := tvtropespages.NewPageWithDocument(urlString, doc)
 	Expect(errCreatePageJson).To(BeNil())
 
 	return page

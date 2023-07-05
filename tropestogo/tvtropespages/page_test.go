@@ -1,8 +1,8 @@
-package tropestogo_test
+package tvtropespages_test
 
 import (
 	"errors"
-	tropestogo "github.com/jlgallego99/TropesToGo"
+	tropestogo "github.com/jlgallego99/TropesToGo/tvtropespages"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
