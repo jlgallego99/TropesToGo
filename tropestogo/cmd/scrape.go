@@ -10,6 +10,8 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"os"
 	"strconv"
 	"strings"
@@ -23,10 +25,11 @@ const (
 
 // scrapeCmd represents the scrape command
 var (
-	datasetPath, _          = os.Getwd()
-	datasetName, dataFormat string
-	crawlLimit              int
-	crawlAll                bool
+	datasetPath, _                          = os.Getwd()
+	datasetName, dataFormat, mediaTypeInput string
+	mediaType                               media.MediaType
+	crawlLimit                              int
+	crawlAll                                bool
 
 	scrapeCmd = &cobra.Command{
 		Use:   "scrape",
@@ -44,11 +47,17 @@ Generates a dataset of the specified format when done.`,
 				return fmt.Errorf("unknown data format: %s", dataFormat)
 			}
 
+			var errMediaType error
+			caseTitle := cases.Title(language.English)
+			if mediaType, errMediaType = media.ToMediaType(caseTitle.String(mediaTypeInput)); errMediaType != nil {
+				return errMediaType
+			}
+
 			if crawlAll {
-				log.Info().Msg("Extracting all films in TvTropes...")
+				log.Info().Msg("Extracting all works of type " + mediaType.String() + " in TvTropes...")
 				crawlLimit = -1
 			} else {
-				log.Info().Msg("Extracting " + strconv.Itoa(crawlLimit) + " films...")
+				log.Info().Msg("Extracting " + strconv.Itoa(crawlLimit) + " works of type " + mediaType.String() + "...")
 			}
 
 			scrape()
@@ -65,6 +74,7 @@ func init() {
 	scrapeCmd.PersistentFlags().StringVarP(&dataFormat, "format", "f", "json", "specify a format for the dataset (-f json, -f csv)")
 	scrapeCmd.PersistentFlags().IntVarP(&crawlLimit, "limit", "l", 1, "limit the number of extracted works (-l <number>)")
 	scrapeCmd.PersistentFlags().BoolVarP(&crawlAll, "all", "a", false, "if set, it extracts all works, on the contrary it will extract the number specified with the -l flag")
+	scrapeCmd.PersistentFlags().StringVarP(&mediaTypeInput, "media", "m", "Film", "choose the media type from which to extract the data (-m <mediatype>)")
 }
 
 func scrape() {
@@ -72,7 +82,7 @@ func scrape() {
 
 	// Crawling TvTropes Pages
 	serviceCrawler := crawler.NewCrawler()
-	pages, err := serviceCrawler.CrawlWorkPages(crawlLimit)
+	pages, err := serviceCrawler.CrawlWorkPages(crawlLimit, mediaType)
 	if err != nil && pages == nil {
 		log.Error().Err(err).Msg("Error creating TropesToGo crawler")
 		return
