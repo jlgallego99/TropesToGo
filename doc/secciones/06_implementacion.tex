@@ -1464,8 +1464,8 @@ necesidad de aprenderse un manual complejo. Si se ejecuta el programa sin ningú
 comando ni argumento, mostrará automáticamente por terminal esa misma guía para
 todo el programa. A continuación se especifica cómo se han definido las opciones
 del programa, con las que cumplir los requisitos anteriormente descritos y que el
-usuario pueda utilizar el programa, que también se puede ver en la Figura al
-llamar al programa con el flag de ayuda.
+usuario pueda utilizar el programa, que también se puede ver en la Figura
+\ref{fig:cli} al llamar al programa con el flag de ayuda.
 \begin{itemize}
     \item El \textbf{comando \texttt{scrape}} se ocupa de realizar las tareas de
     \textit{crawling} y \textit{scraping} sobre TvTropes, generando finalmente
@@ -1497,6 +1497,25 @@ llamar al programa con el flag de ayuda.
     campos.
 \end{itemize}
 
+\begin{figure}[!h]
+    \centering
+    \begin{subfigure}{\textwidth}
+      \includegraphics[width=\linewidth]{img/cli.png}
+      \caption{Manual de ayuda de TropesToGo CLI.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+      \includegraphics[width=\linewidth]{img/cli_scraper.png}
+      \caption{Manual de ayuda del comando de \textit{scraping} de TropesToGo CLI.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \includegraphics[width=\linewidth]{img/cli_update.png}
+        \caption{Manual de ayuda del comando de actualización de TropesToGo CLI.}
+      \end{subfigure}
+    \caption{Manuales generados por la herramienta de línea de órdenes.}
+    \label{fig:cli}
+\end{figure}
+
+
 Una vez configurado el programa con los valores de la línea de orden del
 usuario, o sus valores por defecto en caso de no haber especificado algún
 \textit{flag}, basta con instanciar los dos servicios, \textit{scraper} y
@@ -1520,15 +1539,6 @@ ya que todas las páginas ya han sido descargadas, por lo que solamente tiene qu
 extraer datos de los documentos Goquery ya generados. Una vez terminado esto, ya
 habrá terminado la ejecución del programa y se tendrá el \textit{dataset} con lo
 especificado.
-
-Instalación
-
-Por ejemplo, la siguiente línea de orden permitiría extraer 20 videojuegos con
-su información de metadatos y \textit{tropos} asociados en un fichero JSON
-llamado ``20 videojuegos''.
-\begin{lstlisting}[language=bash]
-$ tropestogo -o 20videojuegos -l 20 -f JSON
-\end{lstlisting}
 
 \subsection{\textit{Logging}}
 Al igual que con el CLI, es necesario también elegir una biblioteca de
