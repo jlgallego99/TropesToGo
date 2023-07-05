@@ -13,10 +13,10 @@ func _() {
 	_ = x[Animation-2]
 	_ = x[Anime-3]
 	_ = x[ARG-4]
-	_ = x[AudioPlay-5]
+	_ = x[Audioplay-5]
 	_ = x[Blog-6]
-	_ = x[ComicBook-7]
-	_ = x[ComicStrip-8]
+	_ = x[Comicbook-7]
+	_ = x[Comicstrip-8]
 	_ = x[Creator-9]
 	_ = x[Fanfic-10]
 	_ = x[Film-11]
@@ -33,19 +33,19 @@ func _() {
 	_ = x[Roleplay-22]
 	_ = x[Script-23]
 	_ = x[Series-24]
-	_ = x[TabletopGame-25]
+	_ = x[Tabletopgame-25]
 	_ = x[Theatre-26]
-	_ = x[VideoGame-27]
-	_ = x[VisualNovel-28]
+	_ = x[Videogame-27]
+	_ = x[Visualnovel-28]
 	_ = x[WebAnimation-29]
 	_ = x[Webcomic-30]
 	_ = x[Website-31]
-	_ = x[WebVideo-32]
-	_ = x[WesternAnimation-33]
+	_ = x[Webvideo-32]
+	_ = x[Westernanimation-33]
 	_ = x[Wrestling-34]
 }
 
-const _MediaType_name = "UnknownMediaTypeAdvertisingAnimationAnimeARGAudioPlayBlogComicBookComicStripCreatorFanficFilmFranchiseLiteratureMagazineMangaManhuaManhwaMusicPinballPodcastRadioRoleplayScriptSeriesTabletopGameTheatreVideoGameVisualNovelWebAnimationWebcomicWebsiteWebVideoWesternAnimationWrestling"
+const _MediaType_name = "UnknownMediaTypeAdvertisingAnimationAnimeARGAudioplayBlogComicbookComicstripCreatorFanficFilmFranchiseLiteratureMagazineMangaManhuaManhwaMusicPinballPodcastRadioRoleplayScriptSeriesTabletopgameTheatreVideogameVisualnovelWebAnimationWebcomicWebsiteWebvideoWesternanimationWrestling"
 
 var _MediaType_index = [...]uint16{0, 16, 27, 36, 41, 44, 53, 57, 66, 76, 83, 89, 93, 102, 112, 120, 125, 131, 137, 142, 149, 156, 161, 169, 175, 181, 193, 200, 209, 220, 232, 240, 247, 255, 271, 280}
 

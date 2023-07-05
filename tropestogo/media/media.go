@@ -7,6 +7,7 @@ import (
 	"github.com/jlgallego99/TropesToGo/trope"
 	"github.com/jlgallego99/TropesToGo/tvtropespages"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -25,10 +26,10 @@ const (
 	Animation
 	Anime
 	ARG
-	AudioPlay
+	Audioplay
 	Blog
-	ComicBook
-	ComicStrip
+	Comicbook
+	Comicstrip
 	Creator
 	Fanfic
 	Film
@@ -45,15 +46,15 @@ const (
 	Roleplay
 	Script
 	Series
-	TabletopGame
+	Tabletopgame
 	Theatre
-	VideoGame
-	VisualNovel
+	Videogame
+	Visualnovel
 	WebAnimation
 	Webcomic
 	Website
-	WebVideo
-	WesternAnimation
+	Webvideo
+	Westernanimation
 	Wrestling
 )
 
@@ -70,7 +71,7 @@ func (mediatype MediaType) IsValid() bool {
 // It returns an ErrUnknownMediaType if the MediaType isn't recognized
 func ToMediaType(mediaTypeString string) (MediaType, error) {
 	for mediatype := UnknownMediaType + 1; mediatype <= Wrestling; mediatype++ {
-		if mediaTypeString == mediatype.String() {
+		if strings.EqualFold(mediaTypeString, mediatype.String()) {
 			return mediatype, nil
 		}
 	}
