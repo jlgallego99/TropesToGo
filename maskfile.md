@@ -7,7 +7,7 @@
 > Command for running TropesToGo CLI and be able to scrape data on TvTropes
 ~~~sh
 cd tropestogo
-go run ./...
+go run ./main.go
 ~~~
 
 ## build
