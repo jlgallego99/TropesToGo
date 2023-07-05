@@ -23,18 +23,15 @@ import (
 )
 
 const (
-	oldboyUrl        = "https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003"
-	oldboyResource   = "resources/oldboy2003.html"
-	anewhopeUrl      = "https://tvtropes.org/pmwiki/pmwiki.php/Film/ANewHope"
-	anewhopeResource = "resources/anewhope.html"
-	avengersUrl      = "https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012"
-	avengersResource = "resources/theavengers2012.html"
-	mediaUrl         = "https://tvtropes.org/pmwiki/pmwiki.php/Main/Media"
-	googleUrl        = "https://www.google.com/"
-	emptyResource    = "resources/empty.html"
+	mediaUrl  = "https://tvtropes.org/pmwiki/pmwiki.php/Main/Media"
+	googleUrl = "https://www.google.com/"
 )
 
 var (
+	works = []string{"https://tvtropes.org/pmwiki/pmwiki.php/Film/Oldboy2003", "https://tvtropes.org/pmwiki/pmwiki.php/Film/ANewHope",
+		"https://tvtropes.org/pmwiki/pmwiki.php/Film/TheAvengers2012"}
+	workResources = []string{"resources/oldboy2003.html", "resources/anewhope.html", "resources/theavengers2012.html", "resources/empty.html"}
+
 	avengersSubpageFiles = []string{"resources/theavengers_tropesAtoD.html",
 		"resources/theavengers_tropesEtoL.html",
 		"resources/theavengers_tropesMtoP.html",
@@ -109,9 +106,9 @@ var _ = Describe("Scraper", func() {
 			var errTvTropesCsv, errTvTropesJson error
 
 			BeforeEach(func() {
-				tvTropesUrl, _ := url.Parse(oldboyUrl)
-				pageReaderJson, _ = os.Open(oldboyResource)
-				pageReaderCsv, _ = os.Open(oldboyResource)
+				tvTropesUrl, _ := url.Parse(works[0])
+				pageReaderJson, _ = os.Open(workResources[0])
+				pageReaderCsv, _ = os.Open(workResources[0])
 
 				docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
 				docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
@@ -136,9 +133,9 @@ var _ = Describe("Scraper", func() {
 			var errTvTropes2Csv, errTvTropes2Json error
 
 			BeforeEach(func() {
-				tvTropesUrl2, _ := url.Parse(avengersUrl)
-				pageReaderJson, _ = os.Open(avengersResource)
-				pageReaderCsv, _ = os.Open(avengersResource)
+				tvTropesUrl2, _ := url.Parse(works[2])
+				pageReaderJson, _ = os.Open(workResources[2])
+				pageReaderCsv, _ = os.Open(workResources[2])
 
 				docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
 				docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
@@ -163,9 +160,9 @@ var _ = Describe("Scraper", func() {
 			var errTvTropes3Csv, errTvTropes3Json error
 
 			BeforeEach(func() {
-				tvTropesUrl3, _ := url.Parse(anewhopeUrl)
-				pageReaderCsv, _ = os.Open(anewhopeResource)
-				pageReaderJson, _ = os.Open(anewhopeResource)
+				tvTropesUrl3, _ := url.Parse(works[1])
+				pageReaderCsv, _ = os.Open(workResources[1])
+				pageReaderJson, _ = os.Open(workResources[1])
 
 				docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
 				docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
@@ -191,8 +188,8 @@ var _ = Describe("Scraper", func() {
 
 			BeforeEach(func() {
 				notWorkUrl, _ := url.Parse(mediaUrl)
-				pageReaderJson, _ = os.Open(emptyResource)
-				pageReaderCsv, _ = os.Open(emptyResource)
+				pageReaderJson, _ = os.Open(workResources[3])
+				pageReaderCsv, _ = os.Open(workResources[3])
 
 				docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
 				docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
@@ -218,8 +215,8 @@ var _ = Describe("Scraper", func() {
 
 			BeforeEach(func() {
 				differentUrl, _ := url.Parse(googleUrl)
-				pageReaderJson, _ = os.Open(emptyResource)
-				pageReaderCsv, _ = os.Open(emptyResource)
+				pageReaderJson, _ = os.Open(workResources[3])
+				pageReaderCsv, _ = os.Open(workResources[3])
 
 				docJson, _ := goquery.NewDocumentFromReader(pageReaderJson)
 				docCsv, _ := goquery.NewDocumentFromReader(pageReaderCsv)
@@ -250,21 +247,21 @@ var _ = Describe("Scraper", func() {
 
 			// Scrape Oldboy
 			subpageDocsJson, subpageDocsCsv = loadSubpageFiles(oldboySubpageFiles, oldboySubpageUrls)
-			pageJson := createPage(oldboyUrl, oldboyResource)
-			pageCsv := createPage(oldboyUrl, oldboyResource)
+			pageJson := createPage(works[0], workResources[0])
+			pageCsv := createPage(works[0], workResources[0])
 			validfilm1Json, errorfilm1Json = serviceScraperJson.ScrapeTvTropesPage(pageJson, subpageDocsJson)
 			validfilm1Csv, errorfilm1Csv = serviceScraperCsv.ScrapeTvTropesPage(pageCsv, subpageDocsCsv)
 
 			// Scrape The Avengers
 			subpageDocsJson, subpageDocsCsv = loadSubpageFiles(avengersSubpageFiles, avengersSubpageUrls)
-			pageJson = createPage(avengersUrl, avengersResource)
-			pageCsv = createPage(avengersUrl, avengersResource)
+			pageJson = createPage(works[2], workResources[2])
+			pageCsv = createPage(works[2], workResources[2])
 			validfilm2Csv, errorfilm2Json = serviceScraperJson.ScrapeTvTropesPage(pageJson, subpageDocsJson)
 			validfilm2Json, errorfilm2Csv = serviceScraperCsv.ScrapeTvTropesPage(pageCsv, subpageDocsCsv)
 
 			// Scrape A New Hope
-			pageJson = createPage(anewhopeUrl, anewhopeResource)
-			pageCsv = createPage(anewhopeUrl, anewhopeResource)
+			pageJson = createPage(works[1], workResources[1])
+			pageCsv = createPage(works[1], workResources[1])
 			emptySubPages := &tvtropespages.TvTropesSubpages{
 				LastUpdated: time.Now(),
 				Subpages:    make(map[tvtropespages.Page]time.Time, 0),
@@ -363,8 +360,8 @@ var _ = Describe("Scraper", func() {
 			var errUpdateJson, errUpdateCsv error
 
 			BeforeEach(func() {
-				updatedPagesCsv := createTvTropesPagesWithEmptySubpages(oldboyUrl, oldboyResource)
-				updatedPagesJson := createTvTropesPagesWithEmptySubpages(oldboyUrl, oldboyResource)
+				updatedPagesCsv := createTvTropesPagesWithEmptySubpages(works[0], workResources[0])
+				updatedPagesJson := createTvTropesPagesWithEmptySubpages(works[0], workResources[0])
 
 				errUpdateJson = serviceScraperJson.UpdateDataset(updatedPagesJson)
 				errUpdateCsv = serviceScraperCsv.UpdateDataset(updatedPagesCsv)

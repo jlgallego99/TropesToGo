@@ -167,7 +167,7 @@ func (scraper *ServiceScraper) CheckTropeSection(doc *goquery.Document) (bool, e
 		return true, nil
 	}
 
-	tropeHref, exists := doc.Find(getAnyHeaderTropeSelector()).First().Attr("href")
+	tropeHref, exists := doc.Find(getAnyHeaderSelector(TropeLinkSelector)).First().Attr("href")
 	if exists && strings.Contains(tropeHref, TvTropesMainPath) {
 		return true, nil
 	}
@@ -192,7 +192,7 @@ func (scraper *ServiceScraper) CheckTropesOnFolders(doc *goquery.Document) bool 
 // It returns a boolean meaning if the check passes or not
 func (scraper *ServiceScraper) CheckTropesOnSubpages(doc *goquery.Document) bool {
 	// Get the first word of the first element of the list, check if is an anchor to a subpage
-	tropeHref, exists := doc.Find(getAnyHeaderTropeSelector()).First().Attr("href")
+	tropeHref, exists := doc.Find(getAnyHeaderSelector(TropeLinkSelector)).First().Attr("href")
 	workTitle, _, _, _ := scraper.ScrapeWorkTitleAndYear(doc)
 
 	// Check if the link directs to a subpage with tropes
@@ -322,9 +322,9 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tvtropespages.Page, subPa
 	if !scraper.CheckTropesOnSubpages(doc) {
 		var selector string
 		if scraper.CheckTropesOnFolders(doc) {
-			selector = getAnyHeaderMainTropesFolderSelector()
+			selector = getAnyHeaderSelector(MainTropesFolderSelector)
 		} else {
-			selector = getAnyHeaderMainTropesSelector()
+			selector = getAnyHeaderSelector(MainTropesSelector)
 		}
 
 		tropes, errTropes = scraper.ScrapeTropes(doc, selector)
@@ -445,9 +445,9 @@ func (scraper *ServiceScraper) ScrapeSubpageTropes(subDocs []*goquery.Document) 
 			if scraper.CheckIsSubWiki(subDoc) {
 				selector = TropeTag
 			} else if scraper.CheckTropesOnFolders(subDoc) {
-				selector = getAnyHeaderMainTropesFolderSelector()
+				selector = getAnyHeaderSelector(MainTropesFolderSelector)
 			} else {
-				selector = getAnyHeaderMainTropesSelector()
+				selector = getAnyHeaderSelector(MainTropesSelector)
 			}
 
 			subpageTropes, err := scraper.ScrapeTropes(subDoc, selector)
@@ -501,31 +501,11 @@ func (scraper *ServiceScraper) Persist() error {
 	return scraper.data.Persist()
 }
 
-// getAnyHeaderTropeSelector builds a trope selector that is able to locate any main trope section, no matter what header is preceded
-func getAnyHeaderTropeSelector() string {
+// getAnyHeaderSelector builds a CSS path selector from a tropeSelector, adding all header identifiers
+func getAnyHeaderSelector(tropeSelector string) string {
 	selector := make([]string, 0)
 	for _, headerSelector := range headerSelectors {
-		selector = append(selector, headerSelector+TropeLinkSelector)
-	}
-
-	return strings.Join(selector, ",")
-}
-
-// getAnyHeaderMainTropesFolderSelector builds a trope selector that is able to locate any main trope section with folders, no matter what header is preceded
-func getAnyHeaderMainTropesFolderSelector() string {
-	selector := make([]string, 0)
-	for _, headerSelector := range headerSelectors {
-		selector = append(selector, headerSelector+MainTropesFolderSelector)
-	}
-
-	return strings.Join(selector, ",")
-}
-
-// getAnyHeaderMainTropesSelector builds a trope selector that is able to locate any main trope in a list, no matter what header is preceded
-func getAnyHeaderMainTropesSelector() string {
-	selector := make([]string, 0)
-	for _, headerSelector := range headerSelectors {
-		selector = append(selector, headerSelector+MainTropesSelector)
+		selector = append(selector, headerSelector+tropeSelector)
 	}
 
 	return strings.Join(selector, ",")
