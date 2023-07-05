@@ -1,26 +1,26 @@
-package tropestogo_test
+package trope_test
 
 import (
-	tropestogo "github.com/jlgallego99/TropesToGo"
+	"github.com/jlgallego99/TropesToGo/trope"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Trope", func() {
-	var validTrope, tropeNoTitle, tropeNoIndex tropestogo.Trope
+	var validTrope, tropeNoTitle, tropeNoIndex trope.Trope
 	var errValidTrope, errNoTitle, errNoIndex error
 
 	BeforeEach(func() {
-		validTrope, errValidTrope = tropestogo.NewTrope("ChekhovsGun", tropestogo.NarrativeTrope, "")
-		tropeNoTitle, errNoTitle = tropestogo.NewTrope("", tropestogo.TopicalTrope, "")
-		tropeNoIndex, errNoIndex = tropestogo.NewTrope("ChekhovsGun", tropestogo.TropeIndex(100), "")
+		validTrope, errValidTrope = trope.NewTrope("ChekhovsGun", trope.NarrativeTrope, "")
+		tropeNoTitle, errNoTitle = trope.NewTrope("", trope.TopicalTrope, "")
+		tropeNoIndex, errNoIndex = trope.NewTrope("ChekhovsGun", trope.TropeIndex(100), "")
 	})
 
 	Describe("Create a Trope", func() {
 		Context("The Trope is created correctly", func() {
 			It("Shouldn't return an empty object", func() {
 				Expect(validTrope.GetTitle()).To(Equal("ChekhovsGun"))
-				Expect(validTrope.GetIndex()).To(Equal(tropestogo.NarrativeTrope))
+				Expect(validTrope.GetIndex()).To(Equal(trope.NarrativeTrope))
 				Expect(validTrope.GetSubpage()).To(BeEmpty())
 				Expect(validTrope.GetIsMain()).To(BeTrue())
 			})
@@ -37,7 +37,7 @@ var _ = Describe("Trope", func() {
 			})
 
 			It("Should raise a proper error", func() {
-				Expect(errNoTitle).To(Equal(tropestogo.ErrMissingValues))
+				Expect(errNoTitle).To(Equal(trope.ErrMissingValues))
 			})
 		})
 
@@ -48,7 +48,7 @@ var _ = Describe("Trope", func() {
 			})
 
 			It("Should raise a proper error", func() {
-				Expect(errNoIndex).To(Equal(tropestogo.ErrUnknownIndex))
+				Expect(errNoIndex).To(Equal(trope.ErrUnknownIndex))
 			})
 		})
 	})

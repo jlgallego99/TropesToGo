@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	tropestogo "github.com/jlgallego99/TropesToGo"
+	"github.com/jlgallego99/TropesToGo/tvtropespages"
 	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
@@ -65,8 +65,8 @@ func NewCrawler() *ServiceCrawler {
 
 // CrawlWorkPages searches crawlLimit number of Work pages from the defined seed starting page; if it's 0 or less, then it crawls all Work pages
 // It returns a TvTropesPages object with all crawled pages and subpages from TvTropes
-func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTropesPages, error) {
-	crawledPages := tropestogo.NewTvTropesPages()
+func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tvtropespages.TvTropesPages, error) {
+	crawledPages := tvtropespages.NewTvTropesPages()
 	indexPage := seed
 
 	limitedCrawling := true
@@ -97,7 +97,7 @@ func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tropestogo.TvTro
 		}
 
 		var errAddPage error
-		var workPage tropestogo.Page
+		var workPage tvtropespages.Page
 		pageSelector.EachWithBreak(func(i int, selection *goquery.Selection) bool {
 			if limitedCrawling && len(crawledPages.Pages) == crawlLimit {
 				return false
@@ -215,8 +215,8 @@ func (crawler *ServiceCrawler) CrawlWorkSubpages(doc *goquery.Document) []string
 // CrawlWorkPagesFromReaders crawls all Work Pages and its subpages from an index reader and its pages readers. Only for test purposes
 // It searches crawlLimit number of Work pages within the index
 // It returns a TvTropesPages object with all crawled pages and subpages from TvTropes
-func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, workReaders []io.Reader, crawlLimit int) (*tropestogo.TvTropesPages, error) {
-	crawledPages := tropestogo.NewTvTropesPages()
+func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, workReaders []io.Reader, crawlLimit int) (*tvtropespages.TvTropesPages, error) {
+	crawledPages := tvtropespages.NewTvTropesPages()
 
 	limitedCrawling := true
 	if crawlLimit <= 0 {
@@ -271,8 +271,8 @@ func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, 
 // Receives a map of already crawled works, relating a name with its last updated time
 // and only crawls them if there's record of them on the history page, and it's newer
 // Returns a TvTropesPages containing the crawled Pages of the Media that needs to be updated
-func (crawler *ServiceCrawler) CrawlChanges(crawledWorks map[string]time.Time) (*tropestogo.TvTropesPages, error) {
-	crawledPages := tropestogo.NewTvTropesPages()
+func (crawler *ServiceCrawler) CrawlChanges(crawledWorks map[string]time.Time) (*tvtropespages.TvTropesPages, error) {
+	crawledPages := tvtropespages.NewTvTropesPages()
 
 	for crawledUrl, lastUpdated := range crawledWorks {
 		// Create the Work Page
@@ -303,21 +303,21 @@ func (crawler *ServiceCrawler) CrawlChanges(crawledWorks map[string]time.Time) (
 }
 
 // createWorkPage forms a valid Work Page object and adds it to the crawledPages object
-func (crawler *ServiceCrawler) createWorkPage(workUrl string, crawledPages *tropestogo.TvTropesPages) (tropestogo.Page, error) {
+func (crawler *ServiceCrawler) createWorkPage(workUrl string, crawledPages *tvtropespages.TvTropesPages) (tvtropespages.Page, error) {
 	validRequest, errRequest := crawler.makeValidRequest(workUrl)
 	if errRequest != nil {
-		return tropestogo.Page{}, errRequest
+		return tvtropespages.Page{}, errRequest
 	}
 	workPage, errAddPage := crawledPages.AddTvTropesPage(workUrl, true, validRequest)
 	if errAddPage != nil {
-		return tropestogo.Page{}, errAddPage
+		return tvtropespages.Page{}, errAddPage
 	}
 
 	return workPage, nil
 }
 
 // addWorkSubpages crawls all Work subpages, creates them and adds them to the referenced crawledPages argument
-func (crawler *ServiceCrawler) addWorkSubpages(workPage tropestogo.Page, crawledPages *tropestogo.TvTropesPages) error {
+func (crawler *ServiceCrawler) addWorkSubpages(workPage tvtropespages.Page, crawledPages *tvtropespages.TvTropesPages) error {
 	// Search for subpages on the new Work Page
 	subPagesUrls := crawler.CrawlWorkSubpages(workPage.GetDocument())
 
@@ -335,7 +335,7 @@ func (crawler *ServiceCrawler) addWorkSubpages(workPage tropestogo.Page, crawled
 	errSubpages := crawledPages.AddSubpages(workPage.GetUrl().String(), subPagesUrls, true, requests)
 
 	// If there's been too many requests to TvTropes, wait longer
-	if errors.Is(errSubpages, tropestogo.ErrForbidden) {
+	if errors.Is(errSubpages, tvtropespages.ErrForbidden) {
 		time.Sleep(time.Minute)
 		errSubpages = nil
 	}

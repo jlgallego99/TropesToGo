@@ -3,10 +3,11 @@ package media_test
 import (
 	"errors"
 	"fmt"
+	trope "github.com/jlgallego99/TropesToGo/trope"
+	"github.com/jlgallego99/TropesToGo/tvtropespages"
 	"math/rand"
 	"time"
 
-	tropestogo "github.com/jlgallego99/TropesToGo"
 	"github.com/jlgallego99/TropesToGo/media"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -19,22 +20,22 @@ const (
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 var _ = Describe("Media", func() {
-	var tvTropesPage tropestogo.Page
+	var tvTropesPage tvtropespages.Page
 	var lastUpdated time.Time
-	tropes := make(map[tropestogo.Trope]struct{})
+	tropes := make(map[trope.Trope]struct{})
 
 	BeforeEach(func() {
-		trope1, _ := tropestogo.NewTrope("AccentUponTheWrongSyllable", tropestogo.TropeIndex(0), "")
-		trope2, _ := tropestogo.NewTrope("ChekhovsGun", tropestogo.TropeIndex(0), "")
+		trope1, _ := trope.NewTrope("AccentUponTheWrongSyllable", trope.TropeIndex(0), "")
+		trope2, _ := trope.NewTrope("ChekhovsGun", trope.TropeIndex(0), "")
 		tropes[trope1] = struct{}{}
 		tropes[trope2] = struct{}{}
 		lastUpdated = time.Now()
 
-		tvTropesPage, _ = tropestogo.NewPage(avengersUrl, false, nil)
+		tvTropesPage, _ = tvtropespages.NewPage(avengersUrl, false, nil)
 	})
 
 	AfterEach(func() {
-		tropes = make(map[tropestogo.Trope]struct{})
+		tropes = make(map[trope.Trope]struct{})
 	})
 
 	Describe("Create Media", func() {
@@ -67,7 +68,7 @@ var _ = Describe("Media", func() {
 			var errMediaNoPage error
 
 			BeforeEach(func() {
-				mediaNoPage, errMediaNoPage = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, tropestogo.Page{}, media.Film)
+				mediaNoPage, errMediaNoPage = media.NewMedia("TheAvengers", "2012", lastUpdated, tropes, tvtropespages.Page{}, media.Film)
 			})
 
 			It("Should return an empty object", func() {
@@ -87,7 +88,7 @@ var _ = Describe("Media", func() {
 			var errMediaNoTitle error
 
 			BeforeEach(func() {
-				mediaNoTitle, errMediaNoTitle = media.NewMedia("", "2012", lastUpdated, tropes, tropestogo.Page{}, media.Film)
+				mediaNoTitle, errMediaNoTitle = media.NewMedia("", "2012", lastUpdated, tropes, tvtropespages.Page{}, media.Film)
 			})
 
 			It("Should return an empty object", func() {
@@ -180,7 +181,7 @@ var _ = Describe("Media", func() {
 	})
 })
 
-func areTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {
+func areTropesUnique(tropes map[trope.Trope]struct{}) bool {
 	visited := make(map[string]bool, 0)
 	for trope := range tropes {
 		if visited[trope.GetTitle()+trope.GetSubpage()] {
@@ -194,8 +195,8 @@ func areTropesUnique(tropes map[tropestogo.Trope]struct{}) bool {
 }
 
 // createTropes generates a map of numTropes size applying a callback function to all elements
-func createTropes(numTropes int, callback func() tropestogo.Trope) map[tropestogo.Trope]struct{} {
-	tropeset := make(map[tropestogo.Trope]struct{}, numTropes)
+func createTropes(numTropes int, callback func() trope.Trope) map[trope.Trope]struct{} {
+	tropeset := make(map[trope.Trope]struct{}, numTropes)
 
 	for i := 0; i < numTropes; i++ {
 		tropeset[callback()] = struct{}{}
@@ -204,14 +205,14 @@ func createTropes(numTropes int, callback func() tropestogo.Trope) map[tropestog
 	return tropeset
 }
 
-var randomTrope = func() tropestogo.Trope {
-	trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, "")
+var randomTrope = func() trope.Trope {
+	trope, _ := trope.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, "")
 	return trope
 }
 
-var randomSubTrope = func() tropestogo.Trope {
+var randomSubTrope = func() trope.Trope {
 	subWikis := []string{"SubWiki1", "SubWiki2"}
-	trope, _ := tropestogo.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, subWikis[seededRand.Intn(1)])
+	trope, _ := trope.NewTrope("Trope"+fmt.Sprint(seededRand.Int()), 1, subWikis[seededRand.Intn(1)])
 
 	return trope
 }
