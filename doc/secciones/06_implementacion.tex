@@ -1553,4 +1553,59 @@ permitirá cumplir aún más la
 investigadores podrán estudiar la relación entre \textit{tropos} utilizados en
 medios audiovisuales distintos, por ejemplo.
 
+En una de las páginas de TvTropes podemos ver todos los espacios de nombres
+pertenecientes a medios
+audiovisuales\footnote{\url{https://tvtropes.org/pmwiki/pmwiki.php/Sandbox/NamespaceMap}}.
+En total hay 32, y cada uno de ellos contiene múltiples obras, que son lo que
+finalmente se almacena en el \textit{dataset} con sus \textit{tropos}. Se mejora
+el \textit{crawler} de forma que, mediante la semilla explicada en secciones
+anteriores, pueda acceder al índice de todas las obras de cualquier medio
+audiovisual. Al definir una variable enumerada con todos los tipos de medios
+audiovisuales de TvTropes, se le da al usuario, mediante la aplicación CLI, la
+opción de elegir por un selector cuál de estos medios quiere extraer. Una vez
+elegido, basta con pasarlo como parámetro a la función de \textit{crawling}, que
+lo especificará como parámetro en el URL de la semilla. El proceso de
+\textit{crawling} funciona de igual manera independientemente del medio, ya que
+el índice presenta siempre una lista de obras con la misma estructura.
+
+\subsection{Mejoras adicionales al \textit{scraper}}
+Gracias al uso de un \textit{logger}, y a la ejecución de TropesToGo en casos
+reales, probando a extraer múltiples obras de distintos medios audiovisuales, se
+ha podido observar en la ejecución una serie de problemas que hacían que el
+\textit{scraper} no funcionase tan bien como debía. Esto es algo bastante común
+y que nunca se puede terminar de resolver del todo; en el ámbito del scraping
+siempre se puede mejorar y hay que saber cuando parar \cite{nishalscraping}. Sin
+embargo, los problemas que se han detectado son sencillos de resolver y abarcan
+bastantes obras. 
+
+Se detecta y soluciona lo siguiente:
+\begin{itemize}
+    \item Hasta ahora, como se vio en la Figura \ref{fig:selector-lista}, se
+    encuentra la sección de \textit{tropos} principales apoyándose en que
+    siempre está conformada por un elemento \texttt{h2} seguido de la lista de
+    \textit{tropos}. Sin embargo, existen algunos casos menores en los que ese
+    elemento cambia, siendo algunas veces un \textit{header} de distinto tamaño.
+    Por esa razón, se ha cambiado la comprobación y extracción a usar ese mismo
+    selector visto anteriormente, pero probando con todos los tipos de
+    \textit{header} posibles. Con este cambio se pueden extraer muchos más tipos
+    de páginas de obra.
+    \item El \textit{crawler} extraía subwikis adicionales que no eran
+    necesarias. Existen muchas obras que pertenecen a más de un medio
+    audiovisual, y esos medios adicionales están en la misma sección de los
+    subwikis. Sin embargo, no lo son, puesto que estas páginas siguen una
+    estructura diferente y hacen referencia a páginas principales de obras según
+    la filosofía que se sigue en este trabajo con respecto a la extracción en
+    TvTropes.
+    \item Con respecto a lo anterior, se ha tomado también una estrategia de
+    intentar extraer todo lo posible. Anteriormente, subwikis que no se podían
+    extraer, ya sea por tener una estructura extraña o cualquier otra razón,
+    implicaban un error y que se abandonase por completo el \textit{scraping} de
+    esa obra, ignorándola en el \textit{dataset} final. Se hace un pequeño
+    cambio por el que cuando sucede esto se informa en el log, para saber dónde
+    ha podido suceder un error, pero se ignora y se sigue extrayendo la siguiente
+    subpágina. De esta manera, no se termina la extracción de una página
+    simplemente porque una parte no se haya podido conseguir, y se sigue
+    adelante con todos los datos que se puedan conseguir.  
+\end{itemize}
+
 \section{Resultado final}
