@@ -1,18 +1,127 @@
-\chapter{Conclusiones y trabajos futuros}
-
-\section{Trabajo futuro}
-Se dejan estos \textit{milestones} como trabajo futuro por falta de tiempo:
-\subsection{M8. Aplicación de línea de comandos}
-Este hito está enfocado en que el usuario final pueda usar el scraper. El
-objetivo es obtener una aplicación de línea de comandos (CMD) que un usuario
-pueda instalar y le facilite la interacción con el scraper, pudiendo obtener la
-información de tropos completa o parcial según varias opciones y elegir entre
-diferentes formatos de representación en los que obtener los datos.
-
-\subsection{M9. Integración con fuentes de datos externas y extracción de metadatos}
-Como producto de este hito el scraper será capaz de identificar qué medio
-audiovisual de cualquier otra fuente de datos externa corresponde al que se ha
-detectado en TvTropes, pudiendo sacar más información como el año de
-lanzamiento, añadiendo a los datos obtenidos nuevos campos de metadatos.
+\chapter{Conclusiones y trabajo futuro}
+Finalmente, en este último capítulo se expresan las conclusiones del trabajo con
+relación a los objetivos definidos al principio del mismo y las posibles
+ampliaciones que podrían caber de cara al futuro.
 
 \section{Conclusiones}
+En relación con los objetivos presentados en el \autoref{chapter:2}, se concluye
+lo siguiente:
+\begin{itemize}
+    \item Se ha conseguido proporcionar un estudio muy amplio sobre un tema con
+    poca presencia en la literatura y en internet como es el \textit{scraping}
+    de TvTropes y la relevancia que pueden tener los \textit{tropos} en
+    numerosos análisis que estudien la narrativa de medios audiovisuales. 
+    \item El seguimiento del desarrollo de forma ágil ha facilitado el adaptarse
+    a cambios y dificultades al estar frente a un problema novedoso. Gracias a
+    haber llevado a cabo un previo proceso de estudio de los usuarios objetivo,
+    planificación de historias de usuario, modelado del problema y análisis de
+    la web de TvTropes desde distintos ámbitos, se ha conseguido llevar a su
+    completitud un proyecto de \textit{software} libre que cumpla las
+    necesidades de sus usuarios.
+    \item La herramienta diseñada y desarrollada ofrece de manera libre la
+    posibilidad de extraer datos de TvTropes de un modo efectivo y rápido,
+    pudiendo mejorar la propuesta de \textit{Tropescraper}. TropesToGo es capaz
+    de extraer eficientemente datos de cualquier tipo de medio audiovisual,
+    asociar cada obra a una serie de \textit{tropos} de distintos tipos y
+    persistir toda esta información en ficheros de distinto formato, limpios y
+    estructurados, para su uso en procesos de ciencia de datos, que facilitan la
+    generación de nuevos análisis y estudios en torno a narrativas.
+    \item La solución ha sido capaz no solo de extraer un mayor número de
+    \textit{tropos} por cada obra, asociando aquellos que están distribuidos en
+    distintas páginas y subpáginas, sino también información de metadatos
+    adicional. Información como el título de la obra, su año o el medio
+    audiovisual al que pertenecen permiten a la vez diferenciar obras entre sí y
+    poder sacar relaciones conceptuales tanto entre ellas como entre sus
+    \textit{tropos}.
+    \item La herramienta ha sido pensado para ser utilizada en última instancia
+    por investigadores, desarrolladores o cualquier persona interesada en los
+    flujos de ciencia de datos o estadística. Por tanto, permite extraer los
+    datos de forma personalizada, rápidamente y en una sola línea, priorizando
+    que los usuarios reciban cuanto antes un conjunto de datos que se adapte a
+    sus intereses.
+    \item Adicionalmente, se ha tenido en cuenta que los contenidos de TvTropes
+    cambian con una alta frecuencia. La solución es capaz de gestionar la última
+    fecha de actualización de todos los contenidos extraídos e inferir si estos
+    han cambiado en TvTropes, para poder actualizar sobre lo que ya se tiene y
+    que los usuarios tengan siempre los datos más novedosos posibles, que
+    facilitarán el desarrollo de mejores y más novedosos estudios
+\end{itemize}
+
+Este trabajo ha supuesto un gran reto personal, debido a que he necesitado de
+aprender numerosos conceptos y tecnologías que no había visto hasta ahora
+relativos al \textit{scraping}. Planificar y seguir un desarrollo ágil de un
+proyecto complejo y amplio como este ha resultado muy satisfactorio, gracias a
+todo lo que he podido aprender tanto por mi esfuerzo personal como a la
+ayuda del tutor.
+
+Considero que este proyecto es único actualmente, ya que como se ha visto en el
+estado del arte no existe prácticamente ninguna solución que aborde este
+problema. Hasta ahora no existían muchos conjuntos de datos que recogiesen datos
+sobre películas y \textit{tropos}, y mucho menos que lo ampliasen a otros medios
+audiovisuales y fuesen capaces de contener tanta información. TropesToGo es
+capaz de obtener conjuntos de datos ricos en información que podrán dar a luz a
+nuevos estudios en el estudio de los \textit{tropos}. Debido a la complejidad
+del \textit{scraping} en sí, y de la distribución de los contenidos en TvTropes,
+no es de extrañar que existan pocas opciones a este problema, pero tengo la
+certeza de que con este trabajo se han superado muchos de sus retos.
+
+\section{Trabajo futuro}
+A lo largo de todo el proyecto, y especialmente en el desarrollo, se ha hecho
+mucho hincapié en la complejidad de TvTropes como wiki de información. Una gran
+cantidad de usuarios están constantemente actualizando y añadiendo información a
+ella, lo que hace que existan muchas páginas desconocidas de las que se podría
+sacar bastante valor. Esto hace que la extracción de sus datos pueda ser casi
+infinito, razón por la que es imprescindible definir unos límites y haber
+seguido una serie de productos mínimamente viables que incrementen la
+funcionalidad y su complejidad. Se describen a continuación una serie de ideas y
+consideraciones adicionales que, ya sea por falta de tiempo o por complejidad,
+no se han desarrollado y quedan como trabajo para el futuro como posibles
+incrementos:
+
+\begin{itemize}
+    \item Los \textit{tropos} son unos recursos que están siempre dentro de un
+    contexto determinado. Existen muchos tipos de ellos, ya sea por género, por
+    tipo de narración o por muchos otros aspectos. Esta información adicional
+    está contenida en TvTropes, aunque muy distribuida, en distintos índices que
+    consideran encasillar cada \textit{tropo} en uno o más tipos. Esto es de
+    especial importancia para lanzar análisis que estudien la relación entre
+    ellos o la popularidad de \textit{tropos} según el contexto o lugar en el
+    que se usen. Por tanto, se podría ampliar la extracción para que tenga esta
+    información adicional sobre cada uno de los \textit{tropos} extraídos.
+    \item La estrategia que se ha seguido para asociar \textit{tropos} a obras
+    es la que seguiría cualquier usuario que navegase por TvTropes: buscar su
+    obra preferida y ver cuál su información. Esta dirección de la información,
+    de obras a \textit{tropos}, permite encontrar la mayoría de ellos. Sin
+    embargo, se ha visto que esto no siempre es del todo cierto; existen
+    numerosos casos en los que, dentro de la página de un \textit{tropo}, se
+    hace referencia a que aparece en una obra, pero luego en la página de esa
+    obra no aparece. Una ampliación del \textit{scraper} debería tener en cuenta
+    esto, haciendo el conjunto de datos generado aún más diverso y completo.
+    \item La extensa información de TvTropes va más allá y es que, si bien este
+    trabajo se ha centrado en la asociación entre \textit{tropos} y obras, en
+    las páginas de TvTropes se hace constantemente referencias a obras entre sí,
+    estableciendo relaciones complejas entre ellas. Estas relaciones pueden ser
+    de pertenencia a una saga o relación temática, entre otras, y pueden dar un
+    nuevo ángulo a las relaciones entre ellas y sus \textit{tropos} que pueden
+    resultar muy interesantes.
+    \item Si bien TropesToGo es capaz de mejorar enormemente la extracción
+    realizada por \textit{Tropescraper}, esta herramienta tenía la ventaja de
+    que podía pausarse su ejecución en cualquier momento y guardaba una caché
+    local en disco de los contenidos extraídos hasta el momento, de forma que en
+    sucesivas ejecuciones se podría reanudar sin repetir extracciones ya
+    realizadas. Esto tiene sus propios problemas, como la sobrecarga que sería
+    hacer tantas escrituras y lecturas en disco, pero como trabajo futuro
+    sería muy adecuado buscar una mejor solución a este problema para poder
+    interrumpir y reanudar el largo proceso cuando se necesite.
+    \item Con respecto a lo anterior, se podría mejorar el principal cuello de
+    botella que tiene TropesToGo: las peticiones HTTP. Si bien el programa es
+    rápido y eficiente, las esperas entre peticiones alargan mucho el proceso,
+    que se podría reducir con el uso de \textit{proxies}. Mediante un único proxy
+    se podría tener una caché persistida en el sistema de todas las páginas que
+    se hayan pedido, permitiendo no sobrecargar al servidor de TvTropes al
+    volver a pedir una misma página en diferentes ejecuciones del programa.
+    Además, si se usasen varios \textit{proxies} distribuidos en distintos
+    lugares, rotando cada cierto tiempo entre ellos, se podría tener un
+    \textit{crawling} que no se tuviese que preocupar de esperas ni de posibles
+    denegaciones de acceso al acceder siempre a través de un anfitrión distinto.
+\end{itemize}
