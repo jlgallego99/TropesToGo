@@ -1,17 +1,53 @@
 \begin{otherlanguage}{english}
 
 \begin{center}
-    {\large\bfseries Same, but in English}\\
+    {\large\bfseries TropesToGo \\ \textit{Scraping} from TvTropes}\\
 \end{center}
 \begin{center}
     Student's name\\
 \end{center}
 \vspace{0.5cm}
-\noindent\textbf{Keywords}: \textit{open source}, \textit{floss}
+\noindent\textbf{Keywords}: \textit{tropes}, \textit{TvTropes},
+\textit{narratives}, \textit{scraping}, \textit{crawling}, \textit{open source},
+\textit{agile}, \textit{user stories}, \textit{TDD}, \textit{DDD},
+\textit{incremental development}, \textit{Go}, \textit{CLI}, \textit{logging},
+\textit{CSV},
+\textit{JSON}
 \vspace{0.7cm}
 
-
-
 \noindent\textbf{Abstract}\\
+
+Tropes are recognizable resources o patterns which are of great interest in the
+generation of narratives so that authors can convey their ideas to the public in
+an effective way. This resources are key in the popularity a work can reach, and
+they are present in many media such as cinema, television or videogames. The
+importance of tropes raises a great deal of interest in them that is reflected
+in the emergence of numerous articles and studies, which are reviewed in this
+paper. These studies require a large and complete dataset that links works to
+its tropes so that computational or statisical analysis can allow new studies of
+the current state of the narrative.
+
+TvTropes is a website which holds the largest source of information on tropes.
+It contains a great amount of unstructured data that is only intended to be
+readable by humans, and is not organized or prepared to be processed by a
+computer. In this paper a solution focused on programmers and researches is
+proposed so that they can extract this data according to their needs and
+integrate it into data science pipelines that will enable these studies.
+
+Throughout this paper we present an analysis of the TvTropes website and design
+and develop a scraping and crawling tool in the Go language that extracts
+relevant information from TvTropes work metadata and its associated tropes. The
+goal of the solution is to be able to understand, extract, clean and prepare
+data from any TvTropes tropes page. It will be able to generate proper datasets,
+in formats such as CSV or JSON, and understand the frequency with which TvTropes
+contents changes.
+
+To achieve the defined objectives, an incremental agile development process
+guided by user stories, Test Driven Development and DDD modeling is described
+and carried out. This culminates in a free and open source command line tool
+called TropesToGo. With this tool, both programmers and researches can obtain
+datasets in different formats with the exact data they need. TropesToGo is a
+novel solution as there aren't many available datasets that link tropes to
+works, or other tools that can extract this kind of information from TvTropes.
 
 \end{otherlanguage}
