@@ -50,20 +50,28 @@ func Error(message string, err error, subErr error) error {
 // It receives the name that the CSV dataset file will have and creates and empty file with only the column headers
 // It will return an ErrCreateCsv error if the file couldn't be created
 func NewCSVRepository(name string) (*CSVRepository, error) {
-	csvFile, err := os.Create(name + ".csv")
-	if err != nil {
-		return nil, Error(name, ErrCreateCsv, err)
-	}
+	// If the file doesn't exist, create it
+	var csvFile *os.File
+	var writer *csv.Writer
+	if _, errStat := os.Stat(name + ".csv"); errStat != nil {
+		var errCreate error
+		csvFile, errCreate = os.Create(name + ".csv")
+		if errCreate != nil {
+			return nil, Error(name, ErrCreateCsv, errCreate)
+		}
 
-	writer := csv.NewWriter(csvFile)
+		writer = csv.NewWriter(csvFile)
+		writer.Write(Headers)
+		writer.Flush()
+	} else {
+		csvFile, _ = os.Open(name + ".csv")
+		writer = csv.NewWriter(csvFile)
+	}
 
 	repository := &CSVRepository{
 		name:   name + ".csv",
 		writer: writer,
 	}
-
-	repository.writer.Write(Headers)
-	repository.writer.Flush()
 
 	return repository, nil
 }

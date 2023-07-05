@@ -106,5 +106,5 @@ func scrape() {
 
 	log.Info().Msgf("Process finished in %s\n", time.Since(start))
 	log.Info().Msg("TropesToGo finished successfully!")
-	log.Info().Msg("The generated TvTropes dataset is available on: " + datasetPath + "service/" + datasetName)
+	log.Info().Msg("The generated TvTropes dataset is available on: " + datasetPath + "/" + datasetName)
 }

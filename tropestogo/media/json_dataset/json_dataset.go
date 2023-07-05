@@ -52,12 +52,15 @@ func Error(message string, err error, subErr error) error {
 // It receives the name that the JSON dataset file will have and creates the file with a "tropestogo" key with an empty array
 // It will return an ErrCreateJson error if the file couldn't be created
 func NewJSONRepository(name string) (*JSONRepository, error) {
-	f, err := os.Create(name + ".json")
-	if err != nil {
-		return nil, Error(name, ErrCreateJson, err)
-	}
+	// If the file doesn't exist, create it
+	if _, errStat := os.Stat(name + ".json"); errStat != nil {
+		f, errCreate := os.Create(name + ".json")
+		if errCreate != nil {
+			return nil, Error(name, ErrCreateJson, errCreate)
+		}
 
-	f.WriteString("{\"tropestogo\": []}")
+		f.WriteString("{\"tropestogo\": []}")
+	}
 
 	repository := &JSONRepository{
 		name: name + ".json",
