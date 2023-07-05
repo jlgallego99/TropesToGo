@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"os"
-
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +22,7 @@ this will extract 10 works with its tropes from TvTropes, and store them on a my
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
-		os.Exit(1)
+		log.Error().Err(err).Msg("There was a problem on the CLI program")
 	}
 }
 
