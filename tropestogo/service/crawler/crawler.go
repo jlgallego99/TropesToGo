@@ -3,19 +3,21 @@ package crawler
 import (
 	"errors"
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/jlgallego99/TropesToGo/tvtropespages"
-	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/jlgallego99/TropesToGo/media"
+	"github.com/jlgallego99/TropesToGo/tvtropespages"
+	"github.com/rs/zerolog/log"
 )
 
 const (
 	// The seed is the starting URL of the crawler
-	seed = "https://tvtropes.org/pmwiki/pagelist_having_pagetype_in_namespace.php?t=work&n=Film"
+	seed = "https://tvtropes.org/pmwiki/pagelist_having_pagetype_in_namespace.php?t=work&n="
 
 	// Common headers for a Firefox browser
 	userAgentHeader               = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0"
@@ -53,6 +55,9 @@ var (
 
 	// date ordinals for removing them on a date string
 	dateOrdinals = []string{"st", "nd", "rd", "th"}
+
+	// Seed for works that belongs to a certain MediaType
+	mediaSeed = seed
 )
 
 type ServiceCrawler struct{}
@@ -63,11 +68,14 @@ func NewCrawler() *ServiceCrawler {
 	return crawler
 }
 
-// CrawlWorkPages searches crawlLimit number of Work pages from the defined seed starting page; if it's 0 or less, then it crawls all Work pages
+// CrawlWorkPages searches crawlLimit number of Work pages belonging to a mediaType from the defined seed starting page
+// if the crawlLimit is 0 or less, then it crawls all Work pages on the selected MediaType
 // It returns a TvTropesPages object with all crawled pages and subpages from TvTropes
-func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int) (*tvtropespages.TvTropesPages, error) {
+func (crawler *ServiceCrawler) CrawlWorkPages(crawlLimit int, mediaType media.MediaType) (*tvtropespages.TvTropesPages, error) {
 	crawledPages := tvtropespages.NewTvTropesPages()
-	indexPage := seed
+
+	mediaSeed = seed + mediaType.String()
+	indexPage := mediaSeed
 
 	limitedCrawling := true
 	if crawlLimit <= 0 {
@@ -175,7 +183,7 @@ func (crawler *ServiceCrawler) getNextPageUriFromDocument(doc *goquery.Document)
 	})
 
 	if nextPageUri == "" {
-		return "", fmt.Errorf("%w: "+seed, ErrEndIndex)
+		return "", fmt.Errorf("%w: "+mediaSeed, ErrEndIndex)
 	}
 
 	return nextPageUri, nil
@@ -183,13 +191,19 @@ func (crawler *ServiceCrawler) getNextPageUriFromDocument(doc *goquery.Document)
 
 // CrawlWorkSubpages searches all subpages (both with main tropes and SubWikis) on the goquery Document of a Work page
 // It returns an array of string URLs that belong to all crawled TvTropes Work subpages
+// It ignores subpages that belong to a Media namespace, because those are not SubWikis, but main work pages
 func (crawler *ServiceCrawler) CrawlWorkSubpages(doc *goquery.Document) []string {
 	var subPagesUrls []string
 
 	// Get all SubWikis
 	doc.Find(SubWikiSelector).Each(func(_ int, selection *goquery.Selection) {
 		subWikiUri, subWikiExists := selection.Attr("href")
-		if subWikiExists {
+
+		splitPath := strings.Split(subWikiUri, "/")
+
+		// Check if the SubWiki is instead a media work page
+		_, errMediaType := media.ToMediaType(splitPath[3])
+		if subWikiExists && errMediaType != nil {
 			subPagesUrls = append(subPagesUrls, TvTropesWeb+subWikiUri)
 		}
 	})
@@ -226,12 +240,12 @@ func (crawler *ServiceCrawler) CrawlWorkPagesFromReaders(indexReader io.Reader, 
 	for {
 		doc, errDocument := goquery.NewDocumentFromReader(indexReader)
 		if errDocument != nil {
-			return nil, fmt.Errorf("%w: "+seed, ErrParse)
+			return nil, fmt.Errorf("%w: "+mediaSeed, ErrParse)
 		}
 
 		listSelector := doc.Find(WorkPageSelector)
 		if listSelector.Length() == 0 {
-			return nil, fmt.Errorf("%w: "+seed, ErrCrawling)
+			return nil, fmt.Errorf("%w: "+mediaSeed, ErrCrawling)
 		}
 
 		var errAddPage error

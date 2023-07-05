@@ -2,9 +2,11 @@ package tvtropespages_test
 
 import (
 	"errors"
+
 	tvtropespages2 "github.com/jlgallego99/TropesToGo/tvtropespages"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/rs/zerolog"
 )
 
 var (
@@ -18,6 +20,9 @@ var (
 var tvtropespages *tvtropespages2.TvTropesPages
 
 var _ = BeforeSuite(func() {
+	// Do not log during testing
+	zerolog.SetGlobalLevel(zerolog.Disabled)
+
 	tvtropespages = tvtropespages2.NewTvTropesPages()
 })
 

@@ -7,6 +7,7 @@ import (
 	"github.com/jlgallego99/TropesToGo/trope"
 	"github.com/jlgallego99/TropesToGo/tvtropespages"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -21,48 +22,71 @@ type MediaType int64
 
 const (
 	UnknownMediaType MediaType = iota
-	Film
-	Series
+	Advertising
+	Animation
 	Anime
-	VideoGames
+	ARG
+	Audioplay
+	Blog
+	Comicbook
+	Comicstrip
+	Creator
+	Fanfic
+	Film
+	Franchise
+	Literature
+	Magazine
+	Manga
+	Manhua
+	Manhwa
+	Music
+	Pinball
+	Podcast
+	Radio
+	Roleplay
+	Script
+	Series
+	Tabletopgame
+	Theatre
+	Videogame
+	Visualnovel
+	WebAnimation
+	Webcomic
+	Website
+	Webvideo
+	Westernanimation
+	Wrestling
 )
-
-// String is an implementation of the Stringer interface for comparing string media types and avoid using literals
-func (mediatype MediaType) String() string {
-	switch mediatype {
-	case Film:
-		return "Film"
-	case Series:
-		return "Series"
-	case Anime:
-		return "Anime"
-	case VideoGames:
-		return "VideoGames"
-	default:
-		return "UnknownMediaType"
-	}
-}
 
 // IsValid checks whether a MediaType is known or not
 func (mediatype MediaType) IsValid() bool {
-	switch mediatype {
-	case Film, Series, Anime, VideoGames:
-		return true
+	if mediatype <= UnknownMediaType || mediatype > Wrestling {
+		return false
 	}
 
-	return false
+	return true
 }
 
 // ToMediaType converts a string to a MediaType
 // It returns an ErrUnknownMediaType if the MediaType isn't recognized
 func ToMediaType(mediaTypeString string) (MediaType, error) {
-	for mediatype := UnknownMediaType + 1; mediatype <= VideoGames; mediatype++ {
-		if mediaTypeString == mediatype.String() {
+	for mediatype := UnknownMediaType + 1; mediatype <= Wrestling; mediatype++ {
+		if strings.EqualFold(mediaTypeString, mediatype.String()) {
 			return mediatype, nil
 		}
 	}
 
 	return UnknownMediaType, fmt.Errorf("%w: "+mediaTypeString, ErrUnknownMediaType)
+}
+
+// GetAllMediaTypes returns a string array consisting of all the supported Media types on TropesToGo
+func GetAllMediaTypes() []string {
+	mediaTypes := make([]string, 0)
+	for mediatype := UnknownMediaType + 1; mediatype <= Wrestling; mediatype++ {
+		mediaTypes = append(mediaTypes, mediatype.String())
+	}
+
+	return mediaTypes
 }
 
 // Media holds the logic of all Works with its tropes that exist within a particular medium in TvTropes
