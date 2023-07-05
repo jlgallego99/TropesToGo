@@ -333,11 +333,7 @@ func (scraper *ServiceScraper) ScrapeTvTropesPage(page tropestogo.Page, subPages
 	}
 
 	// Scrape all subpages tropes (SubWikis and main SubPages if there are)
-	subpageTropes, errSubpageTropes := scraper.ScrapeSubpageTropes(subDocs)
-	if errSubpageTropes != nil {
-		log.Error().Err(errSubpageTropes).Msg("SCRAPING SUBTROPES FAILED " + page.GetUrl().String())
-		return media.Media{}, errSubpageTropes
-	}
+	subpageTropes := scraper.ScrapeSubpageTropes(subDocs)
 
 	for subTrope := range subpageTropes {
 		tropes[subTrope] = struct{}{}
@@ -438,8 +434,7 @@ func (scraper *ServiceScraper) ScrapeSubpageFullTitle(subDoc *goquery.Document) 
 // It performs various ScrapeTropes calls for each of the subpages, adding its tropes to the trope list
 // Returns a trope list of all tropes found on the different subpages
 // If the subpage can't be scraped, it returns an ErrInvalidSubpage error
-func (scraper *ServiceScraper) ScrapeSubpageTropes(subDocs []*goquery.Document) (map[tropestogo.Trope]struct{}, error) {
-	var errSubpage error
+func (scraper *ServiceScraper) ScrapeSubpageTropes(subDocs []*goquery.Document) map[tropestogo.Trope]struct{} {
 	tropes := make(map[tropestogo.Trope]struct{})
 
 	for _, subDoc := range subDocs {
@@ -460,15 +455,12 @@ func (scraper *ServiceScraper) ScrapeSubpageTropes(subDocs []*goquery.Document) 
 				}
 			}
 		} else {
-			errSubpage = fmt.Errorf("%w: "+subDoc.Find(CurrentSubpageSelector).Text(), ErrInvalidSubpage)
+			failedUri, _ := subDoc.Find(CurrentSubpageSelector).Attr("href")
+			log.Error().Err(ErrInvalidSubpage).Msg("SCRAPING SUBTROPES FAILED " + failedUri)
 		}
 	}
 
-	if errSubpage != nil {
-		return make(map[tropestogo.Trope]struct{}), errSubpage
-	}
-
-	return tropes, nil
+	return tropes
 }
 
 // ScrapeNamespace extracts the namespace from a Goquery document of any Work page or subpage
