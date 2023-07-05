@@ -1277,16 +1277,20 @@ aumentado la funcionalidad sin haber modificado la anterior, teniendo ahora la
 capacidad de analizar el historial de cambios de una página y poder actualizar
 los datos en caso de que estos sean más nuevos.
 
-\section{Aplicación de línea de comandos para múltiples medios audiovisuales}
+\section{Herramienta de línea de comandos para múltiples medios audiovisuales}
 Finalmente, se alcanza a desarrollar un último producto mínimamente viable en el
-que el \textit{scraper} y el \textit{crawler} trabajen conjuntamente. El
-objetivo de este último \textit{sprint} es dar una aplicación ejecutable de
-TropesToGo que una toda la funcionalidad desarrollada hasta ahora para que el
-usuario pueda utilizar TropesToGo de manera sencilla y personalizable para que
-pueda obtener el resultado que necesita y espera. Este es el objetivo final que
-tiene TropesToGo y con el que se consigue dar una solución al problema de
-extracción de \textit{tropos} en TvTropes, ya que se han desarrollado hasta
-ahora todas las piezas necesarias para conseguirlo.
+que el \textit{scraper} y el \textit{crawler} trabajen conjuntamente. En este
+último \textit{sprint} se desarrolla una herramienta de línea de comandos
+\begin{otherlanguage}{english}(CLI, {english}(del inglés \textit{Command Line
+Interface}))\end{otherlanguage}. Esto dará al usuario un programa ejecutable de
+TropesToGo que una toda la funcionalidad desarrollada hasta ahora para que pueda
+utilizar TropesToGo de manera sencilla y personalizable y pueda obtener el
+resultado que necesita y espera. Además, se dará la posibilidad de extraer
+cualquier otro medio audiovisual, además de películas, aumentando bastante las
+posibilidades que ofrece el \textit{crawler}. Este es el objetivo final que tiene
+TropesToGo y con el que se consigue dar una solución al problema de extracción
+de \textit{tropos} en TvTropes, ya que se han desarrollado hasta ahora todas las
+piezas necesarias para conseguirlo.
 
 Con este incremento se quiere dar un producto que abstraiga el funcionamiento
 interno del \textit{scraper} para la extracción de \textit{tropos} y generación
@@ -1296,7 +1300,7 @@ limpios y estructurados con los que realizar estudios e investigaciones en el
 ámbito de la estadística o la ciencia de datos. Para darles valor a estos
 usuarios, es necesario tener en cuenta estos \textit{user journey} y gran parte
 de las historias de usuario derivadas de ellos, que nos guían para saber qué
-tiene que tener la aplicación para que sea usable y cumpla sus necesidades:
+tiene que tener la herramienta para que sea usable y cumpla sus necesidades:
 
 \begin{itemize}
     \item Según la
@@ -1311,22 +1315,22 @@ tiene que tener la aplicación para que sea usable y cumpla sus necesidades:
     resultado deseado con una simple ejecución transparente al usuario.
     \item La \href{https://github.com/jlgallego99/TropesToGo/issues/7}{[HU02]}
     sirve para detallar más la anterior, y nos dice que el usuario quiere poder
-    elegir qué parte de los datos quiere; la aplicación debe poder dar la opción
-    de generar un dataset con todas las obras de TvTropes o con un conjunto
-    reducido de ellas, según lo que decida el usuario. El \textit{crawler} está
-    preparado para poder encontrar un número limitado de páginas, por lo que la
-    aplicación interactuará con este servicio según las entradas del usuario.
-    Aquí también entraría el poder elegir el tipo de medio audiovisual del que
-    se quieren los datos. De esto se deduce también que la aplicación debe
-    informar al usuario de lo que está extrayendo en cada momento, para que sea
-    consciente de lo que está haciendo el programa sin necesidad de saber cómo.
-    Así podrá seguir la ejecución del \textit{scraper} y saber qué está
-    extrayendo y cuándo ha acabado.
+    elegir qué parte de los datos quiere; la herramienta debe poder dar la
+    opción de generar un dataset con todas las obras de TvTropes o con un
+    conjunto reducido de ellas, según lo que decida el usuario. El
+    \textit{crawler} está preparado para poder encontrar un número limitado de
+    páginas, por lo que el programa principal interactuará con este servicio
+    según las entradas del usuario. Aquí también entraría el poder elegir el
+    tipo de medio audiovisual del que se quieren los datos. De esto se deduce
+    también que el programa debe informar al usuario de lo que está extrayendo
+    en cada momento, para que sea consciente de lo que está haciendo el programa
+    sin necesidad de saber cómo. Así podrá seguir la ejecución del
+    \textit{scraper} y saber qué está extrayendo y cuándo ha acabado.
     \item En el PMV anterior se desarrolló la funcionalidad necesaria para
     actualizar los \textit{datasets} y tener, siempre que quiera el usuario, la
     versión más actualizada de los datos según la
     \href{https://github.com/jlgallego99/TropesToGo/issues/9}{[HU04]}. Por
-    tanto, la aplicación debe dar al usuario la opción de, en lugar de extraer
+    tanto, la herramienta CLI debe dar al usuario la opción de, en lugar de extraer
     desde cero los datos, actualizar los que ya tiene en el momento en el que
     este los necesite, ya sea ahora o dentro de mucho tiempo.
     \item Existen muchos formatos de representación de datos que se utilizan en
@@ -1360,34 +1364,38 @@ fichero de datos, que es el valor principal que ofrece TropesToGo al usuario.
 
 Por tanto, para completar este desarrollo es necesario encontrar dos bibliotecas
 adicionales que faciliten el crear la aplicación final: una biblioteca para
-gestionar \textit{logs} y otra para gestionar la ejecución de una aplicación
-interactiva de línea de comandos. La gestión de logs es imprescindible en
-cualquier aplicación, y más aún en una de este tipo en la que muchas pequeñas
-piezas trabajan en conjunto y pueden surgir varios problemas, como páginas que
-no se pueden extraer, denegaciones de acceso por parte de TvTropes, etc. Esto
-permitirá al usuario seguir en todo momento la traza de ejecución del programa,
-con un formato legible e informativo, y poder revisar más tarde si algo ha
-fallado y por qué, al tener un registro de todos los procesos realizados y los
-casos en los que ha fallado. Por otro lado, el uso de una biblioteca para
-construir aplicaciones CLI \begin{otherlanguage}{english}(del inglés
-\textit{Command Line Interface})\end{otherlanguage} interactivas nos ayudará a
-generar menús interactivos y vistosos con los que tener un programa más fácil para
-el usuario y que se ejecute rápidamente, sin necesidad de utilizar comandos y
-opciones complicadas con las que sea necesario consultar un manual. El objetivo
-es que cualquier usuario pueda ejecutarlo y obtener lo que quiera al instante,
-sin necesidad de saber nada de antemano. Ya que TropesToGo es un
-\textit{software} que trabaja principalmente procesando en segundo plano sin
-necesidad de interacción con el usuario, no necesita más que de unas pocas
-entradas para configurar el procesamiento, basta con una aplicación de línea de
-comandos que sea ligera y fácil de usar para cualquier usuario como los
-estudiados.
+gestionar \textit{logs} y otra para gestionar la ejecución de una herramienta de
+línea de comandos. La gestión de logs es imprescindible en cualquier aplicación,
+y más aún en una de este tipo en la que muchas pequeñas piezas trabajan en
+conjunto y pueden surgir varios problemas, como páginas que no se pueden
+extraer, denegaciones de acceso por parte de TvTropes, etc. Esto permitirá al
+usuario seguir en todo momento la traza de ejecución del programa, con un
+formato legible e informativo, y poder revisar más tarde si algo ha fallado y
+por qué, al tener un registro de todos los procesos realizados y los casos en
+los que ha fallado. 
 
-Además de los aspectos relativos a la aplicación CLI, necesitaremos ampliar el
+Por otro lado, el uso de una biblioteca para construir herramientas de líneas de
+comandos nos ayudará a definir comandos y opciones fáciles de usar y legibles
+para poder ejecutar con una sola línea el \textit{scraper} obteniéndose lo que
+desea el usuario. El objetivo es que cualquier usuario hacia el que está enfocado
+este trabajo pueda ejecutarlo y obtener lo que quiera al instante. Ya que
+TropesToGo es un \textit{software} que trabaja principalmente procesando en
+segundo plano sin necesidad de interacción con el usuario, no necesita más que
+de unas pocas opciones en una sola línea para configurar el procesamiento, por
+lo que una herramienta de línea de comandos es especialmente adecuado para un
+caso como este en el que queremos resultados rápidos, sencillos, personalizables
+y ejecutables en cualquier contexto. El tenerlo como herramienta de línea de
+comandos también facilita el poder realizar peticiones repetitivas fácilmente y
+desde cualquier contexto; además de utilizarlo en un terminal, se podría por
+ejemplo llamar a TropesToGo desde otro programa para que cada cierto tiempo
+actualice los datos, o extraiga cosas diferentes según se quiera.
+
+Además de los aspectos relativos al CLI, necesitaremos ampliar el
 funcionamiento del \textit{crawler} para que sea capaz de encontrar páginas de
 cualquier otro medio audiovisual presente en TvTropes, ampliando lo que hasta
 ahora era únicamente una extracción de películas y mejorando la propuesta
 inicial de \textit{Tropescraper}. Un mayor número de páginas extraíbles
-permitirán a los usuarios realizar análisis más elaborados y complejos, que no
+permitirán a los usuarios conseguir análisis más elaborados y complejos, que no
 se limiten únicamente a películas, sino también a otros medios con mucha fuerza
 mediática y comercial como pueden ser los videojuegos.
 
@@ -1395,81 +1403,132 @@ mediática y comercial como pueden ser los videojuegos.
 Para elegir una buena biblioteca de línea de comandos para Go, que se adapte
 bien a este problema, es necesario que como mínimo esté mantenida, actualizada
 recientemente, tenga buena documentación, sea sencilla de integrar para poder
-tener una aplicación sencilla en pocas líneas de código y, lo más importante,
-sea interactiva. Es decir, queremos una biblioteca que permita, al ejecutar el
-programa de forma normal, mostrar en el terminal campos para que el usuario
-introduzca texto, haga confirmaciones y pueda elegir entre varias opciones de un
-menú. Esto está pensado para investigadores y desarrolladores que quieren
-obtener el conjunto de datos lo antes posible, eligiendo la información que
-quieren, y sin tener que aprender comandos o cómo utilizar el programa;
-simplemente deberán seguir paso a paso lo que les dicte el programa. Todo ello
-debe además ser lo suficientemente vistoso y usable para que el usuario
-pueda interactuar con el programa escribiendo o manejando opciones con las
-flechas del teclado.
+tener una aplicación sencilla en pocas líneas de código y permita reducir la
+carga en el programador de acciones como mostrar un manual en línea o crear
+argumentos y opciones legibles. Una buena herramienta CLI debe tener órdenes que
+se lean como si fuesen una oración y sean intuitivas. Es decir, queremos una
+biblioteca que permita definir una serie de comandos y argumentos para que el
+usuario pueda escribir en una línea todas las opciones necesarias para ejecutar
+el \textit{scraper}, y que esta orden sea legible. Este programa está pensado
+para investigadores y desarrolladores que quieren obtener el conjunto de datos
+lo antes posible, eligiendo la información que quieren, y sin tener que emplear
+prácticamente ningún esfuerzo en utilizarlo; simplemente deberán especificar la
+orden correcta y tener a su disposición en todo momento un manual de como
+utilizarlo.
 
-En Go existen un buen número de bibliotecas para crear aplicaciones de terminal.
-La opción más popular es Cobra\footnote{\url{https://github.com/spf13/cobra}},
-presente en aplicaciones CLI de proyectos tan conocidos como
-Kubernetes o GitHub. Si bien es una biblioteca con muy buena y extensa
-documentación, gran popularidad y comunidad, no se adapta a las necesidades de
-este proyecto, puesto que solo permite ejecutar comandos y argumentos de
-terminal, y no proporciona funcionalidades de interacción con el usuario en
-tiempo real. Dentro de las opciones que sí dan de interactividad con el usuario
-(lo que se conoce como \textit{prompt}), se encuentra
-Promptui\footnote{\url{https://github.com/manifoldco/promptui}}. Esta biblioteca
-proporciona métodos sencillos que se adaptan bien a las necesidades de la
-aplicación que se quiere construir, sin embargo, su última versión es de hace
-más de dos años y su documentación y ejemplos son muy limitados, además de que
-tiene algunas funcionalidades para retocar el aspecto visual que no son
-necesarias, ya que buscamos una opción simple pero efectiva.
+En Go existen un buen número de bibliotecas para programar herramientas de
+terminal. Opciones como
+Promptui\footnote{\url{https://github.com/manifoldco/promptui}} o
+Survey\footnote{\url{https://github.com/go-survey/survey}} son buenas y
+populares alternativas para la creación de aplicaciones interactivas, sin
+embargo, buscamos una biblioteca con la que poder programar una herramienta en
+la que poder definir órdenes, argumentos y comandos, y estas bibliotecas no lo
+permiten. El objetivo es un programa cuya ejecución se pueda repetir con una
+simple orden. Una biblioteca mantenida que sí permite construir herramientas de
+terminal es CLI\footnote{\url{https://github.com/urfave/cli}}, que es sencilla,
+está mantenida. Sin embargo, la opción más popular, preferida por una gran parte
+de los desarrolladores de Go, con mayores funcionalidades y con una gran
+cantidad de ejemplos y tutoriales en internet, es
+Cobra\footnote{\url{https://github.com/spf13/cobra}}, la cual se escoge
+finalmente para este proyecto.
 
-Promptui, pese a no estar actualizada, es estable y es una opción más que
-adecuada para aplicaciones sencillas, sin embargo, existe una opción aún mejor
-de ellas llamada Survey\footnote{\url{https://github.com/go-survey/survey}}, que
-es la que finalmente se empleará en este trabajo. Survey es aún más sencilla de
-utilizar, se adapta perfectamente a las necesidades que se han especificado,
-contiene una gran cantidad de documentación y ejemplos, tiene más popularidad y
-está en constante crecimiento, con una última versión estable lanzada en las
-últimas semanas. Su API se parece mucho al de Promptui, con la ventaja
-de que requiere menos programación y permite personalizar bastante las entradas
-del usuario y crear entradas del usuario individuales o varias encadenadas. Con
-esta biblioteca se puede validar fácilmente la entrada, ya sea con funciones
-propias o de la biblioteca, permitiendo un mejor control sobre lo que introduce
-el usuario, lo que evitará errores.
+Cobra está presente en aplicaciones CLI de proyectos tan conocidos como
+Kubernetes o GitHub. Es una biblioteca con muy buena y extensa documentación,
+gran popularidad y comunidad y se adapta perfectamente a las necesidades de este
+proyecto. Permite definir y controlar comandos, subcomandos, argumentos y
+opciones en una sola línea de programación, genera automáticamente la
+documentación de los comandos definidos (añade automáticamente la opción \texttt{-h} a 
+todos los comandos) y permite validar fácilmente las entradas del
+usuario, con un manejo de errores muy útil y funciones que permiten definir la
+entrada de cada argumento para cualquier tipo de datos, ahorrando comprobar si
+una entrada es una cadena de texto o un número, por ejemplo. Otra de las
+ventajas de Cobra es que promueve una modularización mucho mejor, con un
+programa \textit{main} para iniciar la aplicación, que estará contenida en un directorio \texttt{cmd} atendiendo 
+a los estándares de Go. Esto permite que el punto de
+entrada esté siempre en la raíz del proyecto. Además, empezar a programar con
+Cobra es muy sencillo, no solamente gracias a su API, sino también a que
+provee una herramienta con la que permite generar el código de inicio con los
+comandos que se quieren tener, listo para únicamente añadir la funcionalidad
+específica.
 
-Con esta biblioteca es posible definir las entradas necesarias para el usuario;
-en orden: una entrada de confirmación de sí o no para elegir si se quieren
-extraer datos o actualizarlos, un menú selector mediante flechas para elegir
-entre el formato CSV o JSON para los datos, un campo de texto para indicar el
-nombre que se quiere para el \textit{dataset}, un campo de confirmación de sí o
-no para indicar si se quieren extraer todas las obras y, en caso de decir que
-no, un campo adicional de texto para indicar cuántas obras extraer. Se pueden
-definir funciones personalizadas para validar las entradas, pasándolas
-fácilmente como argumento a cada una de las entradas. Para validar la entrada
-del usuario al indicar cuántas obras extraer, basta con validar que lo que ha
-introducido sea un número y sea mayor que 1.
+En una herramienta de línea de comandos se deben especificar comandos, que
+representan acciones, argumentos, que son variables libres con respecto al
+comando, y opciones (también llamadas \textit{flags} en inglés), que modifican
+las acciones. Esto se modela teniendo en cuenta que el programa tiene dos
+principales cometidos: extraer datos y actualizar datos, por lo que cada uno de
+ellos será un comando del programa. Si se especifica el flag de ayuda \texttt{-h} en 
+cualquiera de esos dos comandos, se mostrará por terminal un
+manual que guía al usuario indicándole todas las opciones que tiene para
+ejecutar ese comando y qué hace cada una, de forma que sea fácil ejecutarlo sin
+necesidad de aprenderse un manual complejo. Si se ejecuta el programa sin ningún
+comando ni argumento, mostrará automáticamente por terminal esa misma guía para
+todo el programa. A continuación se especifica cómo se han definido las opciones
+del programa, con las que cumplir los requisitos anteriormente descritos y que el
+usuario pueda utilizar el programa, que también se puede ver en la Figura al
+llamar al programa con el flag de ayuda.
+\begin{itemize}
+    \item El \textbf{comando \texttt{scrape}} se ocupa de realizar las tareas de
+    \textit{crawling} y \textit{scraping} sobre TvTropes, generando finalmente
+    un dataset con los datos extraídos. Tiene las siguientes opciones:
+    \begin{itemize}
+        \item Con \texttt{-o o --output} se debe añadir inmediatamente después
+        un nombre que será el del fichero que se quiere crear. En caso de no
+        indicarse, al fichero se le llamará simplemente \textit{dataset}.
+        \item Con \texttt{-f o --format} se debe especificar a continuación
+        ``CSV'' o ``JSON'', para indicar el formato en el que generar el
+        \textit{dataset}. Por defecto se escribe en formato JSON.
+        \item Para limitar el número de obras que se extraen se pasa el
+        \textit{flag} \texttt{-l --limit} seguido del número de obras que se
+        quieren extraer. Si no se indica, extraerá una sola obra.
+        \item Si se ha indicado el \textit{flag} \texttt{-a o --all} se ignora
+        el \textit{flag} anterior y se extraen todas las obras existentes en
+        TvTropes.
+        \item Con el \textit{flag} \texttt{-m o --media} se debe añadir a
+        continuación una cadena de texto indicando un medio audiovisual
+        existente en TvTropes para extraer. Por defecto se extraen películas
+        (tipo \textit{Film}), y en caso de no existir se le informará al
+        usuario.
+    \end{itemize}
+    \item El \textbf{comando \texttt{update}} se ocupa de actualizar un dataset
+    ya creado previamente, por lo que únicamente necesita del \textit{flag}
+    \texttt{-d o --dataset} para especificar el nombre del fichero de datos, que
+    el programa buscará, extraerá de él las páginas que han sido persistidas y
+    buscará si han sido actualizadas, para actualizar la información en sus
+    campos.
+\end{itemize}
 
-Una vez definidas todas las entradas del usuario, que se guardan en variables,
-basta con crear los dos servicios, \textit{scraper} y \textit{crawler}, y
-ejecutarlos. El programa se encargará de llamar a las distintas funciones de los
-servicios según los resultados de las entradas del usuario. El proceso de
-ejecución de TropesToGo para la extracción de datos de TvTropes consiste en
-primero construir el \textit{crawler} y llamar a la función principal que encuentra
-todas las páginas, indicando si se limita el número de páginas extraídas o no.
-Cuando termina esta ejecución, que puede tardar bastante al ser la parte de todo
-el programa que más tiempo emplea debido a las esperas entre peticiones HTTP, se
-obtiene un objeto \texttt{TvTropesPages} con el resultado completo del \textit{crawling}
-sobre TvTropes. A continuación se configura un repositorio u otro según lo que
-ha elegido el usuario para producir el servicio \textit{scraper} inyectando esta
-dependencia en él. Una vez hecho esto, ya se puede utilizar el objeto obtenido
-del \textit{crawler} que contiene todas las páginas, y se utiliza para llamar al
-método de extracción general del \textit{scraper}. Ahora, este se ocupa
-internamente de llamar al \textit{scraper} para cada una de las páginas y
-subpáginas, persistiéndolas en el fichero de datos configurado. Esta parte final
-de la ejecución es muy rápida, ya que todas las páginas ya han sido descargadas,
-por lo que solamente tiene que extraer datos de los documentos Goquery ya
-generados. Una vez terminado esto, ya habrá terminado la ejecución del programa
-y se tendrá el \textit{dataset} con lo especificado.
+Una vez configurado el programa con los valores de la línea de orden del
+usuario, o sus valores por defecto en caso de no haber especificado algún
+\textit{flag}, basta con instanciar los dos servicios, \textit{scraper} y
+\textit{crawler}, y ejecutarlos. El programa se encargará de llamar a las
+distintas funciones de los servicios según los resultados de las entradas del
+usuario. El proceso de ejecución de TropesToGo para la extracción de datos de
+TvTropes consiste en primero construir el \textit{crawler} y llamar a la función
+principal que encuentra todas las páginas, indicando si se limita el número de
+páginas extraídas o no. Cuando termina esta ejecución, que puede tardar bastante
+al ser la parte de todo el programa que más tiempo emplea debido a las esperas
+entre peticiones HTTP, se obtiene un objeto \texttt{TvTropesPages} con el
+resultado completo del \textit{crawling} sobre TvTropes. A continuación se
+configura un repositorio u otro, según el \textit{flag} de formato de datos,
+para producir el servicio \textit{scraper} inyectando esta dependencia en él.
+Una vez hecho esto, ya se puede utilizar el objeto obtenido del \textit{crawler}
+que contiene todas las páginas, y se utiliza para llamar al método de extracción
+general del \textit{scraper}. Ahora, este se ocupa internamente de llamar al
+\textit{scraper} para cada una de las páginas y subpáginas, persistiéndolas en
+el fichero de datos configurado. Esta parte final de la ejecución es muy rápida,
+ya que todas las páginas ya han sido descargadas, por lo que solamente tiene que
+extraer datos de los documentos Goquery ya generados. Una vez terminado esto, ya
+habrá terminado la ejecución del programa y se tendrá el \textit{dataset} con lo
+especificado.
+
+Instalación
+
+Por ejemplo, la siguiente línea de orden permitiría extraer 20 videojuegos con
+su información de metadatos y \textit{tropos} asociados en un fichero JSON
+llamado ``20 videojuegos''.
+\begin{lstlisting}[language=bash]
+$ tropestogo -o 20videojuegos -l 20 -f JSON
+\end{lstlisting}
 
 \subsection{\textit{Logging}}
 Al igual que con el CLI, es necesario también elegir una biblioteca de
