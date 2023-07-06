@@ -1,4 +1,4 @@
-\chapter{Implementación}
+\chapter{Desarrollo}
 \label{chapter:6}
 
 Este capítulo relata el proceso completo de desarrollo del \textit{scraper} para
@@ -8,16 +8,69 @@ alcanzando, explicando por qué son necesarios y las decisiones que se han tomad
 en cada uno de ellos para cumplir las historias de usuario, que guían todo el
 desarrollo con agilidad.
 
-En este capítulo se irá describiendo el proceso de desarrollo ágil que se ha
-llevado a cabo para poder entender cómo se ha llegado a cada uno de los
-sucesivos productos mínimamente viables. A lo largo del proceso se justificarán
-una serie de decisiones tomadas, buenas prácticas, recomendaciones y
-herramientas que permitirán ir refinando el producto hasta llegar a una solución
-final de calidad. Esto implica que todos los hitos se desarrollan con el
-principal objetivo de satisfacer al usuario y asegurar la calidad, por lo que
-conforme se justifiquen las decisiones tomadas para avanzar en cada uno de
-ellos, se relacionarán con las historias de usuario definidas, que son las que
-confirman qué se debe implementar para cumplir con las expectativas del usuario.
+Al inicio del capítulo se presentará la duración total que ha tenido el proyecto
+y los costes que han conllevado todo el desarrollo. A continuación, se irá
+describiendo el proceso de desarrollo ágil que se ha llevado a cabo para poder
+entender cómo se ha llegado a cada uno de los sucesivos productos mínimamente
+viables. A lo largo del proceso se justificarán una serie de decisiones tomadas,
+buenas prácticas, recomendaciones y herramientas que permitirán ir refinando el
+producto hasta llegar a una solución final de calidad. Esto implica que todos
+los hitos se desarrollan con el principal objetivo de satisfacer al usuario y
+asegurar la calidad, por lo que conforme se justifiquen las decisiones tomadas
+para avanzar en cada uno de ellos, se relacionarán con las historias de usuario
+definidas, que son las que confirman qué se debe implementar para cumplir con
+las expectativas del usuario.
+
+\section{Duración del proyecto}
+La duración del proyecto ha sido de un total de 4 meses y 6 días a tiempo
+parcial, comenzando el trabajo el día 1 de marzo de 2023 y terminando el día 6
+de julio de 2023, puesto que la fecha límite para completar el trabajo era el 7
+de julio de 2023. Del total, los dos primeros meses y medio se emplearon en
+estudiar a fondo el problema y escribir cinco primeros capítulos de la memoria,
+correspondiente a los dos primeros hitos planificados. A partir del 11 de mayo y
+hasta el 6 de julio se desarrollaron los siguientes \textit{milestones},
+correspondientes al desarrollo del \textit{software}. En cada uno de ellos,
+presentes en el repositorio de GitHub, se pueden comprobar las fechas empleadas
+para el desarrollo de cada incremento o \textit{sprint}. 
+
+Se ha trabajado en este proyecto un total de 336 horas, que a tiempo parcial
+trabajando de lunes a viernes, correspondiente a 22 días por mes, equivale a
+aproximadamente 4 horas de trabajo diarias durante los meses que ha durado el
+desarrollo de todo el trabajo de principio a fin.
+
+\section{Costes del proyecto}
+En la Figura se pueden ver los costes completos del proyecto. En la tabla figura
+la siguiente información:
+\begin{itemize}
+    \item \textbf{Coste de desarrollo}: como se ha visto en la sección anterior,
+    se han invertido un total de 336 horas durante 4 meses y 6 días en el
+    desarrollo del proyecto, equivalente a un horario parcial de 4 horas diarias
+    de lunes a viernes. Según
+    \href{https://www.glassdoor.es/Sueldos/golang-software-engineer-sueldo-SRCH_KO0,24.htm}{Glassdoor},
+    la media de los ingenieros del \textit{software} junior para Go está en
+    42.000 euros netos al año, que serían 3500 euros al mes a tiempo completo.
+    Por tanto, a tiempo parcial serían 1750 euros.
+    \item \textbf{Coste de amortización anual}: Para el trabajo se ha empleado
+    únicamente un ordenador portátil
+    \href{https://www.xiaomihome.es/portatiles-xiaomi/portatil-xiaomi-mi-notebook-pro-2020-enhanced-edition/}{Xiaomi
+    Mi Notebook Pro (2020)}, con un coste de 899 euros. La cantidad máxima
+    amortizable al año para dispositivos electrónicos es del 26\% del valor de
+    compra \cite{amortizaciones}, por lo que el coste sería de 233,74 euros.
+    \item Se tienen en cuenta adicionalmente los flujos de integración continua
+    utilizados, que son gratuitos, puesto que se ha utilizado una cuenta de
+    estudiante de GitHub, que permite su uso sin coste alguno.
+\end{itemize}
+
+\begin{table}[]
+    \begin{tabular}{|l|l|l|l|}
+    \hline
+    \textbf{Descripción}                                                                                           & \textbf{Unidades} & \textbf{Importe por unidad}                                                       & \textbf{Total}                                                                   \\ \hline
+    \begin{tabular}[c]{@{}l@{}}Contratación de personal\\ (ingeniero del software a\\ tiempo parcial)\end{tabular} & 1                 & \begin{tabular}[c]{@{}l@{}}7000\euro{} \\ (1750\euro{} cada mes\\ durante 4 meses)\end{tabular} & \begin{tabular}[c]{@{}l@{}}7000\euro{}\\ (1750\euro{} cada mes\\ durante 4 meses)\end{tabular} \\ \hline
+    \begin{tabular}[c]{@{}l@{}}Material utilizado\\ Xiaomi Mi Notebook Pro\end{tabular}                            & 1                 & \begin{tabular}[c]{@{}l@{}}233,74\euro{} \\ (amortización 1 año)\end{tabular}            & \begin{tabular}[c]{@{}l@{}}233,74\euro{} \\ (amortización 1 año)\end{tabular}           \\ \hline
+    Recursos software de GitHub                                                                                    & 1                 & 0\euro{}                                                                                 & 0\euro{}                                                                                \\ \hline
+    \end{tabular}
+    \caption{Tabla de costes del proyecto.}
+\end{table}
 
 \section{Comienzo del desarrollo}
 Con el primer modelado del problema que se ha realizado en el
