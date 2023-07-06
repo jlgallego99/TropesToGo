@@ -310,6 +310,9 @@ func (crawler *ServiceCrawler) CrawlChanges(crawledWorks map[string]time.Time) (
 			if errCrawlSubpages != nil {
 				return nil, errCrawlSubpages
 			}
+		} else {
+			// Delete from crawled because it hasn't been updated
+			delete(crawledPages.Pages, newPage)
 		}
 	}
 

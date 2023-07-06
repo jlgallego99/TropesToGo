@@ -7,7 +7,6 @@ import (
 	"github.com/jlgallego99/TropesToGo/media/json_dataset"
 	"github.com/jlgallego99/TropesToGo/service/crawler"
 	"github.com/jlgallego99/TropesToGo/service/scraper"
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"golang.org/x/text/cases"
@@ -38,11 +37,6 @@ var (
 of any media type with its tropes from TvTropes.
 Generates a dataset of the specified format when done.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			logFile, _ := os.OpenFile("log.json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0664)
-			multiWriter := zerolog.MultiLevelWriter(zerolog.ConsoleWriter{Out: os.Stderr}, logFile)
-			log.Logger = zerolog.New(multiWriter).With().Timestamp().Logger()
-			log.Info().Msg("TropesToGo: A scraper for TvTropes")
-
 			if !strings.EqualFold(dataFormat, CSV) && !strings.EqualFold(dataFormat, JSON) {
 				return fmt.Errorf("unknown data format: %s", dataFormat)
 			}
@@ -112,5 +106,5 @@ func scrape() {
 
 	log.Info().Msgf("Process finished in %s\n", time.Since(start))
 	log.Info().Msg("TropesToGo finished successfully!")
-	log.Info().Msg("The generated TvTropes dataset is available on: " + datasetPath + "service/" + datasetName)
+	log.Info().Msg("The generated TvTropes dataset is available on: " + datasetPath + "/" + datasetName)
 }
