@@ -1,17 +1,18 @@
 package cmd
 
 import (
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/jlgallego99/TropesToGo/media"
 	"github.com/jlgallego99/TropesToGo/media/csv_dataset"
 	"github.com/jlgallego99/TropesToGo/media/json_dataset"
 	"github.com/jlgallego99/TropesToGo/service/crawler"
 	"github.com/jlgallego99/TropesToGo/service/scraper"
 	"github.com/rs/zerolog/log"
-	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -30,7 +31,7 @@ By default, searches for a file with the name "dataset.json".`,
 
 			_, errFileExists := os.Stat(datasetPath + "/" + updateDatasetName)
 			if errFileExists != nil {
-				log.Error().Err(errFileExists).Msg("Couldn't retrieve the dataset file " + updateDatasetName)
+				log.Error().Err(errFileExists).Msg("Couldn't retrieve the dataset file " + updateDatasetName + " on " + datasetPath)
 				return errFileExists
 			}
 
@@ -53,10 +54,11 @@ func scrapeUpdates() {
 	// Call scraper to extract the persisted changedPages on the dataset
 	var repository media.RepositoryMedia
 	updateFileFormat = strings.ReplaceAll(filepath.Ext(updateDatasetName), ".", "")
+	datasetBaseName := strings.TrimSuffix(updateDatasetName, filepath.Ext(updateDatasetName))
 	if strings.EqualFold(updateFileFormat, CSV) {
-		repository, _ = csv_dataset.NewCSVRepository(updateDatasetName)
+		repository, _ = csv_dataset.NewCSVRepository(datasetBaseName)
 	} else if strings.EqualFold(updateFileFormat, JSON) {
-		repository, _ = json_dataset.NewJSONRepository(updateDatasetName)
+		repository, _ = json_dataset.NewJSONRepository(datasetBaseName)
 	}
 
 	serviceScraper, err := scraper.NewServiceScraper(scraper.ConfigMediaRepository(repository))
@@ -83,7 +85,7 @@ func scrapeUpdates() {
 	if len(changedPages.Pages) > 0 {
 		serviceScraper.UpdateDataset(changedPages)
 
-		log.Info().Msg(strconv.Itoa(len(changedPages.Pages)) + " have been updated in the dataset " + updateDatasetName)
+		log.Info().Msg(strconv.Itoa(len(changedPages.Pages)) + " works have been updated in the dataset " + updateDatasetName)
 		log.Info().Msg("The updated TvTropes dataset is available on: " + datasetPath + "service/" + updateDatasetName)
 	} else {
 		log.Info().Msg("The dataset " + updateDatasetName + " is already up to date!")
