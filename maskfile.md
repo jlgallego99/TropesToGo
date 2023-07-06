@@ -10,6 +10,79 @@ cd tropestogo
 go run ./main.go
 ~~~
 
+### scrape
+> Command for scraping data with the TropesToGo CLI
+
+**OPTIONS**
+* format
+  * flags: -f --format
+  * type: string
+  * desc: The format of the generated dataset, CSV or JSON\
+* limit
+  * flags: -l --limit
+  * type: number
+  * desc: Limit the crawled works; is ignored if the -a flag is passed
+* media
+  * flags: -m --media
+  * type: string
+  * desc: The media type from which to scrape works
+* output
+  * flags: -o --output
+  * type: string
+  * desc: The name of the output dataset
+* all
+  * flags: -a -all
+  * desc: Scrape all works in the media type
+
+~~~sh
+cd tropestogo
+if [[ ! -z "$format" ]]; then 
+    format="-f ${format}" 
+else
+    format=""
+fi
+
+    
+if [[ ! -z "$media" ]]; then 
+    media="-m ${media}"
+else
+    media=""
+fi
+
+
+if [[ ! -z "$output" ]]; then 
+    output="-o ${output}"
+else
+    otuput=""
+fi
+
+if [[ ! -z "$limit" ]]; then
+    limit="-l ${limit}"
+else
+    limit=""
+fi
+
+if [[ $all == "true" ]]; then
+    go run ./main.go scrape -a $format $media $output $limit
+else
+    go run ./main.go scrape $format $media $output $limit
+fi
+~~~
+
+### update
+> Command for updating an scraped dataset with the TropesToGo CLI
+
+**OPTIONS**
+* dataset
+  * flags: -d --dataset
+  * type: string
+  * desc: Dataset name to update
+
+~~~sh
+cd tropestogo
+go run ./main.go update -d $dataset
+~~~
+
 ## build
 > Command for building the project
 ~~~sh
