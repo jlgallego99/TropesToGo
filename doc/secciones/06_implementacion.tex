@@ -1405,8 +1405,9 @@ bien a este problema, es necesario que como mínimo esté mantenida, actualizada
 recientemente, tenga buena documentación, sea sencilla de integrar para poder
 tener una aplicación sencilla en pocas líneas de código y permita reducir la
 carga en el programador de acciones como mostrar un manual en línea o crear
-argumentos y opciones legibles. Una buena herramienta CLI debe tener órdenes que
-se lean como si fuesen una oración y sean intuitivas. Es decir, queremos una
+argumentos y opciones legibles. Debe poder procesar comandos, argumentos,
+manuales de ayuda y \textit{flags}. Una buena herramienta CLI debe tener órdenes
+que se lean como si fuesen una oración y sean intuitivas. Es decir, queremos una
 biblioteca que permita definir una serie de comandos y argumentos para que el
 usuario pueda escribir en una línea todas las opciones necesarias para ejecutar
 el \textit{scraper}, y que esta orden sea legible. Este programa está pensado
@@ -1636,6 +1637,16 @@ elegido, basta con pasarlo como parámetro a la función de \textit{crawling}, q
 lo especificará como parámetro en el URL de la semilla. El proceso de
 \textit{crawling} funciona de igual manera independientemente del medio, ya que
 el índice presenta siempre una lista de obras con la misma estructura.
+
+En la Figura \ref{fig:cliexample} se puede ver un ejemplo de ejecución de
+TropesToGo CLI en el que se extraen 5 obras de tipo videojuego en un dataset en
+formato JSON.
+
+\begin{figure}[ht]
+    \includegraphics[width=\textwidth]{img/cli_example.png}
+    \caption{Ejemplo de ejecución de la herramienta final TropesToGo CLI.}
+    \label{fig:cliexample}
+\end{figure}
 
 \subsection{Mejoras adicionales al \textit{scraper}}
 Gracias al uso de un \textit{logger}, y a la ejecución de TropesToGo en casos
