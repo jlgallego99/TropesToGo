@@ -213,14 +213,15 @@ que la vaya a tratar.
 El formato más común para representar un conjunto de datos en el ámbito de la
 ciencia de datos y el machine learning es CSV. La razón de esto se debe a que no
 necesita instalar nada, ya que, es simplemente un fichero de texto plano
-delimitado por comas y que se puede entender fácilmente, sin embargo, presenta
-varios problemas. Los archivos CSV, al ser de texto plano, no tienen ningún tipo
-de optimización al almacenar o leer los datos, pudiendo ser costoso
-computacionalmente leer ficheros muy grandes y almacenarlos en memoria. Además
-de esto, no permiten anidar datos y almacenar información de metadatos. Pueden
+delimitado por comas y que se puede entender fácilmente. La desventaja de los
+archivos CSV es que, al ser de texto plano, no tienen ningún tipo de
+optimización al almacenar o leer los datos, pudiendo ser costoso
+computacionalmente leer ficheros muy grandes y almacenarlos en memoria. Pueden
 presentar problemas al tener caracteres Unicode, puesto que, no hay forma de
 saber qué tipo de codificación usa el fichero y hay que especificarla
-explícitamente al leerlo \cite{murallie_csvs_2022}.
+explícitamente al leerlo. Sin embargo, pese a esto, sigue siendo uno de los
+formatos imprescindibles y más populares en ciencia de datos
+\cite{murallie_csvs_2022}.
 
 Una de las alternativas más utilizadas, principalmente por ser una solución
 concreta para Python, que es un lenguaje muy utilizado en ciencia de datos, es
@@ -260,9 +261,10 @@ seguido muy de cerca por Parquet.
 Entre otros formatos de representación muy comunes está JSON, usado
 principalmente para conjuntos de datos pequeños y por la mayoría de API. Es un
 formato muy legible para humanos, siempre y cuando no tenga muchos campos
-anidados \cite{ramos_big_2023}. Sin embargo, es el menos deseable, puesto que,
-ocupa el doble de espacio en disco que un CSV y eso hace que también se tarde
-mucho en cargarlo en memoria \cite{murallie_csvs_2022}.
+anidados \cite{ramos_big_2023}. Ocupa el doble de espacio en disco que un CSV y
+eso hace que también se tarde mucho en cargarlo en memoria, sin embargo, es
+junto a CSV el formato de datos más popular tanto en ciencia de datos como en
+muchos otros contextos \cite{murallie_csvs_2022}.
 
 Por último, cabe destacar la importancia de las bases de datos en este ámbito.
 Las bases de datos son la forma más usual de almacenar cualquier tipo de

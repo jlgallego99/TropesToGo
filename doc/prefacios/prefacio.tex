@@ -1,20 +1,60 @@
 \thispagestyle{empty}
 
 \begin{center}
-{\large\bfseries Título \\ Subtítulo }\\
+{\large\bfseries TropesToGo \\ \textit{Scraping} de TvTropes }\\
 \end{center}
 \begin{center}
-Nombre Del Estudiante\\
+Jose Luis Gallego Peña\\
 \end{center}
 
 %\vspace{0.7cm}
 
 \vspace{0.5cm}
-\noindent\textbf{Palabras clave}: \textit{software libre}
+\noindent\textbf{Palabras clave}: \textit{tropos}, \textit{TvTropes},
+\textit{narrativa}, \textit{scraping}, \textit{crawling}, \textit{software
+libre}, \textit{desarrollo ágil}, \textit{historias de usuario}, \textit{TDD},
+\textit{DDD}, \textit{desarrollo incremental}, \textit{Go}, \textit{CLI},
+\textit{logging}, \textit{CSV},
+\textit{JSON}
 \vspace{0.7cm}
 
 \noindent\textbf{Resumen}\\
 	
+Los \textit{tropos} son unos recursos o patrones reconocibles que tienen un gran
+interés en la generación de narrativas para que sus autores puedan transmitir al
+público sus ideas de la manera más efectiva posible. Estos recursos son clave en
+la popularidad que puede llegar a tener una obra, y están presentes en numerosos
+medios audiovisuales como el cine, la televisión o los videojuegos. La
+importancia de los \textit{tropos} suscita un gran interés que se ve reflejado
+en la aparición de numerosos estudios, los cuales se revisan en este trabajo.
+Estos estudios necesitan de un conjunto de datos amplio y completo que relacione
+obras y \textit{tropos} para su análisis con técnicas estadísticas o
+computacionales que permitan analizar el estado actual de la narrativa.
+
+La web TvTropes es la mayor fuente de información sobre estos recursos. Contiene
+una gran cantidad de datos semiestructurados que únicamente están pensados para
+ser legibles por humanos y no están organizados ni preparados para su
+procesamiento en un ordenador. En este trabajo se ofrece una solución a
+investigadores y programadores para que puedan extraer estos datos según las
+necesidades que tengan y puedan integrarlos en procesos de ciencia de datos que
+propicien estos análisis.
+
+A lo largo del trabajo se presenta un análisis de la web de TvTropes y se diseña
+y desarrolla una herramienta de \textit{scraping} y \textit{crawling} en el
+lenguaje Go que extrae información relevante de metadatos y \textit{tropos}
+asociados de TvTropes. El objetivo de la solución es que sea capaz de entender,
+extraer, limpiar y preparar los datos de cualquier página de \textit{tropos} de
+TvTropes, genere ficheros de datos adecuados en formatos como CSV y JSON y
+entienda la frecuencia con la que cambian los contenidos de TvTropes.
+
+Para alcanzar los objetivos, se describe y lleva a cabo un proceso de desarrollo
+ágil incremental guiado por historias de usuario, \textit{Test Driven
+Development} y modelado con DDD que culmina en una herramienta de línea de
+comandos libre llamada TropesToGo. Con esta herramienta, investigadores y
+programadores pueden obtener conjuntos de datos de distinto formato y con la
+información que necesitan. TropesToGo constituye una solución novedosa, ya que
+hay muy pocos conjuntos de datos disponibles que asocien \textit{tropos} a obras
+o herramientas que permitan extraer esta información de TvTropes.
 
 \cleardoublepage
 
