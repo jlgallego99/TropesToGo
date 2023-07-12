@@ -8,6 +8,8 @@ ___
 
 All [HTML files](/tropestogo/service/scraper/resources/) and all data on the generated datasets belong to [TvTropes](https://tvtropes.org/) and are under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
+The slides are available on GitHub pages, made with reveal.js using a [template](https://github.com/JJ/reveal.js-template)
+
 ---
 
 La documentación de este proyecto está realizada con `LaTeX`, por lo
