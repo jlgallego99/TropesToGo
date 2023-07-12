@@ -12,7 +12,7 @@ jobs:
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@v2
         with:
-          working_directory: doc/
+          working_directory: docs/
           root_file: proyecto.tex
       - name: Upload PDF file
         uses: actions/upload-artifact@v3

@@ -15,7 +15,7 @@ jobs:
           allowedwords: ../.github/workflows/allowed-words.txt
         with:
             root_file: proyecto.tex
-            working_directory: doc
+            working_directory: docs
             args: --check es --ignore $ignore --remove otherlanguage --remove-macros $removemacros --dict $allowedwords
       - name: Lint english abstract
         uses: ChiefGokhlayeh/textidote-action@v5.1.0
@@ -24,13 +24,13 @@ jobs:
           ignore: sh:seclen,sh:stacked,sh:nobreak,sh:nonp,lt:es:DEL_LA
         with:
           root_file: english_abstract.tex
-          working_directory: doc/prefacios
+          working_directory: docs/prefacios
           args: --check en
       - name: Upload TeXtidote report
         uses: actions/upload-artifact@v2
         with:
             name: textidote_report
-            path: doc/report.html
+            path: docs/report.html
       - name: Throw error if linter warnings exist
         if: ${{ steps.lint.outputs.num_warnings != 0 && steps.lintabstract.outputs.num_warnings != 0 }}
         run: 'echo "::error file=main.tex::num_warnings: ${{ steps.lint.outputs.num_warnings }}"; exit 1;'
