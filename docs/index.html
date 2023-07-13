@@ -4,22 +4,110 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+		<title>Presentación TFM TropesToGo</title>
 
 		<link rel="stylesheet" href="dist/reset.css">
                 <link rel="stylesheet" href="dist/extra.css">
 		<link rel="stylesheet" href="dist/reveal.css">
 		<link rel="stylesheet" href="dist/extra.css">
 		<link rel="stylesheet" href="dist/theme/black.css" id="theme">
+		<link rel="stylesheet" href="slides.css">
 
 		<!-- Theme used for syntax highlighted code -->
-		<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+		<link rel="stylesheet" href="dist/theme/serif.css" id="highlight-theme">
 	</head>
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				<section>
+					<img width="20%" src="logos/ugr_transparente.png"/>
+					<h2>Trabajo fin de Máster</h2>
+					<h3>TropesToGo - Scraping de TvTropes</h3>
+					<h4>Jose Luis Gallego Peña</h4>
+				</section>
+				<section>
+					<h2>Índice</h2>
+					<div class="index">
+						<div class="box">1. Contexto</div>
+						<div class="box">2. Descripción del problema y objetivos</div>
+						<div class="box">3. Consideraciones legales y éticas del scraping</div>
+						<div class="box">4. Trabajos relacionados</div>
+						<div class="box">5. Planificación y metodología de desarrollo</div>
+						<div class="box">6. Modelado del problema</div>
+						<div class="box">7. Análisis de TvTropes</div>
+						<div class="box">8. Desarrollo</div>
+						<div class="box">9. Conclusiones</div>
+					</div>
+				</section>
+				<section>
+					<section>
+						<h2 class="slide-title">1. Contexto</h2>
+						<h3><strong>Tropo</strong></h3>
+						Patrón o recurso reiterativo y reconocible por la audencia.
+						<p class="fragment">
+							Interés en el estudio y generación de narrativas para que los autores puedan transmitir al público sus ideas de forma más efectiva.
+						</p>
+						<q class="fragment">
+							Una obra se define mejor como un conjunto de tropos.
+						</q>
+						<p class="fragment">
+							Su análisis permite obtener guías para crear obras más efectivas para el género, medio o los más comunes en la actualidad.
+						</p>
+						<q class="fragment">
+							Los tropos son clave en la popularidad de una obra.
+						</q>
+					</section>
+					<section>
+						<h3><strong>Ejemplo de tropo: Arma de Chéjov</strong></h3>
+						<q cite="https://tvtropes.org/pmwiki/pmwiki.php/Main/ChekhovsGun">
+							Elimina todo lo que no tenga relevancia en la historia. 
+							Si dijiste en el primer capítulo que había un rifle colgado en la pared, en el segundo o tercero este debe ser descolgado inevitablemente. 
+							Si no va a ser disparado, no debería haber sido puesto ahí.
+						</q>
+					</section>
+					<section>
+						Necesidad de un conjunto de datos amplio y limpio para su análisis con técnicas de ciencia de datos...
+						<h2 class="fragment"><strong>TvTropes</strong></h2>
+						<p class="fragment">
+							Wiki abierto con una gran cantidad de contenido sobre tropos de múltiples medios audiovisuales y sus relaciones.
+						</p>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2 class="slide-title">2. Descripción del problema</h2>
+						<h4><strong>Principal problema: contenido semi-estructurado y sin una API de acceso a datos.</strong></h4>
+						TvTropes está pensada para usuarios humanos desde el navegador. Necesidad de una herramienta que extraiga los datos directamente de la web.
+						<p class="fragment">
+							<strong>Problemas adicionales:</strong>
+							Información de metadatos, cambios constantes y estructura de las páginas.
+						</p>
+						<p class="fragment">
+							<strong>Solución propuesta:</strong> Scraper que extraiga todos los datos necesarios de TvTropes.
+						</p>
+					</section>
+					<section>
+						<h2 class="slide-title">Objetivos</h2>
+						<p class="fragment">
+							<strong>OBJ01</strong> Entenderá, extraerá, limpiará y preparará la información de cualquier página de tropos de TvTropes independientemente de su estructura.
+						</p>
+						<p class="fragment">
+							<strong>OBJ02</strong> Extraerá información de metadatos sobre las obras, que permitan relacionarlas con fuentes externas.
+						</p>
+						<p class="fragment">
+							<strong>OBJ03</strong> Se desarrollará una aplicación integrable en flujos de ciencia de datos mediante la cual el usuario pueda elegir los contenidos a extraer.
+						</p>
+						<p class="fragment">
+							<strong>OBJ04</strong> Entenderá la frecuencia con la que cambian los contenidos de TvTropes y la organización entre sus páginas, pudiendo tener siempre la versión más reciente de los datos.
+						</p>
+						<p class="fragment">
+							<strong>OBJ05</strong> Debe ser rápido y eficiente, adaptándose a la gran cantidad de datos que debe extraer.
+						</p>
+					</section>
+				</section>
+				<section>
+					<h2 class="slide-title">Conclusiones</h2>
+				</section>
 			</div>
 		</div>
 
@@ -33,7 +121,8 @@
 			// - https://revealjs.com/config/
 			Reveal.initialize({
 			  hash: true,
-                          width: '95%',
+					      width: '95%',
+						  height: '100%',
                           controls: true,
                           progress: true,
                           history: true,

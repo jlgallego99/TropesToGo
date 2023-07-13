@@ -1,0 +1,27 @@
+.index {
+    display: grid;
+    grid-template-rows: 250px 250px 250px;
+    grid-template-columns: 500px 500px 500px;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+}
+
+.box {
+  background: #9a9b9721;
+  border: 1px solid #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 5%;
+}
+
+.slide-title {
+    position: fixed;
+    top: 5%;
+    left: 0;
+    z-index: 999;
+    width: 100%;
+}
