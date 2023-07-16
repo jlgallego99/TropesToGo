@@ -1,160 +1,508 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>Presentación TFM TropesToGo</title>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<link rel="stylesheet" href="dist/reset.css">
-                <link rel="stylesheet" href="dist/extra.css">
-		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/extra.css">
-		<link rel="stylesheet" href="dist/theme/black.css" id="theme">
-		<link rel="stylesheet" href="slides.css">
+	<title>Presentación TFM TropesToGo</title>
 
-		<!-- Theme used for syntax highlighted code -->
-		<link rel="stylesheet" href="dist/theme/serif.css" id="highlight-theme">
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/extra.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/extra.css">
+	<link rel="stylesheet" href="dist/theme/black.css" id="theme">
+	<link rel="stylesheet" href="slides.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="dist/theme/serif.css" id="highlight-theme">
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<img width="20%" src="logos/ugr_transparente.png" />
+				<h2>Trabajo fin de Máster</h2>
+				<h3>TropesToGo - Scraping de TvTropes</h3>
+				<h4>Jose Luis Gallego Peña</h4>
+			</section>
+			<section>
+				<h2>Índice</h2>
+				<div class="index">
+					<div class="box">1. Contexto</div>
+					<div class="box">2. Descripción del problema y objetivos</div>
+					<div class="box">3. Consideraciones legales y éticas del scraping</div>
+					<div class="box">4. Trabajos relacionados</div>
+					<div class="box">5. Planificación y metodología de desarrollo</div>
+					<div class="box">6. Modelado del problema</div>
+					<div class="box">7. Análisis de TvTropes</div>
+					<div class="box">8. Desarrollo</div>
+					<div class="box">9. Conclusiones</div>
+				</div>
+			</section>
+			<section>
 				<section>
-					<img width="20%" src="logos/ugr_transparente.png"/>
-					<h2>Trabajo fin de Máster</h2>
-					<h3>TropesToGo - Scraping de TvTropes</h3>
-					<h4>Jose Luis Gallego Peña</h4>
-				</section>
-				<section>
-					<h2>Índice</h2>
-					<div class="index">
-						<div class="box">1. Contexto</div>
-						<div class="box">2. Descripción del problema y objetivos</div>
-						<div class="box">3. Consideraciones legales y éticas del scraping</div>
-						<div class="box">4. Trabajos relacionados</div>
-						<div class="box">5. Planificación y metodología de desarrollo</div>
-						<div class="box">6. Modelado del problema</div>
-						<div class="box">7. Análisis de TvTropes</div>
-						<div class="box">8. Desarrollo</div>
-						<div class="box">9. Conclusiones</div>
-					</div>
-				</section>
-				<section>
-					<section>
-						<h2 class="slide-title">1. Contexto</h2>
-						<h3><strong>Tropo</strong></h3>
-						Patrón o recurso reiterativo y reconocible por la audencia.
-						<p class="fragment">
-							Interés en el estudio y generación de narrativas para que los autores puedan transmitir al público sus ideas de forma más efectiva.
-						</p>
-						<q class="fragment">
-							Una obra se define mejor como un conjunto de tropos.
-						</q>
-						<p class="fragment">
-							Su análisis permite obtener guías para crear obras más efectivas para el género, medio o los más comunes en la actualidad.
-						</p>
-						<q class="fragment">
-							Los tropos son clave en la popularidad de una obra.
-						</q>
-					</section>
-					<section>
-						<h3><strong>Ejemplo de tropo: Arma de Chéjov</strong></h3>
-						<q cite="https://tvtropes.org/pmwiki/pmwiki.php/Main/ChekhovsGun">
-							Elimina todo lo que no tenga relevancia en la historia. 
-							Si dijiste en el primer capítulo que había un rifle colgado en la pared, en el segundo o tercero este debe ser descolgado inevitablemente. 
-							Si no va a ser disparado, no debería haber sido puesto ahí.
-						</q>
-					</section>
-					<section>
-						Necesidad de un conjunto de datos amplio y limpio para su análisis con técnicas de ciencia de datos...
-						<h2 class="fragment"><strong>TvTropes</strong></h2>
-						<p class="fragment">
-							Wiki abierto con una gran cantidad de contenido sobre tropos de múltiples medios audiovisuales y sus relaciones.
-						</p>
-					</section>
-				</section>
-				<section>
-					<section>
-						<h2 class="slide-title">2. Descripción del problema</h2>
-						<h4><strong>Principal problema: contenido semi-estructurado y sin una API de acceso a datos.</strong></h4>
-						TvTropes está pensada para usuarios humanos desde el navegador. Necesidad de una herramienta que extraiga los datos directamente de la web.
-						<p class="fragment">
-							<strong>Problemas adicionales:</strong>
-							Información de metadatos, cambios constantes y estructura de las páginas.
-						</p>
-						<p class="fragment">
-							<strong>Solución propuesta:</strong> Scraper que extraiga todos los datos necesarios de TvTropes.
-						</p>
-					</section>
-					<section>
-						<h2 class="slide-title">Objetivos</h2>
-						<p class="fragment">
-							<strong>OBJ01</strong> Entenderá, extraerá, limpiará y preparará la información de cualquier página de tropos de TvTropes independientemente de su estructura.
-						</p>
-						<p class="fragment">
-							<strong>OBJ02</strong> Extraerá información de metadatos sobre las obras, que permitan relacionarlas con fuentes externas.
-						</p>
-						<p class="fragment">
-							<strong>OBJ03</strong> Se desarrollará una aplicación integrable en flujos de ciencia de datos mediante la cual el usuario pueda elegir los contenidos a extraer.
-						</p>
-						<p class="fragment">
-							<strong>OBJ04</strong> Entenderá la frecuencia con la que cambian los contenidos de TvTropes y la organización entre sus páginas, pudiendo tener siempre la versión más reciente de los datos.
-						</p>
-						<p class="fragment">
-							<strong>OBJ05</strong> Debe ser rápido y eficiente, adaptándose a la gran cantidad de datos que debe extraer.
-						</p>
-					</section>
-				</section>
-				<section>
-					<h2 class="slide-title">3. Consideraciones legales y éticas del scraping</h2>
-					<h3>Entra dentro del uso legítimo el obtener información pública y sin ánimo de lucro.</h3>
+					<h2 class="slide-title">1. Contexto</h2>
+					<h3><strong>Tropo</strong></h3>
+					Patrón o recurso reiterativo y reconocible por la audencia.
 					<p class="fragment">
-						<strong>Se respeta la licencia de TvTropes: Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</strong>
+						Interés en el estudio y generación de narrativas para que los autores puedan transmitir al
+						público sus ideas de forma más efectiva.
+					</p>
+					<q class="fragment">
+						Una obra se define mejor como un conjunto de tropos.
+					</q>
+					<p class="fragment">
+						Su análisis permite obtener guías para crear obras más efectivas para el género, medio o los más
+						comunes en la actualidad.
+					</p>
+					<q class="fragment">
+						Los tropos son clave en la popularidad de una obra.
+					</q>
+				</section>
+				<section>
+					<h3><strong>Ejemplo de tropo: Arma de Chéjov</strong></h3>
+					<q cite="https://tvtropes.org/pmwiki/pmwiki.php/Main/ChekhovsGun">
+						Elimina todo lo que no tenga relevancia en la historia.
+						Si dijiste en el primer capítulo que había un rifle colgado en la pared, en el segundo o tercero
+						este debe ser descolgado inevitablemente.
+						Si no va a ser disparado, no debería haber sido puesto ahí.
+					</q>
+				</section>
+				<section>
+					Necesidad de un conjunto de datos amplio y limpio para su análisis con técnicas de ciencia de
+					datos...
+					<h2 class="fragment"><strong>TvTropes</strong></h2>
+					<p class="fragment">
+						Wiki abierto con una gran cantidad de contenido sobre tropos de múltiples medios audiovisuales y
+						sus relaciones.
+					</p>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2 class="slide-title">2. Descripción del problema</h2>
+					<h4><strong>Principal problema: contenido semi-estructurado y sin una API de acceso a
+							datos.</strong></h4>
+					TvTropes está pensada para usuarios humanos desde el navegador. Necesidad de una herramienta que
+					extraiga los datos directamente de la web.
+					<p class="fragment">
+						<strong>Problemas adicionales:</strong>
+						Información de metadatos, cambios constantes y estructura de las páginas.
 					</p>
 					<p class="fragment">
-						<strong>Políticas de cortesía. Scraping moderado.</strong>
+						<strong>Solución propuesta:</strong> Scraper que extraiga todos los datos necesarios de
+						TvTropes.
 					</p>
 				</section>
 				<section>
-					<h2 class="slide-title">4. Trabajos relacionados</h2>
+					<h2 class="slide-title">Objetivos</h2>
+					<p class="fragment">
+						<strong>OBJ01</strong> Entenderá, extraerá, limpiará y preparará la información de cualquier
+						página de tropos de TvTropes independientemente de su estructura.
+					</p>
+					<p class="fragment">
+						<strong>OBJ02</strong> Extraerá información de metadatos sobre las obras, que permitan
+						relacionarlas con fuentes externas.
+					</p>
+					<p class="fragment">
+						<strong>OBJ03</strong> Se desarrollará una aplicación integrable en flujos de ciencia de datos
+						mediante la cual el usuario pueda elegir los contenidos a extraer.
+					</p>
+					<p class="fragment">
+						<strong>OBJ04</strong> Entenderá la frecuencia con la que cambian los contenidos de TvTropes y
+						la organización entre sus páginas, pudiendo tener siempre la versión más reciente de los datos.
+					</p>
+					<p class="fragment">
+						<strong>OBJ05</strong> Debe ser rápido y eficiente, adaptándose a la gran cantidad de datos que
+						debe extraer.
+					</p>
+				</section>
+			</section>
+			<section>
+				<h2 class="slide-title">3. Consideraciones legales y éticas del scraping</h2>
+				<h3>Entra dentro del uso legítimo el obtener información pública y sin ánimo de lucro.</h3>
+				<p class="fragment">
+					<strong>Se respeta la licencia de TvTropes: Creative Commons Attribution-NonCommercial-ShareAlike
+						3.0 Unported</strong>
+				</p>
+				<p class="fragment">
+					<strong>Políticas de cortesía. Scraping moderado.</strong>
+				</p>
+			</section>
+			<section>
+				<h2 class="slide-title">4. Trabajos relacionados</h2>
+				<div class="fragment">
+					<h3><strong>DBTropes</strong></h3>
+					<a
+						href="http://skipforward.opendfki.de/wiki/DBTropes">http://skipforward.opendfki.de/wiki/DBTropes</a>
+				</div>
+				<div class="fragment">
+					<h3><strong>Tropescraper</strong></h3>
+					<a href="https://github.com/rhgarcia/tropescraper/">https://github.com/rhgarcia/tropescraper/</a>
+				</div>
+				<div class="fragment">
+					<h3><strong>Consejos sobre el scraping de TvTropes</strong></h3>
+					<a
+						href="https://nishalsach.github.io/posts/2019-09-16-lessons-from-a-massively-annoying-scraping-project-in-python/">https://nishalsach.github.io/posts/2019-09-16-lessons-from-a-massively-annoying-scraping-project-in-python/</a>
+				</div>
+				<h3 class="fragment">
+					<strong>Problema novedoso, no existen otras soluciones en internet.</strong>
+				</h3>
+			</section>
+			<section>
+				<section>
+					<h2 class="slide-title">5. Planificación y metodología de desarrollo</h2>
+					<p>
+						Seguir una metodología permitirá saber qué hacer en cada momento, cómo hacerlo y por qué. Se
+						siguen buenas prácticas y principios para administrar un proyecto completo.
+					</p>
+					<p class="fragment">
+						Desarrollo ágil: adaptación a cambios, búsqueda de calidad y centrado en el usuario.
+					</p>
+					<p class="fragment">
+						TDD: primero pruebas y luego código. Todo debe estar testeado.
+					</p>
+					<p class="fragment">
+						Planteamiento ideal para un scraper de TvTropes: cambios constantes y constantes ampliaciones.
+					</p>
+				</section>
+				<section>
+					<h3><strong>Desarrollo ágil guiado por historias de usuario y milestones/sprints.</strong></h3>
 					<div class="fragment">
-						<h3><strong>DBTropes</strong></h3>
-						<a href="http://skipforward.opendfki.de/wiki/DBTropes">http://skipforward.opendfki.de/wiki/DBTropes</a>
-					</div>
-					<div class="fragment">
-						<h3><strong>Tropescraper</strong></h3>
-						<a href="https://github.com/rhgarcia/tropescraper/">https://github.com/rhgarcia/tropescraper/</a>
-					</div>
-					<div class="fragment">
-						<h3><strong>Consejos sobre el scraping de TvTropes</strong></h3>
-						<a href="https://nishalsach.github.io/posts/2019-09-16-lessons-from-a-massively-annoying-scraping-project-in-python/">https://nishalsach.github.io/posts/2019-09-16-lessons-from-a-massively-annoying-scraping-project-in-python/</a>
+						<h3>Repositorio de GitHub para centralizar el desarrollo. Software libre.</h3>
+						<a href="https://github.com/jlgallego99/TropesToGo" class="icon-block">
+							<i class="fa fa-github fa-2xl"></i>
+						</a>
 					</div>
 				</section>
 				<section>
-					<h2 class="slide-title">Conclusiones</h2>
+					<p>
+					<h3><strong>Historias de usuario:</strong> Describen a alto nivel las necesidades de los usuarios.
+					</h3>
+					</p>
+					<img width="90%" src="img/GH_HU.png" />
 				</section>
-			</div>
+				<section>
+					<p>
+					<h3><strong>Milestones/sprints</strong></h3>
+					Productos mínimos funcionales y de complejidad creciente.
+					</p>
+					<img width="90%" src="img/GH_MILESTONE.png" />
+				</section>
+				<section>
+					<p>
+					<h3><strong>Issues y commits</strong></h3>
+					Los commits avanzan los issues hasta completarlos en un Pull Request.
+					Trazabilidad de errores y cambios.
+					</p>
+					<img width="90%" src="img/GH_ISSUE.png" />
+				</section>
+				<section>
+					<p>
+					<h3><strong>Automatización: integración continua y pruebas</strong></h3>
+					Todo código en la rama principal está testeado y es funcional.
+					</p>
+					<img width="90%" src="img/GH_CI.png" />
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2 class="slide-title">6. Modelado del problema</h2>
+					Necesidad de manejear los conceptos del proyecto. Establecer relaciones entendibles entre problema,
+					términos y código.
+					<p class="fragment">
+						<strong>Domain Driven Design</strong> - Enfoque de desarrollo software más utilizado.
+					</p>
+					<p class="fragment">
+						Mismo modelo, vocabulario y reglas entendibles a lo largo de todo el proyecto (dominio del
+						problema). Facilita mantenibilidad y escalabilidad.
+					</p>
+				</section>
+				<section>
+					<div>
+						<h3><strong>Objetos valor <span>&#8594;</span> <i>Trope</i> y <i>Page</i>.</strong></h3>
+						<p>
+							Principales recursos que se extraen de TvTropes para su análisis. Inmutables.
+						</p>
+					</div>
+					<div class="fragment">
+						<h3><strong>Entidades <span>&#8594;</span> <i>TvTropesPages</i> y <i>Work</i>.</strong></h3>
+						<p>
+							Mutables. Permiten identificar las obras y las páginas concretas de TvTropes con sus
+							características.
+						</p>
+					</div>
+					<div class="fragment">
+						<h3><strong>Agregado <span>&#8594;</span> <i>Media</i>.</strong></h3>
+						<p>
+							Controla la creación de TvTropesPages y Work. Su unión da lugar al concepto de página de
+							TvTropes con toda su información que luego se persistirá.
+						</p>
+					</div>
+					<div class="fragment">
+						<h3><strong>Servicios <span>&#8594;</span> <i>Scraper</i> y <i>Crawler</i>.</strong></h3>
+						<p>
+							Módulos independientes que controlan la lógica del resto de elementos DDD.
+						</p>
+					</div>
+				</section>
+				<section>
+					<h3>Interfaz genérico de repositorios</h3>
+					<pre><code data-trim data-noescape>
+							type RepositoryMedia interface {
+								AddMedia(Media) error
+								UpdateMedia(string, string, Media) error
+								RemoveAll() error
+								Persist() error
+								GetWorkPages() (map[string]time.Time, error)
+							}
+						</code></pre>
+					<p class="fragment">
+						Permiten definir cualquier formato de datos al implementar el interfaz para persistir todos los
+						Media en un dataset.
+					</p>
+					<p class="fragment">
+						Se inyecta la dependencia en los servicios, que controlan su ciclo de vida.
+					</p>
+				</section>
+				<section>
+					<h3>Implementación del interfaz para CSV</h3>
+					<pre><code data-trim data-noescape>
+							// CSVRepository implements the RepositoryMedia interface
+							type CSVRepository struct {
+								name string
+								writer *csv.Writer
+								data []media.Media
+							}
+							func (repository *CSVRepository) AddMedia(newMedia media.Media) error {
+								...
+							}
+							...
+						</code>
+						</pre>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2 class="slide-title">7. Análisis de TvTropes</h2>
+					<p>
+						Paso imprescindible antes del scraping: conocer la estructura interna y externa de la página. Buscar puntos relevantes.
+					</p>
+					<p class="fragment">
+						Páginas de TvTropes relevantes: obras e índices de obras.
+					</p>
+				</section>
+				<section>
+					<h3><strong>Estructura de una página de obra de TvTropes</strong></h3>
+					<img width="38%" src="img/esquema-obra.png">
+				</section>
+				<section>
+					<h3><strong>Sección de tropos</strong></h3>
+					<div class="sidebyside">
+						<div class="col-sidebyside">
+							<img width="100%" src="img/tropes1.png">
+						</div>
+						<div class="col-sidebyside">
+							<img width="100%" src="img/tropes2.png">
+						</div>
+						<div class="col-sidebyside">
+							<img width="100%" src="img/tropes3.png">
+						</div>
+					</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h3>8. Desarrollo</h3>
+					<p>
+						Se desarrollan los milestones y se obtiene un PMV en cada uno. Iterativo e incremental.
+					</p>
+					<img width="90%" src="img/GH_MILESTONES.png" />
+				</section>
+				<section>
+					<h3><strong>Milestone 0</strong></h3>
+					<p>
+						El desarrollo comienza con un estudio extenso del problema durante 2 meses y medio.
+					</p>
+					<h3><strong>Milestone 1</strong></h3>
+					<p>
+						Antes de pasar a implementar, se realiza el modelado y análisis de TvTropes.
+					</p>
+					<p class="fragment">
+						Durante el desarrollo del código en los siguientes sprints, se lleva a la vez documentación y
+						código.
+					</p>
+					<p class="fragment">
+						Con cada incremento, se lanza un <i>release</i> con una nueva versión del código en GitHub.
+					</p>
+				</section>
+				<section>
+					<h3>Proceso de scraping: Selectores CSS, navegador y herramientas de desarrollador</h3>
+					En el código, los selectores se procesan con Goquery.
+					<img width="90%" src="img/inspeccionar_elemento.gif" />
+				</section>
+				<section>
+					<h2><strong>Milestone 2 (v0.1.0)</strong></h2>
+					<h2><strong>Scraper que entiende y testea la estructura de una página de película</strong></h2>
+					<p class="fragment">
+						Comprobación de la estructura de las páginas para validar que pueden ser extraídas. Centrado en
+						un sólo medio audiovisual.
+					</p>
+				</section>
+				<section>
+					<h2><strong>Milestone 3 (v0.2.0)</strong></h2>
+					<h2><strong>Scraper que extrae la información de una página de película</strong></h2>
+					<div class="fragment">
+						<p>
+							Extracción de metadatos y tropos principales en lista y carpetas. Implementación de
+							repositorios para almacenamiento de datos.
+						</p>
+						<p>
+							Identifica sección de tropos apoyándose en el header. En el futuro se amplía para todos los
+							headers.
+						</p>
+						<img width="50%" src="img/selector-tropes.png" />
+						<img width="50%" src="img/selector-tropes-folders.png" />
+					</div>
+				</section>
+				<section>
+					<h2><strong>Milestone 4 (v0.3.0 y v0.4.0)</strong></h2>
+					<h2><strong>Scraper que extrae tropos de las subpáginas de una película</strong></h2>
+					<p class="fragment">
+						Distinción entre tropos principales y secundarios. Finalización del scraping.
+					</p>
+				</section>
+				<section>
+					<h2><strong>Milestone 5 (v0.5.0, v0.5.1 y v0.5.2)</strong></h2>
+					<h2><strong>Araña que recorre el sitio</strong></h2>
+					<p>
+						Separación de responsabilidades entre scraper y crawler.
+					</p>
+					<p class="fragment">
+						Adicionalmente: reducción de carga en el servidor de TvTropes.
+					</p>
+				</section>
+				<section>
+					<div class="sidebyside">
+						<div class="col-sidebyside" style="display: flex; align-items: center; justify-content: center;">
+							<h2><strong>Flujo del crawler</strong></h2>
+						</div>
+						<div class="col-sidebyside">
+							<img width="75%" src="img/flujo_crawler.png" />
+						</div>
+					</div>
+				</section>
+				<section>
+					<h2><strong>Milestone 6 (v0.6.0)</strong></h2>
+					<h2><strong>Actualizador de información</strong></h2>
+					<div class="fragment">
+						<p>
+							Se extrae el historial de cambios concreto de cada página.
+						</p>
+						<div class="sidebyside">
+							<div class="col-sidebyside">
+								<img src="img/historial_1.png" />
+							</div>
+							<div class="col-sidebyside">
+								<img src="img/historial_2.png" />
+							</div>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h2><strong>Milestone 7 (v1.0.0)</strong></h2>
+					<h2><strong>Aplicación de extracción de tropos de múltiples medios audiovisuales</strong></h2>
+					<div class="fragment">
+						<p>
+							Aplicación de línea de comandos reiterable y usable para el usuario. Permite comunicarse con los dos servicios.
+						</p>
+						<div class="sidebyside">
+							<div class="col-sidebyside">
+								<img src="img/cli.png" />
+							</div>
+							<div class="col-sidebyside">
+								<img src="img/cli_scraper.png" />
+							</div>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h2><strong>Ejemplo de ejecución</strong></h2>
+					<img width="200%" src="img/cli_example.png" />
+				</section>
+				<section>
+					<h2><strong>Dataset generado (CSV)</strong></h2>
+					<img width="200%" src="img/csv_dataset.png" />
+				</section>
+				<section>
+					<h2><strong>Dataset generado (JSON)</strong></h2>
+					<img width="40%" src="img/json_dataset.png" />
+				</section>
+				<section>
+					<h3><strong>Costes del proyecto</strong></h3>
+					<img width="200%" src="img/costes.png" />
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2 class="slide-title">9. Conclusiones</h2>
+					<p>
+						Se ha llevado un proyecto software a su fin de forma ágil y sobre un tema novedoso.
+					</p>
+					<p class="fragment">
+						Se obtienen conjuntos de datos con una gran cantidad de información de obras de cualquier medio audiovisual y sus tropos.
+					</p>
+					<p class="fragment">
+						Se proporciona una herramienta de línea de comandos de forma libre para cualquier usuario investigador. Permitirá nuevos estudios.
+					</p>
+					<p class="fragment">
+						Se tiene en cuenta la naturaleza cambiante de las páginas de TvTropes.
+					</p>
+					<p class="fragment">
+						Se han respetado los límites y licencias de TvTropes. La solución es eficiente.
+					</p>
+				</section>
+				<section>
+					<h2 class="slide-title">Trabajo futuro</h2>
+					<p>
+						Uso de proxies.
+					</p>
+					<p class="fragment">
+						Extracción adicional en páginas de tropos. Información bidireccional Obra <span>&#8596;</span> Tropo.
+					</p>
+					<p class="fragment">
+						Tipos de tropos para establecer mejores relaciones entre ellos.
+					</p>
+					<p class="fragment">
+						Extracción de información adicional: relaciones de saga, género, etc. TvTropes es complejo y extenso.
+					</p>
+				</section>
+			</section>
 		</div>
+	</div>
+	<script src="dist/reveal.js"></script>
+	<script src="plugin/notes/notes.js"></script>
+	<script src="plugin/markdown/markdown.js"></script>
+	<script src="plugin/highlight/highlight.js"></script>
+	<script>
+		// More info about initialization & config:
+		// - https://revealjs.com/initialization/
+		// - https://revealjs.com/config/
+		Reveal.initialize({
+			hash: true,
+			width: '95%',
+			height: '100%',
+			controls: true,
+			progress: true,
+			history: true,
+			autoPlayMedia: true,
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+		});
+	</script>
+</body>
 
-		<script src="dist/reveal.js"></script>
-		<script src="plugin/notes/notes.js"></script>
-		<script src="plugin/markdown/markdown.js"></script>
-		<script src="plugin/highlight/highlight.js"></script>
-		<script>
-			// More info about initialization & config:
-			// - https://revealjs.com/initialization/
-			// - https://revealjs.com/config/
-			Reveal.initialize({
-			  hash: true,
-					      width: '95%',
-						  height: '100%',
-                          controls: true,
-                          progress: true,
-                          history: true,
-                          autoPlayMedia: true,
-				// Learn about plugins: https://revealjs.com/plugins/
-			  plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
-			});
-		</script>
-	</body>
 </html>
