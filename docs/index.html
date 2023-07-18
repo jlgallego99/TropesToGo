@@ -163,10 +163,10 @@
 						Desarrollo ágil: adaptación a cambios, búsqueda de calidad y centrado en el usuario.
 					</p>
 					<p class="fragment">
-						TDD: primero pruebas y luego código. Todo debe estar testeado.
+						Planteamiento ideal para un scraper de TvTropes: cambios constantes y constantes ampliaciones.
 					</p>
 					<p class="fragment">
-						Planteamiento ideal para un scraper de TvTropes: cambios constantes y constantes ampliaciones.
+						TDD: primero pruebas y luego código. Todo debe estar testeado.
 					</p>
 				</section>
 				<section>
@@ -188,15 +188,15 @@
 				<section>
 					<p>
 					<h3><strong>Milestones/sprints</strong></h3>
-					Productos mínimos funcionales y de complejidad creciente.
+					Productos mínimamente viables y de complejidad creciente.
 					</p>
 					<img width="90%" src="img/GH_MILESTONE.png" />
 				</section>
 				<section>
+					<h3><strong><i>Issues</i> y <i>commits</i></strong></h3>
 					<p>
-					<h3><strong>Issues y commits</strong></h3>
-					Los commits avanzan los issues hasta completarlos en un Pull Request.
-					Trazabilidad de errores y cambios.
+						Los <i>commits</i> avanzan los <i>issues</i>, hasta completarlos en un <i>Pull Request</i>.
+						Trazabilidad de errores y cambios.
 					</p>
 					<img width="90%" src="img/GH_ISSUE.png" />
 				</section>
@@ -270,7 +270,7 @@
 				</section>
 				<section>
 					<h3>Implementación del interfaz para CSV</h3>
-					<pre><code data-trim data-noescape>
+					<pre><code data-trim data-noescape data-line-numbers="1-6|7-10">
 							// CSVRepository implements the RepositoryMedia interface
 							type CSVRepository struct {
 								name string
@@ -278,9 +278,9 @@
 								data []media.Media
 							}
 							func (repository *CSVRepository) AddMedia(newMedia media.Media) error {
-								...
+								// Code
 							}
-							...
+							// Implementation of the rest of the interface
 						</code>
 						</pre>
 				</section>
@@ -345,7 +345,9 @@
 					<img width="90%" src="img/inspeccionar_elemento.gif" />
 				</section>
 				<section>
-					<h2><strong>Milestone 2 (v0.1.0)</strong></h2>
+					<h2><strong>Milestone 2 (v0.1.0) <a href="https://github.com/jlgallego99/TropesToGo/releases/tag/v0.1.0" class="icon-block">
+						<i class="fa fa-github fa-2xl"></i>
+					</a></strong></h2>
 					<h2><strong>Scraper que entiende y testea la estructura de una página de película</strong></h2>
 					<p class="fragment">
 						Comprobación de la estructura de las páginas para validar que pueden ser extraídas. Centrado en
@@ -353,7 +355,9 @@
 					</p>
 				</section>
 				<section>
-					<h2><strong>Milestone 3 (v0.2.0)</strong></h2>
+					<h2><strong>Milestone 3 (v0.2.0) <a href="https://github.com/jlgallego99/TropesToGo/releases/tag/v0.2.0" class="icon-block">
+						<i class="fa fa-github fa-2xl"></i>
+					</a></strong></h2>
 					<h2><strong>Scraper que extrae la información de una página de película</strong></h2>
 					<div class="fragment">
 						<p>
@@ -369,14 +373,18 @@
 					</div>
 				</section>
 				<section>
-					<h2><strong>Milestone 4 (v0.3.0 y v0.4.0)</strong></h2>
+					<h2><strong>Milestone 4 (v0.3.0 y v0.4.0) <a href="https://github.com/jlgallego99/TropesToGo/releases/tag/v0.4.0" class="icon-block">
+						<i class="fa fa-github fa-2xl"></i>
+					</a></strong></h2>
 					<h2><strong>Scraper que extrae tropos de las subpáginas de una película</strong></h2>
 					<p class="fragment">
 						Distinción entre tropos principales y secundarios. Finalización del scraping.
 					</p>
 				</section>
 				<section>
-					<h2><strong>Milestone 5 (v0.5.0, v0.5.1 y v0.5.2)</strong></h2>
+					<h2><strong>Milestone 5 (v0.5.0, v0.5.1 y v0.5.2) <a href="https://github.com/jlgallego99/TropesToGo/releases/tag/v0.5.2" class="icon-block">
+						<i class="fa fa-github fa-2xl"></i>
+					</a></strong></h2>
 					<h2><strong>Araña que recorre el sitio</strong></h2>
 					<p>
 						Separación de responsabilidades entre scraper y crawler.
@@ -386,17 +394,9 @@
 					</p>
 				</section>
 				<section>
-					<div class="sidebyside">
-						<div class="col-sidebyside" style="display: flex; align-items: center; justify-content: center;">
-							<h2><strong>Flujo del crawler</strong></h2>
-						</div>
-						<div class="col-sidebyside">
-							<img width="75%" src="img/flujo_crawler.png" />
-						</div>
-					</div>
-				</section>
-				<section>
-					<h2><strong>Milestone 6 (v0.6.0)</strong></h2>
+					<h2><strong>Milestone 6 (v0.6.0) <a href="https://github.com/jlgallego99/TropesToGo/releases/tag/v0.6.0" class="icon-block">
+						<i class="fa fa-github fa-2xl"></i>
+					</a></strong></h2>
 					<h2><strong>Actualizador de información</strong></h2>
 					<div class="fragment">
 						<p>
@@ -413,7 +413,9 @@
 					</div>
 				</section>
 				<section>
-					<h2><strong>Milestone 7 (v1.0.0)</strong></h2>
+					<h2><strong>Milestone 7 (v1.0.0) <a href="https://github.com/jlgallego99/TropesToGo/releases/tag/v1.0.0" class="icon-block">
+						<i class="fa fa-github fa-2xl"></i>
+					</a></strong></h2>
 					<h2><strong>Aplicación de extracción de tropos de múltiples medios audiovisuales</strong></h2>
 					<div class="fragment">
 						<p>
@@ -443,7 +445,49 @@
 				</section>
 				<section>
 					<h3><strong>Costes del proyecto</strong></h3>
-					<img width="200%" src="img/costes.png" />
+					<style type="text/css">
+						.tg  {border-collapse:collapse;border-spacing:0;}
+						.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:24px;
+						  overflow:hidden;padding:5px 2.5px;word-break:normal;}
+						.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:24px;
+						  font-weight:normal;overflow:hidden;padding:5px 2.5px;word-break:normal;}
+						.tg .tg-fymr{border-color:inherit;font-weight:bold;text-align:left;vertical-align:top}
+						.tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+						</style>
+						<table class="tg" style="width: 50%;">
+						<thead>
+						  <tr>
+							<th class="tg-fymr">Descripción</th>
+							<th class="tg-fymr">Unidades</th>
+							<th class="tg-fymr">Importe por unidad</th>
+							<th class="tg-fymr">Total</th>
+						  </tr>
+						</thead>
+						<tbody>
+						  <tr>
+							<td class="tg-0pky">Contratación de personal<br>(ingeniero del software a<br>tiempo parcial)<br></td>
+							<td class="tg-0pky">1</td>
+							<td class="tg-0pky">7000€ <br>(1750€ cada mes<br>durante 4 meses)<br></td>
+							<td class="tg-0pky">7000€<br>(1750€ cada mes<br>durante 4 meses)<br></td>
+						  </tr>
+						  <tr>
+							<td class="tg-0pky">Material utilizado<br>Xiaomi Mi Notebook Pro<br></td>
+							<td class="tg-0pky">1</td>
+							<td class="tg-0pky">233,74€ <br>(amortización 1 año)</td>
+							<td class="tg-0pky">233,74€ <br>(amortización 1 año)</td>
+						  </tr>
+						  <tr>
+							<td class="tg-0pky">Recursos software de GitHub</td>
+							<td class="tg-0pky">1</td>
+							<td class="tg-0pky">0€</td>
+							<td class="tg-0pky">0€</td>
+						  </tr>
+						  <tr>
+							<td class="tg-fymr">Coste total</td>
+							<td class="tg-fymr" colspan="3">7233,74€</td>
+						  </tr>
+						</tbody>
+						</table>
 				</section>
 			</section>
 			<section>
@@ -468,18 +512,18 @@
 				<section>
 					<h2 class="slide-title">Trabajo futuro</h2>
 					<p>
-						Uso de proxies.
+						Uso de proxies para caching de páginas y mejora de velocidad en las peticiones.
 					</p>
 					<p class="fragment">
 						Extracción adicional en páginas de tropos. Información bidireccional Obra <span>&#8596;</span> Tropo.
 					</p>
-					<p class="fragment">
-						Tipos de tropos para establecer mejores relaciones entre ellos.
-					</p>
-					<p class="fragment">
-						Extracción de información adicional: relaciones de saga, género, etc. TvTropes es complejo y extenso.
-					</p>
+					<h3 p class="fragment">
+						TvTropes es complejo y extenso.
+					</h3>
 				</section>
+			</section>
+			<section>
+				<h1>Gracias por su atención. ¿Preguntas?</h1>
 			</section>
 		</div>
 	</div>
